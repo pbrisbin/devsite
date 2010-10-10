@@ -1,4 +1,6 @@
-{-#LANGUAGE TypeFamilies, QuasiQuotes, TemplateHaskell, TypeSynonymInstances #-}
+{-#LANGUAGE TypeFamilies #-}
+{-#LANGUAGE QuasiQuotes #-}
+{-#LANGUAGE TemplateHaskell #-}
 -- 
 -- pbrisbin 2010
 --
@@ -14,16 +16,16 @@ import qualified Data.ByteString.Lazy as L
 
 import Data.Time
 import Data.Char (toLower)
-import Data.ByteString.UTF8 (toString)
 
 import DataTypes
 import Posts
 import qualified Settings as S
 
--- create static file handlers
+-- | Automatically generate callable functions for everything under
+--   the /static directory
 staticFiles "static"
 
--- Routes {{{
+-- | Define all of the routes and handlers
 mkYesod "DevSite" [$parseRoutes|
 /              RootR    GET
 /about         AboutR   GET
@@ -37,12 +39,12 @@ mkYesod "DevSite" [$parseRoutes|
 /static        StaticR Static getStatic
 |]
 
--- }}}
-
--- Instance {{{
+-- | Make my site an instance of Yesod so we can actually use it
 instance Yesod DevSite where 
     approot _ = "http://localhost:3000"
 
+    -- | override defaultLayout to provide a fallback overall template
+    --   and css file
     defaultLayout widget = do
         mmesg  <- getMessage
         pc     <- widgetToPageContent $ do
@@ -50,6 +52,9 @@ instance Yesod DevSite where
             addStyle $(S.cassiusFile "root")
         hamletToRepHtml $(S.hamletFile "root")
 
+    -- | With this, any generated CSS/Java will be placed in a temp file
+    --   and served statically rather than being placed inline with the
+    --   html
     addStaticContent ext' _ content = do
         let fn = base64md5 content ++ '.' : ext'
         let statictmp = S.staticdir ++ "/tmp/"
@@ -57,10 +62,16 @@ instance Yesod DevSite where
         liftIO $ L.writeFile (statictmp ++ fn) content
         return $ Just $ Right (StaticR $ StaticRoute ["tmp", fn] [], [])
 
+-- | Make my site an instance of breadcrumbs so that i can simply call
+--   the breadcrumbs function to get automagical breadcrumb links
 instance YesodBreadcrumbs DevSite where
+    -- root is the parent node
     breadcrumb RootR  = return ("root" , Nothing) 
+
+    -- about goes back home
     breadcrumb AboutR = return ("about", Just RootR)
 
+    -- all posts goes back home and individual posts go to all posts
     breadcrumb PostsR       = return ("all posts"  , Just RootR)
     breadcrumb (PostR slug) = return (getTitle slug, Just PostsR)
         where
@@ -69,18 +80,16 @@ instance YesodBreadcrumbs DevSite where
                     []       -> "?" -- this will never happen
                     (post:_) -> map toLower $ postTitle post
 
-    breadcrumb TagsR        = return ("all tags"     , Just RootR)
-    breadcrumb (TagR tag)   = return ("tag: " ++ tag , Just TagsR)
+    -- all tags goes back home and individual tags go to all tags
+    breadcrumb TagsR        = return ("all tags" , Just RootR)
+    breadcrumb (TagR tag)   = return (formTag tag, Just TagsR)
+        where
+            formTag t = (map toLower t) ++ " tag"
 
-    -- fail noticably so i fix it
-    breadcrumb _ = return ("X", Just RootR)
+    -- be sure to fail noticably so i fix it when it happens
+    breadcrumb _ = return ("%%%", Just RootR)
 
--- }}}
-
--- Layouts {{{
-
-
--- | Like defaultLayout but with crumbs
+-- | Drop in replacement for defaultLayout but add breadcrumbs
 pageLayout widget = do
     mmesg <- getMessage
     (t, h) <- breadcrumbs
@@ -89,7 +98,8 @@ pageLayout widget = do
         addStyle $(S.cassiusFile "root")
     hamletToRepHtml $(S.hamletFile "page")
         
--- | Each post's template
+-- | Used with posts so that we have post-specific info within scope
+--   while still abstracting the overall template/css
 postLayout :: Post -> Handler RepHtml
 postLayout post = do
     mmesg <- getMessage
@@ -103,10 +113,6 @@ postLayout post = do
         addPost = do
             setTitle $ string $ "pbrisbin - " ++ postTitle post
             addBody  $ postContent post
-
--- }}}
-
--- Handlers {{{
 
 -- | Home page
 getRootR :: Handler RepHtml
@@ -128,20 +134,21 @@ getPostsR = pageLayout $ do
     setTitle $ string "pbrisbin - All Posts"
     addBody $(S.hamletFile "posts/all")
 
--- | A post page
+-- | A post
 getPostR :: String -> Handler RepHtml
 getPostR slug = do
     case loadPost slug of
         []       -> notFound
         (post:_) -> postLayout post
         
+-- | All tags
 getTagsR :: Handler RepHtml
 getTagsR = pageLayout $ do
     let posts = allPosts
     setTitle $ string "pbrisbin - All Tags"
     addBody $(S.hamletFile "posts/all_tags")
 
--- | A tag page
+-- | A tag
 getTagR :: String -> Handler RepHtml
 getTagR tag = do
     case getPostsByTag tag of
@@ -150,13 +157,15 @@ getTagR tag = do
             setTitle $ string $ "pbrisbin - Tag: " ++ tag
             addBody $(S.hamletFile "posts/tagged")
 
+-- | favicon
 getFaviconR :: Handler ()
 getFaviconR = sendFile "image/x-icon" "favicon.ico"
 
+-- | robots.txt
 getRobotsR :: Handler RepPlain
 getRobotsR = return $ RepPlain $ toContent "User-agent: *"
 
-
+-- | Atom feed - broken for now
 getFeedR :: Handler RepHtml
 getFeedR = notFound
 
@@ -182,8 +191,6 @@ getFeedR = notFound
 --                    readDate p = let date = read $ postDate p :: Day
 --                                 in UTCTime date $ secondsToDiffTime 0
 --                               
-
--- }}}
 
 -- | Start the server
 main :: IO ()

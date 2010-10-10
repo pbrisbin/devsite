@@ -24,4 +24,3 @@ data Post = Post
     , postContent :: HtmlTemplate
     , postTags    :: [String]
     }
-
