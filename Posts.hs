@@ -71,9 +71,6 @@ allPosts =
         "Information ragarding my latest hobby: Android development. I've written a simple app called Raw Audio, which just loads a user-entered URI using the built-in MediaPlayer() class. This lets me pick up my mpd stream from anywhere. On this page, I go through the Classes method by method and explain what they do."
         $(S.hamletFile "posts/raw_audio")
         ["Java", "Android"]
-    ]
-
-    {-
 
     , Post
         "MapToggle"
@@ -81,7 +78,11 @@ allPosts =
         "Sat, 08 May 2010 21:08:21 -0400"
         "A nice vim snippet to toggle settings on a key press. This trick has been on my main page for a while, but now it's getting its on home."
         $(S.hamletFile "posts/maptoggle")
+        ["Vim"]
 
+    ]
+
+    {-
     , Post
         "HTPC"
         "httpc"

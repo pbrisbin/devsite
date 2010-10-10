@@ -1,0 +1,42 @@
+%p
+
+  This snippet, when added to one's 
+  
+  %code ~/.vimrc
+  
+  , allows the easy toggling of commonly used options (i.e. things like 
+  
+  %code hls
+  
+  \ or 
+  
+  %code wrap
+  
+  \) with a single keypress.
+
+%p
+
+  First, you'll have to define the actual function:
+
+#script
+  %script!src="http://gist.github.com/618970.js"
+
+%p
+
+  Then, just map keys to that function:
+
+#script
+  %script!src="http://gist.github.com/618973.js"
+
+%p
+
+  You'll even get a nice notification in your vim command prompt when 
+  you toggle the setting
+
+%p.note
+
+  Disclaimer -- I believe I got this from 
+  
+  %a!href="http://rsontech.net" rson
+  
+  's vimrc, but I'm not sure; If I did, thanks rson.
