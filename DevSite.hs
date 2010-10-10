@@ -8,7 +8,6 @@ module Main where
 
 import Yesod
 import Yesod.Helpers.Static
-import Yesod.Helpers.AtomFeed
 import System.Directory
 import qualified Text.Hamlet as H
 import qualified Text.Cassius as C
@@ -20,6 +19,7 @@ import Data.Char (toLower)
 import DataTypes
 import Posts
 import qualified Settings as S
+import Helpers.RssFeed -- like Y.H.AtomFeed
 
 -- | Automatically generate callable functions for everything under
 --   the /static directory
@@ -165,33 +165,28 @@ getFaviconR = sendFile "image/x-icon" "favicon.ico"
 getRobotsR :: Handler RepPlain
 getRobotsR = return $ RepPlain $ toContent "User-agent: *"
 
--- | Atom feed - broken for now
-getFeedR :: Handler RepHtml
-getFeedR = notFound
+-- | Rss feed
+getFeedR :: Handler RepRss
+getFeedR = do
+    rssFeed RssFeed
+        { rssTitle       = "pbrisbin dot com"
+        , rssDescription = "New posts on pbrisbin dot com"
+        , rssLanguage    = "en-us"
+        , rssLinkSelf    = FeedR
+        , rssLinkHome    = RootR
+        , rssUpdated     = mostRecent
+        , rssEntries     = map readRssEntry $ take 10 allPosts
+        }
+        where
+            mostRecent = postDate $ head allPosts
 
---do
---    atomFeed AtomFeed
---        { atomTitle = "New posts on pbrisbin dot com"
---        , atomLinkSelf = FeedR
---        , atomLinkHome = RootR
---        , atomUpdated = mostRecent
---        , atomEntries = map readAtomEntry allPosts
---        }
---        where
---            mostRecent = let date = read . postDate $ head allPosts :: Day
---                         in UTCTime date $ secondsToDiffTime 0
---
---            readAtomEntry post = AtomFeedEntry
---                { atomEntryLink    = PostR $ postSlug post
---                , atomEntryUpdated = readDate post
---                , atomEntryTitle   = postTitle post
---                , atomEntryContent = string $ postDescr post
---                }
---                where
---                    readDate p = let date = read $ postDate p :: Day
---                                 in UTCTime date $ secondsToDiffTime 0
---                               
-
+            readRssEntry post = RssFeedEntry
+                { rssEntryLink    = PostR $ postSlug post
+                , rssEntryUpdated = postDate post
+                , rssEntryTitle   = postTitle post
+                , rssEntryContent = string $ postDescr post
+                }
+ 
 -- | Start the server
 main :: IO ()
 main = basicHandler 3000 $ DevSite $ s
