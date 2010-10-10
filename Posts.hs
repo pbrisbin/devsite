@@ -1,15 +1,16 @@
 {-#LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE QuasiQuotes    #-}
 
 module Posts where
 
 import DataTypes
 import qualified Settings as S
 
--- | Locate a post by its slug, return an empty or singleton list
+-- | Locate posts with a given slug
 loadPost :: String -> [Post]
 loadPost slug = filter ((== slug) . postSlug) allPosts
 
--- | Find all posts with a given tag
+-- | Locate posts with a given tag
 getPostsByTag :: String -> [Post]
 getPostsByTag tag = filter ((elem tag) . postTags) allPosts
 
@@ -87,9 +88,7 @@ allPosts =
         "Sat, 01 May 2010 11:22:59 -0400"
         "Details on my recent HTPC build; hardware I got, software I installed, and even some screenshots."
         $(S.hamletFile "posts/htpc")
-        ["Arch"]
-    ]
-    {-
+        ["HTPC","Arch","Linux"]
 
     , Post
         "Controlling MPlayer"
@@ -97,7 +96,11 @@ allPosts =
         "Thu, 08 Apr 2010 19:55:59 -0400"
         "A simple, bindable setup to control a running MPlayer through the use of a fifo."
         $(S.hamletFile "posts/controlling_mplayer")
+        ["Arch", "Linux","Bash"]
 
+    ]
+
+    {-
     , Post
         "Irssi"
         "irssi"

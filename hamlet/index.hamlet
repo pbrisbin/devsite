@@ -85,20 +85,6 @@
 
 #recent_posts
   $forall posts post
-    .recent_post
-      %p
+    ^postTemplate.post^
 
-        %a!href=@PostR postSlug.post@ $postTitle.post$
-        \ - $postDescr.post$ 
-        
-      %p.small
-
-        Published on $postDate.post$
-
-        %span!style="float: right;"
-
-          Tags: 
-
-          $forall postTags.post tag
-
-            %a!href=@TagR tag@ $tag$ 
+%a!href=@PostsR@ All posts

@@ -10,7 +10,7 @@
 -- Portability   : portable
 --
 -- Generating rss news feeds. In a very similar fashion as
--- Yesod.Helpers.Atom
+-- Yesod.Helpers.AtomFeed.
 --
 ---------------------------------------------------------
 
@@ -23,7 +23,7 @@ module Helpers.RssFeed
 
 import Yesod
 
--- | This would normally added in Yesod.Content
+-- | This would normally be added in Yesod.Content
 typeRss :: ContentType
 typeRss = "application/rss+xml"
 
