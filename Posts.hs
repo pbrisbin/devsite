@@ -17,6 +17,14 @@ getPostsByTag tag = filter ((elem tag) . postTags) allPosts
 allPosts :: [Post]
 allPosts =
     [ Post
+        "Site Migration"
+        "site_migration"
+        "Sat, 09 Oct 2010 23:31:43 -0400"
+        "Finally, I've successfully migrated the site onto some sort of framework. It's taken a lot of effort but I'm very excited for the result. In this post I'll explain what I did, why I did it, and a little bit about the framework itself: Yesod."
+        $(S.hamletFile "posts/site_migration")
+        ["Haskell", "Website"]
+    
+    , Post
         "PHP Authentication"
         "php_authentication"
         "Fri, 01 Oct 2010 21:29:03 -0400"

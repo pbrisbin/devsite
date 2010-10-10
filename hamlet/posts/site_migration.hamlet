@@ -1,0 +1,30 @@
+%p
+
+  If you're reading this, it means I've finally done it. I've moved my 
+  entire site to a 
+  
+  %em framework
+
+  \.
+
+%p
+
+  It's all rson's fault really, he had just moved over to Django and was 
+  singing it's praises. I had always liked my little slice of static 
+  html offset with php -- but it did feel a bit noobish. rson pushed me 
+  over the edge:
+
+%pre.white
+  \
+  \ 20:24 rson: if there is anything i could ever suggest that you'd listen to, let it be this.  do it.
+  \
+
+%p
+
+  Fair enough.
+
+%h3 Yesod
+
+%p
+
+  \...

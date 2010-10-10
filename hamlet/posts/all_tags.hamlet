@@ -12,3 +12,11 @@
       %p.small
 
         Published on $postDate.post$
+
+        %span!style="float: right;"
+
+          Tags: 
+
+          $forall postTags.post tag
+
+            %a!href=@TagR tag@ $tag$ 
