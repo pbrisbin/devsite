@@ -54,7 +54,7 @@ allPosts =
         "Mon, 26 Jul 2010 19:47:51 -0400"
         "I've been enjoying Jumanji as my web browser of choice lately. Unfortunately, this meant it wasn't as convenient for me to use my uzbl-auto-refresh script as a live preview of sorts for my web pages as I wrote them. This motivated me to do something entirely different: I archived all of my Uzbl scripts and configurations and started fresh. I now have one simple webpreview script which spawns and refreshes a minimal uzbl-core instance used solely for previewing web pages as I write them. I'm really happy with the result."
         $(S.hamletFile "posts/web_preview")
-        ["Website"]
+        ["Website", "Arch", "Uzbl"]
 
     , Post
         "Scratchpad Everything"
@@ -80,15 +80,16 @@ allPosts =
         $(S.hamletFile "posts/maptoggle")
         ["Vim"]
 
-    ]
 
-    {-
     , Post
         "HTPC"
         "httpc"
         "Sat, 01 May 2010 11:22:59 -0400"
         "Details on my recent HTPC build; hardware I got, software I installed, and even some screenshots."
         $(S.hamletFile "posts/htpc")
+        ["Arch"]
+    ]
+    {-
 
     , Post
         "Controlling MPlayer"
