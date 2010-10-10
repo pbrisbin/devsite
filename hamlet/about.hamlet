@@ -1,0 +1,71 @@
+%h1 About
+%hr
+
+%p
+
+  This place is to serve as a little slice of the internet where I can 
+  keep crap, link people to my crap, and learn how to make more better 
+  crap.
+
+%h3 Framework
+
+%p
+
+  For the record, this entire site sits at 
+  
+  %code /srv/http
+  
+  \ of my 2.4 Ghz Core2Quad. It runs quietly 24/7 in a spare room. I 
+  also use it as my day to day PC and to serve media throughout the 
+  house. It runs Arch Linux.
+
+%p
+
+  This version of the site is powerd by the 
+
+  %a!href="http://docs.yesodweb.com/" Yesod
+
+  \ framework. It's a web framework built on haskell. 
+
+%h3 About Me
+
+%p
+
+  I hold a degree in Aerospace Engineering from BU, but I currently work as an 
+  
+  %a!%href="http://en.wikipedia.org/wiki/Enterprise_resource_planning" ERP
+  
+  \ Consultant writing 
+  
+  %a!href="http://en.wikipedia.org/wiki/X++" X++
+  
+  \ code for 
+  
+  %a!href="http://en.wikipedia.org/wiki/Microsoft_Dynamics_AX" Microsoft Dynamics AX
+  
+  \. I've been using Arch Linux for a few years now and do pretty much 
+  everything you see around the site as my main hobby.
+
+%h3 Site Validations
+
+%p
+
+  All of my pages have been validated as 
+  
+  %strong HTML5
+  
+  , my CSS is valid level 2.1, and my RSS is valid 2.0.
+
+%p.centered
+
+  %a!href="http://validator.w3.org/check?uri=referer"
+
+    %img.validation!src=@StaticR.images_valid_html5_png@!alt="Valid HTML 5"
+
+  %a!href="http://jigsaw.w3.org/css-validator/check/referer"
+  
+    %img.validation!src=@StaticR.images_valid_css_png@!alt="Valid CSS!"
+
+  %a!href="http://feedvalidator.org/check.cgi?url=http%3A//pbrisbin.com/pages/rssfeed.rss"
+
+    %img.validation!src=@StaticR.images_valid_rss_png@!alt="Valid RSS!"

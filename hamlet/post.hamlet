@@ -1,0 +1,45 @@
+!!!
+%html!lang="en"
+  %head
+    %meta!name="author"!content="pbrisbin"
+    %meta!name="keywords"!content="pbrisbin, arch linux, bash, xmonad, mutt"
+    %meta!name="description"!content="pbrisbin dot com"
+    %meta!http-equiv="Content-Type"!content="text/html; charset=UTF-8"
+    %title $pageTitle.pc$
+    ^pageHead.pc^
+
+  %body
+    %p.small
+
+      $forall h node
+
+        %a!href=@fst.node@ $snd.node$ 
+        
+        \ / 
+
+      \ $t$
+
+      %span!style="float: right;"
+        
+        Tags: 
+
+        $forall postTags.post tag
+          %a!href=@TagR tag@ $tag$ 
+
+    %hr
+    %h1 $postTitle.post$
+    %hr
+
+    $maybe mmesg msg
+      #message $msg$
+
+    ^pageBody.pc^
+
+    %hr
+
+    #footer 
+    
+      %p
+      
+        %a!href=@RootR@ pbrisbin 
+        \ dot com 2010

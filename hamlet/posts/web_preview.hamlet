@@ -1,0 +1,173 @@
+%p
+
+  Recently, I made the switch (again) away from Uzbl as my main browser.  
+  Jumanji is a really nice browser in that it's as light as Uzbl but 
+  feels more polished. It provides almost all of the features I had to 
+  build into Uzbl myself right out of the box. The tab-completion on the 
+  commands and urls is incredibly useful and negates the need for all 
+  the external history and bookmark scripts that I was using with Uzbl.  
+  The only part I really miss is (obviously) the controllability and 
+  configurability.
+
+%p
+
+  I only ever used this controllability for one thing: previewing web 
+  pages as I write them. I had a nice little script that would go out 
+  and ask each Uzbl instance what it's URI was, and if it matched the 
+  URI version of the filename I was currently editing it would send the 
+  reload command to this browser.  
+
+%p
+
+  You just cannot do something like this in any other browser.
+
+%p
+
+  So I figured, if I relegate Uzbl to this one single simple use, it's 
+  configurability could be leveraged such that I could strip out 
+  anything that didn't serve this one purpose and the browser would be 
+  incredibly responsive.
+
+%p
+
+  In the end, I'm actually amazed at how well this worked out. During my 
+  testing, I actually spent a good ten minutes troubleshooting a 
+  nonexistent bug because the page was reloading so fast that I thought 
+  nothing was happening.  
+
+%p
+
+  This works nicely for me because my desktop is my web server. All I 
+  have to do is 
+  
+  %code vim /srv/http/pages/foo.html
+  
+  \ and I'm editing http://localhost/pages/foo.html directly.
+
+%p.note 
+
+  I'm not saying it's impossible to pull this off with a remote server, 
+  this just makes things easier. It's up to you to port my script for 
+  use in a remote server setting.  
+
+%p
+
+  First thing you'll need is my 
+  
+  %a!href="/static/scripts/webpreview" script
+  
+  , download the raw version into your 
+  
+  %code $$PATH
+
+  \.
+
+%p
+
+  Adjust the in-script variables 
+  
+  
+  %code srv_dir and 
+  
+  %code srv_url
+  
+  \ to match your environment. These variables are used to turn a 
+  filename like 
+  
+  %code /srv/http/pages/foo.html
+  
+  \ into a url like 
+  
+  %code http://localhost/pages/foo.html.
+
+%p
+
+  Make sure you've got uzbl installed and 
+  
+  %code uzbl-core
+  
+  \ is also in your 
+  
+  %code $$PATH
+  
+  \.
+
+%p
+
+  Add the following uber simplistic configuration file for uzbl at 
+  
+  %code ~/.config/uzbl/config
+
+  :
+
+%pre.white
+  \
+  \ set socket_dir         = /tmp
+  \
+  \ set status_background  = #303030
+  \
+  \ set uri_section        = \@@[\@@uri]\@@
+  \
+  \ set status_format      = &lt;span font_family="Verdana" foreground="#909090"&gt;@@uri_section&lt;/span&gt;
+  \
+  \ set title_format_short = Uzbl - \@@TITLE
+  \
+  \ set title_format_long  = @@title_format_short
+  \
+
+%p
+
+  This just makes sure a socket is placed in 
+  
+  %code /tmp
+  
+  \ and makes the status bar a little more pleasing on the eyes.
+
+%p.note 
+
+  Only the 
+  
+  %code socket_dir
+  
+  \ declaration is actually needed for the script to function.
+
+%p
+
+  Finally, add the following to your 
+  
+  %code ~/.vimrc
+
+  :
+
+%pre.white
+  \
+  \ command! Open :! webpreview --open %
+  \
+  \ command! Reload :! webpreview --reload %
+  \
+  \
+  \ au BufWritePost /srv/http/pages/* silent Reload
+  \
+
+%p
+
+  This defines an Open and Reload command to be used directly within vim 
+  and also sets up an auto command to fire whenever I hit 
+  
+  %code :w
+  
+  \ on a page I'm editing.
+
+%p.note In my 
+
+  %a!href="/static/configs/vimrc" vimrc
+  
+  , these are conditional for html and php filetypes and, as you can 
+  see, the auto-refresh only happens if I'm editing a file under my 
+  server's pages directory. You'll want to do something similar so that 
+  the script doesn't run for all files all the time.
+
+%p
+
+  That's all that's needed. Fire up your favorite text editor and give 
+  it a try.

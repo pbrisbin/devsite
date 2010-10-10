@@ -1,0 +1,656 @@
+%p.note
+
+  I am not an android developer. I am not even a Java developer.  What 
+  appears below is simply my attempt to share what I've learned using 
+  the android documentation, google, and copious amounts of trial and/or 
+  error. I apologize for mistakes; please offer corrections in the 
+  comments.
+
+%p
+
+  I was upset when I first got my Droid Eris that the media player 
+  couldn't load a url by default. I stream my mpd out to the world so 
+  that I can pick it up away from home. I had 
+  
+  %a!href="http://developer.android.com/guide/topics/media/index.html" read
+  
+  \ that the built-in MediaPlayer object in android supports any uri 
+  that offered progressive download of media in a 
+  
+  %a!href="http://developer.android.com/guide/appendix/media-formats.html" format
+  
+  \ supported by the device (both ogg and mp3 are supported). So why not 
+  expose this feature in the UI?
+
+%p
+
+  I soon found out that the only way to play a custom audio stream from 
+  the internet was to purchase StreamFurious Pro. Not a bad app, but 
+  overkill for my situation. I had to load up this internet radio player 
+  with all these built in stations just to load my own custom url. I 
+  then had to wait literally minutes while it buffered a hard-coded ~5MB 
+  before beginning to play. Garbage.
+
+%p
+
+  So why not write my own?
+
+%h3 Android
+
+%p
+
+  I decided to take this as an opportunity to get my feet wet with 
+  Android (and Java in general). I figured I could write a simple App to 
+  accept a URL entered into a text box and load it using the built-in 
+  MediaPlayer() class. Because of the underlying simplicity, you could 
+  even pass 
+  
+  %code file:///foo/bar.mp3
+  
+  \ and it would work.
+
+%p
+
+  Well, I did that. And it even works surprisingly well; I figured I 
+  could post what I've done, and hopefully it'll be useful to others.
+
+%h3 Activities and Services
+
+%p
+
+  My App would use two of the major building blocks in Android: 
+  Activities and Services.
+
+%p
+
+  An Activity is the object, the class, that runs when you first open 
+  your UI.  It basically 
+  
+  %em is
+  
+  \ the UI. It handles accepting user input and doing something with it. 
+  It's designed to only be Active while the user is viewing your UI. 
+  Once your App closes, it can and will be safely killed.
+
+%p
+
+  So what if you need to do some persistent background work? Like, say, 
+  playing music? That requires a Service.
+
+%p
+
+  A Service is another class that runs in the background. It can be 
+  created, bound to, and controlled by your Activity. It gets a slightly 
+  higher priority in the grand scheme of things, so it's less likely to 
+  get killed when the user's not interacting with your Activity.
+
+%h3 The IDE
+
+%p
+
+  First, let me describe a little bit about my development environment 
+  because it handles a lot of the back-end stuff that I'm not going to 
+  touch on here.
+
+%p
+
+  First thing I did was install a few packages. Android-sdk of course, 
+  eclipse-android (available in the AUR to Arch users), and a nice 
+  little package called eclim.  
+%p
+
+  Eclim is awesome. It's a vim plugin that let's me hook into eclipse 
+  from within vim. I can do all my coding in my favorite editor ever, 
+  and let eclipse handle the heavy lifting. Things like: auto-completion 
+  of method names, automatic imports, syntax checking, and documentation 
+  lookups.
+
+%p
+
+  I also hop back over to eclipse to do my compiling, and installation.
+
+%p
+
+  I'll leave setting up your sdk and eclipse project to you since 
+  there's a ton of OS/distro-specific ways to do it; 
+  
+  %a!href="http://www.google.com/search?q=developing%20java%20in%20(linux%7Cmac%7Cwindows)" google
+  
+  \ is your friend.
+
+%h3 The UI
+
+%p
+
+  It's possible to define your UI programmatically from within your main 
+  Activity. This is frowned upon and not only is it a best practice but 
+  it's also wicked convenient to define your UI via an xml file instead.
+
+%p
+
+  Under your project directory are two very important sub-directories: 
+  src and res. In your src folder is the actual Java 
+  
+  %em source
+  
+  , and in your res directory are your 
+  
+  %em resources
+  
+  \. Things like images, static string values, and xml layout files. 
+  With a vanilla package template, your UI is defined in 
+  
+  %code res/layout/main.xml
+
+  \.
+
+%p
+
+  Here's my 
+  
+  %code res/layout/main.xml
+
+  :
+
+#script
+  %script!src="http://gist.github.com/618757.js"
+
+%p
+
+  Here I've defined a layout where objects are placed relative to each 
+  other, with a TextView label with id "label", an EditText entry box 
+  with id "entry", and a single Play/Pause button with id "playpause".
+
+%p
+
+  You'll also notice I use the 
+  
+  %code @@string/foo
+  
+  \ convention. This basically means 
+  
+  %em pull the value from the res/values/strings.xml file
+
+  \.
+
+%p
+
+  Here's mine:
+
+#script
+  %script!src="http://gist.github.com/618758.js"
+
+%p
+
+  So 
+  
+  %code @@string/play_pause
+  
+  \ is basically a variable for "Play/Pause".
+
+%p.note
+
+  I pre-populate 
+  
+  %code @@id/entry
+  
+  \ with my server's address (
+  
+  %code @@string/my_server
+  
+  ). I only need this App to pickup my mpd stream, so why should I 
+  always have to type it?  This way, it's there, but I can overwrite it 
+  if I want to.
+
+%h3 The Activity
+
+%p
+
+  Now that that's out of the way, onto the Java.
+
+%p
+
+  I define a class 
+  
+  %code RawAudio
+  
+  \ which 
+  
+  %em extends
+  
+  \ the Android base class 
+  
+  %code Activity
+  
+  \.
+
+%p
+
+  One thing I do differently is 
+  
+  %em implement 
+  
+  %code OnClickListener
+  
+  \. I picked this up in one of my google results, and I find it to be a 
+  much cleaner approach to button handling.
+
+%p
+
+  This allows us to assign the keyword 
+  
+  %code this 
+  
+  (meaning the very class that we are) as an 
+  
+  %code OnClickListener
+  
+  \ for any of our buttons.  That way, when we click that button, our 
+  very own 
+  
+  %code onClick()
+  
+  \ will be called.
+
+%p
+
+  I know what your thinking: 
+  
+  %em But, what if you have more than one button? Don't you need an OnClickListener for each of them? 
+  
+  \ Of course not; 
+  
+  %code onClick()
+  
+  \ is passed a view that corresponds to the button that was clicked, so with a simple 
+  
+  %code switch
+  
+  \ statement we could determine what button was clicked and act 
+  accordingly.
+
+%p
+
+  Sweet, I know, but I've only got one button so I don't do that here.  Anyway, 
+  here's the top portion of my RawAudio class:
+
+#script
+  %script!src="http://gist.github.com/618759.js"
+
+%p
+
+  First we have our overridden 
+  
+  %code onCreate()
+  
+  \ call. This method is run when your App is launched. You can think of 
+  it like 
+  
+  %code main()
+  
+  \ or 
+  
+  %code run()
+  
+  \ from other languages. There are other important "lifecycle" methods 
+  you should look into, but this and 
+  
+  %code onDestroy()
+  
+  \ are the only two I use here.
+
+%p
+
+  I use this starting point to setup my UI based on 
+  
+  %code main.xml
+  
+  \ via 
+  
+  %code setContentView()
+  
+  \. Notice the argument is almost literal: 
+  
+  %em R.layout.main -&gt; res/layout/main.xml
+
+  \.
+
+%p
+
+  I also create a Button object based on 
+  
+  %code R.id.playpause
+  
+  \ from our 
+  
+  %code main.xml
+  
+  \ file and set 
+  
+  %code this
+  
+  \ as its 
+  
+  %code onClickListener
+  
+  \.
+
+%p
+
+  Lastly, I 
+  
+  %code connectToService()
+  
+  \.
+
+%p
+
+  So at this point time-wise, I can assume that my UI is loaded and I'm 
+  connected to my service, ready for user input.
+
+%p
+
+  The other overridden method is 
+  
+  %code onDestroy()
+  
+  \. This is called when your App is exited or killed. The only reason I 
+  need to override it is so that I can disconnect from the service. 
+  
+  
+  %code unbindService()
+  
+  \ is a built-in method that I don't need to define, I just have to 
+  call it. 
+  
+  %code onService
+  
+  \ will be defined later.
+
+#script
+  %script!src="http://gist.github.com/618760.js"
+
+%p
+
+  Now that I've mapped things out at a high level, all that's left is to 
+  fill in the blanks: what to do 
+  
+  %code onClick()
+  
+  \, how to 
+  
+  %code connectToService()
+  
+  , etc.
+
+%p
+
+  So take a break, make sure you've understood up to this point, then 
+  continue onto the "plumbing" below.
+
+%h3 Play/Pause
+
+%p
+
+  I decided to leave the logic of how to handle a Play/Pause "event" up 
+  to the Service. I would send over the command, and it would determine 
+  if it should load or pause a stream by its current internal state.
+
+%p
+
+  For this reason, 
+  
+  %code onClick()
+  
+  \ is fairly simple. We get the stream url from the text box, pass it 
+  and 
+  
+  %code this
+  
+  \ as arguments to a Service method.
+
+%p
+
+  I'll explain more when we get to it. But basically, 
+  
+  %code streamMusic
+  
+  \ is an instance of our service. It will be 
+  
+  %code null
+  
+  \ when we're not connected to the service. It also has the public 
+  method 
+  
+  %code playPause()
+  
+  \ which will be written to accept a context (
+  
+  %code this
+  
+  ) and a stream url. It will take the appropriate action of loading, 
+  pausing, or resuming the stream.
+
+#script
+  %script!src="http://gist.github.com/618762.js"
+
+%p
+
+  We've left the most important piece for last. I'm not going to say 
+  much because I don't fully understand it, but it's pretty 
+  copy/paste-able code for situations where you need to bind to a 
+  service. All I know is that it instantiates 
+  
+  %code streamMusic
+  
+  \ on connect and resets it to 
+  
+  %code null
+  
+  \ on disconnect; that's good enough for me.
+
+%p
+
+  For this to work, you have to define 
+  
+  %code StreamMusic.LocalBinder
+
+  \ when you write your Service, but I'll get to that...
+
+#script
+  %script!src="http://gist.github.com/618766.js"
+
+%p
+
+  That's it for our Activity. I hope all that made sense. It's all quite 
+  useless however without our Service.
+
+%h3 The Service
+
+%p
+
+  Besides actually creating and using the Service, you also have to add 
+  a 
+  
+  %code service
+  
+  \ tag to your manifest. Here's my 
+  
+  %code AndroidManifest.xml
+  
+  \.
+
+#script
+  %script!src="http://gist.github.com/618767.js"
+
+%p
+
+  Eclipse took care of all of that save for the 
+  
+  %code android:icon
+  
+  \ and 
+  
+  %code service
+  
+  \ tags which I added by hand.
+
+%p.note
+
+  If you're using an eclipse-eclim-vim setup like I am, don't edit the 
+  Manifest in vim. Since it's used to do the precompiling in eclipse, it 
+  somehow gets ahead of itself and throws errors. Just edit that one in 
+  eclipse directly.
+
+%p
+
+  My Service at this point does a few things:
+
+%ul
+  %li Intelligently handle the Play/Pause command
+  %li Load a stream using 
+  
+  %code MediaPlayer()
+
+  %li Show a Progress Notification when connecting
+
+
+%p
+
+  That last piece is why we need to pass 
+  
+  %code this
+  
+  \ in the 
+  
+  %code playPause()
+  
+  \ method.
+
+%p
+
+  So the first thing we do is setup that binder voodoo that I still 
+  don't fully understand ;). I'll also override 
+  
+  %code onDestroy()
+  
+  \ to stop the music.
+
+#script
+  %script!src="http://gist.github.com/618771.js"
+
+%p
+
+  Next up, we define the main interface with our activity: the 
+  
+  %code playPause()
+  
+  \ handler.
+
+#script
+  %script!src="http://gist.github.com/618774.js"
+
+%p
+
+  Here you can see why we passed the UI Context in with the stream. Our 
+  progress notification needs a context in which to display itself. And 
+  if it's not the main UI context, your App crashes. By simply passing 
+    
+  %code this
+  
+  \ along to the service we can easily deploy our progress notification 
+  to it. Pretty sweet.
+
+%p.note
+
+  I'm not sure if 
+  
+  %code synchronized
+  
+  \ is strictly needed but it was in the code I was working from and it 
+  makes sense logically. I haven't tested omitting it so who knows.
+
+%h3 Loading...
+
+%p
+
+  Again, we save the meat for last. The following two methods do some 
+  special things.
+
+%p
+
+  First, we setup and run the actual 
+  
+  %code mediaPlayer
+  
+  \ in its own thread. We define a 
+  
+  %code Runnable
+  
+  \ object with a 
+  
+  %code run()
+  
+  \ that does the actual work. Then we use the 
+  
+  %code Thread
+  
+  \ class to start it. Don't ask me how it works, just copy the code :).
+
+#script
+  %script!src="http://gist.github.com/618775.js"
+
+%p
+
+  You can see when the stream loads, we call 
+  
+  %code handler.sendEmptyMessage(0)
+  
+  \. This is because we can't directly dismiss our progress notification 
+  from inside that thread. We need to somehow let the external context 
+  know that we're done. We send out an empty message to a handler which 
+  actually dismisses the notification:
+
+#script
+  %script!src="http://gist.github.com/618776.js"
+
+%p
+
+  And there you go; Service done.
+
+%h3 Screenshots
+
+%p
+
+  As always, the obligatory screenshots.
+
+%p
+
+  %strong TODO
+
+%h3 References
+
+%p
+
+  Sadly, I can't track down all the various google results that I used 
+  while writing this thing but here are a few I could dig up.
+
+%ul
+
+  %li Android docs regarding the 
+  
+  %a!href="http://developer.android.com/reference/android/app/Service.html" Service type
+  
+  \ -- full of great examples
+
+  %li This guy's 
+  
+  %a!href="http://github.com/commonsguy/cw-android/tree/master/Service/WeatherPlus/" git tree 
+  
+  \ -- great example of Activity/Service interaction
+
+  %li This 
+  
+  %a!href="http://www.helloandroid.com/tutorials/using-threads-and-progressdialog" tutorial
+  
+  \ on using a Progress notification inside a thread

@@ -1,0 +1,14 @@
+%h1 All Posts
+%hr
+
+#recent_posts
+  $forall posts post
+    .recent_post
+      %p
+
+        %a!href=@PostR postSlug.post@ $postTitle.post$
+        \ - $postDescr.post$ 
+        
+      %p.small
+
+        Published on $postDate.post$

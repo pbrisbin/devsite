@@ -1,0 +1,74 @@
+%p
+
+  Recently I had the opportunity to write some php pages (some mine, 
+  some others) that required simple authentication. Nothing worthy of 
+  social security or credit card numbers; but just enough to keep 
+  something from being public.
+
+%p
+
+  In my case it was an admin script for the comments left on this site. 
+  I could view all of the most recent comments and click a link to mark 
+  any as spam.  Doing this would remove all comments made with that IP 
+  address as well as blacklist it from any future additions.
+
+%p
+
+  Anyway, the authentication part was simple. It only took a little googling, 
+  so I thought I'd share the method I landed on.
+
+%h3 Authenticate
+
+%p
+
+  First, I wrote a small php script to hold the authentication logic. It 
+  would have one method, 
+
+  %code authenticate()
+
+  \ that would accept an array of 
+
+  %code (user =&gt; password)
+
+  \ values. If it fails, the page can't go any further. I just keeps 
+  prompting for user/pass until there's a valid login or the user hits 
+  cancel. At which time you'll see a 
+  
+  %em Not authorized
+  
+  \ page.
+
+%p
+
+  It serves its purpose easily, with the added bonus that it's hidden 
+  behind a simple 
+
+  %code authenticate()
+
+  \ call that I can update as needed.
+
+#script 
+  %script!src="http://gist.github.com/617465.js"
+
+%p
+
+  Usage is fairly simple; on any page that needs authentication, use the 
+  following:
+
+#script 
+  %script!src="http://gist.github.com/617476.js"
+
+%p
+
+  Is it awesome? Is it safe? Is it secure? Probably not. But it serves 
+  the purpose I need. And, is it easy? Yes.
+
+%p.note
+
+  The PHP 
+
+  %code header()
+
+  \ function has to be the absolute first thing to generate any output 
+  from your page. This means you can't embed this authentication logic 
+  in a page with any printed HTML (static or coded) ahead of it.
