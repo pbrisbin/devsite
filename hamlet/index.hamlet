@@ -27,15 +27,15 @@
 
   %a!href="http://xmonad.org/" XMonad 
   
-  \ is a type of tiling window manager. It makes me happy. If you've
-  never used a tiling window manager, the idea is simple: automatically
-  resize any open windows to fill the whole monitor with no gaps and no
-  overlap. Usually you get a bunch of virtual workspaces to spread out
-  your windows by category too. And there's always a floating layer
-  available if you want to pop any windows out of the tile and
-  move/resize them freely (or have them start that way by default). It's
-  a very efficient way to work with your computer as you waste no screen
-  space, you can quickly navigate to or rearrange your windows, and you
+  \ is a type of tiling window manager. It makes me happy. If you've 
+  never used a tiling window manager, the idea is simple: automatically 
+  resize any open windows to fill the whole monitor with no gaps and no 
+  overlap. Usually you get a bunch of virtual workspaces to spread out 
+  your windows by category too. And there's always a floating layer 
+  available if you want to pop any windows out of the tile and 
+  move/resize them freely (or have them start that way by default). It's 
+  a very efficient way to work with your computer as you waste no screen 
+  space, you can quickly navigate to or rearrange your windows, and you 
   can do all of it without ever touching the mouse. 
 
 %p
@@ -52,23 +52,23 @@
   
   %a!href="http://www.archlinux.org/" Arch
   
-  \ is an amazing DIY distro that gives the user the barest of bare
-  installs; from there, you can build your system, piece by piece. There
-  is no hand-holding, and the user is expected to install, maintain, and
-  configure his entire system on his own. Through appropriate use of the
-  amazing Arch wiki, forums, and IRC, this isn't so bad - it simply
-  takes reading, and time. The benefit being not only can you make it
-  exactly what you want, but you'll learn more than you could imagine
-  about the inner workings of your system. This transparency and
-  required effort can lead to both fulfillment and frustration; this is
+  \ is an amazing DIY distro that gives the user the barest of bare 
+  installs; from there, you can build your system, piece by piece. There 
+  is no hand-holding, and the user is expected to install, maintain, and 
+  configure his entire system on his own. Through appropriate use of the 
+  amazing Arch wiki, forums, and IRC, this isn't so bad - it simply 
+  takes reading, and time. The benefit being not only can you make it 
+  exactly what you want, but you'll learn more than you could imagine 
+  about the inner workings of your system. This transparency and 
+  required effort can lead to both fulfillment and frustration; this is 
   a feature, not a bug. 
 
 %p
 
   If you want to try a distro that expects a lot from its users while 
   still offering a great package manager and simple transperent tools 
-  for maintaining
-    
+  for maintaining 
+
   %em your
 
   \ system, please try Arch. Be sure to read the Beginners guid before 
@@ -81,10 +81,10 @@
 
 %h3 
 
-  %a#"Recent_Posts"!href="#Recent_Posts" Recent Posts
+  %a#Recent_Posts!href="#Recent_Posts" Recent Posts
 
 #recent_posts
   $forall posts post
     ^postTemplate.post^
 
-%a!href=@PostsR@ All posts
+%a!href=@PostsR@ all posts

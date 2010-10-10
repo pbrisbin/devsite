@@ -1,5 +1,5 @@
 .small
-  font-size: 95%
+  font-size: 90%
 
 .centered
   text-align: center
