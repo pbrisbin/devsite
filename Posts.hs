@@ -1,10 +1,25 @@
-{-#LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE QuasiQuotes    #-}
-
+{-# LANGUAGE TemplateHaskell #-}
+--
+-- pbrisbin 2010
+--
 module Posts where
 
-import DataTypes
+import Yesod
+import DevSite
 import qualified Settings as S
+
+-- | A convenience synonymn
+type HamletContent = Hamlet (Route DevSite)
+
+-- | The datatype of a Post
+data Post = Post
+    { postTitle   :: String
+    , postSlug    :: String
+    , postDate    :: String
+    , postDescr   :: String
+    , postContent :: HamletContent
+    , postTags    :: [String]
+    }
 
 -- | Locate posts with a given slug
 loadPost :: String -> [Post]
@@ -81,7 +96,6 @@ allPosts =
         $(S.hamletFile "posts/maptoggle")
         ["Vim"]
 
-
     , Post
         "HTPC"
         "httpc"
@@ -98,16 +112,16 @@ allPosts =
         $(S.hamletFile "posts/controlling_mplayer")
         ["Arch", "Linux","Bash"]
 
-    ]
-
-    {-
     , Post
         "Irssi"
         "irssi"
         "Sat, 20 Mar 2010 00:27:55 -0400"
         "Outlining my current irssi setup: config, theme, scripts, etc. Hat-tip to rson for the post idea."
         $(S.hamletFile "posts/irssi")
+        ["Arch", "Linux", "IRC"]
 
+    ]
+    {-
     , Post
         "Automounting"
         "automounting"
