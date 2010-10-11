@@ -3,10 +3,11 @@
 --
 -- pbrisbin 2010
 --
-module Controller (runServer) where
+module Controller (withServer) where
 
 import Yesod
 import Yesod.Helpers.Static
+import Yesod.WebRoutes
 import qualified Settings as S
 import qualified Data.ByteString.Lazy as L
 import System.Directory
@@ -32,6 +33,17 @@ instance Yesod DevSite where
             widget
             addStyle $(S.cassiusFile "root-css")
         hamletToRepHtml $(S.hamletFile "root-layout")
+
+    -- | This lets static file server bypass the application code
+    urlRenderOverride a (StaticR s) =
+        Just $ uncurry (joinPath a S.staticroot) $ format s
+        
+        where
+            format = formatPathSegments ss
+            ss :: Site StaticRoute (String -> Maybe (GHandler Static DevSite ChooseRep))
+            ss = getSubSite
+
+    urlRenderOverride _ _ = Nothing
 
     -- | With this, any generated CSS/Java will be placed in a temp file
     --   and served statically rather than added directly in the <head>
@@ -177,9 +189,9 @@ getTagR tag = do
             setTitle $ string $ "pbrisbin - Tag: " ++ tag
             addBody  $ allPostsTemplate posts ("Tag: " ++ tag)
 
--- | Start the server
-runServer :: IO ()
-runServer = basicHandler 3000 $ DevSite $ s
+-- | Allocate resources and create a Wai App of the site
+withServer :: (Application -> IO a) -> IO a
+withServer f = toWaiApp (DevSite s) >>= f
     where
         -- | Files are searched for in /static and served as the content
         --   their extensions signify

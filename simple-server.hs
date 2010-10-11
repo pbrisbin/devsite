@@ -1,7 +1,8 @@
 --
 -- pbrisbin 2010
 --
-import Controller (runServer)
+import Controller
+import Network.Wai.Handler.SimpleServer (run)
 
 main :: IO ()
-main = runServer
+main = putStrLn "Loaded" >> withServer (run 3000)

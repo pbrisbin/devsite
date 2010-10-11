@@ -79,7 +79,7 @@ img.fixed
   width:        680px
 
 p.note
-  font-size:        95%
+  font-size:        90%
   font-style:       italic
   border:           solid 1px #404030
   background-color: #404040
