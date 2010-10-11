@@ -1,0 +1,125 @@
+%p
+
+  Irssi is an IRC client. If that sentence made no sense, then read no 
+  further.  This post outlines my current irssi setup as I think it's 
+  quite nice and others may wish to copy it.
+
+%p
+
+  %strong TODO
+
+%h3 Config
+
+%p
+
+  For the longest time I didn't really touch 
+
+  %code ~/.irssi/config
+  
+  \ except to set up auto connections etc. Then I started using awl.pl 
+  (which I'll describe in the scripts section). This meant I no longer 
+  had a use for one of the statusbars. So for the sake of completeness, 
+  here is the change I made to get the statusbar look you see in the 
+  screenshot:
+
+#script 619719
+
+%p
+
+  My full config (sans passwords) can be downloaded 
+  
+  %a!href=@StaticR.configs_irssi_config@ here
+
+  \.
+
+%h3 Theme
+
+%p
+
+  The theme I currently use was originally 
+
+  %em generane.theme
+  
+  ; I've gradually hacked away at it until, at this point, it's entirely 
+  unlike that theme. I just call it 
+
+  %em my.theme
+  
+  \ and it can be downloaded 
+  
+  %a!href=@StaticR.configs_irssi_my_theme@ here
+
+  \. It's basically a really grey theme to go with my overall desktop.  
+  Messages from me are a bright-ish grey, with messages to me as bright 
+  yellow. Actions (
+
+  %code /me
+  
+  \ stuff) are magenta and offset to the left which I really like.
+
+%h3 Scripts
+
+%p
+
+  And the best part, the scripts. All of these can be easily googled for 
+  so I won't provide links; the versions on my box could even be out of 
+  date anyway.
+
+%p
+
+  %strong nm.pl
+  
+  \ - this handles random/unique nick coloring and nick alignment. 
+  Personally, I 
+  
+  %code /set neat_maxlength 13
+  
+  \.
+
+%p
+
+  %strong awl.pl
+  
+  \ - the advanced window list (sometimes called adv_windowlist.pl).  
+  This gives that nice statusbar with the channel names and numbers.  
+  Channels turn bright white when active and magenta if I'm highlighted.  
+  Personally, I use 
+  
+  %code /set awl_display_key "%w$$N.$$H$$C$$S"
+  
+  \ and 
+  
+  %code awl_maxlines 1
+
+  \.
+
+%p
+
+  %strong trackbar.pl
+  
+  \ - this puts a dashed mark in the buffer at the last point you viewed 
+  the conversation. I really like this script, it's simple but 
+  affective. If you hop around between windows this is a great little 
+  addition to your 
+  
+  %code .irssi/scripts/autorun
+
+  \.
+
+%p
+
+  %strong screen_away.pl
+  
+  \ - thank you 
+  
+  %a!href="http://rsontech.net" rson
+  
+  \ for turning me onto this. Once I started using irssi exclusively in 
+  screen (as outlined 
+  
+  %a href="/pages/screen_tricks.html" here
+  
+  ) this script really started coming in handy. It just auto-sets you as 
+  away when you detach your screen session and brings you back when you 
+  reattach. This means Ctrl-a d logs me off, and when I do reattach I've 
+  got all my messages waiting for me right there in window 1.  
