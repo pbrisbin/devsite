@@ -22,7 +22,8 @@
   here is the change I made to get the statusbar look you see in the 
   screenshot:
 
-#script 619719
+#script
+  %script!src="http://gist.github.com/619719.js"
 
 %p
 
@@ -117,7 +118,7 @@
   \ for turning me onto this. Once I started using irssi exclusively in 
   screen (as outlined 
   
-  %a href="/pages/screen_tricks.html" here
+  %a!href="/pages/screen_tricks.html" here
   
   ) this script really started coming in handy. It just auto-sets you as 
   away when you detach your screen session and brings you back when you 

@@ -86,6 +86,11 @@ p.note
 
 pre.white
   color: #ffffff
+  font-weight: normal;
+
+strong
+  color: #ffffff
+  font-weight: normal;
 
 a:link
   color:           #c4df90

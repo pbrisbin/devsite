@@ -3,7 +3,7 @@
 --
 -- pbrisbin 2010
 --
-module Controller where
+module Controller (runServer) where
 
 import Yesod
 import Yesod.Helpers.Static
@@ -178,8 +178,8 @@ getTagR tag = do
             addBody  $ allPostsTemplate posts ("Tag: " ++ tag)
 
 -- | Start the server
-main :: IO ()
-main = basicHandler 3000 $ DevSite $ s
+runServer :: IO ()
+runServer = basicHandler 3000 $ DevSite $ s
     where
         -- | Files are searched for in /static and served as the content
         --   their extensions signify
