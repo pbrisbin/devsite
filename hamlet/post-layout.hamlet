@@ -35,11 +35,32 @@
 
     ^pageBody.pc^
 
-    %hr
+    %h3 Comments
+
+    #disqus_thread
+
+      %script!type="text/javascript"
+        var disqus_developer = 1;
+
+      %script!type="text/javascript"
+        var disqus_shortname = 'pbrisbin';
+
+      %script!type="text/javascript"
+        var disqus_identifier = $postSlug.post$;
+
+      %script!type="text/javascript"!src="http://pbrisbin.disqus.com/embed.js"
+
+      %noscript
+        Sadly, javascript is required for comments on this site.
+
+    %p.small
+      
+      comments powered by 
+
+      %a!href="http://disqus.com" disqus
 
     #footer 
-    
+      %hr
       %p
-      
         %a!href=@RootR@ pbrisbin 
         \ dot com 2010

@@ -639,18 +639,18 @@
 
   %li Android docs regarding the 
   
-  %a!href="http://developer.android.com/reference/android/app/Service.html" Service type
+    %a!href="http://developer.android.com/reference/android/app/Service.html" Service type
   
-  \ -- full of great examples
+    \ -- full of great examples
 
   %li This guy's 
   
-  %a!href="http://github.com/commonsguy/cw-android/tree/master/Service/WeatherPlus/" git tree 
+    %a!href="http://github.com/commonsguy/cw-android/tree/master/Service/WeatherPlus/" git tree 
   
-  \ -- great example of Activity/Service interaction
+    \ -- great example of Activity/Service interaction
 
   %li This 
   
-  %a!href="http://www.helloandroid.com/tutorials/using-threads-and-progressdialog" tutorial
-  
-  \ on using a Progress notification inside a thread
+    %a!href="http://www.helloandroid.com/tutorials/using-threads-and-progressdialog" tutorial
+    
+    \ on using a Progress notification inside a thread

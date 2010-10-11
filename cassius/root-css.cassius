@@ -16,6 +16,14 @@
   padding-bottom: 0.1%
   margin-bottom:  1%
 
+#disqus_thread
+  border:         solid 1px #404040
+  border-left:    solid 1px #606060
+  border-bottom:  solid 1px #606060
+  padding-left:   25px
+  padding-right:  10px
+  padding-bottom: 10px
+
 #script
   margin-left:  5%
   margin-right: 5%
@@ -34,19 +42,16 @@ h2
   margin-left: -5%
   font-weight: normal
 
-h2,h3 a:link
-  color: #ffffff
-
-h2,h3 a:visited
-  color: #ffffff
-
-h2,h3 a:hover
-  color: #cc896d
-
 h3, h4, h5, h6
   color:       #ffffff
   margin-left: -2%
   font-weight: normal
+
+h2 a:link, h3 a:link, h2 a:visited, h3 a:visited
+  color: #ffffff
+
+h2 a:hover, h3 a:hover
+  color: #cc896d
 
 body
   display:          block
@@ -68,10 +73,10 @@ img.centered
   margin-right: auto
 
 img.fixed
-  display: block
-  margin-left: auto
+  display:      block
+  margin-left:  auto
   margin-right: auto
-  width: 680px
+  width:        680px
 
 p.note
   font-size:        95%
@@ -84,11 +89,7 @@ p.note
   padding-top:      0.5%
   padding-bottom:   0.5%
 
-pre.white
-  color: #ffffff
-  font-weight: normal;
-
-strong
+pre.white, strong
   color: #ffffff
   font-weight: normal;
 
