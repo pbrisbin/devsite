@@ -1,3 +1,0 @@
---
--- Please see http://pbrisbin.com/xmonad/docs/src/xmonad.html
---

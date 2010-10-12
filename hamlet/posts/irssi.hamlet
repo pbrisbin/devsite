@@ -29,7 +29,7 @@
 
   My full config (sans passwords) can be downloaded 
   
-  %a!href=@StaticR.configs_irssi_config@ here
+  %a!href="http://github.com/pbrisbin/dotfiles/blob/master/irssi/config" here
 
   \.
 
@@ -48,7 +48,7 @@
   
   \ and it can be downloaded 
   
-  %a!href=@StaticR.configs_irssi_my_theme@ here
+  %a!href="http://github.com/pbrisbin/dotfiles/blob/master/irssi/my.theme" here
 
   \. It's basically a really grey theme to go with my overall desktop.  
   Messages from me are a bright-ish grey, with messages to me as bright 

@@ -160,7 +160,7 @@
 
 %p.note In my 
 
-  %a!href=@StaticR.configs_vimrc@ vimrc
+  %a!href="http://github.com/pbrisbin/dotfiles/blob/master/vimrc" vimrc
   
   , these are conditional for html and php filetypes and, as you can 
   see, the auto-refresh only happens if I'm editing a file under my 
