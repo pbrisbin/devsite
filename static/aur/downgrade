@@ -1,0 +1,158 @@
+#!/bin/bash
+#
+# pbrisbin 2009
+#
+# http://pbrisbin.com/bin/downgrade
+#
+# downgrade one or more packages from cache or A.R.M.
+#
+# updated to properly validate input and handle downgrading
+# uninstalled packages
+#
+###
+
+### constants
+
+PD="$HOME/Packages"  # where to put packages
+PACMAN="sudo pacman" # package installer
+
+### functions
+
+# help message
+message() { echo 'usage: downgrade [package] ...'; exit 1; }
+
+# error message
+errorout() { echo "error: $*"; exit 1; }
+
+# returns true if results are found
+search_local() {
+  local LC_ALL='C'
+
+  # "$term-[0-9].*" limits it to exactly the package passed
+  LOCALS=( $(find /var/cache/pacman/pkg -name "$term-[0-9].*" | sort -r) )
+
+  [[ ${#LOCALS[@]} -ne 0 ]] && return 0 || return 1
+} 
+
+# returns true if user makes a selection
+print_local() {
+  echo -e "\n The following packages are available in your cache:"
+
+  for ((i=0; i<${#LOCALS[@]}; i++)); do 
+    local n=$((i+1))
+    local repo='local'
+    local pack=$(basename ${LOCALS[$i]})
+
+    case $pack in
+      ${installed// /-}*) echo -e "\t$n\t$repo\t$pack [installed]" ;;
+      *)                  echo -e "\t$n\t$repo\t$pack" ;;
+    esac
+  done
+
+  echo -en "\n\tplease choose a version, type s to [s]earch A.R.M.: " && read NUM
+
+  [[ "$NUM" = 'q' ]] && exit 0
+  [[ "$NUM" = 's' ]] && return 1 || return 0
+}
+
+# errors out on bad choice
+get_local() {
+  if [[ -z "$NUM" ]] || [[ -n "${NUM//[0-9]/}" ]]; then
+    errorout "invalid choice, quitting..."
+  fi
+
+  PACK=${LOCALS[$((NUM-1))]}
+
+  [[ -z "$PACK" ]] && errorout "invalid choice, quitting..."
+}
+
+# errors out on no results
+# returns true if user makes a selection
+search_and_print_arm() {
+  local LC_ALL='C'
+
+  REPOS=""
+  for repo in ${repos[@]}; do
+    REPOS="${REPOS}&${repo}=1"
+  done
+
+  url="http://arm.kh.nu/search/raw.php?a=$arch&q=^$term\$$REPOS"
+
+  ARMS=( $(wget -q -O - "$url" | sort -r) )
+
+  if [[ ${#ARMS[@]} -ne 0 ]]; then
+    echo -e "\n The following packages are available from the A.R.M.:"
+
+    # separate repo and packagename
+    for ((i=0; i<${#ARMS[@]}; i++)); do 
+      local n=$((i+1))
+      local repo="$(echo ${ARMS[$i]} | awk -F '/' '{print $4}')"
+      local pack="$(echo ${ARMS[$i]} | awk -F '/' '{print $7}')"
+      
+      # flag the installed version
+      case $pack in
+        ${installed// /-}*) echo -e "\t$n\t$repo\t$pack [installed]" ;;
+        *)                  echo -e "\t$n\t$repo\t$pack" ;;
+      esac
+    done
+
+    echo -en "\n\tplease choose a version, type q to [q]uit: " && read NUM
+
+    [[ "$NUM" = 'q' ]] && return 1 || return 0
+  else
+    exit 0
+  fi
+}
+
+# errors out on bad choice or failed copy
+get_arm() {
+  if [[ -z "$NUM" ]] || [[ -n "${NUM//[0-9]/}" ]]; then
+    errorout "invalid choice, quitting..."
+  fi
+
+  URL=${ARMS[$((NUM-1))]}
+
+  [[ -z "$URL" ]] && errorout "invalid choice, quitting..."
+
+  PACK="$PD/$(basename $URL)"
+  wget -O "$PACK" "$URL" || errorout "could not download package $PACK"
+}
+
+### set up
+
+[[ -d "$PD" ]] || mkdir -p "$PD"
+
+[[ $# -lt 1 ]] && message
+
+# get arch from uname, you can also harcode this
+[[ "$(uname -m)" = "x86_64" ]] && arch=64 || arch=32
+
+# get repos from pacman.conf, you could also hardcode these
+repos=( $(grep -x '\[.*\]' /etc/pacman.conf | grep -v options | sed 's/\[//g;s/\]//g') )
+
+### run it
+
+for term in $@; do
+
+  installed=$(pacman -Q $term 2>/dev/null)
+  installed=${installed:-DummyPkg}
+
+  if search_local; then
+    if print_local; then
+      get_local
+
+    elif search_and_print_arm; then
+      get_arm
+    else
+      exit 1
+    fi
+
+  elif search_and_print_arm; then
+    get_arm
+  else
+    exit 1
+  fi
+
+  $PACMAN -U $PACK || errorout "could not install package $PACK"
+
+done

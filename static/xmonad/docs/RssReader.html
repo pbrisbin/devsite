@@ -1,0 +1,585 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--Rendered using the Haskell Html Library v0.2-->
+<HTML
+><HEAD
+><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"
+><TITLE
+>RssReader</TITLE
+><LINK HREF="haddock.css" REL="stylesheet" TYPE="text/css"
+><SCRIPT SRC="haddock-util.js" TYPE="text/javascript"
+></SCRIPT
+><SCRIPT TYPE="text/javascript"
+>window.onload = function () {setSynopsis("mini_RssReader.html")};</SCRIPT
+></HEAD
+><BODY
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="topbar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><IMG SRC="haskell_icon.gif" WIDTH="16" HEIGHT="16" ALT=" "
+></TD
+><TD CLASS="title"
+>pbrisbin modules</TD
+><TD CLASS="topbut"
+><A HREF="src/RssReader.html"
+>Source code</A
+></TD
+><TD CLASS="topbut"
+><A HREF="index.html"
+>Contents</A
+></TD
+><TD CLASS="topbut"
+><A HREF="doc-index.html"
+>Index</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="modulebar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><FONT SIZE="6"
+>RssReader</FONT
+></TD
+><TD ALIGN="right"
+><TABLE CLASS="narrow" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="infohead"
+>Portability</TD
+><TD CLASS="infoval"
+>unportable</TD
+></TR
+><TR
+><TD CLASS="infohead"
+>Stability</TD
+><TD CLASS="infoval"
+>unstable</TD
+></TR
+><TR
+><TD CLASS="infohead"
+>Maintainer</TD
+><TD CLASS="infoval"
+>pbrisbin@gmail.com</TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+><B
+>Contents</B
+></TD
+></TR
+><TR
+><TD
+><DL
+><DT
+><A HREF="#1"
+>Usage
+</A
+></DT
+></DL
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Description</TD
+></TR
+><TR
+><TD CLASS="doc"
+>Aggregate Rss Feeds and print <EM
+>Ticker Text</EM
+> to a handle. Requires
+ extra/haskell-http and aur/haskell-tagsoup packages.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Synopsis</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3AReaderConf"
+>ReaderConf</A
+>  = <A HREF="#v%3AReaderConf"
+>ReaderConf</A
+> {<TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3Asources"
+>sources</A
+> :: FilePath</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3Alimit"
+>limit</A
+> :: Int</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3Aclickable"
+>clickable</A
+> :: Bool</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AtitleFormat"
+>titleFormat</A
+> :: String -&gt; String</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AdescrFormat"
+>descrFormat</A
+> :: String -&gt; String</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AtickerWidth"
+>tickerWidth</A
+> :: Int</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AtickerSpeed"
+>tickerSpeed</A
+> :: Int</TD
+></TR
+></TABLE
+>}</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AdefaultReaderConf"
+>defaultReaderConf</A
+> :: <A HREF="RssReader.html#t%3AReaderConf"
+>ReaderConf</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AspawnReader"
+>spawnReader</A
+> :: <A HREF="RssReader.html#t%3AReaderConf"
+>ReaderConf</A
+> -&gt; Handle -&gt; IO ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AloopForever"
+>loopForever</A
+> :: IO () -&gt; IO ProcessID</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AprintToHandle"
+>printToHandle</A
+> :: <A HREF="RssReader.html#t%3AReaderConf"
+>ReaderConf</A
+> -&gt; Handle -&gt; IO ()</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="1"
+><A NAME="1"
+>Usage
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>To use, add feed urls (one per line, no whitespace) to a file at
+ <TT
+>~/.rssfeeds</TT
+> then copy the source code for this module into
+ <TT
+>~/.xmonad/lib/RssReader.hs</TT
+>, then add the following to your
+ <TT
+>~/.xmonad/xmonad.hs</TT
+>:
+</P
+><PRE
+> import RssReader
+ import XMonad.Util.Run (spawnPipe)
+
+ main :: IO()
+ main = do
+     spawnPipe &quot;dzen2 -p -tw 100&quot; &gt;&gt;= spawnReader defaultReaderConf
+
+     xmonad $ defaultConfig
+         { ...
+         , ...
+         }
+
+</PRE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:ReaderConf"
+><A NAME="t%3AReaderConf"
+></A
+></A
+><B
+>ReaderConf</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="src/RssReader.html#ReaderConf"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="ndoc"
+>The main configuration
+</TD
+></TR
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="5" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:ReaderConf"
+><A NAME="v%3AReaderConf"
+></A
+></A
+><B
+>ReaderConf</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="body" COLSPAN="2"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:sources"
+><A NAME="v%3Asources"
+></A
+></A
+><B
+>sources</B
+> :: FilePath</TD
+><TD CLASS="rdoc"
+>path to a file containing one feed url per line, <TT
+>~/.rssfeeds</TT
+> by default
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:limit"
+><A NAME="v%3Alimit"
+></A
+></A
+><B
+>limit</B
+> :: Int</TD
+><TD CLASS="rdoc"
+>number of items to show per feed with 0 meaning unlimited
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:clickable"
+><A NAME="v%3Aclickable"
+></A
+></A
+><B
+>clickable</B
+> :: Bool</TD
+><TD CLASS="rdoc"
+>make the title clickable in dzen, set to <TT
+>False</TT
+> if you're not using dzen
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:titleFormat"
+><A NAME="v%3AtitleFormat"
+></A
+></A
+><B
+>titleFormat</B
+> :: String -&gt; String</TD
+><TD CLASS="rdoc"
+>this function will be applied to the item title when it's printed
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:descrFormat"
+><A NAME="v%3AdescrFormat"
+></A
+></A
+><B
+>descrFormat</B
+> :: String -&gt; String</TD
+><TD CLASS="rdoc"
+>this function will be applied to the item description <EM
+>before</EM
+> it's made into ticker text
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:tickerWidth"
+><A NAME="v%3AtickerWidth"
+></A
+></A
+><B
+>tickerWidth</B
+> :: Int</TD
+><TD CLASS="rdoc"
+>this determines the number of characters the ticker text description will take up
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:tickerSpeed"
+><A NAME="v%3AtickerSpeed"
+></A
+></A
+><B
+>tickerSpeed</B
+> :: Int</TD
+><TD CLASS="rdoc"
+>number of microseconds between updates of the ticker text
+</TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:defaultReaderConf"
+><A NAME="v%3AdefaultReaderConf"
+></A
+></A
+><B
+>defaultReaderConf</B
+> :: <A HREF="RssReader.html#t%3AReaderConf"
+>ReaderConf</A
+></TD
+><TD CLASS="declbut"
+><A HREF="src/RssReader.html#defaultReaderConf"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>A default reader config
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:spawnReader"
+><A NAME="v%3AspawnReader"
+></A
+></A
+><B
+>spawnReader</B
+> :: <A HREF="RssReader.html#t%3AReaderConf"
+>ReaderConf</A
+> -&gt; Handle -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="src/RssReader.html#spawnReader"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Spawn a reader given a configuration and handle to print to
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:loopForever"
+><A NAME="v%3AloopForever"
+></A
+></A
+><B
+>loopForever</B
+> :: IO () -&gt; IO ProcessID</TD
+><TD CLASS="declbut"
+><A HREF="src/RssReader.html#loopForever"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Forks and runs an IO action repeatedly forever in the background
+   using Control.Monad.forever
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:printToHandle"
+><A NAME="v%3AprintToHandle"
+></A
+></A
+><B
+>printToHandle</B
+> :: <A HREF="RssReader.html#t%3AReaderConf"
+>ReaderConf</A
+> -&gt; Handle -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="src/RssReader.html#printToHandle"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Pushes the generated text out to a handle
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="botbar"
+>Produced by <A HREF="http://www.haskell.org/haddock/"
+>Haddock</A
+> version 2.6.1</TD
+></TR
+></TABLE
+></BODY
+></HTML
+>

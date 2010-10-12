@@ -1,0 +1,4 @@
+# makes dmenu identical across all scripts by sourcing this file
+# aur/dmenu-vertical-xft required for xft fonts
+
+DMENU='dmenu -i -fn xft:Verdana-8 -r -x 0 -y 15 -nb #303030 -nf #909090 -sb #303030 -sf #ffffff'

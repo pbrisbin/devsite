@@ -103,7 +103,7 @@
   Secondly, thanks to the amazing auto-documentation tool that is haddock, I 
   was able to put together a pretty legit-looking 
   
-  %a!href="/xmonad/docs/" modules
+  %a!href=@StaticR.xmonad_docs_index_html@ modules
   
   \ page which explains what each module is and how to use it in any 
   config, not just mine.

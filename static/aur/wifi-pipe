@@ -1,0 +1,150 @@
+#!/bin/bash
+#
+# pbrisbin 2009
+#
+# http://pbrisbin.com:8080/sources/wifi-pipe
+#
+# simplified version of wifi-select designed to output as an openbox pipe menu
+#
+# required:
+#   netcfg
+#   zenity
+#   NOPASSWD entries for this and netcfg through visudo
+# 
+#   the following in menu.xml:
+#     <menu id="pipe-wifi" label="Wifi" execute="sudo /path/to/wifi.pipe interface"/>
+#
+# the idea is to run this script once to scan/print, then again immediately to connect.
+# therefore, if you scan but don't connect, a temp file is left in /tmp. the next scan
+# will overwrite it, and the next connect will remove it.
+#
+###
+
+# source this just to get PROFILE_DIR
+. /usr/lib/network/network
+[ -z "$PROFILE_DIR" ] && PROFILE_DIR='/etc/network.d/'
+
+# awk code for parsing iwlist output
+# putting it here removes the wifi-select dependency
+# and allows for my own tweaking
+# prints a list "essid=security=quality_as_percentage"
+PARSER='
+BEGIN { FS=":"; OFS="="; }
+/\<Cell/ { if (essid) print essid, security, quality[2]/quality[3]*100; security="none" }
+/\<ESSID:/ { essid=substr($2, 2, length($2) - 2) } # discard quotes
+/\<Quality=/ { split($1, quality, "[=/]") }
+/\<Encryption key:on/ { security="wep" }
+/\<IE:.*WPA.*/ { security="wpa" }
+END { if (essid) print essid, security, quality[2]/quality[3]*100 }
+'
+
+errorout() { 
+  echo "<openbox_pipe_menu>"
+  echo "<item label=\"$1\" />" 
+  echo "</openbox_pipe_menu>"
+  exit 1
+}
+
+create_profile() {
+  ESSID="$1"; INTERFACE="$2"; SECURITY="$3"; KEY="$4"
+  PROFILE_FILE="$PROFILE_DIR$ESSID"
+
+  cat > "$PROFILE_FILE" << END_OF_PROFILE
+CONNECTION="wireless"
+ESSID="$ESSID"
+INTERFACE="$INTERFACE"
+DESCRIPTION="Automatically generated profile"
+SCAN="yes"
+IP="dhcp"
+TIMEOUT="10"
+SECURITY="$SECURITY"
+END_OF_PROFILE
+
+  # i think wifi-select should adopt these perms too...
+  if [ -n "$KEY" ]; then
+    echo "KEY=\"$KEY\"" >> "$PROFILE_FILE"
+    chmod 600 "$PROFILE_FILE"
+  else
+    chmod 644 "$PROFILE_FILE"
+  fi
+}
+
+print_menu() {
+  # scan for networks
+  iwlist $INTERFACE scan 2>/dev/null | awk "$PARSER" | sort -t= -nrk3 > /tmp/networks.tmp
+
+  # exit if none found
+  if [ ! -s /tmp/networks.tmp ]; then 
+    rm /tmp/networks.tmp
+    errorout "no networks found."
+  fi
+
+  # otherwise print the menu
+  local IFS='='
+  echo "<openbox_pipe_menu>"
+  while read ESSID SECURITY QUALITY; do
+    echo "<item label=\"$ESSID ($SECURITY) ${QUALITY/.*/}%\">" # trim decimals
+    echo "  <action name=\"Execute\">"
+    echo "    <command>sudo $0 $INTERFACE connect \"$ESSID\"</command>"
+    echo "  </action>"
+    echo "</item>"
+  done < /tmp/networks.tmp
+  echo "</openbox_pipe_menu>"
+}
+
+connect() {
+  # check for an existing profile
+  PROFILE_FILE="$(grep -REl "ESSID=[\"']?$ESSID[\"']?" "$PROFILE_DIR" | grep -v '~$' | head -1)"
+
+  # if found use it, else create a new profile
+  if [ -n "$PROFILE_FILE" ]; then
+    PROFILE=$(basename "$PROFILE_FILE")
+  else
+    PROFILE="$ESSID"
+    SECURITY="$(awk -F '=' "/$ESSID/"'{print $2}' /tmp/networks.tmp | head -1)"
+
+    # ask for the security key if needed
+    if [ "$SECURITY" != "none" ]; then
+      KEY="$(zenity --entry --title="Authentication" --text="Please enter $SECURITY key for $ESSID" --hide-text)"
+    fi
+
+    # create the new profile
+    create_profile "$ESSID" "$INTERFACE" "$SECURITY" "$KEY"
+  fi
+
+  # connect
+  netcfg2 "$PROFILE" > /tmp/output.tmp
+  
+  # if failed, ask about removal of created profile
+  if [ $? -ne 0 ]; then
+    zenity --question \
+           --title="Connection failed" \
+           --text="$(grep -Eo "[\-\>]\ .*$" /tmp/output.tmp) \n Remove $PROFILE_FILE?" \
+           --ok-label="Remove profile"
+
+    [ $? -eq 0 ] && rm $PROFILE_FILE
+  fi
+
+  rm /tmp/output.tmp
+  rm /tmp/networks.tmp
+}
+
+[ $(id -u) -ne 0 ] && errorout "root access required."
+[ -z "$1" ] && errorout "usage: $0 [interface] (connect [ESSID])"
+
+INTERFACE="$1"; shift
+
+# i added a sleep if we need to explicitly bring it up
+# b/c youll get "no networks found" when you scan right away
+# this only happens if we aren't up already
+if ! ifconfig | grep -q $INTERFACE; then
+  ifconfig $INTERFACE up &>/dev/null || errorout "$INTERFACE not up"
+  while ! ifconfig | grep -q $INTERFACE; do sleep 1; done
+fi
+
+if [ "$1" = "connect" ]; then
+  ESSID="$2"
+  connect
+else
+  print_menu
+fi

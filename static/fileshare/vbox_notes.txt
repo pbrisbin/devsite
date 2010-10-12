@@ -1,0 +1,11 @@
+﻿ IMPORTANT NOTES:
+
+- Run "vbox_build_module" as root every time your kernel is upgraded, to
+  compile the module for the new kernel version.
+- Add your user to the vboxusers group:
+     gpasswd -a USERNAME vboxusers
+- Add "vboxdrv" to the MODULES array in your "/etc/rc.conf"
+- Add "vboxnetflt" to MODULES if you want Host Interface networking.
+- Add the following line to "/etc/fstab" if you want the vboxusers to have
+  permission to emulate USB devices:
+     none /proc/bus/usb usbfs auto,busgid=108,busmode=0775,devgid=108,devmode=0664 0 0
