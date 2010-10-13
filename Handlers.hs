@@ -1,8 +1,28 @@
 {-# LANGUAGE TemplateHaskell #-}
+-------------------------------------------------------------------------------
+-- |
+-- Module      :  Handlers
+-- Copyright   :  (c) Patrick Brisbin 2010 
+-- License     :  as-is
 --
--- pbrisbin 2010
+-- Maintainer  :  pbrisbin@gmail.com
+-- Stability   :  unstable
+-- Portability :  unportable
 --
-module Handlers where
+-- Handler functions for each of the site's routes.
+--
+-------------------------------------------------------------------------------
+module Handlers
+    ( getRootR
+    , getAboutR
+    , getPostsR
+    , getPostR
+    , getTagsR
+    , getTagR
+    , getFeedR
+    , getFaviconR
+    , getRobotsR
+    ) where
 
 import Yesod
 import DevSite
@@ -29,7 +49,7 @@ getAboutR = pageLayout $ do
 getPostsR :: Handler RepHtml
 getPostsR = pageLayout $ do
     setTitle $ string "pbrisbin - All Posts"
-    addBody $ allPostsTemplate allPosts "All Posts"
+    addBody  $ allPostsTemplate allPosts "All Posts"
 
 -- | A post
 getPostR :: String -> Handler RepHtml

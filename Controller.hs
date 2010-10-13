@@ -1,6 +1,17 @@
+-------------------------------------------------------------------------------
+-- |
+-- Module      :  Controller
+-- Copyright   :  (c) Patrick Brisbin 2010 
+-- License     :  as-is
 --
--- pbrisbin 2010
+-- Maintainer  :  pbrisbin@gmail.com
+-- Stability   :  unstable
+-- Portability :  unportable
 --
+-- Imports my entire Site and defines one method 'withServer' to be used
+-- when creating the WAI app.
+--
+-------------------------------------------------------------------------------
 module Controller (withServer) where
 
 import Yesod

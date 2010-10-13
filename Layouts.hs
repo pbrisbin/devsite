@@ -1,15 +1,29 @@
 {-# LANGUAGE TemplateHaskell #-}
+-------------------------------------------------------------------------------
+-- |
+-- Module      :  Layouts
+-- Copyright   :  (c) Patrick Brisbin 2010 
+-- License     :  as-is
 --
--- pbrisbin 2010
+-- Maintainer  :  pbrisbin@gmail.com
+-- Stability   :  unstable
+-- Portability :  unportable
 --
-module Layouts where
+-- Functions defined to be used in place of 'defaultLayout' where an
+-- alternative but still generic page layout should be used.
+--
+-------------------------------------------------------------------------------
+module Layouts
+    ( pageLayout
+    , postLayout
+    ) where
 
 import Yesod
 import DevSite
 import Posts
 import qualified Settings as S
 
--- | Drop in replacement for defaultLayout but add breadcrumbs
+-- | Like defaultLayout, just with breadcrumbs
 pageLayout :: DWidget () -> Handler RepHtml
 pageLayout widget = do
     mmesg  <- getMessage

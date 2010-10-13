@@ -1,14 +1,27 @@
-{-# LANGUAGE QuasiQuotes     #-}
+{-# LANGUAGE QuasiQuotes #-}
+-------------------------------------------------------------------------------
+-- |
+-- Module      :  Settings
+-- Copyright   :  (c) Patrick Brisbin 2010 
+-- License     :  as-is
 --
--- pbrisbin 2010
+-- Maintainer  :  pbrisbin@gmail.com
+-- Stability   :  unstable
+-- Portability :  unportable
 --
-module Templates where
+-- Small hamlet sub-templates centralized for use in more than one page.
+--
+-------------------------------------------------------------------------------
+module Templates
+    ( allPostsTemplate
+    , postTemplate
+    ) where
 
 import Yesod
 import DevSite
 import Posts
 
--- | A body template for a list of posts, provide the title
+-- | A body template for a list of posts, you can also provide the title
 allPostsTemplate :: [Post] -> String -> Hamlet DevSiteRoute
 allPostsTemplate posts title = [$hamlet|
 %h1 $title$

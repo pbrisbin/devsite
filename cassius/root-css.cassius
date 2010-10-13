@@ -51,7 +51,7 @@ h2 a:link, h3 a:link, h2 a:visited, h3 a:visited
   color: #ffffff
 
 h2 a:hover, h3 a:hover
-  color: #cc896d
+  color: #00e4e8
 
 body
   display:          block
@@ -94,16 +94,16 @@ pre.white, strong
   font-weight: normal;
 
 a:link
-  color:           #c4df90
+  color:           #91bfc2
   outline:         none
   text-decoration: none
 
 a:visited
-  color:           #cb9f9f
+  color:           #a291c2
   outline:         none
   text-decoration: none
 
 a:hover
-  color:           #cc896d
+  color:           #c29191
   outline:         none
   text-decoration: none

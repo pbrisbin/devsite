@@ -1,6 +1,3 @@
---
--- pbrisbin 2010
---
 import Controller
 import Network.Wai.Handler.SimpleServer (run)
 

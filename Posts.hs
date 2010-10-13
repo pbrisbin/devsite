@@ -1,8 +1,24 @@
 {-# LANGUAGE TemplateHaskell #-}
+-------------------------------------------------------------------------------
+-- |
+-- Module      :  Posts
+-- Copyright   :  (c) Patrick Brisbin 2010 
+-- License     :  as-is
 --
--- pbrisbin 2010
+-- Maintainer  :  pbrisbin@gmail.com
+-- Stability   :  unstable
+-- Portability :  unportable
 --
-module Posts where
+-- The master list of all posts known to the site plus some helper
+-- functions for finding them.
+--
+-------------------------------------------------------------------------------
+module Posts
+    ( Post (..)
+    , loadPost
+    , getPostsByTag
+    , allPosts
+    ) where
 
 import Yesod
 import DevSite

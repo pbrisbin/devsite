@@ -1,9 +1,20 @@
 {-#LANGUAGE TemplateHaskell #-}
 {-#LANGUAGE TypeFamilies    #-}
 {-#LANGUAGE QuasiQuotes     #-}
--- 
--- pbrisbin 2010
+-------------------------------------------------------------------------------
+-- |
+-- Module      :  DevSite
+-- Copyright   :  (c) Patrick Brisbin 2010 
+-- License     :  as-is
 --
+-- Maintainer  :  pbrisbin@gmail.com
+-- Stability   :  unstable
+-- Portability :  unportable
+--
+-- The actual site definition. What routes there are and instances it is
+-- a part of.
+--
+-------------------------------------------------------------------------------
 module DevSite where
 
 import Yesod
@@ -93,9 +104,9 @@ instance YesodBreadcrumbs DevSite where
 
     -- all tags goes back home and individual tags go to all tags
     breadcrumb TagsR      = return ("all tags" , Just RootR)
-    breadcrumb (TagR tag) = return (formTag tag, Just TagsR)
+    breadcrumb (TagR tag) = return (format tag, Just TagsR)
         where
-            formTag t = (map toLower t) ++ " tag"
+            format t = (map toLower t) ++ " tag"
 
     -- be sure to fail noticably so i fix it when it happens
     breadcrumb _ = return ("%%%", Just RootR)
