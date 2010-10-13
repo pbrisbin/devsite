@@ -8,9 +8,6 @@ import Yesod
 import DevSite
 import qualified Settings as S
 
--- | A convenience synonymn
-type HamletContent = Hamlet (Route DevSite)
-
 -- | The datatype of a Post
 data Post = Post
     { postTitle   :: String
@@ -20,6 +17,9 @@ data Post = Post
     , postContent :: HamletContent
     , postTags    :: [String]
     }
+
+-- | A convenience synonymn
+type HamletContent = Hamlet (Route DevSite)
 
 -- | Locate posts with a given slug
 loadPost :: String -> [Post]

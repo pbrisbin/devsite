@@ -7,20 +7,51 @@ module Handlers where
 import Yesod
 import DevSite
 import Posts
+import Layouts
+import Templates
 import qualified Settings as S
 import Helpers.RssFeed
-  
---
--- These handlers don't need Controller to be in scope
---
+ 
+-- | Home page
+getRootR :: Handler RepHtml
+getRootR = defaultLayout $ do
+    let posts = take 10 allPosts
+    setTitle $ string "pbrisbin - Home"
+    addBody $(S.hamletFile "index")
+     
+-- | About page
+getAboutR :: Handler RepHtml
+getAboutR = pageLayout $ do
+    setTitle $ string "pbrisbin - About"
+    addBody $(S.hamletFile "about")
 
--- | Favicon
-getFaviconR :: Handler ()
-getFaviconR = sendFile "image/x-icon" "favicon.ico"
+-- | All posts
+getPostsR :: Handler RepHtml
+getPostsR = pageLayout $ do
+    setTitle $ string "pbrisbin - All Posts"
+    addBody $ allPostsTemplate allPosts "All Posts"
 
--- | Robots
-getRobotsR :: Handler RepPlain
-getRobotsR = return $ RepPlain $ toContent "User-agent: *"
+-- | A post
+getPostR :: String -> Handler RepHtml
+getPostR slug = do
+    case loadPost slug of
+        []       -> notFound
+        (post:_) -> postLayout post
+
+-- | All tags
+getTagsR :: Handler RepHtml
+getTagsR = pageLayout $ do
+    setTitle $ string "pbrisbin - All Tags"
+    addBody  $ allPostsTemplate allPosts "All Tags"
+
+-- | A tag
+getTagR :: String -> Handler RepHtml
+getTagR tag = do
+    case getPostsByTag tag of
+        []    -> notFound
+        posts -> pageLayout $ do
+            setTitle $ string $ "pbrisbin - Tag: " ++ tag
+            addBody  $ allPostsTemplate posts ("Tag: " ++ tag)
 
 -- | Rss feed
 getFeedR :: Handler RepRss
@@ -43,3 +74,11 @@ getFeedR = do
                 , rssEntryTitle   = postTitle post
                 , rssEntryContent = string $ postDescr post
                 }
+
+-- | Favicon
+getFaviconR :: Handler ()
+getFaviconR = sendFile "image/x-icon" "favicon.ico"
+
+-- | Robots
+getRobotsR :: Handler RepPlain
+getRobotsR = return $ RepPlain $ toContent "User-agent: *"
