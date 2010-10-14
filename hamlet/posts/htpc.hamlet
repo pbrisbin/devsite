@@ -223,9 +223,30 @@
   The result is an instantly full and beautiful library. Here are some 
   screenshots.
 
-%p
+%p.centered
 
-  %strong TODO
+  %a!href=@StaticR.screenshots_htpc_0_bmp@
+  
+    %img!src=@StaticR.screenshots_htpc_0_thumb_bmp@!id="htpc-1"!alt="HTPC Shot"
+
+  &nbsp;
+
+  %a!href=@StaticR.screenshots_htpc_1_bmp@
+  
+    %img!src=@StaticR.screenshots_htpc_1_thumb_bmp@!id="htpc-2"!alt="HTPC Shot"
+
+%p.centered
+
+  %a!href=@StaticR.screenshots_htpc_2_bmp@
+  
+    %img!src=@StaticR.screenshots_htpc_2_thumb_bmp@!id="htpc-3"!alt="HTPC Shot"
+
+  &nbsp;
+
+  %a!href=@StaticR.screenshots_htpc_4_bmp@
+  
+    %img!src=@StaticR.screenshots_htpc_4_thumb_bmp@!id="htpc-4"!alt="HTPC Shot"
+
 
 %h3 Remote configuration
 

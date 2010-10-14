@@ -43,9 +43,9 @@
 
 %p
 
-  %a!href=@StaticR.screenshots_desktop_1008262023_png@
+  %a!href=@StaticR.screenshots_current_desktop_png@
 
-    %img.fixed!src=@StaticR.screenshots_desktop_1008262023_thumb_png@!id="DESKTOP"!alt="Most recent desktop shot"
+    %img.fixed!src=@StaticR.screenshots_current_desktop_thumb_png@!id="current-desktop"!alt="Most recent desktop shot"
 
 %h3 About Arch
 
@@ -90,4 +90,5 @@
   $forall posts post
     ^postTemplate.post^
 
-%a!href=@PostsR@ all posts
+%p.small
+  %a!href=@PostsR@ all posts

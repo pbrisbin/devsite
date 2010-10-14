@@ -6,7 +6,9 @@
 
 %p
 
-  %strong TODO
+  %a!href=@StaticR.screenshots_irssi_png@
+
+    %img.centered!src=@StaticR.screenshots_irssi_thumb_png@!id="irssi-screenshot"!alt="Irssi Screenshot"
 
 %h3 Config
 

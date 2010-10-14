@@ -624,9 +624,15 @@
 
   As always, the obligatory screenshots.
 
-%p
+%p.centered
 
-  %strong TODO
+    %a!href=@StaticR.screenshots_raw_audio_png@
+
+      %img!src=@StaticR.screenshots_raw_audio_thumb_png@!id="raw-audio"!alt="Raw Audio"
+
+    %a!href=@StaticR.screenshots_raw_audio_progress_png@
+
+      %img!src=@StaticR.screenshots_raw_audio_progress_thumb_png@!id="raw-audio-progress"!alt="Raw Audio Progress"
 
 %h3 References
 

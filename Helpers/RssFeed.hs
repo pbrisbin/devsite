@@ -22,6 +22,9 @@ module Helpers.RssFeed
     ) where
 
 import Yesod
+import System.Locale    (defaultTimeLocale)
+import Data.Time.Clock  (UTCTime)
+import Data.Time.Format (formatTime)
 
 -- | This would normally be added in Yesod.Content
 typeRss :: ContentType
@@ -40,13 +43,13 @@ data RssFeed url = RssFeed
     , rssLinkHome    :: url
     , rssDescription :: String
     , rssLanguage    :: String
-    , rssUpdated     :: String
+    , rssUpdated     :: UTCTime
     , rssEntries     :: [RssFeedEntry url]
     }
 
 data RssFeedEntry url = RssFeedEntry
     { rssEntryLink    :: url
-    , rssEntryUpdated :: String
+    , rssEntryUpdated :: UTCTime
     , rssEntryTitle   :: String
     , rssEntryContent :: Html
     }
@@ -60,7 +63,7 @@ template arg = [$xhamlet|
         %title         $rssTitle.arg$
         %link          @rssLinkHome.arg@
         %description   $rssDescription.arg$
-        %lastBuildDate $rssUpdated.arg$
+        %lastBuildDate $format.rssUpdated.arg$
         %language      $rssLanguage.arg$
 
         $forall rssEntries.arg entry
@@ -73,6 +76,15 @@ entryTemplate arg = [$xhamlet|
     %title       $rssEntryTitle.arg$
     %link        @rssEntryLink.arg@
     %guid        @rssEntryLink.arg@
-    %pubDate     $rssEntryUpdated.arg$
+    %pubDate     $format.rssEntryUpdated.arg$
     %description $rssEntryContent.arg$
 |]
+
+-- | Format as string
+format :: UTCTime -> String
+format t = formatTime defaultTimeLocale rfc822DateFormat t
+
+-- | System.Local.rfc822DateFormat disagrees with date -R and does not
+--   validate, this one does.
+rfc822DateFormat :: String
+rfc822DateFormat = "%a, %d %b %Y %H:%M:%S %z"

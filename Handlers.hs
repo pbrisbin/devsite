@@ -32,6 +32,11 @@ import Templates
 import qualified Settings as S
 import Helpers.RssFeed
  
+import Data.Maybe       (catMaybes)
+import Data.Time.Clock  (UTCTime)
+import Data.Time.Format (parseTime)
+import System.Locale    (defaultTimeLocale)
+
 -- | Home page
 getRootR :: Handler RepHtml
 getRootR = defaultLayout $ do
@@ -83,17 +88,32 @@ getFeedR = do
         , rssLinkSelf    = FeedR
         , rssLinkHome    = RootR
         , rssUpdated     = mostRecent
-        , rssEntries     = map readRssEntry $ take 10 allPosts
+        , rssEntries     = take 10 . catMaybes $ map readRssEntry allPosts
         }
         where
-            mostRecent = postDate $ head allPosts
+            -- todo: head of empty list
+            mostRecent = rssEntryUpdated . head . catMaybes $ map readRssEntry allPosts
 
-            readRssEntry post = RssFeedEntry
-                { rssEntryLink    = PostR $ postSlug post
-                , rssEntryUpdated = postDate post
-                , rssEntryTitle   = postTitle post
-                , rssEntryContent = string $ postDescr post
-                }
+-- | Maybe read a single post into an RssEntry depending if the date
+--   string can be parsed correctly
+readRssEntry :: Post -> Maybe (RssFeedEntry DevSiteRoute)
+readRssEntry post = case (readUTCTime $ postDate post) of
+    Just date -> Just $ RssFeedEntry
+        { rssEntryLink    = PostR $ postSlug post
+        , rssEntryUpdated = date
+        , rssEntryTitle   = postTitle post
+        , rssEntryContent = string $ postDescr post
+        }
+    Nothing -> Nothing
+
+-- | Read the output of `date -R` into a UTCTime
+readUTCTime :: String -> Maybe UTCTime
+readUTCTime = parseTime defaultTimeLocale rfc822DateFormat
+
+-- | An alternative to System.Local.rfc822DateFormat, this one agrees
+--   with the output of `date -R`
+rfc822DateFormat :: String
+rfc822DateFormat = "%a, %d %b %Y %H:%M:%S %z"
 
 -- | Favicon
 getFaviconR :: Handler ()

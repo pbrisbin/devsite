@@ -91,7 +91,7 @@
   
   %code rssreader.hs
   
-  \. This file would serve the same purpose
+  \. This file would serve the same purpose 
   
   %code xmonad.hs 
   
@@ -113,16 +113,16 @@
 
   Once that's all set, you can run 
   
-  %code ghc --make -o rssreader
-
-  \ rsssreader.hs inside this directory to create an executable which 
-  you can run standalone.
+  %code ghc --make -o rssreader rssreader.hs
+  
+  \ inside this directory to create an executable which you can run 
+  standalone.
 
 %p.note
 
   %code spawnReader
   
-  \'s type is is
+  \'s type is 
   
   %code ReaderConf -&gt; Handle -&gt; IO ()
   
@@ -146,11 +146,11 @@
   
   \ of any other program (in our case, dzen). This means that, if you 
   know haskell, you could use this module to generate an RssReader using 
-  whatever gui toolkit --I use that term loosely-- that you wanted.
+  whatever gui toolkit you wanted -- I'm looking at you conky...
 
 %p
 
-  The following packages would be required either from hackage or your
+  The following packages would be required either from hackage or your 
   distribution:
 
 %ul
