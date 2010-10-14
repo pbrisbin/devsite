@@ -29,7 +29,7 @@
   margin-right: 5%
 
 #footer
-  font-size:  95%
+  font-size:  90%
   text-align: center
 
 h1
@@ -51,7 +51,7 @@ h2 a:link, h3 a:link, h2 a:visited, h3 a:visited
   color: #ffffff
 
 h2 a:hover, h3 a:hover
-  color: #00e4e8
+  color: #a291c2
 
 body
   display:          block
@@ -93,17 +93,12 @@ pre.white, strong
   color: #ffffff
   font-weight: normal;
 
-a:link
+a:link, a:visited
   color:           #91bfc2
   outline:         none
   text-decoration: none
 
-a:visited
-  color:           #a291c2
-  outline:         none
-  text-decoration: none
-
 a:hover
-  color:           #c29191
+  color:           #a291c2
   outline:         none
   text-decoration: none

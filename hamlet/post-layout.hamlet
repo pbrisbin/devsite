@@ -40,12 +40,8 @@
     #disqus_thread
 
       %script!type="text/javascript"
-        var disqus_developer = 1;
-
-      %script!type="text/javascript"
-        var disqus_shortname = 'pbrisbin';
-
-      %script!type="text/javascript"
+        var disqus_developer = 1; 
+        var disqus_shortname = 'pbrisbin'; 
         var disqus_identifier = $postSlug.post$;
 
       %script!type="text/javascript"!src="http://pbrisbin.disqus.com/embed.js"
