@@ -63,7 +63,7 @@ instance Yesod DevSite where
             addStyle $(S.cassiusFile "root-css")
         hamletToRepHtml $(S.hamletFile "root-layout")
 
-    -- | This lets static file server bypass the application code
+    -- | This lets static files bypass the application code
     urlRenderOverride a (StaticR s) =
         Just $ uncurry (joinPath a S.staticroot) $ format s
         
@@ -77,12 +77,16 @@ instance Yesod DevSite where
     -- | With this, any generated CSS/Java will be placed in a temp file
     --   and served statically rather than added directly in the <head>
     --   of the html
-    addStaticContent ext' _ content = do
-        let fn        = base64md5 content ++ '.' : ext'
-        let statictmp = S.staticdir ++ "/tmp/"
-        liftIO $ createDirectoryIfMissing True statictmp
-        liftIO $ L.writeFile (statictmp ++ fn) content
-        return $ Just $ Right (StaticR $ StaticRoute ["tmp", fn] [], [])
+    --
+    --   This causes a noticable white flash on the page as my css is
+    --   hashed...
+    --
+    --addStaticContent ext' _ content = do
+    --    let fn        = base64md5 content ++ '.' : ext'
+    --    let statictmp = S.staticdir ++ "/tmp/"
+    --    liftIO $ createDirectoryIfMissing True statictmp
+    --    liftIO $ L.writeFile (statictmp ++ fn) content
+    --    return $ Just $ Right (StaticR $ StaticRoute ["tmp", fn] [], [])
 
 -- | Make my site an instance of breadcrumbs so that i can simply call
 --   the breadcrumbs function to get automagical breadcrumb links
