@@ -1,6 +1,6 @@
-{-#LANGUAGE TemplateHaskell #-}
-{-#LANGUAGE TypeFamilies    #-}
-{-#LANGUAGE QuasiQuotes     #-}
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TypeFamilies    #-}
+{-# LANGUAGE QuasiQuotes     #-}
 -------------------------------------------------------------------------------
 -- |
 -- Module      :  DevSite
@@ -20,11 +20,8 @@ module DevSite where
 import Yesod
 import Yesod.Helpers.Static
 import Yesod.WebRoutes
-
 import qualified Settings as S
-import qualified Data.ByteString.Lazy as L
 
-import System.Directory
 import Data.Char (toLower)
 
 -- | The main site type
@@ -63,31 +60,6 @@ instance Yesod DevSite where
             addStyle $(S.cassiusFile "root-css")
         hamletToRepHtml $(S.hamletFile "root-layout")
 
-    -- | This lets static files bypass the application code
-    urlRenderOverride a (StaticR s) =
-        Just $ uncurry (joinPath a S.staticroot) $ format s
-        
-        where
-            format = formatPathSegments ss
-            ss :: Site StaticRoute (String -> Maybe (GHandler Static DevSite ChooseRep))
-            ss = getSubSite
-
-    urlRenderOverride _ _ = Nothing
-
-    -- | With this, any generated CSS/Java will be placed in a temp file
-    --   and served statically rather than added directly in the <head>
-    --   of the html
-    --
-    --   This causes a noticable white flash on the page as my css is
-    --   hashed...
-    --
-    --addStaticContent ext' _ content = do
-    --    let fn        = base64md5 content ++ '.' : ext'
-    --    let statictmp = S.staticdir ++ "/tmp/"
-    --    liftIO $ createDirectoryIfMissing True statictmp
-    --    liftIO $ L.writeFile (statictmp ++ fn) content
-    --    return $ Just $ Right (StaticR $ StaticRoute ["tmp", fn] [], [])
-
 -- | Make my site an instance of breadcrumbs so that i can simply call
 --   the breadcrumbs function to get automagical breadcrumb links
 instance YesodBreadcrumbs DevSite where
@@ -100,6 +72,7 @@ instance YesodBreadcrumbs DevSite where
     -- all posts goes back home and individual posts go to all posts
     breadcrumb PostsR       = return ("all posts", Just RootR)
     breadcrumb (PostR slug) = return (format slug, Just PostsR)
+
         where
             -- switch underscores with spaces
             format []         = []
@@ -109,8 +82,27 @@ instance YesodBreadcrumbs DevSite where
     -- all tags goes back home and individual tags go to all tags
     breadcrumb TagsR      = return ("all tags" , Just RootR)
     breadcrumb (TagR tag) = return (format tag, Just TagsR)
+
         where
+            -- lowercase it
             format t = (map toLower t) ++ " tag"
 
     -- be sure to fail noticably so i fix it when it happens
     breadcrumb _ = return ("%%%", Just RootR)
+
+-- | This footer template needs to be in scope everywhere, so we'll
+--   define it here
+footerTemplate :: Hamlet DevSiteRoute
+footerTemplate = [$hamlet|
+#footer
+    %hr
+    %p
+        %a!href=@RootR@ pbrisbin
+
+        \ dot com 2010 
+
+        %span!style="float: right;"
+            powered by 
+            
+            %a!href="http://docs.yesodweb.com/" yesod
+|]

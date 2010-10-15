@@ -26,11 +26,4 @@
 
     ^pageBody.pc^
 
-    %hr
-
-    #footer 
-    
-      %p
-      
-        %a!href=@RootR@ pbrisbin 
-        \ dot com 2010
+    ^footerTemplate^

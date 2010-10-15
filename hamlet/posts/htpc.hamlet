@@ -25,12 +25,16 @@
 %p
 
   It doesn't work more than 2 feet away from the sensor. The remote is 
-  RF (another flaw IMO) and the sensor is actually over-shielded by the 
-  case itself. Solution? Slide open the top of the case (even just an 
-  inch), your range will increase tenfold. I did this for a while but 
-  wanted something better -- more on that later; anyone reading this 
-  should buy the PC-C37B which is the same case but sans the trash 
-  remote (and $$50 bucks).
+  RF (another flaw 
+  
+  %abbr!title="in my opinion" IMO
+  
+  ) and the sensor is actually over-shielded by the case itself. 
+  Solution? Slide open the top of the case (even just an inch), your 
+  range will increase tenfold. I did this for a while but wanted 
+  something better -- more on that later; anyone reading this should buy 
+  the PC-C37B which is the same case but sans the trash remote (and $$50 
+  bucks).
 
 %p
 
@@ -81,9 +85,9 @@
 %p
 
   In the end, I'm really glad I made that mistake because the remote's 
-  awesome.  You hook it up to your computer and head to their site 
-  (luckily it's mac+firefox compatible), you add devices by Manufacturer 
-  number, and that's it.
+  awesome. You configure it by plugging it into a computer and using an 
+  in-browser control panel (luckily it's mac+firefox compatible), just 
+  add devices by Manufacturer number, and that's it.  
 
 %p
 
@@ -209,19 +213,19 @@
 %p
 
   I share my media from the main desktop PC using sambe, so I just added 
-  the shared in XBMC.
+  the shares in XBMC.
 
 %p
 
   Once added, XBMC scans your sources using some filename regexps that 
   caught pretty much everything I threw at it. It downloaded plot 
   summaries and fanart for all my movies and TV shows, and it of course 
-  uses your music collection's tags (which I'm a bit OCD about).
+  uses your music collection's tags (which I'm a bit OCD about anyway).
 
 %p
 
   The result is an instantly full and beautiful library. Here are some 
-  screenshots.
+  screenshots:
 
 %p.centered
 

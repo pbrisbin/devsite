@@ -136,14 +136,13 @@ allPosts =
         $(S.hamletFile "posts/irssi")
         ["Arch", "Linux", "IRC"]
 
-    ]
-    {-
     , Post
         "Automounting"
         "automounting"
         "Mon, 11 Jan 2010 21:25:30 -0500"
         "A dead simple, totally independant, easy to setup way to automount the occasional flashdrive."
         $(S.hamletFile "posts/automounting")
+        ["Arch", "Linux"]
 
     , Post
         "Backups"
@@ -151,6 +150,7 @@ allPosts =
         "Sun, 03 Jan 2010 12:15:32 -0500"
         "Here I outline my backup strategy; how I do it, why it works for me, and even why it might not work for you."
         $(S.hamletFile "posts/backups")
+        ["Arch", "Linux"]
 
     , Post
         "XMonad's IM Layout"
@@ -158,6 +158,7 @@ allPosts =
         "Sat, 05 Dec 2009 18:50:44 -0500"
         "A How-to on setting up a layout in XMonad devoted to an IM client. Using one of the best contrib modules, IMLayout."
         $(S.hamletFile "posts/xmonads_im_layout")
+        ["XMonad", "Haskell", "Arch"]
 
     , Post
         "Using Two IMAP Accounts in Mutt"
@@ -165,7 +166,18 @@ allPosts =
         "Sat, 05 Dec 2009 18:50:44 -0500"
         "A follow up on using offlineimap/msmtp/mutt for gmail. Here I describe how I added a second account (GMX) into the mix."
         $(S.hamletFile "posts/two_accounts_in_mutt")
+        ["Mutt", "Offlineimap", "GMail"]
 
+    , Post
+        "Aurget"
+        "aurget"
+        "Sat, 05 Dec 2009 18:50:44 -0500"
+        "All about my AUR helper app, Arch linux users only."
+        $(S.hamletFile "posts/aurget")
+        ["Linux", "Arch", "AUR"]
+
+    ]
+    {-
     , Post
         "Dvdcopy"
         "dvdcopy"
@@ -207,14 +219,6 @@ allPosts =
         "Sat, 05 Dec 2009 18:50:44 -0500"
         "One of the hardest things for new XMonad users is setting up the status bars. This is mostly due to the myriad options available; here, I outline step-by-step how I do it."
         $(S.hamletFile "posts/xmonad_statusbars")
-
-    , Post
-        "Aurget"
-        "aurget"
-        "Sat, 05 Dec 2009 18:50:44 -0500"
-        "All about my AUR helper app, Arch linux users only."
-        $(S.hamletFile "posts/aurget")
-
     , Post
         "Goodsong"
         "goodsong"

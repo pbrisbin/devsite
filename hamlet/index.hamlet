@@ -20,6 +20,21 @@
   just general command-line adventures), and the great email client 
   Mutt.
 
+%p.note
+
+  I've just finished the conversion from static HTML+PHP to a web 
+  framework based on haskell, 
+
+  %a!href="http://docs.yesod.com" Yesod
+
+  \. Some pages may be missing and things might not be where you thought 
+  they were. I've tried to 301 everything from old links to new but who 
+  knows. For more information on the migration, please see the 
+
+  %a!href="/posts/site_migration/" post
+
+  \.
+
 %p
 
   Enjoy the site.
@@ -74,13 +89,13 @@
 
   %em your
 
-  \ system, please try Arch. Be sure to read the Beginners guid before 
+  \ system, please try Arch. Be sure to read the Beginners guide before 
   installing, and do some research (manpge, wiki, forum, google, and 
-  IRC) before asking questions - Though most Archers are etremely 
-  friendly, showing that you've done some research before asking teh 
-  same often repeated questions will go a long way in earnign teh 
+  IRC) before asking questions - Though most Archers are extremely 
+  friendly, showing that you've done some research before asking the 
+  same often repeated questions will go a long way in earning the 
   respect of the group; and, at least in the beginning, I'll bet you 
-  find your questions's already been asked and answered somewhere.
+  find your question's already been asked and answered somewhere.
 
 %h3 
 

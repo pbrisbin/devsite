@@ -64,7 +64,7 @@
 
   So, using the 
 
-  %a!href="http://docs.yesodweb.com/" Yesod tutorial
+  %a!href="http://docs.yesodweb.com/" Yesod Docs
 
   , the 
 
@@ -74,7 +74,7 @@
 
   %a!href="http://github.com/snoyberg/yesoddocs" actual source
 
-  \ for the Yesod tutorial, I was able to hobble my site over to the 
+  \ for the Yesod Docs, I was able to hobble my site over to the 
   framework. It wasn't easy, but there's a lot of benefit there.
 
 %p
@@ -96,7 +96,7 @@
 
   The 
   
-  %a!href=@RootR@ recent posts
+  %a!href="/#Recent_Posts" recent posts
   
   \ listing on the home page, the 
 
@@ -119,19 +119,44 @@
 
   %em type safe
 
-  \. What that means is that I don't type the url directly, I insert a 
-  haskell function call to the Route that corresponds to those pages. 
-  And no, they aren't built from regular expressions; each Route is 
-  generated as a distinct type, and the compiler validates every link in 
-  my site each time it's compiled! Sick, right?
+  \.
+  
+%p
+
+  What that means is that I don't type the url directly, I insert a 
+  haskell function that corresponds to those pages' Routes. And no, 
+  they aren't built from regular expressions; each Route is generated as 
+  a distinct type as defined by me.
+  
+%p
+
+  Routes can also have arguments. Right now you're viewing the output 
+  of the 
+  
+  %code PostR 
+  
+  \ Route using 
+  
+  %code site_migration
+  
+  \ as its argument. But the best part of all that is that the compiler 
+  validates every link in my site each time it's compiled to ensure it's 
+  in scope and type checks!
 
 %h3 Sell Out!
 
 %p
 
   As part of the transition, I'm also giving up some control over code 
-  snippets and comments. I enjoyed the DIY approach but it was getting 
-  cumbersome (and less and less KISS as things went on). 
+  snippets and comments. I enjoyed the 
+  
+  %abbr!title="Do it yourself" DIY
+  
+  \ approach but it was getting cumbersome (and less and less 
+  
+  %abbr!title="Keep it simple stupid" KISS
+  
+  \ as things went on). 
   
 %p
 
@@ -170,7 +195,7 @@
 
   ). To be honest, I just couldn't get (Fast)CGI working with apache and 
   I had it running with lighttpd in minutes. Hopefully it'll be faster 
-  and easier to maintain, we'll see...
+  and easier to maintain too, we'll see...
 
 %p
 
@@ -180,7 +205,7 @@
 
 %p
 
-  Site source is also in my 
+  The site's source is also in my 
 
   %a!href="http://github.com/pbrisbin/devsite" git repo
 

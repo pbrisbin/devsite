@@ -1,0 +1,149 @@
+%p
+
+  Backups are extremely important. In linux, with a little effort and 
+  hardrive space, one can easily come up with a fully automated backup 
+  solution to suit any needs. Here, I'd like to outline my setup. Feel 
+  free to take it and adapt to your needs.
+
+%p
+
+  I'll go through what's required, how and why I do it the way I do, as 
+  well as the shortcomings of how I'm doing it.
+
+%h3 Requirements
+
+%p
+
+  My main box runs on one 500G hardrive. So far, this has suited me well 
+  even with my extensive movies and music collection. I decided I wanted 
+  to have a daily backup and a monthly backup and only one copy of each, 
+  so I went out and got a 1TB hardrive, split it, and now use that for 
+  both.
+
+%p
+
+  All you need is space, so whether you use an internal drive like me, 
+  an external USB, or some off-site scp/rsync situation is up to you; 
+  you'll just have to modify my below script(s) to suit your setup.  
+%h3 How I do it
+
+%p
+
+  I use two scripts daily and have a third that I hope I'll never have 
+  to.
+
+%p
+
+  The first is a backup script that runs via cron daily and monthly. 
+  Here are the cron entries:
+
+%pre.white
+  \
+  \ 30 3 * * * /home/patrick/.bin/backup -d # every day at 3:30 AM
+  \
+  \ 45 4 1 * * /home/patrick/.bin/backup -m # first of every month at 4:45 AM
+  \
+
+%p
+
+  The backup script in it's current incarnation can be downloaded from 
+  my 
+
+  %a!href="http://github.com/pbrisbin/scripts/blob/master/backup" git repo
+
+  \.
+
+%p
+
+  Another script which I use daily is 
+  
+  %code retrieve
+  
+  \. This is a little more custom as it expects files to be in the order 
+  created by the above backup script. It allows me to retrieve one file 
+  or directory out of my daily or monthly backups and restore it into my 
+  live drive.  This is great if you've seriously screwed up your bashrc 
+  or xorg.conf and you want to just roll back to what you had yesterday 
+  (or last month).
+
+%p
+
+  Retrieve is also available in my 
+
+  %a!href="http://github.com/pbrisbin/scripts/blob/master/retrieve" git repo
+
+  \.
+
+%p
+
+  The last script that I have, I haven't had to use 
+  
+  %em --knocks on wood--
+
+  \. This restore script is intended to be used after a crash 
+  
+  
+  %strong and clean re install
+  
+  \ to restore your system back from the directories made by my backup 
+  script. Remember, if you've changed the way /home is handled you'll 
+  need to be careful to adjust this script as well.
+
+%p
+
+  You guessed it, restore is in the 
+
+  %a!href="http://github.com/pbrisbin/scripts/blob/master/restore" repo
+
+  \.
+
+%p
+
+  So that's it; three scripts and some hardrive space, and you've never 
+  got to worry about data loss again. Well, not quite. My setup is 
+  lacking in many areas, but hey, it works for me&trade;. Do what you 
+  wish, there's plenty of google results for more intense backup 
+  strategies.  
+
+%h3 Why mine sucks
+
+%h4 Not off-site, or even out-of-box.
+
+%p
+
+  If my apartment burns down, my backups are useless. To mitigate this, 
+  I've started taking manual copies of my monthly backup and storing 
+  them on a separate drive in a fireproof box.  
+
+%h4 Backups are not rolling
+
+%p
+
+  This isn't so bad for the dailies, but my monthly backup occurs every 
+  month on the first; this means if you have an issue that's more then 
+  two days old, and you happen to notice on the 2nd, you don't have a 
+  backup old enough to fix it.
+
+%h4 Untested
+
+%p
+
+  I've never had to use 
+  
+  %code restore
+  
+  , though I do use 
+  
+  %code retrieve
+  
+  \ all the time. Anyone will tell you, an untested backup solution is 
+  no solution at all. Guess I'm just too lazy to hose my install to test 
+  it. Worse comes to worst, I know the backed up data is good; if my 
+  
+  
+  %code restore
+  
+  \ script fails I can always manually copy everything over. I pretty 
+  much did this last time I installed a new Arch box; as I tend to reuse 
+  configs, just grabbing them off of my main box's backups really sped 
+  up the process.

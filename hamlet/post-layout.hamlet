@@ -2,7 +2,7 @@
 %html!lang="en"
   %head
     %meta!name="author"!content="pbrisbin"
-    %meta!name="keywords"!content="pbrisbin, arch linux, bash, xmonad, mutt"
+    %meta!name="keywords"!content="pbrisbin, arch linux, bash, haskell, xmonad, mutt"
     %meta!name="description"!content="pbrisbin dot com"
     %meta!http-equiv="Content-Type"!content="text/html; charset=UTF-8"
     %title $pageTitle.pc$
@@ -12,7 +12,6 @@
     %p.small
 
       $forall h node
-
         %a!href=@fst.node@ $snd.node$ 
         
         \ / 
@@ -49,14 +48,4 @@
       %noscript
         Sadly, javascript is required for comments on this site.
 
-    %p.small
-      
-      comments powered by 
-
-      %a!href="http://disqus.com" disqus
-
-    #footer 
-      %hr
-      %p
-        %a!href=@RootR@ pbrisbin 
-        \ dot com 2010
+    ^footerTemplate^

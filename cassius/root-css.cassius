@@ -7,7 +7,7 @@
 .right
   text-align: right
 
-.recent_post
+.post
   border:         solid 1px #404040
   border-left:    solid 1px #606060
   border-bottom:  solid 1px #606060
@@ -24,13 +24,15 @@
   padding-right:  10px
   padding-bottom: 10px
 
+.dsq-by, .dsq-dc-logo, .dsq-options
+  display: none
+
 #script
   margin-left:  5%
   margin-right: 5%
 
 #footer
   font-size:  90%
-  text-align: center
 
 h1
   color:       #ffffff

@@ -510,7 +510,7 @@
   %li Intelligently handle the Play/Pause command
   %li Load a stream using 
   
-  %code MediaPlayer()
+    %code MediaPlayer()
 
   %li Show a Progress Notification when connecting
 

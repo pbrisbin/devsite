@@ -59,7 +59,7 @@
   
   %code -ilib
   
-  \ this tells ghc is include source files in 
+  \ this tells ghc to include source files in 
   
   %code ./lib
   
@@ -71,37 +71,14 @@
   
   %code xmonad.hs
   
-  \ custom data types and instances, reusable utilities, etc.  Why not 
+  : custom data types and instances, reusable utilities, etc.  Why not 
   put them in their own files and import them into a nice clean config 
   as I would with any normal contrib module? 
 
 %p
 
   Realizing this decreases the educational value as an example config, I've 
-  taken a few steps to help those that still want to try out (or continue to 
-  use) my config.
-
-%p
-
-  First, the 
-  
-  %code xmonad
-  
-  \ directory of this site is now a bind mount to my own 
-  
-  %code ~/.xmonad
-  
-  \ directory. Even if you don't feel like thinking, you could use a 
-  little 
-  
-  %code wget -r
-  
-  \ magic to just copy the whole thing down and go from there.
-
-%p
-
-  Secondly, thanks to the amazing auto-documentation tool that is haddock, I 
-  was able to put together a pretty legit-looking 
+  taken the step of creating a pretty legit-looking 
   
   %a!href="/xmonad/docs" modules
   

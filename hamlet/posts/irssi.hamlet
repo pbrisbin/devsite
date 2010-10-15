@@ -4,6 +4,8 @@
   further.  This post outlines my current irssi setup as I think it's 
   quite nice and others may wish to copy it.
 
+%h3 Screenshot
+
 %p
 
   %a!href=@StaticR.screenshots_irssi_png@
@@ -31,7 +33,7 @@
 
   My full config (sans passwords) can be downloaded 
   
-  %a!href="http://github.com/pbrisbin/dotfiles/blob/master/irssi/config" here
+  %a!href="http://github.com/pbrisbin/dotfiles/blob/master/.irssi/config" here
 
   \.
 
@@ -50,7 +52,7 @@
   
   \ and it can be downloaded 
   
-  %a!href="http://github.com/pbrisbin/dotfiles/blob/master/irssi/my.theme" here
+  %a!href="http://github.com/pbrisbin/dotfiles/blob/master/.irssi/my.theme" here
 
   \. It's basically a really grey theme to go with my overall desktop.  
   Messages from me are a bright-ish grey, with messages to me as bright 

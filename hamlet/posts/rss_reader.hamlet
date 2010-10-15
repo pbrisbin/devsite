@@ -33,14 +33,6 @@
 
 %p
 
-  Here's what it looks like:
-
-%p
-
-  %strong TODO
-
-%p
-
   I put it in the upper right of my left monitor, configured to look 
   like part of my existing dzen status bars.
 

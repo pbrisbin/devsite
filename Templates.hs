@@ -27,7 +27,7 @@ allPostsTemplate posts title = [$hamlet|
 %h1 $title$
 %hr
 
-#recent_posts
+#posts
     $forall posts post
         ^postTemplate.post^
 |]
@@ -35,7 +35,7 @@ allPostsTemplate posts title = [$hamlet|
 -- | A sub template for a single post
 postTemplate :: Post -> Hamlet DevSiteRoute
 postTemplate arg = [$hamlet|
-.recent_post
+.post
   %p
 
     %a!href=@PostR postSlug.arg@ $postTitle.arg$
