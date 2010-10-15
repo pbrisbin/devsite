@@ -24,7 +24,7 @@ import qualified Text.Hamlet  as H
 import qualified Text.Cassius as C
 import Language.Haskell.TH.Syntax
 
--- #define PRODUCTION
+#define PRODUCTION
 
 approot :: String
 #ifdef PRODUCTION
