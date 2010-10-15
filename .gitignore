@@ -2,6 +2,7 @@ aur
 fileshare
 xmonad
 static/tmp/*
+*.aes
 *.o
 *.hi
 *.cgi
