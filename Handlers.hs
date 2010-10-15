@@ -32,7 +32,7 @@ import Templates
 import qualified Settings as S
 import Helpers.RssFeed
  
-import Data.Maybe       (catMaybes)
+import Data.Maybe       (mapMaybe)
 import Data.Time.Clock  (UTCTime)
 import Data.Time.Format (parseTime)
 import System.Locale    (defaultTimeLocale)
@@ -88,11 +88,11 @@ getFeedR = do
         , rssLinkSelf    = FeedR
         , rssLinkHome    = RootR
         , rssUpdated     = mostRecent
-        , rssEntries     = take 10 . catMaybes $ map readRssEntry allPosts
+        , rssEntries     = take 10 $ mapMaybe readRssEntry allPosts
         }
         where
             -- todo: head of empty list
-            mostRecent = rssEntryUpdated . head . catMaybes $ map readRssEntry allPosts
+            mostRecent = rssEntryUpdated . head $ mapMaybe readRssEntry allPosts
 
 -- | Maybe read a single post into an RssEntry depending if the date
 --   string can be parsed correctly
