@@ -47,7 +47,7 @@
   I've just finished the conversion from static HTML+PHP to a web 
   framework based on haskell, 
 
-  %a!href="http://docs.yesod.com" Yesod
+  %a!href="http://docs.yesodweb.com" Yesod
 
   \. Some pages may be missing and things might not be where you thought 
   they were. I've tried to 301 everything from old links to new but who 
