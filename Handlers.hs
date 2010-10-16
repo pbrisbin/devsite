@@ -40,7 +40,21 @@ import System.Locale    (defaultTimeLocale)
 -- | Home page
 getRootR :: Handler RepHtml
 getRootR = defaultLayout $ do
+    -- recent posts
     let posts = take 10 allPosts
+
+    -- these posts are mentioned in the index
+    let site_migration = "site_migration"
+
+    -- these tags are mentioned in the index
+    let linux   = "Linux"
+    let arch    = "Arch"
+    let xmonad  = "XMonad"
+    let haskell = "Haskell"
+    let mutt    = "Mutt"
+    let bash    = "Bash"
+
+    -- render the page
     setTitle $ string "pbrisbin - Home"
     addBody $(S.hamletFile "index")
      

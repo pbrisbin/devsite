@@ -1,0 +1,142 @@
+%p
+
+  If you're like me, (which you're probably not...) you enjoy listening 
+  to your music with the great music playing daemon known as mpd. You 
+  also have your entire collection on shuffle. Occasionally, I'll fall 
+  into a valley of bad music and end up hitting next far too much to get 
+  to a good song. For this reason, I wrote goodsong.
+
+%h3 What is it?
+
+%p
+
+  Essentially, you press one key command to say 
+
+  %em the currently playing song is good
+  
+  ; then press a different key to say 
+
+  %em play me a good song
+  
+  \.
+
+%p
+
+  Goodsong accomplishes exactly that. It creates a playlist file which 
+  you can auto-magically add the currently playing song to with the 
+  command 
+
+  %code goodsong
+  
+  \. Subsequently, running 
+  
+  %code goodsong -p
+  
+  \ will play a random track from that same list.
+
+%p
+
+  Oh, don't be fooled, goodsong has plenty of other useful options too, 
+  here's the --help:
+
+%pre.white
+  \
+  \ usage: goodsong [option]
+  \
+  \
+  \   options:
+  \
+  \         -p, --play       play random song from list, now
+  \
+  \         -b, --build      build playlist from your list, play it
+  \
+  \         -s, --show       display a random song from list
+  \
+  \         -S, --smart      select a song from your list
+  \
+  \                          find it in your current playlist
+  \
+  \                          or add it; when the current song ends,
+  \
+  \                          play it
+  \
+  \         -h, --help       display this
+  \
+  \
+  \         none             append playing song to list
+  \
+
+
+%h3 Installation
+
+%p
+
+  Goodsong is available in its current form in my 
+
+  %a!href="http://github.com/pbrisbin/scripts/blob/master/goodson" git repo
+
+  \.
+
+%h3 Usage
+
+%p
+
+  Using goodsong is easy. You can always just run it from CLI, but I 
+  find it's best when bound to keys. I'll leave the method for that up 
+  to you; xbindkeys is a nice WM-agnostic way to bind some keys, or you 
+  can use your a WM-specific configuration to do so.
+
+%p
+
+  Personally, I keep 
+  
+  %kbd Alt-g
+  
+  \ as 
+
+  %code goodsong
+  
+  \ and 
+
+  %kbd Alt-Shift-g
+  
+  \ as 
+
+  %code goodsong -p
+  
+  \.
+
+%p.note
+
+  You're going to have to spend some time logging songs as "good" before 
+  the -p option becomes useful.
+
+%h3 Update
+
+%p
+
+  I recently received a patch from a reader for this script. It adds a 
+  few features which I've happily merged in.
+
+%ul
+
+  %li Various methods are employed to try and determine exactly what 
+
+    %code mpd.conf
+
+    \ you're currently running with at the time
+
+  %li The goodsong list is now a legitimate playlist file stored in your 
+
+    %code playlist_directory
+    
+    \ as specified in 
+    
+    %code mpd.conf
+
+%p
+
+  Because of that last one, the -b flag to goodsong is pretty much 
+  useless and will probably be removed at some point in the future. You 
+  should simply load the playlist from mpc or ncmpcpp just like any 
+  other.

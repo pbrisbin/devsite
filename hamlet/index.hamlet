@@ -14,11 +14,33 @@
 %p
 
   Welcome to pbrisbin dot com. You'll find it's mostly 
-  [GNU/]Linux-related geekery here and some of the information presented 
-  is specific to the [amazing] distribution known as Arch Linux. Some of 
-  my favorite topics are the XMonad window manager, Bash scripting (or 
-  just general command-line adventures), and the great email client 
-  Mutt.
+  [GNU/]
+  
+  %a!href=@TagR linux@ Linux
+  
+  -related geekery here and some of the information presented is 
+  specific to the [amazing] distribution known as 
+  
+  %a!href=@TagR arch@ Arch
+  
+  \ Linux. Some of my favorite topics are the 
+  
+  %a!href=@TagR xmonad@ XMonad
+  
+  \ window manager, 
+  
+  %a!href=@TagR haskell@ haskell
+  
+  \ in general, 
+  
+  %a!href=@TagR bash@ Bash
+  
+  \ scripting (or just general command-line adventures), and the great 
+  email client 
+  
+  %a!href=@TagR mutt@ Mutt
+  
+  \.
 
 %p.note
 
@@ -31,7 +53,7 @@
   they were. I've tried to 301 everything from old links to new but who 
   knows. For more information on the migration, please see the 
 
-  %a!href="/posts/site_migration/" post
+  %a!href=@PostR site_migration@ post
 
   \.
 
@@ -84,13 +106,13 @@
 %p
 
   If you want to try a distro that expects a lot from its users while 
-  still offering a great package manager and simple transperent tools 
+  still offering a great package manager and simple transparent tools 
   for maintaining 
 
   %em your
 
   \ system, please try Arch. Be sure to read the Beginners guide before 
-  installing, and do some research (manpge, wiki, forum, google, and 
+  installing, and do some research (manpage, wiki, forum, google, and 
   IRC) before asking questions - Though most Archers are extremely 
   friendly, showing that you've done some research before asking the 
   same often repeated questions will go a long way in earning the 

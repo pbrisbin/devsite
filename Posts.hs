@@ -176,14 +176,13 @@ allPosts =
         $(S.hamletFile "posts/aurget")
         ["Linux", "Arch", "AUR"]
 
-    ]
-    {-
     , Post
         "Dvdcopy"
         "dvdcopy"
         "Sat, 05 Dec 2009 18:50:44 -0500"
         "A script to copy a standard DVD9 to a DVD5, decrypting along the way. Just wraps standard tools like growisofs, and mencoder."
         $(S.hamletFile "posts/dvdcopy")
+        ["Arch", "Linux", "Bash"]
 
     , Post
         "Screen Tricks"
@@ -191,13 +190,7 @@ allPosts =
         "Sat, 05 Dec 2009 18:50:44 -0500"
         "Here I describe how I setup some environment variables and bash aliases to add to the versatility that is the great program screen."
         $(S.hamletFile "posts/screen_tricks")
-
-    , Post
-        "Wifi Pipe"
-        "wifi_pipe"
-        "Sat, 05 Dec 2009 18:50:44 -0500"
-        "I rewrote the great tool wifi-select to output to an openbox menu. Now you can right-click on your desktop and see all available wifi hotspots. Click to connect."
-        $(S.hamletFile "posts/wifi_pipe")
+        ["Arch", "Linux", "Screen"]
 
     , Post
         "Text From CLI"
@@ -205,6 +198,7 @@ allPosts =
         "Sat, 05 Dec 2009 18:50:44 -0500"
         "Leveraging the power of command line emailing in linux, I show a quick way to get a text message out from the commandline. Set up alerts or bug your friends, whatever works."
         $(S.hamletFile "posts/text_from_cli")
+        ["Arch", "Linux"]
 
     , Post
         "Downgrade"
@@ -212,6 +206,15 @@ allPosts =
         "Sat, 05 Dec 2009 18:50:44 -0500"
         "A script to easily downgrade packages to a version in your cache or the A.R.M. Arch users only."
         $(S.hamletFile "posts/downgrade")
+        ["Arch", "Linux"]
+
+    , Post
+        "Wifi Pipe"
+        "wifi_pipe"
+        "Sat, 05 Dec 2009 18:50:44 -0500"
+        "I rewrote the great tool wifi-select to output to an openbox menu. Now you can right-click on your desktop and see all available wifi hotspots. Click to connect."
+        $(S.hamletFile "posts/wifi_pipe")
+        ["Arch", "Linux", "Openbox", "Bash"]
 
     , Post
         "Status Bars in XMonad"
@@ -219,12 +222,15 @@ allPosts =
         "Sat, 05 Dec 2009 18:50:44 -0500"
         "One of the hardest things for new XMonad users is setting up the status bars. This is mostly due to the myriad options available; here, I outline step-by-step how I do it."
         $(S.hamletFile "posts/xmonad_statusbars")
+        ["XMonad", "Haskell", "Dzen"]
+
     , Post
         "Goodsong"
         "goodsong"
         "Sat, 05 Dec 2009 18:50:44 -0500"
         "This script allows you to immediately log a currently playing song as 'good'. You can then later, play a random 'good' song, build a playlist of 'good' songs, etc."
         $(S.hamletFile "posts/goodsong")
+        ["Arch", "Linux", "Bash"]
 
     , Post
         "Mutt + Gmail + Offlineimap"
@@ -232,5 +238,5 @@ allPosts =
         "Sat, 05 Dec 2009 18:50:44 -0500"
         "A How-to describing the setup required for a convenient offlineimap + mutt + msmtp email solution on linux."
         $(S.hamletFile "posts/mutt_gmail_offlineimap")
+        ["Mutt", "Offlineimap", "GMail"]
     ]
-    -}
