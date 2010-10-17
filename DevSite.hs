@@ -17,14 +17,14 @@
 -------------------------------------------------------------------------------
 module DevSite where
 
-import Yesod
+import Yesod hiding (lift)
 import Yesod.Helpers.Static
 import Yesod.WebRoutes
 import qualified Settings as S
 
 import Control.Monad (liftM)
 import Data.Char (toLower)
-import qualified Language.Haskell.TH.Syntax as TH
+import Language.Haskell.TH.Syntax
 
 -- | The main site type
 data DevSite = DevSite { getStatic :: Static }
@@ -118,19 +118,19 @@ footerTemplate = [$hamlet|
 --
 --   > foo = "foo"
 --
-mkConstant :: String -> TH.Q [TH.Dec]
+mkConstant :: String -> Q [Dec]
 mkConstant s = do
-    exp <- TH.lift s
-    let name = TH.mkName $ cleanString s
-    return [ TH.FunD name [ TH.Clause [] (TH.NormalB exp) [] ] ]
+    exp <- lift s
+    let name = mkName $ cleanString s
+    return [ FunD name [ Clause [] (NormalB exp) [] ] ]
 
 -- | Similar but for lists, this one's not working yet.
-mkConstants :: [String] -> TH.Q [TH.Dec]
+mkConstants :: [String] -> Q [Dec]
 mkConstants []     = return []
 mkConstants (s:ss) = do
-    exp <- TH.lift s
-    let name = TH.mkName $ cleanString s
-    mkConstants ss >>= (\rest -> return $ TH.FunD name [ TH.Clause [] (TH.NormalB exp) [] ] : rest)
+    exp <- lift s
+    let name = mkName $ cleanString s
+    mkConstants ss >>= (\rest -> return $ FunD name [ Clause [] (NormalB exp) [] ] : rest)
 
 -- | Clean a string before it becomes a function name
 cleanString :: String -> String
