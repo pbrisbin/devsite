@@ -15,14 +15,20 @@
 -------------------------------------------------------------------------------
 module Posts
     ( Post (..)
-    , loadPost
+    , getPostBySlug
     , getPostsByTag
     , allPosts
+    , mkPostSlugs
+    , mkPostTags
     ) where
 
 import Yesod
 import DevSite
 import qualified Settings as S
+
+import Data.Char (toLower)
+import Data.List (nub)
+import Language.Haskell.TH.Syntax
 
 -- | The datatype of a Post
 data Post = Post
@@ -38,12 +44,32 @@ data Post = Post
 type HamletContent = Hamlet (Route DevSite)
 
 -- | Locate posts with a given slug
-loadPost :: String -> [Post]
-loadPost slug = filter ((== slug) . postSlug) allPosts
+getPostBySlug :: String -> [Post]
+getPostBySlug slug = filter ((== slug) . postSlug) allPosts
 
 -- | Locate posts with a given tag
 getPostsByTag :: String -> [Post]
 getPostsByTag tag = filter ((elem tag) . postTags) allPosts
+
+-- | Use TH to define functions for each post's slug for use in hamlet
+--   templates
+mkPostSlugs :: Q [Dec]
+mkPostSlugs = mkConstants $ map postSlug allPosts
+
+-- | Use TH to define functions for each tag for use in hamlet templates
+mkPostTags :: Q [Dec]
+mkPostTags = mkConstants $ nub . concat $ map postTags allPosts
+
+--
+-- BUT
+--
+-- without actually calling the above here, none of them are in scope
+-- here which kinda defeats the purpose... but we can't call it here b/c
+-- allPosts is out of scope (not yet defined)... and we can't call it
+-- after because then the functions aren't in scope for the posts... and
+-- we can't move it to other files because then circular imports
+-- ensue... FFFFUUUUUUUUUUU
+--
 
 -- | The master list of all posts known to the site
 allPosts :: [Post]

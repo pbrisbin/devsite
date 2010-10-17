@@ -22,7 +22,9 @@ import Yesod.Helpers.Static
 import Yesod.WebRoutes
 import qualified Settings as S
 
+import Control.Monad (liftM)
 import Data.Char (toLower)
+import qualified Language.Haskell.TH.Syntax as TH
 
 -- | The main site type
 data DevSite = DevSite { getStatic :: Static }
@@ -106,3 +108,34 @@ footerTemplate = [$hamlet|
             
             %a!href="http://docs.yesodweb.com/" yesod
 |]
+
+-- | Template haskell to automate function declarations for use in
+--   hamlet files
+--
+--   > mkConstant "foo"
+--
+--   is equivalent to writing directly,
+--
+--   > foo = "foo"
+--
+mkConstant :: String -> TH.Q [TH.Dec]
+mkConstant s = do
+    exp <- TH.lift s
+    let name = TH.mkName $ cleanString s
+    return [ TH.FunD name [ TH.Clause [] (TH.NormalB exp) [] ] ]
+
+-- | Similar but for lists, this one's not working yet.
+mkConstants :: [String] -> TH.Q [TH.Dec]
+mkConstants []     = return []
+mkConstants (s:ss) = do
+    exp <- TH.lift s
+    let name = TH.mkName $ cleanString s
+    mkConstants ss >>= (\rest -> return $ TH.FunD name [ TH.Clause [] (TH.NormalB exp) [] ] : rest)
+
+-- | Clean a string before it becomes a function name
+cleanString :: String -> String
+cleanString = map (toLower . doClean)
+    where
+        doClean '.' = '_'
+        doClean '-' = '_'
+        doClean c   = c

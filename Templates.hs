@@ -53,3 +53,9 @@ postTemplate arg = [$hamlet|
 
         %a!href=@TagR tag@ $tag$ 
 |]
+
+-- | Display a link by slug
+postLink :: String -> Hamlet DevSiteRoute
+postLink arg = [$hamlet|
+%a!href=@PostR arg@ $postTitle.head.getPostBySlug.arg$
+|]

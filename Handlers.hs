@@ -37,22 +37,16 @@ import Data.Time.Clock  (UTCTime)
 import Data.Time.Format (parseTime)
 import System.Locale    (defaultTimeLocale)
 
+-- | These two TH calls will define runnable functions for every post
+--   slug and tag currently in use on the site.
+mkPostSlugs
+mkPostTags
+
 -- | Home page
 getRootR :: Handler RepHtml
 getRootR = defaultLayout $ do
     -- recent posts
     let posts = take 10 allPosts
-
-    -- these posts are mentioned in the index
-    let site_migration = "site_migration"
-
-    -- these tags are mentioned in the index
-    let linux   = "Linux"
-    let arch    = "Arch"
-    let xmonad  = "XMonad"
-    let haskell = "Haskell"
-    let mutt    = "Mutt"
-    let bash    = "Bash"
 
     -- render the page
     setTitle $ string "pbrisbin - Home"
@@ -73,7 +67,7 @@ getPostsR = pageLayout $ do
 -- | A post
 getPostR :: String -> Handler RepHtml
 getPostR slug = do
-    case loadPost slug of
+    case getPostBySlug slug of
         []       -> notFound
         (post:_) -> postLayout post
 
