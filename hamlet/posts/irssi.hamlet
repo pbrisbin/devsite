@@ -1,7 +1,7 @@
 %p
 
   Irssi is an IRC client. If that sentence made no sense, then read no 
-  further.  This post outlines my current irssi setup as I think it's 
+  further. This post outlines my current irssi setup as I think it's 
   quite nice and others may wish to copy it.
 
 %h3 Screenshot
@@ -122,7 +122,7 @@
   \ for turning me onto this. Once I started using irssi exclusively in 
   screen (as outlined 
   
-  %a!href="/pages/screen_tricks.html" here
+  %a!href="/posts/screen_tricks" here
   
   ) this script really started coming in handy. It just auto-sets you as 
   away when you detach your screen session and brings you back when you 
