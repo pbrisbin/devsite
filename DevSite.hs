@@ -82,7 +82,7 @@ instance YesodBreadcrumbs DevSite where
             format (x:rest)   = x  : format rest
 
     -- all tags goes back home and individual tags go to all tags
-    breadcrumb TagsR      = return ("all tags" , Just RootR)
+    breadcrumb TagsR      = return ("all tags", Just RootR)
     breadcrumb (TagR tag) = return (format tag, Just TagsR)
 
         where
@@ -124,7 +124,7 @@ mkConstant s = do
     let name = mkName $ cleanString s
     return [ FunD name [ Clause [] (NormalB exp) [] ] ]
 
--- | Similar but for lists, this one's not working yet.
+-- | Similar but for lists
 mkConstants :: [String] -> Q [Dec]
 mkConstants []     = return []
 mkConstants (s:ss) = do
