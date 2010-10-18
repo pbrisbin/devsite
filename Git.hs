@@ -1,6 +1,6 @@
-{-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE TypeFamilies    #-}
-{-# LANGUAGE QuasiQuotes     #-}
+{-# LANGUAGE TemplateHaskell       #-}
+{-# LANGUAGE TypeFamilies          #-}
+{-# LANGUAGE QuasiQuotes           #-}
 -------------------------------------------------------------------------------
 -- |
 -- Module      :  Git
@@ -25,13 +25,21 @@
 -------------------------------------------------------------------------------
 module Git where
 
+import Yesod hiding (lift)
+import Yesod.WebRoutes
+
 import Data.List (intercalate)
 
+data Git = Git
+data GitRoute = GitRoute [String] deriving (Eq, Show, Read)
+type instance Route Git = GitRoute
+
+-- | Fully describe a git repo
 data GitRepo = GitRepo
-    { gitUser  :: String
-    , gitRepo  :: String
-    , gitPath  :: FilePath
-    , gitFiles :: [String]
+    { gitUser  :: String   -- ^ The username
+    , gitRepo  :: String   -- ^ The repo name
+    , gitPath  :: FilePath -- ^ It's local path
+    , gitFiles :: [String] -- ^ A list of the files contained
     }
 
 loadGitRepo :: FilePath -> GitRepo
@@ -46,5 +54,9 @@ exampleRepo = GitRepo "pbrisbin" "scripts" "/home/patrick/.bin"
     , "bashnotify"
     ]
 
-formatLink :: GitRepo -> String -> String
+-- | Given a repo name and file name format a proper github link to the
+--   file's page
+formatLink :: GitRepo -- ^ The Repo
+           -> String  -- ^ The filename
+           -> String  -- ^ The resulting link
 formatLink r f = intercalate "/" $ [ "http://github.com", gitUser r, gitRepo r, "blob", "master", f ]
