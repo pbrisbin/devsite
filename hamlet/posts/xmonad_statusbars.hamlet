@@ -30,8 +30,8 @@
 
 %p
 
-  %a!href=@StaticR.screenshots_status_png@
-    %img.fixed!src=@StaticR.screenshots_status_thumb_png@!id="xmonad-status"!alt="XMonad Shot"
+  %a!href="/static/screenshots/status.png"
+    %img.fixed!src="/static/screenshots/status-thumb.png"!id="xmonad-status"!alt="XMonad Shot"
 
 %p
 
@@ -40,8 +40,8 @@
 
 %p
 
-  %a!href=@StaticR.screenshots_status_urgency_png@
-    %img.centered!src=@StaticR.screenshots_status_urgency_thumb_png@!id="xmonad-urgent"!alt="XMonad Shot"
+  %a!href="/static/screenshots/status-urgency.png"
+    %img.centered!src="/static/screenshots/status-urgency-thumb.png"!id="xmonad-urgent"!alt="XMonad Shot"
 
 %p
 

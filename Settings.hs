@@ -14,8 +14,6 @@
 -------------------------------------------------------------------------------
 module Settings
     ( approot
-    , staticdir
-    , staticroot
     , hamletFile
     , cassiusFile
     ) where
@@ -32,12 +30,6 @@ approot = "http://pbrisbin.com"
 #else
 approot = "http://localhost:3000"
 #endif
-
-staticdir :: FilePath
-staticdir = "static"
-
-staticroot :: String
-staticroot = approot ++ "/static"
 
 hamletFile :: FilePath -> Q Exp
 #ifdef PRODUCTION

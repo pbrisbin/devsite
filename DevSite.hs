@@ -18,7 +18,6 @@
 module DevSite where
 
 import Yesod hiding (lift)
-import Yesod.Helpers.Static
 import Yesod.WebRoutes
 import qualified Settings as S
 
@@ -27,13 +26,9 @@ import Data.Char (toLower)
 import Language.Haskell.TH.Syntax
 
 -- | The main site type
-data DevSite = DevSite { getStatic :: Static }
+data DevSite = DevSite
 type Handler = GHandler DevSite DevSite
 type DWidget = GWidget  DevSite DevSite
-
--- | Automatically generate callable functions for everything under
---   the /static directory
-staticFiles "static"
 
 -- | Define all of the routes and handlers
 mkYesodData "DevSite" [$parseRoutes|
@@ -46,7 +41,6 @@ mkYesodData "DevSite" [$parseRoutes|
 /feed          FeedR    GET
 /favicon.ico   FaviconR GET
 /robots.txt    RobotsR  GET
-/static        StaticR Static getStatic
 |]
 
 -- | Make my site an instance of Yesod so we can actually use it

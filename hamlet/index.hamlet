@@ -80,9 +80,9 @@
 
 %p
 
-  %a!href=@StaticR.screenshots_current_desktop_png@
+  %a!href="/static/screenshots/current_desktop.png"
 
-    %img.fixed!src=@StaticR.screenshots_current_desktop_thumb_png@!id="current-desktop"!alt="Most recent desktop shot"
+    %img.fixed!src="/static/screenshots/current_desktop-thumb.png"!id="current-desktop"!alt="Most recent desktop shot"
 
 %h3 About Arch
 

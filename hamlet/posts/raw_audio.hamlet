@@ -626,13 +626,13 @@
 
 %p.centered
 
-    %a!href=@StaticR.screenshots_raw_audio_png@
+    %a!href="/static/screenshots/raw_audio.png"
 
-      %img!src=@StaticR.screenshots_raw_audio_thumb_png@!id="raw-audio"!alt="Raw Audio"
+      %img!src="/static/screenshots/raw_audio-thumb.png"!id="raw-audio"!alt="Raw Audio"
 
-    %a!href=@StaticR.screenshots_raw_audio_progress_png@
+    %a!href="/static/screenshots/raw_audio_progress.png"
 
-      %img!src=@StaticR.screenshots_raw_audio_progress_thumb_png@!id="raw-audio-progress"!alt="Raw Audio Progress"
+      %img!src="/static/screenshots/raw_audio_progress-thumb.png"!id="raw-audio-progress"!alt="Raw Audio Progress"
 
 %h3 References
 

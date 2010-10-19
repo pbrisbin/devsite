@@ -8,9 +8,9 @@
 
 %p
 
-  %a!href=@StaticR.screenshots_irssi_png@
+  %a!href="/static/screenshots/irssi.png"
 
-    %img.centered!src=@StaticR.screenshots_irssi_thumb_png@!id="irssi-screenshot"!alt="Irssi Screenshot"
+    %img.centered!src="/static/screenshots/irssi-thumb.png"!id="irssi-screenshot"!alt="Irssi Screenshot"
 
 %h3 Config
 

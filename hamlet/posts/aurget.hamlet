@@ -32,7 +32,7 @@
 
 %p
 
-  %img.fixed!src=@StaticR.screenshots_aurget_png@!id="aurget"!alt="Aurget Screenshot"
+  %img.fixed!src="/static/screenshots/aurget.png"!id="aurget"!alt="Aurget Screenshot"
 
 %p
 

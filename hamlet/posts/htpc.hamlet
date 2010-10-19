@@ -229,27 +229,27 @@
 
 %p.centered
 
-  %a!href=@StaticR.screenshots_htpc_0_bmp@
+  %a!href="/static/screenshots/htpc_0.bmp"
   
-    %img!src=@StaticR.screenshots_htpc_0_thumb_bmp@!id="htpc-1"!alt="HTPC Shot"
+    %img!src="/static/screenshots/htpc_0-thumb.bmp"!id="htpc-1"!alt="HTPC Shot"
 
   &nbsp;
 
-  %a!href=@StaticR.screenshots_htpc_1_bmp@
+  %a!href="/static/screenshots/htpc_1.bmp"
   
-    %img!src=@StaticR.screenshots_htpc_1_thumb_bmp@!id="htpc-2"!alt="HTPC Shot"
+    %img!src="/static/screenshots/htpc_1-thumb.bmp"!id="htpc-2"!alt="HTPC Shot"
 
 %p.centered
 
-  %a!href=@StaticR.screenshots_htpc_2_bmp@
+  %a!href="/static/screenshots/htpc_2.bmp"
   
-    %img!src=@StaticR.screenshots_htpc_2_thumb_bmp@!id="htpc-3"!alt="HTPC Shot"
+    %img!src="/static/screenshots/htpc_2-thumb.bmp"!id="htpc-3"!alt="HTPC Shot"
 
   &nbsp;
 
-  %a!href=@StaticR.screenshots_htpc_4_bmp@
+  %a!href="/static/screenshots/htpc_4.bmp"
   
-    %img!src=@StaticR.screenshots_htpc_4_thumb_bmp@!id="htpc-4"!alt="HTPC Shot"
+    %img!src="/static/screenshots/htpc_4-thumb.bmp"!id="htpc-4"!alt="HTPC Shot"
 
 
 %h3 Remote configuration

@@ -45,12 +45,12 @@
 
 %p.centered
 
-  %img.validation!src=@StaticR.images_valid_html5_png@!alt="Valid HTML5"
+  %img.validation!src="/static/images/valid-html5.png"!alt="Valid HTML5"
 
   &nbsp;
 
-  %img.validation!src=@StaticR.images_valid_css_png@!alt="Valid CSS"
+  %img.validation!src="/static/images/valid-css.png"!alt="Valid CSS"
 
   &nbsp;
 
-  %img.validation!src=@StaticR.images_valid_rss_png@!alt="Valid RSS"
+  %img.validation!src="/static/images/valid-rss.png"!alt="Valid RSS"

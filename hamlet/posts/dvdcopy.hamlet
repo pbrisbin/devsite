@@ -9,7 +9,7 @@
 
 %p
 
-  %img.fixed!src=@StaticR.screenshots_dvdcopy_png@!id="dvdcopy"!alt="Dvdcopy Shot"
+  %img.fixed!src="/static/screenshots/dvdcopy.png"!id="dvdcopy"!alt="Dvdcopy Shot"
 
 %h3 Usage
 

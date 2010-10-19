@@ -22,8 +22,8 @@
 
 %p
 
-  %a!href=@StaticR.screenshots_xmonad_im_layout_png@
-    %img.centered!src=@StaticR.screenshots_xmonad_im_layout_thumb_png@!id="im-layout"!alt="IM Layout Screenshot"
+  %a!href="/static/screenshots/xmonad_im_layout.png"
+    %img.centered!src="/static/screenshots/xmonad_im_layout-thumb.png"!id="im-layout"!alt="IM Layout Screenshot"
 
 %p
 
