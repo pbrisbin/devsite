@@ -1,7 +1,5 @@
-aur
-fileshare
+static
 xmonad
-static/tmp/*
 *.aes
 *.o
 *.hi
