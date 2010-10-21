@@ -1,10 +1,10 @@
-If you've read my recent post on using a scratchpad in XMonad, and
-if you've actually implemented this in your own setup, you probably
-know how useful it is. For those that don't know what I'm talking
-about, you basically setup a simple keybinding that calls up a
-terminal (usually floated, but managed by its own specific
-manageHook) to be used briefly before being banished away by the
-same keybinding.
+If you've read my recent [post](/posts/xmonad_scratchpad) on using a 
+scratchpad in XMonad, and if you've actually implemented this in your 
+own setup, you probably know how useful it is. For those that don't know 
+what I'm talking about, you basically setup a simple keybinding that 
+calls up a terminal (usually floated, but managed by its own specific 
+manageHook) to be used briefly before being banished away by the same 
+keybinding.
 
 Recently, I found that you can apply this functionality to any
 application you'd like.
@@ -38,10 +38,10 @@ So of course, we'll need to add
 file.
 
 <div class="note">
-Please refer back to my previous post for information regarding
-some boilerplate code. This writeup assumes you have a main-do
-block that calls out `myManageHook` and `myKeys` to be defined as
-separate functions. I also won't be going into hiding the NSP
+Please refer back to my previous [post](/posts/xmonad_scratchpad/) for 
+information regarding some boilerplate code. This writeup assumes you 
+have a main-do block that calls out `myManageHook` and `myKeys` to be 
+defined as separate functions. I also won't be going into hiding the NSP 
 workspace in this post.
 </div>
 
