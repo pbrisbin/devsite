@@ -1,0 +1,14 @@
+This snippet, when added to one's `~/.vimrc`, allows the easy
+toggling of commonly used options (i.e. things like `hls` or
+`wrap`) with a single keypress.
+
+First, you'll have to define the actual function:
+
+Then, just map keys to that function:
+
+You'll even get a nice notification in your vim command prompt when
+you toggle the setting
+
+Disclaimer -- I believe I got this from
+[rson](http://rsontech.net)'s vimrc, but I'm not sure; If I did,
+thanks rson.

@@ -23,7 +23,8 @@ import DevSite
 import Posts
 import qualified Settings as S
 
--- | Like defaultLayout, just with breadcrumbs
+-- | Like defaultLayout, just with breadcrumbs, used with any top level
+--   pages
 pageLayout :: DWidget () -> Handler RepHtml
 pageLayout widget = do
     mmesg  <- getMessage
@@ -37,14 +38,11 @@ pageLayout widget = do
 --   while still abstracting the overall template/css
 postLayout :: Post -> Handler RepHtml
 postLayout post = do
-    mmesg  <- getMessage
-    (t, h) <- breadcrumbs
+    mmesg       <- getMessage
+    (t, h)      <- breadcrumbs
+    postContent <- liftIO $ loadPostContent post
+
     pc <- widgetToPageContent $ do
-        addPost
+        setTitle $ string $ "pbrisbin - " ++ postTitle post
         addStyle $(S.cassiusFile "root-css")
     hamletToRepHtml $(S.hamletFile "post-layout")
-        
-    where
-        addPost = do
-            setTitle $ string $ "pbrisbin - " ++ postTitle post
-            addBody  $ postContent post

@@ -1,0 +1,341 @@
+Mutt can be really great with multiple accounts, but it's not
+exactly intuitive to setup. Here I'll document how I access my
+GMail and GMX email accounts together in one mutt instance. Three
+tools are in use in a setup like this:
+
+1.  One to sync your IMAP accounts with local Maildir folders
+2.  One to send mail via the appropriate smtp server
+3.  Finally, one to interact with the synced folders, compose
+    messages, and call the *send* application as needed
+
+All of my live config files can always be found with my
+[dotfiles](http://github.com/pbrisbin/dotfiles); there are many
+changes, additions, and better ways of doing things compared to
+what's printed below.
+
+### Offlineimap
+
+Offlineimap handles multiple accounts very well. Here's my
+`~/.offlineimaprc` set up to sync my GMail and GMX accounts into
+two local Maildir folders:
+
+Take note of the nametrans for gmail. My line there will change
+folder names during the sync so `IMAP://[Gmail].Archive` becomes
+`~/Mail/GMail/archive` and similar for all other folders. You can
+choose not to use this line if you don't mind the default folder
+names, but you'll have to be careful to use the right folder names
+in your `~/.mutt/muttrc`.
+
+Offlineimap is written in python, and any valid python can actually
+be used in that nametrans. In fact, my live config has a more
+compact version that uses a couple of other function calls to
+accomplish essentially the same translation.
+
+The ui setting is also useful in that when you test or sync with
+offlineimap from a command prompt, you can view the output, but in
+our cronjob we can call `-u Noninteractive.Quiet` explicitly to
+suppress it; best of both worlds.
+
+You can test your setup by running `offlineimap -o` to sync things
+once. It could take a while, but once done, you should have a nice
+folder structure like this:
+
+     Mail/
+     |-- GMX
+     |   |-- Archive
+     |   |-- Drafts
+     |   |-- INBOX
+     |   |-- Sent
+     |   |-- Spam
+     |   `-- Trash
+     `-- GMail
+         |-- INBOX
+         |-- archive
+         |-- drafts
+         |-- flagged
+         |-- sent
+         |-- spam
+         `-- trash
+
+Offlineimap is kind of buggy for me, if I use its built-in refresh
+mechanism I find it'll often hang or quit and I'll be left with an
+unsynced mailbox. Therefore, I cronned a [re]start script to take
+care of it.
+
+Once you're sure things are syncing fine, create a script with
+these contents:
+
+Make it executable via `chmod +x /path/to/mailrun.sh` and set up a
+cron job to run it every 3 minutes:
+
+     crontab -e
+    
+     # add this:
+     */3 * * * * /path/to/mailrun.sh
+
+You'll likely have to restart cron for the changes to take effect.
+
+This script checks if offlineimap is already running; there's two
+ways one could handle it if a PID is found: one, offlineimap is
+still syncing since 3 minutes and we should just exit and let it
+finish (this is the method I've landed on). Or two, offlineimap
+hasn't completed its sync in 3 minutes so it must be frozen, we
+should kill it and resync. The choice is yours, just change
+`&& exit 1` to `&& kill $PID`.
+
+### Msmtp
+
+Msmtp also handles multiple accounts very elegantly. Here's my
+`~/.msmtprc` set up to handle my gmail and gmx accounts:
+
+Now we can simply call `msmtp -a gmail` or `msmtp -a gmx` to use
+whichever account we want (default is gmail for me).
+
+You should do a quick sanity check here that you can send some
+mail:
+
+     echo "Your howto is awesome, thanks" | msmtp -a gmail praise@pbrisbin.com
+     echo "Your howto sucks balls, doucher..." | msmtp -a gmx spam@pbrisbin.com
+
+Just make sure you get no errors with either account.
+
+### Mutt
+
+Now we bring it all together in mutt. I'm gonna show you pretty
+much my full muttrc, not all of it is needed (but I like it) so
+feel free to experiment on your own version.
+
+I prefer to separate my config out into some logical pieces. So we
+need to setup some support files, a few of which I'm not going to
+go into because they're totally dependant on you, just ensure that
+these exist if you plan on blindly copy/pasting large portions of
+my config:
+
+     # files
+     ~/.mutt/certificates    # touch an empty file
+     ~/.mutt/colors.muttrc   # define colors in muttrc syntax
+     ~/.mutt/mailcap         # touch an empty file (go google if you want to utilize this)
+     ~/.mutt/alias           # touch an empty file
+     ~/.mutt/sig             # type a signature that'll be added to emails
+    
+     # mkdir all these
+     ~/.mutt/temp
+     ~/.mutt/cache/bodies
+     ~/.mutt/cache/headers
+
+There is also a file I keep at `~/.mutt/sidebar.muttrc`, with all
+of the sidebar-specific options in it, I do this so I can quickly
+comment the source line in `~/.mutt/muttrc` if I take that config
+to a machine running vanilla mutt.
+
+My live config loads this file only if mutt -h signifies that the
+sidebar patch is applied.
+
+Now, the two supporting config files we need to pay attention to:
+These will be setup per account, with overriding settings. That
+way, we can define a folder-hook so that when we're viewing mail in
+`~/Mail/GMail/*` we have all of our gmail specific account settings
+loaded, and if we're in `~/Mail/GMX/*` we have all of our gmx
+settings loaded. These are things like our from address, where to
+store sent messages, where to put deleted messages, etc. Pretty
+cool, huh? I also put a quick color setting in each of these files
+so when we're in gmail the statusbar is green, but when we're in
+gmx, it's cyan. I find this visual cue really useful.
+
+So, setup two files, one at `~/.mutt/gmail.muttrc`:
+
+     ###
+     # gmail specific options
+     ###
+    
+     color status green default
+    
+     set from      = "username@gmail.com"
+     set sendmail  = "/usr/bin/msmtp -a gmail"
+     set mbox      = "+GMail/archive"
+     unset record
+     set postponed = "+GMail/drafts"
+    
+     macro index E "<change-folder>+GMail/archive<enter><limit>~B " "search everything"
+     macro index D "<save-message>+GMail/trash<enter>"              "move message to the trash"
+     macro index S "<save-message>+GMail/spam<enter>"               "mark message as spam"
+
+And one at `~/.mutt/gmx.muttrc`:
+
+     ###
+     # gmx specific options
+     ###
+    
+     color status cyan default
+    
+     set from      = "username@gmx.com"
+     set sendmail  = "/usr/bin/msmtp -a gmx"
+     set mbox      = "+GMX/Archive"
+     set record    = "+GMX/Sent"
+     set postponed = "+GMX/Drafts"
+    
+     macro index E "<change-folder>+GMX/Archive<enter><limit>~B " "search everything"
+     macro index D "<save-message>+GMX/Trash<enter>"              "move message to the trash"
+     macro index S "<save-message>+GMX/Spam<enter>"               "mark message as spam"
+
+Now the most important file of all: `~/.mutt/muttrc`. Here is my
+complete muttrc, commented so you can tell what things do; I'm not
+explaining anything beyond the folder-hook. This means when we
+enter a folder, we load the settings specific to that account as
+defined above. This means there's no need to
+*change accounts per say*, just navigate to a folder and any
+account specific settings will automatically be in place while
+you're in that folder.
+
+Go `man muttrc` if you'd like more info on all the other settings.
+
+     ###
+     # ~/.mutt/muttrc
+     ###
+     \ # directories and commands
+     set alias_file          = ~/.mutt/alias                         # alias file
+     set header_cache        = ~/.mutt/cache/headers                 # where to store headers        
+     set message_cachedir    = ~/.mutt/cache/bodies                  # where to store bodies
+     set certificate_file    = ~/.mutt/certificates                  # where to store certs
+     set mailcap_path        = ~/.mutt/mailcap                       # entrys for filetypes
+     set signature           = ~/.mutt/sig                           # my signature file
+     set tmpdir              = ~/.mutt/temp                          # where to keep temp files
+     set editor              = "/usr/bin/vim +/^$"                   # use vim and skip to first blank line
+     set ispell              = "/usr/bin/aspell -e -c"               # use aspell as ispell
+     set print_command       = /usr/bin/enscript                     # print with enscript
+     set query_command       = "/usr/bin/mutt_vc_query '%s'"         # query rolo's vCards
+    
+     # main options
+     set mbox_type           = Maildir                               # mailbox type
+     set folder              = ~/Mail                                # mailbox location
+     set spoolfile           = "+GMail/INBOX"                        # GMail is default inbox
+     set timeout             = 3                                     # idle time before scanning
+     set mail_check          = 0                                     # minimum time between scans
+     set sort_alias          = alias                                 # sort alias file by alias
+     set reverse_alias                                               # show names from alias file in index
+     unset move                                                      # gmail does that
+     set delete                                                      # don't ask, just do
+     unset confirmappend                                             # don't ask, just do!
+     set quit                                                        # don't ask, just do!!
+     unset mark_old                                                  # read/new is good enough for me
+     set beep_new                                                    # bell on new mails
+     set pipe_decode                                                 # strip headers and eval mimes when piping
+     set thorough_search                                             # strip headers and eval mimes before searching
+    
+     # index options
+     set sort                = threads                               # like gmail 
+     set sort_aux            = reverse-last-date-received            # like gmail
+     set uncollapse_jump                                             # don't collapse on an unread message 
+     set sort_re                                                     # thread based on regex
+     set reply_regexp        = "^(([Rr][Ee]?(\[[0-9]+\])?: *)?(\[[^]]+\] *)?)*"
+    
+     # pager options
+     set pager_index_lines   = 10                                    # number of index lines to show 
+     set pager_context       = 5                                     # number of context lines to show
+     set pager_stop                                                  # don't go to next message automatically
+     set menu_scroll                                                 # scroll in menus 
+     set smart_wrap                                                  # don't split words
+     set tilde                                                       # show tildes like in vim
+     unset markers                                                   # no ugly plus signs
+     auto_view text/html                                             # view html automatically
+     alternative_order text/plain text/enriched text/html            # save html for last
+     set quote_regexp        = "^( {0,4}[>|:#%]| {0,4}[a-z0-9]+[>|]+)+"
+    
+     # formats
+     set date_format         = "%m/%d/%y at %I:%M%P"
+     set index_format        = "%3C [%Z] %D %-15.15F %s"
+     set status_format       = "-%r- %v ---[ Folder: %f, Msgs: %m%?n? New: %n?%?d? Del: %d?%?t? Tag: %t?%?l? %l? ]%?p?---- .: %p waiting to send :. ?--%>- (%P) ---"
+     set alias_format        = "%4n %t %-20a  %r"
+    
+     # composing mail
+     set realname            = "Patrick Brisbin"                     # who am i?
+     set envelope_from                                               # which from?
+     set sig_dashes                                                  # dashes before my sig... sweet
+     set edit_headers                                                # show headers when composing
+     set fast_reply                                                  # skip to compose when replying
+     set sendmail_wait       = -1                                    # don't wait for sending... to complete
+     set askcc                                                       # ask for CC:
+     set fcc_attach                                                  # save attachments with the body
+     unset mime_forward                                              # forward attachments as part of body
+     set forward_format      = "Fwd: %s"                             # format for subject when forwarding
+     set forward_decode                                              # decode when forwarding
+     set attribution         = "On %d, %n wrote:"                    # set the attribution
+     set reply_to                                                    # reply to Reply to: field
+     set reverse_name                                                # reply as whomever it was to
+     set include                                                     # include message in replies
+     set forward_quote                                               # include message in forwards
+    
+     # headers to show
+     ignore *                                                        # ignore all headers
+     unignore from: to: cc: date: subject:                           # show only these
+     hdr_order from: to: cc: date: subject:                          # and in this order
+    
+     # boxes
+     mailboxes +GMail/INBOX +GMail/archive +GMail/sent +GMail/drafts +GMail/spam +GMail/trash
+     mailboxes +GMX/INBOX +GMX/Archive +GMX/Sent +GMX/Drafts +GMX/Spam +GMX/Trash
+    
+     # always sourced
+     source $alias_file                                              # required for functionality
+     source ~/.mutt/colors.muttrc                                    # source colors file
+     source ~/.mutt/sidebar.muttrc                                   # any muttng options are here
+     source ~/.mutt/gmail.muttrc                                     # source gmail as default
+    
+     # account specific sources
+     folder-hook GMail/* source ~/.mutt/gmail.muttrc
+     folder-hook GMX/*   source ~/.mutt/gmx.muttrc
+    
+     # these just give me headaches
+     bind index,pager \#     noop
+     bind index i            noop
+    
+     # bindings
+     bind pager i            exit
+     bind pager /            search
+     bind pager <up>         previous-line
+     bind pager <down>       next-line
+     bind pager k            previous-line
+     bind pager j            next-line
+     bind pager gg           top
+     bind pager G            bottom
+     bind index gg           first-entry
+     bind index G            last-entry
+     bind pager K            previous-undeleted
+     bind pager J            next-undeleted
+     bind index K            previous-unread
+     bind index J            next-unread
+     bind index,pager R      group-reply
+    
+     # macros
+     macro index \Cr "<tag-prefix><clear-flag>N" "mark tagged messages as read"
+     macro index B   "<limit>~b "                "search message bodies"
+     macro index I   "<change-folder>!<enter>"   "go to Inbox"
+    
+     # save a decoded copy in ~
+     macro index P   "<pipe-message>cat > ~/"    "save message as"
+    
+     # quick-sync ~/Mail immediately with offlineimap
+     macro index Z   "<shell-escape>/usr/bin/offlineimap -q -o<enter>" "sync IMAP"
+
+Now just send some mails back and forth between the two accounts to
+verify that the folder-hooks are setting the from address and such
+correctly.
+
+### Vim Tweaks
+
+I also have the following tweaks in \~/.vimrc to help with my
+composing.
+
+     " Some tricks for mutt
+     " F1 through F3 re-wraps paragraphs in useful ways
+     augroup MUTT
+       au BufRead ~/.mutt/temp/mutt* set spell " <-- vim 7 required
+       au BufRead ~/.mutt/temp/mutt* nmap  <F1>  gqap
+       au BufRead ~/.mutt/temp/mutt* nmap  <F2>  gqqj
+       au BufRead ~/.mutt/temp/mutt* nmap  <F3>  kgqj
+       au BufRead ~/.mutt/temp/mutt* map!  <F1>  <ESC>gqapi
+       au BufRead ~/.mutt/temp/mutt* map!  <F2>  <ESC>gqqji
+       au BufRead ~/.mutt/temp/mutt* map!  <F3>  <ESC>kgqji
+     augroup END
+
+Well that's it. Two IMAP accounts accessed easily, intuitively, and
+efficiently in your favorite email program.

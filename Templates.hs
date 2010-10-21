@@ -32,13 +32,13 @@ allPostsTemplate posts title = [$hamlet|
         ^postTemplate.post^
 |]
 
--- | A sub template for a single post
+-- | The sub template for a single post
 postTemplate :: Post -> Hamlet DevSiteRoute
 postTemplate arg = [$hamlet|
 .post
   %p
 
-    %a!href=@PostR postSlug.arg@ $postTitle.arg$
+    %a!href=@PostR.postSlug.arg@ $postTitle.arg$
     \ - $postDescr.arg$ 
     
   %p.small
@@ -51,11 +51,5 @@ postTemplate arg = [$hamlet|
 
       $forall postTags.arg tag
 
-        %a!href=@TagR tag@ $tag$ 
-|]
-
--- | Display a link by slug
-postLink :: String -> Hamlet DevSiteRoute
-postLink arg = [$hamlet|
-%a!href=@PostR arg@ $postTitle.head.getPostBySlug.arg$
+        %a!href=@TagR.tag@ $tag$ 
 |]

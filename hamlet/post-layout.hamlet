@@ -24,7 +24,7 @@
         Tags: 
 
         $forall postTags.post tag
-          %a!href=@TagR tag@ $tag$ 
+          %a!href=@TagR.tag@ $tag$ 
 
     %hr
     %h1 $postTitle.post$
@@ -33,7 +33,7 @@
     $maybe mmesg msg
       #message $msg$
 
-    ^pageBody.pc^
+    $postContent$
 
     %h3 Comments
 

@@ -1,0 +1,50 @@
+So the other day when I was using wifi-select (awesome tool) to
+connect to a friends hot-spot, I realized,
+*"hey! This would be great as an openbox pipe menu!"*
+
+I'm fairly decent in bash and I knew both netcfg and wifi-select
+were in bash so why not rewrite it that way?
+
+### Wifi-Pipe
+
+A simplified version of wifi-select which will scan for networks
+and populate an openbox right-click menu item with available
+networks. Displays security type and signal strength. Click on a
+network to connect via netcfg the same way wifi-select does it.
+
+Zenity is used to ask for a password and notify of a bad
+connection. One can optionally remove the netcfg profile if the
+connection fails.
+
+### What's needed
+
+-   You have to be using netcfg to manage your wireless
+-   You have to install zenity
+-   You have to save the script as `~/.config/openbox/wifi-pipe`
+    and make it executable:
+
+     chmod +x ~/.config/openbox/wifi-pipe
+
+-   You have to add a sudoers entry to allow passwordless sudo on
+    this script and netcfg
+
+     USERNAME ALL=(ALL) NOPASSWD: /usr/bin/netcfg
+     USERNAME ALL=(ALL) NOPASSWD: /home/USERNAME/.config/openbox/wifi-pipe
+
+-   You have to adjust `~/.config/openbox/menu.xml` like so:
+
+where USERNAME is you and INTERFACE is probably wlan0 or similar
+
+Simply `openbox --reconfigure` and you should be good to go.
+
+### The script
+
+This script itself can be downloaded
+[here](/static/fileshare/wifi-pipe).
+
+### Screenshots
+
+So... I kinda `rm -rf`d my screenshots directory accidentally the
+other day -- I had a backup, but with everything *but* these
+specific shots. They were from my Eee PC which I don't use very
+often. I'll re capture them soon, sorry.

@@ -15,6 +15,7 @@
 -------------------------------------------------------------------------------
 module Posts
     ( Post (..)
+    , loadPostContent
     , getPostBySlug
     , getPostsByTag
     , allPosts
@@ -28,7 +29,9 @@ import qualified Settings as S
 
 import Data.Char (toLower)
 import Data.List (nub)
+import Directory (doesFileExist)
 import Language.Haskell.TH.Syntax
+import Text.Pandoc
 
 -- | The datatype of a Post
 data Post = Post
@@ -60,16 +63,20 @@ mkPostSlugs = mkConstants $ map postSlug allPosts
 mkPostTags :: Q [Dec]
 mkPostTags = mkConstants $ nub . concat $ map postTags allPosts
 
---
--- BUT
---
--- without actually calling the above here, none of them are in scope
--- here which kinda defeats the purpose... but we can't call it here b/c
--- allPosts is out of scope (not yet defined)... and we can't call it
--- after because then the functions aren't in scope for the posts... and
--- we can't move it to other files because then circular imports
--- ensue... FFFFUUUUUUUUUUU
---
+-- | Load a post's pandoc file and convert it to html, return not found
+--   if the pdc file doesn't exist
+loadPostContent :: Post -> IO Html
+loadPostContent p = do
+    let fileName = "pandoc/" ++ (postSlug p) ++ ".pdc"
+    markdown <- do
+        exists <- doesFileExist fileName
+        if exists
+            then readFile fileName
+            else return $ "File not found"
+    return $ preEscapedString
+           $ writeHtmlString defaultWriterOptions
+           $ readMarkdown defaultParserState
+           $ markdown
 
 -- | The master list of all posts known to the site
 allPosts :: [Post]
