@@ -11,8 +11,10 @@ urgencyHooks), the current layout, and the current window title.
 The right, fed by `conky -c ~/.dzen_conkyrc` to show music, system
 stats and of course the time.
 
+<div class="note">
 Many thanks go to moljac and lifeafter2am on the Arch forums. They
 offered their xmonad.hs's to me and helped get me setup this way.
+</div>
 
 ### What it looks like
 
@@ -29,26 +31,51 @@ To achieve this, we set up a dynamicLog in xmonad.hs and adjust our
 main function to output to this bar and also spawn our right bar as
 fed by conky.
 
+<div class="note">
 There are alot of other things going on in my status bars in those
 screenshots. Things I'm not going to go into here. If you're
 interested (and motivated), take a look at my
 [xmonad.hs](/xmonad/docs/src/xmonad.html) directly, and see if you
 can figure out what makes it happen.
+</div>
 
 ### Imports and the Main function
 
+<div class="note">
 I'm going to showcase my custom Dzen module here, I think it makes
 things easier. I have actual haddock documentation on the module
-available [here](/xmonad/docs/Dzen.html) if you're interested. If
-you'd rather forgo my Dzen modules simply replace all instances of
-`show someDzen` with the literal string: `"dzen2 -options ..."` and
-anything like `h <- spawnDzen someDzen` with
-`h <- spawnPipe "dzen2 -options ..."`.
+available [here](/xmonad/docs/Dzen.html) if you're interested.
+
+If you'd rather forgo my Dzen modules simply replace all instances of 
+`show someDzen` with the literal string: `"dzen2 -options ..."` and 
+anything like `h <- spawnDzen someDzen` with `h <- spawnPipe "dzen2 
+-options ..."`.
+</div>
 
 To use my dzen module, copy its source into
 `~/.xmonad/lib/Dzen.hs`.
 
 Your imports and main function will look like this:
+
+~~~ { .haskell }
+-- imports
+import Dzen -- my module
+
+import XMonad.Hooks.DynamicLog
+import XMonad.UrgencyHook
+
+main = do
+    d <- spawnDzen myLeftBar
+
+    spawn $ "conky -c ~/.dzen_conkyrc | " ++ show myRightBar
+
+    xmonad $ withUrgencyHook NoUrgencyHook $ defaultConfig
+        { terminal = myTerminal
+        , ...
+        , ...
+        , logHook = myLogHook d
+        }
+~~~
 
 Don't worry about the things we haven't defined yet, I'll get to
 those.
@@ -66,14 +93,86 @@ etc.
 Here's a commented version of myLogHook which, hopefully, is
 illustrative enough to not warrant further explanation.
 
+~~~ { .haskell }
+-- 
+-- Loghook
+-- 
+-- note: some of these colors may differ from what's in the
+-- screenshot, it changes daily
+-- 
+myLogHook h = dynamicLogWithPP $ defaultPP -- the h here...
+    -- display current workspace as darkgrey on light grey (opposite of default colors)
+    { ppCurrent         = dzenColor "#303030" "#909090" . pad 
+
+    -- display other workspaces which contain windows as a brighter grey
+    , ppHidden          = dzenColor "#909090" "" . pad 
+
+    -- display other workspaces with no windows as a normal grey
+    , ppHiddenNoWindows = dzenColor "#606060" "" . pad 
+
+    -- display the current layout as a brighter grey
+    , ppLayout          = dzenColor "#909090" "" . pad 
+
+    -- if a window on a hidden workspace needs my attention, color it so
+    , ppUrgent          = dzenColor "#ff0000" "" . pad . dzenStrip
+
+    -- shorten if it goes over 100 characters
+    , ppTitle           = shorten 100  
+
+    -- no separator between workspaces
+    , ppWsSep           = ""
+  
+    -- put a few spaces between each object
+    , ppSep             = "  "
+
+    , ppOutput          = hPutStrLn h -- ... must match the h here
+    }
+~~~
+
 ### Your Dzens
 
 As I said, you can forego this part and just define your dzens as
 literal text. Here's how to do it using my Dzen module:
 
+~~~ { .haskell }
+-- 
+-- StatusBars                                                                                                      
+-- 
+-- See http://pbrisbin.com/xmonad/docs/Dzen.html
+-- 
+myLeftBar :: DzenConf
+myLeftBar = defaultDzen
+    -- use the default as a base and override width and
+    -- colors
+    { width       = 1000
+    , fg_color    = "#909090"
+    , bg_color    = "#303030"
+    }
+
+myRightBar :: DzenConf
+myRightBar = myLeftBar
+    -- use the left one as a base and override just the
+    -- x position and width
+    { x_position = 1000
+    , width      = 920
+    , alignment  = RightAlign
+    }
+~~~
+
 ### No Overlap
 
 The last thing you should do is add two little things to make sure
 you leave a gap for the new statusbar:
+
+~~~ { .haskell }
+-- add avoidStruts to your layoutHook like so
+myLayout = avoidStruts $ Tall ||| Wide ||| Full ...
+
+-- add manageDocks to your managehook like so
+myManageHook = composeAll
+    [ className =? "Mplayer" --> doFloat
+    , className =? "Zenity"  --> doFloat
+    ] <+> manageDocks
+~~~
 
 Happy haskelling!

@@ -30,6 +30,30 @@ benefit of storing offline, local copies of all your mails.
 First, install Offlineimap and fill in an `~/.offlineimaprc` like
 so:
 
+~~~ { .python }
+[general]
+# NOTE: cronjob calls the quiet UI with -u
+ui = TTY.TTYUI
+accounts = GMail
+
+[Account GMail]
+localrepository = Gmail-Local
+remoterepository = Gmail-Remote
+
+[Repository Gmail-Local]
+type = Maildir
+localfolders = ~/Mail/GMail
+
+[Repository Gmail-Remote]
+type = Gmail 
+remoteuser = username@gmail.com
+remotepass = gmailpassword
+realdelete = no
+nametrans = lambda folder: re.sub('.*Spam$', 'spam', re.sub('.*Drafts$', 'drafts', re.sub('.*Sent Mail$', 'sent', re.sub('.*Starred$', 'flagged', re.sub('.*Trash$', 'trash', re.sub('.*All Mail$', 'archive', folder))))))
+
+# vim: ft=cfg tw=0
+~~~
+
 Take note of the nametrans. My line there will change folder names
 during the sync so `IMAP/[Gmail].Archive` becomes `~/Mail/archive`
 and similar for all other folders. You can choose not to use this
@@ -53,9 +77,23 @@ a script called `mailrun.sh` every 3 minutes:
 
 Then create that script with these contents:
 
+~~~ { .bash }
+#!/bin/sh
+
+PID=`pgrep offlineimap`
+
+[[ -n "$PID" ]] && exit 1
+
+offlineimap -o -u Noninteractive.Quiet &>/dev/null &
+
+exit 0
+~~~
+
 And make it executable via `chmod +x /path/to/mailrun.sh`
 
+<div class="note">
 You may have to restart cron for these changes to take affect
+</div>
 
 ### Msmtp
 

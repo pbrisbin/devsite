@@ -48,8 +48,10 @@ or you can use your a WM-specific configuration to do so.
 Personally, I keep Alt-g as `goodsong` and Alt-Shift-g as
 `goodsong -p`.
 
+<div class="note">
 You're going to have to spend some time logging songs as "good"
 before the -p option becomes useful.
+</div>
 
 ### Update
 

@@ -15,6 +15,68 @@ use for one of the statusbars. So for the sake of completeness,
 here is the change I made to get the statusbar look you see in the
 screenshot:
 
+    statusbar = {
+
+        # <snip>
+
+        default = {
+          window = {
+
+            # disable the default bar containing window list
+            disabled = "yes";
+
+            # window, root
+            type = "window";
+            # top, bottom
+            placement = "bottom";
+            # number
+            position = "0";
+            # active, inactive, always
+            visible = "active";
+
+            # list of items in statusbar in the display order
+            items = {
+              barstart = { priority = "100"; };
+              time = { };
+              user = { };
+              window = { };
+              window_empty = { };
+              lag = { priority = "-1"; };
+              more = { priority = "-1"; alignment = "right"; };
+              barend = { priority = "100"; alignment = "right"; };
+              active = { };
+              act = { };
+            };
+          };
+
+          # <snip>
+
+          prompt = {
+            type = "root";
+            placement = "bottom";
+            # we want to be at the bottom always
+            position = "100";
+            visible = "always";
+            items = {
+              barstart = { priority = "100"; };
+              time = { };
+
+              user = { }; # added my current nick here b/c it was the only useful
+                          # item in the disabled bar
+
+              prompt = { priority = "-1"; };
+              prompt_empty = { priority = "-1"; };
+              # treated specially, this is the real input line.
+              input = { priority = "10"; };
+            };
+
+          };
+
+          # <snip>
+
+        };
+      };
+
 My full config (sans passwords) can be downloaded
 [here](http://github.com/pbrisbin/dotfiles/blob/master/.irssi/config).
 

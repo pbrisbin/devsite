@@ -19,6 +19,45 @@ Offlineimap handles multiple accounts very well. Here's my
 `~/.offlineimaprc` set up to sync my GMail and GMX accounts into
 two local Maildir folders:
 
+~~~ { .python }
+[general]
+# NOTE: cronjob calls the quiet UI with -u
+ui = TTY.TTYUI
+accounts = GMail,GMX
+
+[Account GMail]
+localrepository = Gmail-Local
+remoterepository = Gmail-Remote
+
+[Account GMX]
+localrepository = GMX-Local
+remoterepository = GMX-Remote
+
+[Repository Gmail-Local]
+type = Maildir
+localfolders = ~/Mail/GMail
+
+[Repository GMX-Local]
+type = Maildir
+localfolders = ~/Mail/GMX
+
+[Repository Gmail-Remote]
+type = Gmail 
+remoteuser = username@gmail.com
+remotepass = gmailpassword
+realdelete = no
+nametrans = lambda folder: re.sub('.*Spam$', 'spam', re.sub('.*Drafts$', 'drafts', re.sub('.*Sent Mail$', 'sent', re.sub('.*Starred$', 'flagged', re.sub('.*Trash$', 'trash', re.sub('.*All Mail$', 'archive', folder))))))
+
+[Repository GMX-Remote]
+type = IMAP
+remotehost = imap.gmx.com
+remoteport = 143 
+remoteuser = username@gmx.com
+remotepass = gmxpassword
+
+# vim: ft=cfg tw=0
+~~~
+
 Take note of the nametrans for gmail. My line there will change
 folder names during the sync so `IMAP://[Gmail].Archive` becomes
 `~/Mail/GMail/archive` and similar for all other folders. You can
@@ -65,6 +104,18 @@ care of it.
 Once you're sure things are syncing fine, create a script with
 these contents:
 
+~~~ { .bash }
+#!/bin/sh
+
+PID=`pgrep offlineimap`
+
+[[ -n "$PID" ]] && exit 1
+
+offlineimap -o -u Noninteractive.Quiet &>/dev/null &
+
+exit 
+~~~
+
 Make it executable via `chmod +x /path/to/mailrun.sh` and set up a
 cron job to run it every 3 minutes:
 
@@ -75,6 +126,7 @@ cron job to run it every 3 minutes:
 
 You'll likely have to restart cron for the changes to take effect.
 
+<div class="note">
 This script checks if offlineimap is already running; there's two
 ways one could handle it if a PID is found: one, offlineimap is
 still syncing since 3 minutes and we should just exit and let it
@@ -82,11 +134,38 @@ finish (this is the method I've landed on). Or two, offlineimap
 hasn't completed its sync in 3 minutes so it must be frozen, we
 should kill it and resync. The choice is yours, just change
 `&& exit 1` to `&& kill $PID`.
+</div>
 
 ### Msmtp
 
 Msmtp also handles multiple accounts very elegantly. Here's my
 `~/.msmtprc` set up to handle my gmail and gmx accounts:
+
+    # msmtp config file
+
+    account gmail 
+    host smtp.gmail.com
+    port 587
+    protocol smtp
+    auth on
+    from username@gmail.com
+    user username@gmail.com
+    password gmailpassword
+    tls on
+    tls_nocertcheck
+
+    account gmx
+    host mail.gmx.com
+    port 587
+    protocol smtp
+    auth on
+    from username@gmx.com
+    user username@gmx.com
+    password gmxpassword
+    tls on
+    tls_nocertcheck
+
+    account default : gmail
 
 Now we can simply call `msmtp -a gmail` or `msmtp -a gmx` to use
 whichever account we want (default is gmail for me).
@@ -128,8 +207,10 @@ of the sidebar-specific options in it, I do this so I can quickly
 comment the source line in `~/.mutt/muttrc` if I take that config
 to a machine running vanilla mutt.
 
+<div class="note">
 My live config loads this file only if mutt -h signifies that the
 sidebar patch is applied.
+</div>
 
 Now, the two supporting config files we need to pay attention to:
 These will be setup per account, with overriding settings. That

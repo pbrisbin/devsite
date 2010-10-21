@@ -50,6 +50,19 @@ Now, anytime your system mails anything on your behalf, it'll use
 The script started out very simply, here it is in it's original
 form:
 
+~~~ { .bash }
+#!/bin/bash
+
+if [[ $# -lt 2 ]]; then
+  echo "usage: $0 [number] [some message]"
+  exit 1
+fi
+
+number="$1"; shift
+
+echo "$*" | mail "$number@vtext.com"
+~~~
+
 With this little sendtext.sh script in your back pocket, you can
 send yourself texts from remind, cron, rtorrent, or any other
 script to notify you (or other people) of whatever you want.

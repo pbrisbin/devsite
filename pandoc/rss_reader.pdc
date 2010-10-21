@@ -47,10 +47,48 @@ imported functions into a runnable `main` function.
 
 Here's an example:
 
+~~~ { .haskell }
+import Dzen
+import RssReader
+
+-- 
+-- this is it, the whole application in one line!
+-- 
+
+main :: IO ()
+main = spawnDzen dzenConf >>= spawnReader readerConf
+
+-- 
+-- and the configuration part...
+-- 
+
+readerConf :: ReaderConf
+readerConf = defaultReaderConf
+  { titleFormat = dzenFG "#909090"
+  , descrFormat = shorten 200 
+  , tickerWidth = 150 
+  }
+
+  where
+    -- some helpers
+    dzenFG c s  = concat ["^fg(", c, ")", s, "^fg()"]
+    shorten n s = if length s > n then (take n s) ++ "..." else s
+
+dzenConf :: DzenConf
+dzenConf = defaultDzen
+  { x_position  = 920 
+  , width       = 1000
+  , font        = "Verdana-8" -- if you have an xft-capable dzen                                                        
+  , fg_color    = "#606060"
+  , bg_color    = "#303030"
+  }
+~~~
+
 Once that's all set, you can run
 `ghc --make -o rssreader rssreader.hs` inside this directory to
 create an executable which you can run standalone.
 
+<div class="note">
 `spawnReader`'s type is `ReaderConf -> Handle -> IO ()`, the subtle
 implication of this is that the script doesn't care what you
 actually do with its output. It can send its ticker text, one line
@@ -59,6 +97,7 @@ a file, simple `stdout`, or the `stdin` of any other program (in
 our case, dzen). This means that, if you know haskell, you could
 use this module to generate an RssReader using whatever gui toolkit
 you wanted -- I'm looking at you conky...
+</div>
 
 The following packages would be required either from hackage or
 your distribution:
@@ -67,11 +106,13 @@ your distribution:
 -   tagsoup
 -   xmonad-contrib\*
 
+<p class="small">
 \* I'm being way lazy here in my Dzen module and using
-`<a href="http://xmonad.org/xmonad-docs/xmonad-contrib/XMonad-Util-Run.html#v%3AspawnPipe">spawnPipe</a>`
+[spawnPipe](http://xmonad.org/xmonad-docs/xmonad-contrib/XMonad-Util-Run.html#v%3AspawnPipe)
 from the xmonad-contrib package. It's a pretty short function, but
 since I'm using this as an XMonad module anyway I may or may not
 copy it directly into mine.
+</p>
 
 ### Known Issues
 

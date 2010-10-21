@@ -33,6 +33,16 @@ connection fails.
 
 -   You have to adjust `~/.config/openbox/menu.xml` like so:
 
+~~~ { .xml }
+<menu id="root-menu" label="Openbox 3">
+<menu id="pipe-wifi" label="Wifi" execute="sudo /home/USERNAME/.config/openbox/wifi-pipe INTERFACE" />
+<menu id="term-menu"/>
+<item label="Run...">
+  <action name="Execute">
+    <command>gmrun</command>
+    <!-- ... -->
+~~~
+
 where USERNAME is you and INTERFACE is probably wlan0 or similar
 
 Simply `openbox --reconfigure` and you should be good to go.

@@ -53,11 +53,43 @@ when running the command (the specialized cases).
 
 So, set up a `~/.screenrc` like this:
 
+~~~ { .bash }
+# screen config file; ~/.screenrc
+
+# put all our main screen settings like
+# term, shell, vbell, hardstatus whatever
+#
+# then add this:
+
+# sources environment-specific apps
+source "$SCREEN_CONF_DIR/$SCREEN_CONF"
+
+# you can even add some tabs you'll always
+# open no matter what
+
+# then always open some terms
+screen -t bash $SHELL
+screen -t bash $SHELL
+screen -t bash $SHELL
+~~~
+
 Now, how does screen know what "screenrc extension" to source? By
 setting those variables up in `~/.bashrc`:
 
+~~~ { .bash }
+# dynamically choose which tabs load in screen
+export SCREEN_CONF_DIR="$HOME/.screen/configs"
+export SCREEN_CONF="main"
+~~~
+
 In a clean environment, screen will source that default
 `~/.screen/configs/main`, which will:
+
+~~~ { .bash }
+# example: screen -t [name] [command]
+screen -t mail mutt
+screen -t music ncmpcpp
+~~~
 
 Why is this useful? Because, now I can do something like this:
 
@@ -65,6 +97,11 @@ Why is this useful? Because, now I can do something like this:
 
 And screen will instead source that explicitly set
 `~/.screen/configs/rtorrent` which yields:
+
+~~~ { .bash }
+# example: screen -t [name] [command]
+screen -t torrents rtorrent 
+~~~
 
 Et viola, no mutt or ncmpcpp, but rtorrent instead (same thing
 happens with irssi).
@@ -74,6 +111,11 @@ to complete the whole thing:
 
 Oh how beautiful, how simple, how easy. I type `rtorrent`, what
 happens?
+
+~~~ { .bash }
+alias irssi='SCREEN_CONF=irssi screen -S irssi -D -R irssi'
+alias rtorrent='SCREEN_CONF=rtorrent screen -S rtorrent -D -R rtorrent'
+~~~
 
 Screen checks for any running screens with session-name "rtorrent"
 and re-attaches here and now. If none are found, screen opens a new

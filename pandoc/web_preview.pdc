@@ -27,17 +27,19 @@ thought nothing was happening.
 
 This works nicely for me because my desktop is my web server. All I
 have to do is `vim /srv/http/pages/foo.html` and I'm editing
-http://localhost/pages/foo.html directly.
+`http://localhost/pages/foo.html` directly.
 
+<div class="note">
 I'm not saying it's impossible to pull this off with a remote
 server, this just makes things easier. It's up to you to port my
 script for use in a remote server setting.
+</div>
 
 First thing you'll need is my
 [script](http://github.com/pbrisbin/scripts/blob/master/webpreview),
 download the raw version into your `$PATH`.
 
-Adjust the in-script variables `srv_dir and``srv_url` to match your
+Adjust the in-script variables `srv_dir` and `srv_url` to match your
 environment. These variables are used to turn a filename like
 `/srv/http/pages/foo.html` into a url like
 `http://localhost/pages/foo.html.`
@@ -58,8 +60,10 @@ Add the following uber simplistic configuration file for uzbl at
 This just makes sure a socket is placed in `/tmp` and makes the
 status bar a little more pleasing on the eyes.
 
+<div class="note">
 Only the `socket_dir` declaration is actually needed for the script
 to function.
+</div>
 
 Finally, add the following to your `~/.vimrc`:
 

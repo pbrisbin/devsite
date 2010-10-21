@@ -49,6 +49,15 @@ script, or send the commands directly from your keybind
 configuration. Here's an example wrapper script if you decide to go
 this way:
 
+~~~ { .bash }
+#!/bin/bash
+
+fifo="$HOME/.mplayer_fifo"
+command="$*"
+
+echo $command > "$fifo" &>/dev/null
+~~~
+
 Place it in your `$PATH`, `chmod +x` it, and bind some keys to
 `script 'play'`, `script 'pause'`, etc.
 
@@ -56,9 +65,28 @@ Personally, I put a simple function (of basically the above) in my
 `xmonad.hs`, then call that from the keybinds. Here's the relevant
 section of my config:
 
+~~~ { .haskell }
+myKeys = [ ...
+
+         -- Mod+ to control MPlayer
+         , ("M-<XF86AudioPlay>", mPlay "pause"   ) -- play/pause mplayer
+         , ("M-<XF86AudioStop>", mPlay "stop"    ) -- stop mplayer
+         , ("M-<XF86AudioPrev>", mPlay "seek -10") -- seek back 10 seconds
+         , ("M-<XF86AudioNext>", mPlay "seek 10" ) -- seek forward 10 seconds
+
+         , ...
+         ] 
+
+         where
+
+           mPlay s = spawn $ "echo " ++ s ++ " > $HOME/.mplayer_fifo"
+~~~
+
+<div class="note">
 Note the use of
 [EZConfig](http://www.eng.uwaterloo.ca/~aavogt/xmonad/docs/xmonad-contrib/XMonad-Util-EZConfig.html)
 notation in my keybindings.
+</div>
 
 I'll leave it up to you to figure out your WM's keybind
 configuration or use some generic tool like xbindkeys.

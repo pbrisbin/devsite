@@ -37,11 +37,13 @@ So of course, we'll need to add
 `import XMonad.Util.NamedScratchpad` to the top of our config
 file.
 
+<div class="note">
 Please refer back to my previous post for information regarding
 some boilerplate code. This writeup assumes you have a main-do
 block that calls out `myManageHook` and `myKeys` to be defined as
 separate functions. I also won't be going into hiding the NSP
 workspace in this post.
+</div>
 
 ### Scratchpads
 
@@ -54,6 +56,7 @@ specified to fully describe a scratchpad:
 -   A Query Bool: The way to find the window once it's running
 -   A ManageHook: The way to manage the window when we call it up
 
+<div class="note">
 Those last two data types might sound scary, but they aren't. If
 you think of the fact that most users define custom window
 management in a list of `(Query Bool --> ManageHook)` and one
@@ -61,21 +64,56 @@ representation of this might be
 `(className =? "Firefox" --> doFloat)` that should give you an idea
 of the sorts of functions that you should use to fill those last
 two slots for your scratchpads.
+</div>
 
 The
 [darcs documentation](http://www.eng.uwaterloo.ca/~aavogt/xmonad/docs/xmonad-contrib/XMonad-Util-Scratchpad.html)
 for this module talks about everything that's available, but here's
 a commented version of my declaration:
 
+~~~ { .haskell }
+myScratchPads = [ NS "mixer"    spawnMixer findMixer manageMixer -- one scratchpad
+                , NS "terminal" spawnTerm  findTerm  manageTerm  -- and a second
+                ]   
+
+  where
+
+    spawnMixer  = "ossxmix"                               -- launch my mixer
+    findMixer   = className =? "Ossxmix"                  -- its window has a ClassName of "Ossxmix"
+    manageMixer = customFloating $ W.RationalRect l t w h -- and I'd like it fixed using the geometry below:
+
+      where
+
+        h = 0.6       -- height, 60% 
+        w = 0.6       -- width, 60% 
+        t = (1 - h)/2 -- centered top/bottom
+        l = (1 - w)/2 -- centered left/right
+
+    spawnTerm  = myTerminal ++ " -name scratchpad"       -- launch my terminal
+    findTerm   = resource  =? "scratchpad"               -- its window will be named "scratchpad" (see above)
+    manageTerm = customFloating $ W.RationalRect l t w h -- and I'd like it fixed using the geometry below
+
+      where
+
+        -- reusing these variables is ok since they're confined to their own 
+        -- where clauses 
+        h = 0.1       -- height, 10% 
+        w = 1         -- width, 100%
+        t = 1 - h     -- bottom edge
+        l = (1 - w)/2 -- centered left/right
+~~~
+
 So you can see I have a list containing two scratchpads. The
 datatype syntax requires the "NS" plus the four things I've listed
 above.
 
+<div class="note">
 You'll notice I liberally use sub-functions via where clauses. You
 can think of these as simple variables and if parenthesized and
 placed directly where they're called out, they would work exactly
 the same. I think this is clearer and it should be fairly obvious
 how it works.
+</div>
 
 The beauty of all this is that it's almost all that's needed. Each
 scratchpad has a name which can be bound to a key; even better, the
@@ -84,11 +122,41 @@ your manageHook.
 
 I inserted the following keybindings:
 
+~~~ { .haskell }
+myKeys = [ ...
+         , ...
+
+         , ("M4-t"   , scratchTerm )
+         , ("M4-S-m" , scratchMixer)
+
+         , ...
+         ] 
+
+         where
+
+           -- this simply means "find the scratchpad in myScratchPads that is 
+           -- named terminal and launch it"
+           scratchTerm  = namedScratchpadAction myScratchPads "terminal"
+           scratchMixer = namedScratchpadAction myScratchPads "mixer"
+~~~
+
+<div class="note">
 Note the use of
 [EZConfig](http://www.eng.uwaterloo.ca/~aavogt/xmonad/docs/xmonad-contrib/XMonad-Util-EZConfig.html)
 notation in my keybindings.
+</div>
 
 And tacked the following onto the end of my managehook:
+
+~~~ { .haskell }
+myManageHook = ([ -- whatever it might be...
+                , ...
+                , ...
+
+                -- this manages the entire list of scratchpads 
+                -- based on the query and hook listed for each
+                ]) <+> namedScratchpadManageHook myScratchPads
+~~~
 
 That's it, a scratch terminal and a scratch mixer; but most
 importantly, simple and transparent tools for adding any arbitrary

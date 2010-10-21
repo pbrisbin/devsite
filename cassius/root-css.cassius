@@ -16,16 +16,16 @@
   padding-bottom: 0.1%
   margin-bottom:  1%
 
-#disqus_thread
-  border:         solid 1px #404040
-  border-left:    solid 1px #606060
-  border-bottom:  solid 1px #606060
-  padding-left:   25px
-  padding-right:  10px
-  padding-bottom: 10px
-
-.dsq-by, .dsq-dc-logo, .dsq-options
-  display: none
+.note
+  font-size:        90%
+  font-style:       italic
+  border:           solid 1px #404030
+  background-color: #404040
+  margin-left:      2%
+  margin-right:     2%
+  padding:          1%
+  padding-top:      0.5%
+  padding-bottom:   0.5%
 
 #script
   margin-left:  5%
@@ -33,6 +33,16 @@
 
 #footer
   font-size:  90%
+
+body
+  display:          block
+  width:            710px
+  margin-left:      auto
+  margin-right:     auto
+  color:            #bbbbbb
+  background-color: #303030
+  font-family:      Verdana, sans-serif
+  font-weight:      normal
 
 h1
   color:       #ffffff
@@ -49,21 +59,30 @@ h3, h4, h5, h6
   margin-left: -2%
   font-weight: normal
 
+pre
+  color: #ffffff
+  font-weight: normal
+  margin-left: 5%
+
+strong
+  color: #ffffff
+  font-weight: normal
+
+a:link, a:visited
+  color:           #91bfc2
+  outline:         none
+  text-decoration: none
+
+a:hover
+  color:           #a291c2
+  outline:         none
+  text-decoration: none
+
 h2 a:link, h3 a:link, h2 a:visited, h3 a:visited
   color: #ffffff
 
 h2 a:hover, h3 a:hover
   color: #a291c2
-
-body
-  display:          block
-  width:            710px
-  margin-left:      auto
-  margin-right:     auto
-  color:            #bbbbbb
-  background-color: #303030
-  font-family:      Verdana, sans-serif
-  font-weight:      normal
 
 img.validation
   width:  88px
@@ -80,27 +99,57 @@ img.fixed
   margin-right: auto
   width:        680px
 
-p.note
-  font-size:        90%
-  font-style:       italic
-  border:           solid 1px #404030
-  background-color: #404040
-  margin-left:      2%
-  margin-right:     2%
-  padding:          1%
-  padding-top:      0.5%
-  padding-bottom:   0.5%
+.dsq-by, .dsq-dc-logo, .dsq-options
+  display: none
 
-pre.white, strong
-  color: #ffffff
-  font-weight: normal;
+#disqus_thread
+  border:         solid 1px #404040
+  border-left:    solid 1px #606060
+  border-bottom:  solid 1px #606060
+  padding-left:   25px
+  padding-right:  10px
+  padding-bottom: 10px
 
-a:link, a:visited
-  color:           #91bfc2
-  outline:         none
-  text-decoration: none
+.sourceCode
+  padding-left: 25px
+  background:   #303030
+  color:        #bbbbbb
 
-a:hover
-  color:           #a291c2
-  outline:         none
-  text-decoration: none
+pre.sourceCode span.kw
+  color: #f0dfaf
+
+pre.sourceCode span.dt
+  color: #dfdfbf
+
+pre.sourceCode span.dv
+  color: #dcdccc
+
+pre.sourceCode span.bn
+  color: #dca3a3
+
+pre.sourceCode span.fl
+  color: #c0bed1
+
+pre.sourceCode span.ch
+  color: #dca3a3
+
+pre.sourceCode span.st
+  color: #cc9393
+
+pre.sourceCode span.co
+  color: #7f9f7f
+
+pre.sourceCode span.ot
+  color: #efef8f
+
+pre.sourceCode span.al
+  color: #ffcfaf
+
+pre.sourceCode span.fu
+  color: #efef8f
+
+pre.sourceCode span.re
+  color: #ffd7a7
+
+pre.sourceCode span.er
+  color: #c3bf9f

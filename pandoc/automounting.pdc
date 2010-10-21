@@ -24,12 +24,29 @@ folder, are 'rules files' each named `10-some-crap.rules`. They are
 processed one by one each time some udev 'event' occurs, like, say,
 plugging in a flashdrive.
 
+<div class="note">
 go google udev rules, there's alot out there for all sorts of nifty
 things.
+</div>
 
 Someone smarter than I added a handful of useful rules to the Arch
 [udev wiki page](http://wiki.archlinux.org/index.php/Udev). The one
 I use is as follows:
+
+    # adjust this line to skip any persistent drives
+    # i.e. KERNEL!="sd[d-z][0-9]", ...
+    KERNEL!="sd[a-z][0-9]", GOTO="media_by_label_auto_mount_end"
+
+    # Global mount options
+    ACTION=="add", ENV{mount_options}="relatime,users"
+
+    # Filesystem specific options
+    ACTION=="add", PROGRAM=="/lib/initcpio/udev/vol_id -t %N", RESULT=="vfat|ntfs", ENV{mount_options}="$env{mount_options},utf8,gid=100,umask=002"
+    ACTION=="add", PROGRAM=="/lib/initcpio/udev/vol_id --label %N", ENV{dir_name}="%c"
+    ACTION=="add", PROGRAM!="/lib/initcpio/udev/vol_id --label %N", ENV{dir_name}="usbhd-%k"
+    ACTION=="add", RUN+="/bin/mkdir -p /media/%E{dir_name}", RUN+="/bin/mount -o $env{mount_options} /dev/%k /media/%E{dir_name}"
+    ACTION=="remove", ENV{dir_name}=="?*", RUN+="/bin/umount -l /media/%E{dir_name}", RUN+="/bin/rmdir /media/%E{dir_name}"
+    LABEL="media_by_label_auto_mount_end"
 
 This file defines how udev reacts to usb drives (`/dev/sda1`, etc)
 being added and removed. You plug in a flashdrive, if it has a

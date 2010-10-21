@@ -25,6 +25,27 @@ So, how would you set this up?
 This post assumes you've imported the required modules and you have
 a `main = do` block setup as shown:
 
+~~~ { .haskell }
+-- imports
+import XMonad.Hooks.ManageDocks
+import XMonad.Hooks.ManageHelpers                                                                                                                                                                   
+import XMonad.Layout.IM
+import XMonad.Layout.PerWorkspace
+import qualified XMonad.StackSet as W
+
+-- main
+main = xmonad $ defaultConfig
+    { terminal           = myTerminal
+    , workspaces         = myWorkspaces
+    , borderWidth        = myBorderWidth
+    , normalBorderColor  = myNormalBorderColor
+    , focusedBorderColor = myFocusedBorderColor
+    , layoutHook         = myLayout      -- all of our changes will take place in the myLayout
+    , manageHook         = myManageHook  -- and myManageHook definitions.
+    , keys               = myKeys
+    }   
+~~~
+
 ### The Layout Hook
 
 Here's a simple layoutHook that adds the IM extension on a specific
@@ -34,6 +55,18 @@ roster.
 
 Also, if your IM client isn't open, the workspace will behave like
 any other.
+
+~~~ { .haskell }
+-- Layouts
+myLayout = avoidStruts $ onWorkspace "3-im" imLayout $ standardLayouts
+
+  where
+    -- define the list of standardLayouts
+    standardLayouts = Tall ||| Wide ||| Full
+
+    -- notice withIM is acting on it
+    imLayout        = withIM (1/10) (Role "roster") (standardLayouts)
+~~~
 
 I've defined the function standardLayouts, which we'll use on all
 workspaces. Then for "3-im", I define imLayout which uses the
@@ -56,9 +89,28 @@ manageHook takes care of that.
 
 ### The Manage Hook
 
+~~~ { .haskell }
+-- Manage hook
+myManageHook = composeAll
+    [ -- whatever you might already have
+    , ...
+    , className =? "Gajim.py"             --> doShift "3-chat" -- move all IM windows to IM workspace
+    , classNotRole ("Gajim.py", "roster") --> doFloat          -- and float everything but the roster
+    , ...
+    ]
+    
+    where
+        classNotRole :: (String, String) -> Query Bool
+        classNotRole (c,r) = className =? c <&&> role /=? r
+
+        role = stringProperty "WM_WINDOW_ROLE"
+~~~
+
 The truth is in the comments. This will move all IM windows to the
 IM workspace, and float anything that's of the IM Class but not the
 roster's Role.
 
+<div class="note">
 You can use the commandline tool `xprop` to find out a windows
 properties for use in these manageHooks.
+</div>
