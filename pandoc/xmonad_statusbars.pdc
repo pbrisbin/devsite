@@ -20,12 +20,16 @@ offered their xmonad.hs's to me and helped get me setup this way.
 
 Full desktop:
 
+<div class="fixed">
 [![XMonad Shot](/static/screenshots/status-thumb.png)](/static/screenshots/status.png)
+</div>
 
 And with an urgencyHook notification (Workspace turns a different
 color):
 
+<div class="centered">
 [![XMonad Shot](/static/screenshots/status-urgency-thumb.png)](/static/screenshots/status-urgency.png)
+</div>
 
 To achieve this, we set up a dynamicLog in xmonad.hs and adjust our
 main function to output to this bar and also spawn our right bar as

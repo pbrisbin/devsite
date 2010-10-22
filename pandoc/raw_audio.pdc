@@ -518,7 +518,11 @@ And there you go; Service done.
 
 As always, the obligatory screenshots.
 
-[![Raw Audio](/static/screenshots/raw_audio-thumb.png)](/static/screenshots/raw_audio.png)[![Raw Audio Progress](/static/screenshots/raw_audio_progress-thumb.png)](/static/screenshots/raw_audio_progress.png)
+<div class="centered">
+[![Raw Audio](/static/screenshots/raw_audio-thumb.png)](/static/screenshots/raw_audio.png)
+
+[![Raw Audio Progress](/static/screenshots/raw_audio_progress-thumb.png)](/static/screenshots/raw_audio_progress.png)
+</div>
 
 ### References
 
