@@ -23,55 +23,72 @@ import Control.Applicative ((<$>), (<*>))
 import Text.Hamlet         (HamletValue, ToHtml)
 import System.IO
 
--- | todo: commentDate
---   todo: commentIp
---   todo: commentContent should be Html
+-- | A Comment datatype; I'm cheating and making most things Strings
+--   because it's way easier to deal with.
 data Comment = Comment
-    { commentUser    :: String
-    , commentContent :: String
-    }
+    { commentIp      :: String
+    , commentTime    :: String
+    , commentUser    :: String
+    , commentContent :: Html
+    , commentHtml    :: Bool
+    } deriving Show
 
--- | todo: interface with a DB? flat file?
+-- | todo:
 storeComment :: String -> Comment -> IO ()
-storeComment id comment = hPutStrLn stderr $ -- just echo it for testing purposes
-    "storing comment " ++ (commentContent comment) ++ " from " ++ (commentUser comment) ++ "..."
+storeComment id comment = hPutStrLn stderr $ show comment
 
--- | todo: interface with a DB? flat file?
-loadComments :: String -> [Comment]
-loadComments id = -- returning example comments for now
-    [ Comment "joe" "Some comment"
-    , Comment "jim" "Some other comment"
+-- | todo: 
+loadComments :: String -> IO [Comment]
+loadComments id = return $ 
+    [ Comment "192.168.0.1" "1287765561" "joe" (preEscapedString "<p>With HTML, i <strong>have</strong> formatting</p>") True
+    , Comment "192.168.0.2" "1287765568" "jim" (string           "But Non html is so > html"                           ) False
     ]
 
--- | todo: text area
+-- | The input Form, todo: customize it - no table
 commentForm :: Maybe Comment -> Form s m Comment
 commentForm comment = fieldsToTable $ Comment
-    <$> stringField "name"    (fmap commentUser comment)
-    <*> stringField "comment" (fmap commentContent comment)
+    <$> hiddenField   ""         (fmap commentIp      comment)
+    <*> hiddenField   ""         (fmap commentTime    comment)
+    <*> stringField   "name:"    (fmap commentUser    comment)
+    <*> htmlField     "comment:" (fmap commentContent comment)
+    <*> boolField     "html?:"   (fmap commentHtml    comment)
+
+-- | Initialize the comment form with current time and user's ip
+initComment :: Maybe Comment
+initComment = Just $ Comment getUserIp getCurrentTime "" "" False
+    where
+        -- todo:
+        getUserIp      = "192.168.0.1"
+        getCurrentTime = "1287765561"
 
 -- | Do everything required to handle comments and return only the
---   hamlet to be added to the page
-getCommentsHamlet :: (Yesod m) => String -> GHandler s m (Hamlet (Route m))
-getCommentsHamlet id = do
+--   hamlet to be added to the page, redirect to r after a POST
+getCommentsHamlet :: (Yesod m) 
+                  => String  -- ^ The id to pass to loadComments
+                  -> Route m -- ^ the route to redirect to after posting
+                  -> GHandler s m (Hamlet (Route m)) 
+getCommentsHamlet id r = do
     -- load existing comments for this page
-    let comments = loadComments id
+    comments <- liftIO $ loadComments id
 
     -- read any form entry
-    (res, form, enctype) <- runFormPost $ commentForm Nothing
+    (res, form, enctype) <- runFormPost $ commentForm initComment
     case res of
         FormMissing         -> return ()
         FormFailure _       -> return ()
-        FormSuccess comment -> liftIO $ storeComment id comment
+        FormSuccess comment -> do
+            liftIO $ storeComment id comment
+            -- redirect to prevent accidental reposts and
+            -- to clear the form data
+            redirect RedirectTemporary $ r
 
-    -- set the overal form content
+    -- return the overall form content
     pc <- widgetToPageContent $ commentsTemplate comments form enctype
     return $ pageBody pc
 
--- | Template for the entire comments piece
+-- | Template for the entire comments section
 commentsTemplate :: (HamletValue a, ToHtml b) => [Comment] -> a -> b -> a
 commentsTemplate comments form enctype = [$hamlet|
-%h3 Comments
-
 #comments
     $forall comments comment
         ^commentTemplate.comment^
@@ -80,16 +97,20 @@ commentsTemplate comments form enctype = [$hamlet|
         %table
             ^form^
             %tr
-                %td!colspan=2
+                %td
                     %input!type=submit
+                %td
+                    %input!type=reset
 |]
 
 -- | Sub template for a single comment
 commentTemplate :: (HamletValue a) => Comment -> a
 commentTemplate comment = [$hamlet|
 %p
-    $commentUser.comment$
+    %strong $commentUser.comment$
+    \ wrote:
 
 %blockquote
-    $commentContent.comment$
+    %p
+        $commentContent.comment$
 |]

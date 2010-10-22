@@ -84,20 +84,38 @@ h2 a:link, h3 a:link, h2 a:visited, h3 a:visited
 h2 a:hover, h3 a:hover
   color: #a291c2
 
-img.validation
+.validation
   width:  88px
   height: 31px
 
-img.centered
+.centered
   display:      block
   margin-left:  auto
   margin-right: auto
 
-img.fixed
+.fixed
   display:      block
   margin-left:  auto
   margin-right: auto
   width:        680px
+
+#comments
+  border:         1px solid #ffffff
+  border-top:     1px solid #909090
+  border-right:   1px solid #909090
+  padding-left:   5%
+  padding-right:  5%
+  padding-bottom: 1%
+
+#comments p, #comments label
+  font-size: 90%
+
+#comments blockquote
+  color:          #9c9c6b
+  font-style:     italic
+  border-left:    solid 3px #404040
+  padding-left:   2%
+  padding-bottom: 1%
 
 .dsq-by, .dsq-dc-logo, .dsq-options
   display: none

@@ -42,7 +42,8 @@ postLayout post = do
     mmesg          <- getMessage
     (t, h)         <- breadcrumbs
     postContent    <- liftIO $ loadPostContent post
-    commentsHamlet <- getCommentsHamlet $ postSlug post -- new features!
+    -- comments, not used in template yet...
+    commentsHamlet <- getCommentsHamlet (postSlug post) (PostR $ postSlug post)
 
     pc <- widgetToPageContent $ do
         setTitle $ string $ "pbrisbin - " ++ postTitle post
