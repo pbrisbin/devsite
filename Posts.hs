@@ -1,4 +1,5 @@
 {-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE QuasiQuotes #-}
 -------------------------------------------------------------------------------
 -- |
 -- Module      :  Posts
@@ -21,11 +22,12 @@ module Posts
     , allPosts
     , mkPostSlugs
     , mkPostTags
+    , allPostsTemplate
+    , postTemplate
     ) where
 
 import Yesod
 import DevSite
-import qualified Settings as S
 
 import Data.Char (toLower)
 import Data.List (nub)
@@ -41,9 +43,6 @@ data Post = Post
     , postDescr :: String   -- ^ description used for post listing and RSS feed
     , postTags  :: [String] -- ^ list of tags that apply to the post
     }
-
--- | A convenience synonymn
-type HamletContent = Hamlet (Route DevSite)
 
 -- | Locate posts with a given slug
 getPostBySlug :: String -> [Post]
@@ -76,6 +75,39 @@ loadPostContent p = do
            $ writeHtmlString defaultWriterOptions
            $ readMarkdown defaultParserState
            $ markdown
+
+-- | A body template for a list of posts, you can also provide the title
+allPostsTemplate :: [Post] -> String -> Hamlet DevSiteRoute
+allPostsTemplate posts title = [$hamlet|
+%h1 $title$
+%hr
+
+#posts
+    $forall posts post
+        ^postTemplate.post^
+|]
+
+-- | The sub template for a single post
+postTemplate :: Post -> Hamlet DevSiteRoute
+postTemplate arg = [$hamlet|
+.post
+  %p
+
+    %a!href=@PostR.postSlug.arg@ $postTitle.arg$
+    \ - $postDescr.arg$ 
+    
+  %p.small
+
+    Published on $postDate.arg$
+
+    %span!style="float: right;"
+
+      Tags: 
+
+      $forall postTags.arg tag
+
+        %a!href=@TagR.tag@ $tag$ 
+|]
 
 -- | The master list of all posts known to the site
 allPosts :: [Post]

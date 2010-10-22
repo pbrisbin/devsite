@@ -35,7 +35,7 @@ mkYesodData "DevSite" [$parseRoutes|
 /              RootR    GET
 /about         AboutR   GET
 /posts         PostsR   GET
-/posts/#String PostR    GET
+/posts/#String PostR    GET POST
 /tags          TagsR    GET
 /tags/#String  TagR     GET
 /feed          FeedR    GET

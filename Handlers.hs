@@ -17,6 +17,7 @@ module Handlers
     , getAboutR
     , getPostsR
     , getPostR
+    , postPostR
     , getTagsR
     , getTagR
     , getFeedR
@@ -28,7 +29,6 @@ import Yesod
 import DevSite
 import Posts
 import Layouts
-import Templates
 import qualified Settings as S
 import Helpers.RssFeed
  
@@ -70,6 +70,10 @@ getPostR slug = do
     case getPostBySlug slug of
         []       -> notFound
         (post:_) -> postLayout post
+
+-- | posting a comment is the same route
+postPostR :: String -> Handler RepHtml
+postPostR = getPostR
 
 -- | All tags
 getTagsR :: Handler RepHtml

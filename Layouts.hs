@@ -21,6 +21,7 @@ module Layouts
 import Yesod
 import DevSite
 import Posts
+import Comments
 import qualified Settings as S
 
 -- | Like defaultLayout, just with breadcrumbs, used with any top level
@@ -38,9 +39,10 @@ pageLayout widget = do
 --   while still abstracting the overall template/css
 postLayout :: Post -> Handler RepHtml
 postLayout post = do
-    mmesg       <- getMessage
-    (t, h)      <- breadcrumbs
-    postContent <- liftIO $ loadPostContent post
+    mmesg          <- getMessage
+    (t, h)         <- breadcrumbs
+    postContent    <- liftIO $ loadPostContent post
+    commentsHamlet <- getCommentsHamlet $ postSlug post -- new features!
 
     pc <- widgetToPageContent $ do
         setTitle $ string $ "pbrisbin - " ++ postTitle post
