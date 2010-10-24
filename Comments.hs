@@ -1,5 +1,6 @@
 {-# LANGUAGE QuasiQuotes       #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RankNTypes        #-}
 -------------------------------------------------------------------------------
 -- |
 -- Module      :  Comments
@@ -58,15 +59,15 @@ data CommentForm = CommentForm
 -- | A data type to represent your backend. Provides an abstract
 --   interface for use by the code here.
 data CommentStorage = CommentStorage
-    { storeComment :: Comment -> IO ()
-    , loadComments :: String -> IO [Comment]
+    { storeComment :: (Yesod m) => Comment -> GHandler s m ()
+    , loadComments :: (Yesod m) => String  -> GHandler s m [Comment]
     }
 
 -- | For use during testing, always loads no comments and prints the
 --   comment to stderr as "store"
 testDB :: CommentStorage
 testDB = CommentStorage
-    { storeComment = hPutStrLn stderr . show
+    { storeComment = liftIO . hPutStrLn stderr . show
     , loadComments = (\_ -> return $ [])
     }
 
@@ -85,13 +86,13 @@ fileDB f = CommentStorage
                              , (userName comment),                "|"
                              , (htmlToString $ content comment), "\n"
                              ]
-            appendFile f str
+            liftIO $ appendFile f str
 
         formatTime'  = formatTime defaultTimeLocale "%s"
         htmlToString = unpack . renderHtml
 
         loadComments' id = do
-            contents <- readFile f
+            contents <- liftIO $ readFile f
             let strings = lines contents
             return $ mapMaybe (readComment id) strings
 
@@ -201,16 +202,20 @@ commentsForm db thread r = do
         FormMissing    -> return ()
         FormFailure _  -> return ()
         FormSuccess cf -> do
-            liftIO $ do
-                comment <- commentFromForm thread cf
-                storeComment db $ comment
+--            liftIO $ do
+--                comment <- commentFromForm thread cf
+--                storeComment db $ comment
+
+            comment <- liftIO $ commentFromForm thread cf
+            storeComment db $ comment
             -- redirect to prevent accidental reposts and to clear the
             -- form data
             setMessage $ [$hamlet| %em comment added |]
             redirect RedirectTemporary $ r
 
     -- load existing comments
-    comments <- liftIO $ loadComments db $ thread
+    --comments <- liftIO $ loadComments db $ thread
+    comments <- loadComments db $ thread
 
     -- return it as a widget
     --return $ commentsTemplate comments form enctype
