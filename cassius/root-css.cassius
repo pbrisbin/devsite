@@ -106,9 +106,7 @@ h2 a:hover, h3 a:hover
   padding-left:   5%
   padding-right:  5%
   padding-bottom: 1%
-
-#comments p, #comments label
-  font-size: 90%
+  font-size:      90%
 
 #comments blockquote
   color:          #9c9c6b

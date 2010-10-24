@@ -41,8 +41,9 @@ Make sure you've got -contrib installed and add the following to the top
 of your xmonad.hs: 
 
 ~~~ { .haskell }
-import XMonad.Util.Scratchpad', 'haskell'); ?>
+import XMonad.Util.Scratchpad
 ~~~
+
 Pretty easy, huh?
 
 ### ManageHook
@@ -86,14 +87,13 @@ in the first config you copied from, whatever. Just know that
 someway-somehow you'll need to bind a key to...
 
 ~~~ { .haskell }
-myKeys = [ ...
-         [ ... , scratchPad ] -- spawn a scratchpad terminal
+myKeys = [ ( ... , ...        )
+         , ( ... , scratchPad ) -- spawn a scratchpad terminal
+         ]
 
          where 
 
            scratchPad = scratchpadSpawnActionTerminal myTerminal
-
-
 ~~~
 
 Make sense?
@@ -161,7 +161,6 @@ myLogHook h = dynamicLogWithPP $ defaultPP
   }
 
   where
-
     -- then define it down here: if the workspace is NSP then print
     -- nothing, else print it as-is
     noScratchPad ws = if ws == "NSP" then "" else ws
