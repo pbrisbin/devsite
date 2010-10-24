@@ -21,12 +21,16 @@ import Comments.Templates
 import Comments.Storage
 
 import Yesod
-import Yesod.Form.Core            (FieldProfile(..), requiredFieldHelper)
 import Control.Applicative        ((<$>), (<*>))
 import Data.Time.Clock            (getCurrentTime)
 import Network.Wai                (remoteHost)
 import Text.Hamlet                (toHtml)
 import Text.HTML.SanitizeXSS      (sanitizeXSS)
+
+import Yesod.Form
+import Yesod.Form.Core
+import Control.Monad   (mplus)
+import Data.Maybe      (fromMaybe)
 
 import qualified Data.ByteString.Char8 as B
 import qualified Data.ByteString.Lazy.Char8 as L
@@ -67,37 +71,44 @@ liftT f = Textarea . f . unTextarea
 -- | The input form itself
 commentForm :: Maybe CommentForm -> Form s m CommentForm
 commentForm cf = fieldsToTable $ CommentForm
-    <$> stringField  "name:"    (fmap formUser    cf)
+    <$> userField    "name:"    (fmap formUser    cf)
     <*> commentField "comment:" (fmap formComment cf)
     <*> boolField    "html?"    (fmap formIsHtml  cf)
 
 -- | todo: A copy of stringField but with custom validation
---userField :: String -> FormletField sub y String
---userField label initial = GForm $ do
---    userId   <- newFormIdent
---    userName <- newFormIdent
---    env      <- askParams
---
---    let res = undefined
---        case env of
---            [] -> FormMissing
---            _  ->
---                case (lookup userName env) of
---                    Just userString -> undefined -- validate string
---                    _               -> FormFailure "Username required."
---
---    let userValue = fromMaybe "" $ lookup userName env `mplus` initial
---    let fi = FieldInfo
---        { fiLabel = label
---        , fiTooltip = ""
---        , fiIdent = userId
---        , fiInput = [$hamlet| test |]
---        , fiErrors =
---            case res of
---                FormFailure [x] -> Just $ string x
---                _               -> Nothing
---        }
---    return (res, [fi], UrlEncoded)
+userField :: String -> FormletField sub y String
+userField label initial = GForm $ do
+    userId   <- newFormIdent
+    userName <- newFormIdent
+    env      <- askParams
+
+    let res = case env of
+                [] -> FormMissing
+                _  ->
+                    case (lookup userName env) of
+                        Just userString -> 
+                            if (isValid userString)
+                                then FormSuccess userString
+                                else FormFailure ["[a-zA-Z-_. ]"]
+                        _               -> FormFailure ["Value is required"]
+
+    let userValue = fromMaybe "" $ lookup userName env `mplus` initial
+    let fi = FieldInfo { fiLabel   = string $ label
+                       , fiTooltip = string $ ""
+                       , fiIdent = userId
+                       , fiInput = [$hamlet|
+    %input#userId!name=$userName$!type=text!value=$userValue$
+|]
+                       , fiErrors =
+                           case res of
+                               FormFailure [x] -> Just $ string x
+                               _               -> Nothing
+                       }
+
+    return (res, [fi], UrlEncoded)
+    where
+        isValid s  = not (s == []) && all (flip elem validChars) s
+        validChars = ['0'..'9'] ++ ['a'..'z'] ++ ['A'..'Z'] ++ ['-', '_', '.', ' ']
 
 -- | A copy of textareaField but with a larger entry box
 commentField :: FormFieldSettings -> FormletField sub y Textarea
