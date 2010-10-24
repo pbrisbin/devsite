@@ -118,7 +118,7 @@ fileDB f = CommentStorage
         readTime = parseTime defaultTimeLocale "%s"
 
 -- | Cleans form input and create a comment type to be stored
-commentFromForm :: (Yesod m) => String -> CommentForm -> GHandler s m Comment
+commentFromForm :: String -> CommentForm -> GHandler s m Comment
 commentFromForm thread cf = do
     timeNow <- liftIO getCurrentTime
     ip      <- return . B.unpack . remoteHost =<< waiRequest
@@ -134,7 +134,7 @@ commentFromForm thread cf = do
         
         -- the user intends plaintext
         textToHtml :: Textarea -> Html
-        textToHtml = toHtml . Textarea . stripReturn . unTextarea
+        textToHtml = toHtml . liftT stripReturn
 
         -- with html, \r\n and \n should always become space
         stripNewLines []               = []
@@ -146,6 +146,14 @@ commentFromForm thread cf = do
         stripReturn []          = []
         stripReturn ('\r':rest) =     stripReturn rest
         stripReturn (x:rest)    = x : stripReturn rest
+
+-- | lift a String function into Textara
+liftT :: (String -> String) -> (Textarea -> Textarea)
+liftT f = Textarea . f . unTextarea
+
+-- | lift a String function into Html
+--liftH :: (String -> String) -> (Html -> Html)
+--liftH f = preEscapedString . f . L.unpack . renderHtml
 
 -- | The input form itself
 commentForm :: Maybe CommentForm -> Form s m CommentForm
