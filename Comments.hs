@@ -12,34 +12,34 @@
 -- Portability :  unportable
 --
 -- Trying to provide a generic Comments interface for a Yesod
--- application. Ideally, one should make one's app an instance of
--- Comments by defining only loadComments and storeComment; that part's
--- a todo still...
+-- application.
 --
 -------------------------------------------------------------------------------
 module Comments 
     ( commentsForm
     , CommentStorage(..)
-    , testDB
     , fileDB
+    , testDB
     ) where
 
 import Yesod
 import Yesod.Form.Core            (FieldProfile(..), requiredFieldHelper)
 import Control.Applicative        ((<$>), (<*>))
-import Data.ByteString.Lazy.Char8 (unpack)
 import Data.List                  (intercalate)
 import Data.List.Split            (wordsBy)
 import Data.Time.Clock            (UTCTime, getCurrentTime)
 import Data.Time.Format           (parseTime, formatTime)
 import Data.Maybe                 (mapMaybe)
+import Network.Wai                (remoteHost)
 import Text.Hamlet                (HamletValue, ToHtml, toHtml)
 import Text.HTML.SanitizeXSS      (sanitizeXSS)
 import System.Locale              (defaultTimeLocale)
 import System.IO                  (hPutStrLn, stderr)
 
--- | The actual comment data type, this is what must be stored and
---   loaded in your instance functions.
+import qualified Data.ByteString.Char8 as B
+import qualified Data.ByteString.Lazy.Char8 as L
+
+-- | The actual comment data type
 data Comment = Comment
     { thread    :: String
     , timeStamp :: UTCTime
@@ -80,6 +80,7 @@ fileDB f = CommentStorage
     }
     where
         storeComment' comment = do
+            -- a comment with a literal '|' in it will be lost...
             let str = concat [ (thread comment),                  "|"
                              , (formatTime' $ timeStamp comment), "|"
                              , (ipAddress comment),               "|"
@@ -89,12 +90,11 @@ fileDB f = CommentStorage
             liftIO $ appendFile f str
 
         formatTime'  = formatTime defaultTimeLocale "%s"
-        htmlToString = unpack . renderHtml
+        htmlToString = L.unpack . renderHtml
 
         loadComments' id = do
             contents <- liftIO $ readFile f
-            let strings = lines contents
-            return $ mapMaybe (readComment id) strings
+            return $ mapMaybe (readComment id) (lines contents)
 
         readComment id' s = 
             case (wordsBy (=='|') s) of
@@ -118,29 +118,36 @@ fileDB f = CommentStorage
         readTime = parseTime defaultTimeLocale "%s"
 
 -- | Cleans form input and create a comment type to be stored
-commentFromForm :: String -> CommentForm -> IO Comment
+commentFromForm :: (Yesod m) => String -> CommentForm -> GHandler s m Comment
 commentFromForm thread cf = do
-    timeNow <- getCurrentTime
-    ip      <- getRequestIp
-    if formIsHtml cf
-        then return $ Comment thread timeNow ip (formUser cf) (preEscapedString . sanitizeXSS . stripNewLines . unTextarea $ formComment cf)
-        else return $ Comment thread timeNow ip (formUser cf) (toHtml . Textarea . stripReturn . unTextarea $ formComment cf)
-    where
-        -- todo: how to get the ip?
-        getRequestIp = return "0.0.0.0"
+    timeNow <- liftIO getCurrentTime
+    ip      <- return . B.unpack . remoteHost =<< waiRequest
 
-        -- with html formatting \r\n and \n should always become space
+    -- return the comment
+    if formIsHtml cf
+        then return $ Comment thread timeNow ip (formUser cf) (htmlToHtml $ formComment cf)
+        else return $ Comment thread timeNow ip (formUser cf) (textToHtml $ formComment cf)
+    where
+        -- the user entered html source directly
+        htmlToHtml :: Textarea -> Html
+        htmlToHtml = preEscapedString . sanitizeXSS . stripNewLines . unTextarea
+        
+        -- the user intends plaintext
+        textToHtml :: Textarea -> Html
+        textToHtml = toHtml . Textarea . stripReturn . unTextarea
+
+        -- with html, \r\n and \n should always become space
         stripNewLines []               = []
         stripNewLines ('\r':'\n':rest) = ' ' : stripNewLines rest
         stripNewLines ('\n':rest)      = ' ' : stripNewLines rest
         stripNewLines (x:rest)         = x   : stripNewLines rest
 
-        -- \n will become <br>, \r should be disgarded
+        -- with plaintext, \n will become <br>, \r should just be discarded
         stripReturn []          = []
         stripReturn ('\r':rest) =     stripReturn rest
         stripReturn (x:rest)    = x : stripReturn rest
 
--- | The input form, todo: add validation on the username
+-- | The input form itself
 commentForm :: Maybe CommentForm -> Form s m CommentForm
 commentForm cf = fieldsToTable $ CommentForm
     <$> stringField  "name:"    (fmap formUser    cf)
@@ -202,11 +209,7 @@ commentsForm db thread r = do
         FormMissing    -> return ()
         FormFailure _  -> return ()
         FormSuccess cf -> do
---            liftIO $ do
---                comment <- commentFromForm thread cf
---                storeComment db $ comment
-
-            comment <- liftIO $ commentFromForm thread cf
+            comment <- commentFromForm thread cf
             storeComment db $ comment
             -- redirect to prevent accidental reposts and to clear the
             -- form data
@@ -214,13 +217,12 @@ commentsForm db thread r = do
             redirect RedirectTemporary $ r
 
     -- load existing comments
-    --comments <- liftIO $ loadComments db $ thread
     comments <- loadComments db $ thread
 
     -- return it as a widget
     --return $ commentsTemplate comments form enctype
     
-    -- return it as hamlet; this is a _hack_
+    -- return it as hamlet; todo: this is a _hack_
     pc <- widgetToPageContent $ commentsTemplate comments form enctype
     return $ pageBody pc
 
@@ -228,14 +230,12 @@ commentsForm db thread r = do
 commentsTemplate :: (HamletValue a, ToHtml b) => [Comment] -> a -> b -> a
 commentsTemplate comments form enctype = [$hamlet|
 #comments
-
     %h4 $string.show.length.comments$ comments:
 
     $forall comments comment
         ^commentTemplate.comment^
 
     %h4 Add a comment:
-
     %form!enctype=$enctype$!method="post"
         %table
             ^form^
@@ -245,7 +245,6 @@ commentsTemplate comments form enctype = [$hamlet|
                 %td
                     %input!type=submit 
                     %input!type=reset
-
     %p 
         %em when using html, assume your text will be wrapped in &lt;p&gt &lt;/p&gt;
 |]
