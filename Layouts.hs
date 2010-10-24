@@ -22,6 +22,7 @@ import Yesod
 import DevSite
 import Posts
 import Comments
+import Comments.Storage
 import qualified Settings as S
 
 -- | Like defaultLayout, just with breadcrumbs, used with any top level
@@ -49,6 +50,5 @@ postLayout post = do
         addStyle $(S.cassiusFile "root-css")
     hamletToRepHtml $(S.hamletFile "post-layout")
 
--- flat file storage
-myDB :: CommentStorage
-myDB = fileDB "comments.db"
+--myDB = fileDB "comments.db"
+myDB = testDB
