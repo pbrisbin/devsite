@@ -1,5 +1,4 @@
 {-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE TypeFamilies    #-}
 -------------------------------------------------------------------------------
 -- |
 -- Module      :  Layouts
@@ -43,9 +42,13 @@ postLayout post = do
     mmesg            <- getMessage
     (t, h)           <- breadcrumbs
     postContent      <- liftIO $ loadPostContent post
-    commentsTemplate <- commentsForm (PostR $ postSlug post) (PostR $ postSlug post)
+    commentsTemplate <- commentsForm myDB (postSlug post) (PostR $ postSlug post)
 
     pc <- widgetToPageContent $ do
         setTitle $ string $ "pbrisbin - " ++ postTitle post
         addStyle $(S.cassiusFile "root-css")
     hamletToRepHtml $(S.hamletFile "post-layout")
+
+-- flat file storage
+myDB :: CommentStorage
+myDB = fileDB "comments.db"

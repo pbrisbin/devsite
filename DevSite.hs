@@ -18,15 +18,10 @@
 module DevSite where
 
 import Yesod hiding (lift)
-import Yesod.WebRoutes
 import qualified Settings as S
 
-import Control.Monad (liftM)
 import Data.Char (toLower)
 import Language.Haskell.TH.Syntax
-
-import Comments
-import System.IO
 
 -- | The main site type
 data DevSite = DevSite
@@ -89,15 +84,6 @@ instance YesodBreadcrumbs DevSite where
     -- be sure to fail noticably so i fix it when it happens
     breadcrumb _ = return ("%%%", Just RootR)
 
--- | All comments on post pages
-instance YesodComments DevSite where
-    idFromRoute  (PostR slug) = slug
-    idFromRoute  _            = ""
-    storeComment (PostR slug) = hPutStrLn stderr . show
-    storeComment _            = return $ return ()
-    loadComments (PostR slug) = return $ []
-    loadComments _            = return $ []
-
 -- | This footer template needs to be in scope everywhere, so we'll
 --   define it here
 footerTemplate :: Hamlet DevSiteRoute
@@ -117,13 +103,6 @@ footerTemplate = [$hamlet|
 
 -- | Template haskell to automate function declarations for use in
 --   hamlet files
---
---   > mkConstant "foo"
---
---   is equivalent to writing directly,
---
---   > foo = "foo"
---
 mkConstant :: String -> Q [Dec]
 mkConstant s = do
     exp <- lift s

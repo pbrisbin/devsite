@@ -16,11 +16,18 @@
 -- a todo still...
 --
 -------------------------------------------------------------------------------
-module Comments where
+module Comments 
+    ( commentsForm
+    , CommentStorage(..)
+    , testDB
+    , fileDB
+    ) where
 
 import Yesod
 import Yesod.Form.Core            (FieldProfile(..), requiredFieldHelper)
 import Control.Applicative        ((<$>), (<*>))
+import Data.ByteString.Lazy.Char8 (unpack)
+import Data.List                  (intercalate)
 import Data.List.Split            (wordsBy)
 import Data.Time.Clock            (UTCTime, getCurrentTime)
 import Data.Time.Format           (parseTime, formatTime)
@@ -48,28 +55,89 @@ data CommentForm = CommentForm
     , formIsHtml  :: Bool
     }
 
--- | Instantiate your app for comments
-class YesodComments y where
-    idFromRoute  :: Route y -> String
-    storeComment :: Route y -> Comment -> IO ()
-    loadComments :: Route y -> IO [Comment]
+-- | A data type to represent your backend. Provides an abstract
+--   interface for use by the code here.
+data CommentStorage = CommentStorage
+    { storeComment :: Comment -> IO ()
+    , loadComments :: String -> IO [Comment]
+    }
+
+-- | For use during testing, always loads no comments and prints the
+--   comment to stderr as "store"
+testDB :: CommentStorage
+testDB = CommentStorage
+    { storeComment = hPutStrLn stderr . show
+    , loadComments = (\_ -> return $ [])
+    }
+
+-- | A simple flat file storage method, this is way unreliable, probably
+--   wicked slow, but dead simple to setup/use
+fileDB :: FilePath -> CommentStorage
+fileDB f = CommentStorage
+    { storeComment = storeComment'
+    , loadComments = loadComments'
+    }
+    where
+        storeComment' comment = do
+            let str = concat [ (thread comment),                  "|"
+                             , (formatTime' $ timeStamp comment), "|"
+                             , (ipAddress comment),               "|"
+                             , (userName comment),                "|"
+                             , (htmlToString $ content comment), "\n"
+                             ]
+            appendFile f str
+
+        formatTime'  = formatTime defaultTimeLocale "%s"
+        htmlToString = unpack . renderHtml
+
+        loadComments' id = do
+            contents <- readFile f
+            let strings = lines contents
+            return $ mapMaybe (readComment id) strings
+
+        readComment id' s = 
+            case (wordsBy (=='|') s) of
+                [t, ts, ip, user, html] -> 
+                    if t == id'
+                        then
+                            case readTime ts of
+                                Just utc -> Just $ 
+                                    Comment
+                                        { thread    = t
+                                        , timeStamp = utc
+                                        , ipAddress = ip
+                                        , userName  = user
+                                        , content   = preEscapedString html
+                                        }
+                                _ -> Nothing
+                        else Nothing
+                _ -> Nothing
+
+        readTime :: String -> Maybe UTCTime
+        readTime = parseTime defaultTimeLocale "%s"
 
 -- | Cleans form input and create a comment type to be stored
 commentFromForm :: String -> CommentForm -> IO Comment
-commentFromForm id cf = do
+commentFromForm thread cf = do
     timeNow <- getCurrentTime
     ip      <- getRequestIp
     if formIsHtml cf
-        then return $ Comment id timeNow ip (formUser cf) (preEscapedString . sanitizeXSS . stripNewLines . unTextarea $ formComment cf)
-        else return $ Comment id timeNow ip (formUser cf) (toHtml $ formComment cf)
+        then return $ Comment thread timeNow ip (formUser cf) (preEscapedString . sanitizeXSS . stripNewLines . unTextarea $ formComment cf)
+        else return $ Comment thread timeNow ip (formUser cf) (toHtml . Textarea . stripReturn . unTextarea $ formComment cf)
     where
         -- todo: how to get the ip?
         getRequestIp = return "0.0.0.0"
 
+        -- with html formatting \r\n and \n should always become space
         stripNewLines []               = []
         stripNewLines ('\r':'\n':rest) = ' ' : stripNewLines rest
         stripNewLines ('\n':rest)      = ' ' : stripNewLines rest
         stripNewLines (x:rest)         = x   : stripNewLines rest
+
+        -- \n will become <br>, \r should be disgarded
+        stripReturn []          = []
+        stripReturn ('\r':rest) =     stripReturn rest
+        stripReturn (x:rest)    = x : stripReturn rest
 
 -- | The input form, todo: add validation on the username
 commentForm :: Maybe CommentForm -> Form s m CommentForm
@@ -77,6 +145,34 @@ commentForm cf = fieldsToTable $ CommentForm
     <$> stringField  "name:"    (fmap formUser    cf)
     <*> commentField "comment:" (fmap formComment cf)
     <*> boolField    "html?"    (fmap formIsHtml  cf)
+
+-- | todo: A copy of stringField but with custom validation
+--userField :: String -> FormletField sub y String
+--userField label initial = GForm $ do
+--    userId   <- newFormIdent
+--    userName <- newFormIdent
+--    env      <- askParams
+--
+--    let res = undefined
+--        case env of
+--            [] -> FormMissing
+--            _  ->
+--                case (lookup userName env) of
+--                    Just userString -> undefined -- validate string
+--                    _               -> FormFailure "Username required."
+--
+--    let userValue = fromMaybe "" $ lookup userName env `mplus` initial
+--    let fi = FieldInfo
+--        { fiLabel = label
+--        , fiTooltip = ""
+--        , fiIdent = userId
+--        , fiInput = [$hamlet| test |]
+--        , fiErrors =
+--            case res of
+--                FormFailure [x] -> Just $ string x
+--                _               -> Nothing
+--        }
+--    return (res, [fi], UrlEncoded)
 
 -- | A copy of textareaField but with a larger entry box
 commentField :: FormFieldSettings -> FormletField sub y Textarea
@@ -91,31 +187,37 @@ textareaFieldProfile' = FieldProfile
 |]
     }
 
--- | todo: The ghc-inferred type signature
-commentsForm rThread rRedirect = do
-    -- load existing comments for this route
-    comments <- liftIO $ loadComments rThread
-
-    -- read/load the form for this route
+-- | Provides a single call to retrieve the html for the comments
+--   section of a page
+commentsForm :: (Yesod m)
+             => CommentStorage -- ^ how you store your comments
+             -> String         -- ^ the id for the thread you're requesting
+             -> Route m        -- ^ a route to redirect to after a POST
+             -> GHandler s m (Hamlet (Route m))
+commentsForm db thread r = do
+    -- POST if needed
     (res, form, enctype) <- runFormPost $ commentForm Nothing
     case res of
         FormMissing    -> return ()
         FormFailure _  -> return ()
         FormSuccess cf -> do
             liftIO $ do
-                comment <- commentFromForm (idFromRoute rThread) cf
-                storeComment rThread comment
+                comment <- commentFromForm thread cf
+                storeComment db $ comment
             -- redirect to prevent accidental reposts and to clear the
             -- form data
             setMessage $ [$hamlet| %em comment added |]
-            redirect RedirectTemporary $ rRedirect
+            redirect RedirectTemporary $ r
+
+    -- load existing comments
+    comments <- liftIO $ loadComments db $ thread
 
     -- return it as a widget
     --return $ commentsTemplate comments form enctype
+    
     -- return it as hamlet; this is a _hack_
     pc <- widgetToPageContent $ commentsTemplate comments form enctype
     return $ pageBody pc
-
 
 -- | Template for the entire comments section
 commentsTemplate :: (HamletValue a, ToHtml b) => [Comment] -> a -> b -> a
@@ -140,7 +242,7 @@ commentsTemplate comments form enctype = [$hamlet|
                     %input!type=reset
 
     %p 
-        %em when using html, assume your text is already wrapped in &lt;p&gt;
+        %em when using html, assume your text will be wrapped in &lt;p&gt &lt;/p&gt;
 |]
 
 -- | Sub template for a single comment
