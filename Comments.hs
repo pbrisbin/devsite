@@ -21,109 +21,113 @@ module Comments where
 import Yesod
 import Yesod.Form.Core            (FieldProfile(..), requiredFieldHelper)
 import Control.Applicative        ((<$>), (<*>))
+import Data.List.Split            (wordsBy)
 import Data.Time.Clock            (UTCTime, getCurrentTime)
 import Data.Time.Format           (parseTime, formatTime)
+import Data.Maybe                 (mapMaybe)
 import Text.Hamlet                (HamletValue, ToHtml, toHtml)
 import Text.HTML.SanitizeXSS      (sanitizeXSS)
 import System.Locale              (defaultTimeLocale)
 import System.IO                  (hPutStrLn, stderr)
 
--- | A Comment datatype; I'm cheating and making most things Strings
---   because it's way easier to deal with.
+-- | The actual comment data type, this is what must be stored and
+--   loaded in your instance functions.
 data Comment = Comment
-    { commentIp      :: String
-    , commentTime    :: String
-    , commentUser    :: String
-    , commentContent :: Textarea
-    , commentHtml    :: Bool
+    { thread    :: String
+    , timeStamp :: UTCTime
+    , ipAddress :: String
+    , userName  :: String
+    , content   :: Html
     } deriving Show
 
--- | todo:
-storeComment :: String -> Comment -> IO ()
-storeComment id comment = hPutStrLn stderr $ show comment
+-- | The form data type, this is used to gather the comment from the
+--   user and is handed off to commentFromForm just before storeComment.
+data CommentForm = CommentForm
+    { formUser    :: String
+    , formComment :: Textarea
+    , formIsHtml  :: Bool
+    }
 
--- | todo:
-loadComments :: String -> IO [Comment]
-loadComments id = return $ 
-    [ Comment "192.168.0.1" "1287765561" "joe" (Textarea "hello\r\nw<strong>or</strong>ld") True
-    , Comment "192.168.0.2" "1287765568" "jim" (Textarea "hello<br />world"               ) True
-    , Comment "192.168.0.3" "1287765568" "pat" (Textarea "hello\r\nworld"                 ) False
-    , Comment "192.168.0.4" "1287765568" "dan" (Textarea "hello world"                    ) False
-    ]
+-- | Instantiate your app for comments
+class YesodComments y where
+    idFromRoute  :: Route y -> String
+    storeComment :: Route y -> Comment -> IO ()
+    loadComments :: Route y -> IO [Comment]
 
--- | Add the time and Ip to the comment, this is called immediately
---   before storeComment
-addTimeAndIp :: Comment -> IO Comment
-addTimeAndIp comment = do
-    utc <- getCurrentTime
-    let s = formatTime defaultTimeLocale "%s" utc
-    return $ comment
-        { commentTime = s
-        -- todo: the ip
-        , commentIp   = "192.168.0.1"
-        }
+-- | Cleans form input and create a comment type to be stored
+commentFromForm :: String -> CommentForm -> IO Comment
+commentFromForm id cf = do
+    timeNow <- getCurrentTime
+    ip      <- getRequestIp
+    if formIsHtml cf
+        then return $ Comment id timeNow ip (formUser cf) (preEscapedString . sanitizeXSS . stripNewLines . unTextarea $ formComment cf)
+        else return $ Comment id timeNow ip (formUser cf) (toHtml $ formComment cf)
+    where
+        -- todo: how to get the ip?
+        getRequestIp = return "0.0.0.0"
 
--- | Used to initialize the form so we can define time/ip later (when
---   saving) without having to make it a Maybe type
-initComment :: Maybe Comment
-initComment = Just $ Comment "X" "X" "" (Textarea "") False
+        stripNewLines []               = []
+        stripNewLines ('\r':'\n':rest) = ' ' : stripNewLines rest
+        stripNewLines ('\n':rest)      = ' ' : stripNewLines rest
+        stripNewLines (x:rest)         = x   : stripNewLines rest
 
--- | The input Form, todo: customize it - no table
-commentForm :: Maybe Comment -> Form s m Comment
-commentForm comment = fieldsToTable $ Comment
-    <$> hiddenField    ""         (fmap commentIp      comment)
-    <*> hiddenField    ""         (fmap commentTime    comment)
-    <*> stringField    "name:"    (fmap commentUser    comment)
-    <*> textareaField' "comment:" (fmap commentContent comment)
-    <*> boolField      "html?"    (fmap commentHtml    comment)
+-- | The input form, todo: add validation on the username
+commentForm :: Maybe CommentForm -> Form s m CommentForm
+commentForm cf = fieldsToTable $ CommentForm
+    <$> stringField  "name:"    (fmap formUser    cf)
+    <*> commentField "comment:" (fmap formComment cf)
+    <*> boolField    "html?"    (fmap formIsHtml  cf)
 
--- | just like textareaField but with a bigger entry box
-textareaField' :: FormFieldSettings -> FormletField sub y Textarea
-textareaField' = requiredFieldHelper textareaFieldProfile'
+-- | A copy of textareaField but with a larger entry box
+commentField :: FormFieldSettings -> FormletField sub y Textarea
+commentField = requiredFieldHelper textareaFieldProfile'
 
 textareaFieldProfile' :: FieldProfile sub y Textarea
 textareaFieldProfile' = FieldProfile
     { fpParse  = Right . Textarea
     , fpRender = unTextarea
     , fpWidget = \theId name val _isReq -> addBody [$hamlet|
-%textarea#$theId$!name=$name$!cols=60!rows=10 $val$
+%textarea#$theId$!name=$name$!cols=50!rows=6 $val$
 |]
     }
 
--- | Do everything required to handle comments and return only the
---   hamlet to be added to the page, redirect to r after a POST
-getCommentsHamlet :: (Yesod m) 
-                  => String  -- ^ The id to pass to loadComments
-                  -> Route m -- ^ the route to redirect to after posting
-                  -> GHandler s m (Hamlet (Route m)) 
-getCommentsHamlet id r = do
-    -- load existing comments for this page
-    comments <- liftIO $ loadComments id
+-- | todo: The ghc-inferred type signature
+commentsForm rThread rRedirect = do
+    -- load existing comments for this route
+    comments <- liftIO $ loadComments rThread
 
-    -- read the form entry
-    (res, form, enctype) <- runFormPost $ commentForm initComment
+    -- read/load the form for this route
+    (res, form, enctype) <- runFormPost $ commentForm Nothing
     case res of
-        FormMissing         -> return ()
-        FormFailure _       -> return ()
-        FormSuccess comment -> do
+        FormMissing    -> return ()
+        FormFailure _  -> return ()
+        FormSuccess cf -> do
             liftIO $ do
-                saveComment <- addTimeAndIp comment
-                storeComment id saveComment
-            -- redirect to prevent accidental reposts and
-            -- to clear the form data
+                comment <- commentFromForm (idFromRoute rThread) cf
+                storeComment rThread comment
+            -- redirect to prevent accidental reposts and to clear the
+            -- form data
             setMessage $ [$hamlet| %em comment added |]
-            redirect RedirectTemporary $ r
+            redirect RedirectTemporary $ rRedirect
 
-    -- return the overall form content; todo: this is a _hack_
+    -- return it as a widget
+    --return $ commentsTemplate comments form enctype
+    -- return it as hamlet; this is a _hack_
     pc <- widgetToPageContent $ commentsTemplate comments form enctype
     return $ pageBody pc
+
 
 -- | Template for the entire comments section
 commentsTemplate :: (HamletValue a, ToHtml b) => [Comment] -> a -> b -> a
 commentsTemplate comments form enctype = [$hamlet|
 #comments
+
+    %h4 $string.show.length.comments$ comments:
+
     $forall comments comment
         ^commentTemplate.comment^
+
+    %h4 Add a comment:
 
     %form!enctype=$enctype$!method="post"
         %table
@@ -142,28 +146,16 @@ commentsTemplate comments form enctype = [$hamlet|
 -- | Sub template for a single comment
 commentTemplate :: (HamletValue a) => Comment -> a
 commentTemplate comment = 
-    let html = formatHtml comment
-        date = parseDate (commentTime comment)
+    let date = formatTime defaultTimeLocale "%a, %b %d at %H:%S" $ timeStamp comment
     in [$hamlet|
 %p
     On 
     %strong $date$
     , 
-    %strong $commentUser.comment$
+    %strong $userName.comment$
     \ wrote:
 
 %blockquote
     %p
-        $html$
+        $content.comment$
 |]
-    where
-        formatHtml c =
-            if (commentHtml c)
-                -- comment is html, sanitize and render
-                then preEscapedString  . sanitizeXSS . unTextarea $ commentContent c
-                -- comment is plain text, translate and render
-                else toHtml $ commentContent c
-
-        parseDate s = case (parseTime defaultTimeLocale "%s" s :: Maybe UTCTime) of
-            Just utc -> formatTime defaultTimeLocale "%a, %b %d at %H:%S" utc
-            Nothing  -> "???"

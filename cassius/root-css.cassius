@@ -117,6 +117,9 @@ h2 a:hover, h3 a:hover
   padding-left:   2%
   padding-bottom: 1%
 
+#comments td
+  vertical-align: top
+
 .dsq-by, .dsq-dc-logo, .dsq-options
   display: none
 

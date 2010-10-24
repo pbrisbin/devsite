@@ -37,6 +37,6 @@
 
     %h3 Comments
 
-    ^commentsHamlet^
+    ^commentsTemplate^
 
     ^footerTemplate^

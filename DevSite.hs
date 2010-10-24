@@ -25,6 +25,9 @@ import Control.Monad (liftM)
 import Data.Char (toLower)
 import Language.Haskell.TH.Syntax
 
+import Comments
+import System.IO
+
 -- | The main site type
 data DevSite = DevSite
 type Handler = GHandler DevSite DevSite
@@ -85,6 +88,15 @@ instance YesodBreadcrumbs DevSite where
 
     -- be sure to fail noticably so i fix it when it happens
     breadcrumb _ = return ("%%%", Just RootR)
+
+-- | All comments on post pages
+instance YesodComments DevSite where
+    idFromRoute  (PostR slug) = slug
+    idFromRoute  _            = ""
+    storeComment (PostR slug) = hPutStrLn stderr . show
+    storeComment _            = return $ return ()
+    loadComments (PostR slug) = return $ []
+    loadComments _            = return $ []
 
 -- | This footer template needs to be in scope everywhere, so we'll
 --   define it here

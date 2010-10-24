@@ -1,4 +1,5 @@
 {-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TypeFamilies    #-}
 -------------------------------------------------------------------------------
 -- |
 -- Module      :  Layouts
@@ -39,11 +40,10 @@ pageLayout widget = do
 --   while still abstracting the overall template/css
 postLayout :: Post -> Handler RepHtml
 postLayout post = do
-    mmesg          <- getMessage
-    (t, h)         <- breadcrumbs
-    postContent    <- liftIO $ loadPostContent post
-    -- comments, not used in template yet...
-    commentsHamlet <- getCommentsHamlet (postSlug post) (PostR $ postSlug post)
+    mmesg            <- getMessage
+    (t, h)           <- breadcrumbs
+    postContent      <- liftIO $ loadPostContent post
+    commentsTemplate <- commentsForm (PostR $ postSlug post) (PostR $ postSlug post)
 
     pc <- widgetToPageContent $ do
         setTitle $ string $ "pbrisbin - " ++ postTitle post
