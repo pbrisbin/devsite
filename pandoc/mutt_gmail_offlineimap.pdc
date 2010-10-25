@@ -8,7 +8,7 @@ simple, clean, usable way of interacting with my gmail account.
 This post shares a lot of information with my second mutt post
 regarding
 [multiple accounts accessed through mutt and offlineimap](/posts/two_accounts_in_mutt).
-If that's something you're you planning on settings up you can skip
+If that's something you're you planning on setting up you can skip
 this tutorial as it's a subset of the information there.
 
 Offlineimap syncs a local Maildir at `~/Mail` with my gmail IMAP
