@@ -33,7 +33,7 @@ import qualified Data.ByteString.Lazy.Char8 as L
 testDB :: CommentStorage
 testDB = CommentStorage
     { storeComment = liftIO . hPutStrLn stderr . show
-    , loadComments = (\_ -> return $ [])
+    , loadComments = \_ -> return []
     }
 
 -- | A simple flat file storage method, this is way unreliable, probably
@@ -46,11 +46,11 @@ fileDB f = CommentStorage
     where
         storeComment' comment = do
             -- a comment with a literal '|' in it will be lost...
-            let str = concat [ (thread comment),                  "|"
-                             , (formatTime' $ timeStamp comment), "|"
-                             , (ipAddress comment),               "|"
-                             , (userName comment),                "|"
-                             , (htmlToString $ content comment), "\n"
+            let str = concat [ thread comment,                  "|"
+                             , formatTime' $ timeStamp comment, "|"
+                             , ipAddress comment,               "|"
+                             , userName comment,                "|"
+                             , htmlToString $ content comment, "\n"
                              ]
             liftIO $ appendFile f str
 
@@ -62,12 +62,12 @@ fileDB f = CommentStorage
             return $ mapMaybe (readComment id) (lines contents)
 
         readComment id' s = 
-            case (wordsBy (=='|') s) of
+            case wordsBy (=='|') s of
                 [t, ts, ip, user, html] -> 
                     if t == id'
                         then
                             case readTime ts of
-                                Just utc -> Just $ 
+                                Just utc -> Just
                                     Comment
                                         { thread    = t
                                         , timeStamp = utc

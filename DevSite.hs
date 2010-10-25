@@ -79,7 +79,7 @@ instance YesodBreadcrumbs DevSite where
 
         where
             -- lowercase it
-            format t = (map toLower t) ++ " tag"
+            format t = map toLower t ++ " tag"
 
     -- be sure to fail noticably so i fix it when it happens
     breadcrumb _ = return ("%%%", Just RootR)

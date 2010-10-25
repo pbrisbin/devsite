@@ -1,4 +1,3 @@
-{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE QuasiQuotes #-}
 -------------------------------------------------------------------------------
 -- |
@@ -31,7 +30,7 @@ import DevSite
 
 import Data.Char (toLower)
 import Data.List (nub)
-import Directory (doesFileExist)
+import System.Directory (doesFileExist)
 import Language.Haskell.TH.Syntax
 import Text.Pandoc
 
@@ -50,7 +49,7 @@ getPostBySlug slug = filter ((== slug) . postSlug) allPosts
 
 -- | Locate posts with a given tag
 getPostsByTag :: String -> [Post]
-getPostsByTag tag = filter ((elem tag) . postTags) allPosts
+getPostsByTag tag = filter (elem tag . postTags) allPosts
 
 -- | Use TH to define functions for each post's slug for use in hamlet
 --   templates
@@ -65,16 +64,15 @@ mkPostTags = mkConstants $ nub . concat $ map postTags allPosts
 --   if the pdc file doesn't exist
 loadPostContent :: Post -> IO Html
 loadPostContent p = do
-    let fileName = "pandoc/" ++ (postSlug p) ++ ".pdc"
+    let fileName = "pandoc/" ++ postSlug p ++ ".pdc"
     markdown <- do
         exists <- doesFileExist fileName
         if exists
             then readFile fileName
-            else return $ "File not found"
+            else return "File not found"
     return $ preEscapedString
            $ writeHtmlString defaultWriterOptions
-           $ readMarkdown defaultParserState
-           $ markdown
+           $ readMarkdown defaultParserState markdown
 
 -- | A body template for a list of posts, you can also provide the title
 allPostsTemplate :: [Post] -> String -> Hamlet DevSiteRoute

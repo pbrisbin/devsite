@@ -65,7 +65,7 @@ commentFromForm thread cf = do
         stripCR (x:rest)    = x : stripCR rest
 
 -- | lift a String function into Textara
-liftT :: (String -> String) -> (Textarea -> Textarea)
+liftT :: (String -> String) -> Textarea -> Textarea
 liftT f = Textarea . f . unTextarea
 
 -- | The input form itself
@@ -85,16 +85,16 @@ userField label initial = GForm $ do
     let res = case env of
                 [] -> FormMissing
                 _  ->
-                    case (lookup userName env) of
+                    case lookup userName env of
                         Just userString -> 
-                            if (isValid userString)
+                            if isValid userString
                                 then FormSuccess userString
                                 else FormFailure ["[a-zA-Z-_. ]"]
                         _               -> FormFailure ["Value is required"]
 
     let userValue = fromMaybe "" $ lookup userName env `mplus` initial
-    let fi = FieldInfo { fiLabel   = string $ label
-                       , fiTooltip = string $ ""
+    let fi = FieldInfo { fiLabel   = string label
+                       , fiTooltip = string ""
                        , fiIdent = userId
                        , fiInput = [$hamlet|
     %input#userId!name=$userName$!type=text!value=$userValue$
@@ -107,8 +107,8 @@ userField label initial = GForm $ do
 
     return (res, [fi], UrlEncoded)
     where
-        isValid s  = not (s == []) && all (flip elem validChars) s
-        validChars = ['0'..'9'] ++ ['a'..'z'] ++ ['A'..'Z'] ++ ['-', '_', '.', ' ']
+        isValid s  = (s /= []) && all (`elem` validChars) s
+        validChars = ['0'..'9'] ++ ['a'..'z'] ++ ['A'..'Z'] ++ "-_. " 
 
 -- | A copy of textareaField but with a larger entry box
 commentField :: FormFieldSettings -> FormletField sub y Textarea
@@ -138,14 +138,14 @@ commentsForm db thread r = do
         FormFailure _  -> return ()
         FormSuccess cf -> do
             comment <- commentFromForm thread cf
-            storeComment db $ comment
+            storeComment db comment
             -- redirect to prevent accidental reposts and to clear the
             -- form data
             setMessage $ [$hamlet| %em comment added |]
-            redirect RedirectTemporary $ r
+            redirect RedirectTemporary r
 
     -- load existing comments
-    comments <- loadComments db $ thread
+    comments <- loadComments db thread
 
     -- return it as a widget
     --return $ commentsTemplate comments form enctype
