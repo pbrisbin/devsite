@@ -10,10 +10,10 @@
 -- Stability   :  unstable
 -- Portability :  unportable
 --
--- The default comments template, broken out for future customization.
+-- Drop in templates, for now only one.
 --
 -------------------------------------------------------------------------------
-module Comments.Templates (commentsTemplate) where
+module Comments.Templates (defaultTemplate) where
 
 import Yesod
 import Comments.Core
@@ -23,14 +23,9 @@ import Data.Time.Format (formatTime)
 import System.Locale    (defaultTimeLocale)
 
 -- | Template for the entire comments section
-commentsTemplate :: (HamletValue a, ToHtml b) => [Comment] -> a -> b -> a
-commentsTemplate comments form enctype = [$hamlet|
+defaultTemplate :: (HamletValue a, ToHtml b) => [Comment] -> a -> b -> a
+defaultTemplate comments form enctype = [$hamlet|
 #comments
-    %h4 $string.show.length.comments$ comments:
-
-    $forall comments comment
-        ^commentTemplate.comment^
-
     %h4 Add a comment:
     %form!enctype=$enctype$!method="post"
         %table
@@ -39,10 +34,14 @@ commentsTemplate comments form enctype = [$hamlet|
                 %td
                     &nbsp;
                 %td
-                    %input!type=submit 
-                    %input!type=reset
+                    %input!type="submit"!value="Add comment"
     %p 
         %em when using html, assume your text will be wrapped in &lt;p&gt &lt;/p&gt;
+
+    %h4 Showing $string.show.length.comments$ comments:
+
+    $forall comments comment
+        ^commentTemplate.comment^
 |]
 
 -- | Sub template for a single comment

@@ -97,7 +97,7 @@ userField label initial = GForm $ do
                        , fiTooltip = string ""
                        , fiIdent = userId
                        , fiInput = [$hamlet|
-    %input#userId!name=$userName$!type=text!value=$userValue$
+%input#userId!name=$userName$!type=text!value=$userValue$!size="22"
 |]
                        , fiErrors =
                            case res of
@@ -119,18 +119,22 @@ textareaFieldProfile' = FieldProfile
     { fpParse  = Right . Textarea
     , fpRender = unTextarea
     , fpWidget = \theId name val _isReq -> addBody [$hamlet|
-%textarea#$theId$!name=$name$!cols=50!rows=6 $val$
+%textarea#$theId$!name=$name$!cols="100%"!rows="10" $val$
 |]
     }
 
 -- | Provides a single call to retrieve the html for the comments
 --   section of a page
 commentsForm :: (Yesod m)
-             => CommentStorage -- ^ how you store your comments
-             -> String         -- ^ the id for the thread you're requesting
-             -> Route m        -- ^ a route to redirect to after a POST
+             => ([Comment]
+             -> GWidget s m ()
+             -> Enctype
+             -> GWidget s m ()) -- ^ the overall template
+             -> CommentStorage  -- ^ how you store your comments
+             -> String          -- ^ the id for the thread you're requesting
+             -> Route m         -- ^ a route to redirect to after a POST
              -> GHandler s m (Hamlet (Route m))
-commentsForm db thread r = do
+commentsForm template db thread r = do
     -- POST if needed
     (res, form, enctype) <- runFormPost $ commentForm Nothing
     case res of
@@ -148,8 +152,8 @@ commentsForm db thread r = do
     comments <- loadComments db thread
 
     -- return it as a widget
-    --return $ commentsTemplate comments form enctype
+    --return $ template comments form enctype
     
     -- return it as hamlet; todo: this is a _hack_
-    pc <- widgetToPageContent $ commentsTemplate comments form enctype
+    pc <- widgetToPageContent $ template comments form enctype
     return $ pageBody pc
