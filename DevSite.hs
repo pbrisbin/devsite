@@ -26,7 +26,7 @@ import Language.Haskell.TH.Syntax
 -- | The main site type
 data DevSite = DevSite
 type Handler = GHandler DevSite DevSite
-type DWidget = GWidget  DevSite DevSite
+type Widget  = GWidget  DevSite DevSite
 
 -- | Define all of the routes and handlers
 mkYesodData "DevSite" [$parseRoutes|
@@ -51,7 +51,7 @@ instance Yesod DevSite where
         mmesg  <- getMessage
         pc     <- widgetToPageContent $ do
             widget
-            addStyle $(S.cassiusFile "root-css")
+            addCassius $(S.cassiusFile "root-css")
         hamletToRepHtml $(S.hamletFile "root-layout")
 
 -- | Make my site an instance of breadcrumbs so that i can simply call

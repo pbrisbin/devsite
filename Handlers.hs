@@ -50,19 +50,19 @@ getRootR = defaultLayout $ do
 
     -- render the page
     setTitle $ string "pbrisbin - Home"
-    addBody $(S.hamletFile "index")
+    addHamlet $(S.hamletFile "index")
      
 -- | About page
 getAboutR :: Handler RepHtml
 getAboutR = pageLayout $ do
     setTitle $ string "pbrisbin - About"
-    addBody $(S.hamletFile "about")
+    addHamlet $(S.hamletFile "about")
 
 -- | All posts
 getPostsR :: Handler RepHtml
 getPostsR = pageLayout $ do
     setTitle $ string "pbrisbin - All Posts"
-    addBody  $ allPostsTemplate allPosts "All Posts"
+    addHamlet $ allPostsTemplate allPosts "All Posts"
 
 -- | A post
 getPostR :: String -> Handler RepHtml
@@ -79,7 +79,7 @@ postPostR = getPostR
 getTagsR :: Handler RepHtml
 getTagsR = pageLayout $ do
     setTitle $ string "pbrisbin - All Tags"
-    addBody  $ allPostsTemplate allPosts "All Tags"
+    addHamlet $ allPostsTemplate allPosts "All Tags"
 
 -- | A tag
 getTagR :: String -> Handler RepHtml
@@ -88,7 +88,7 @@ getTagR tag =
         []    -> notFound
         posts -> pageLayout $ do
             setTitle $ string $ "pbrisbin - Tag: " ++ tag
-            addBody  $ allPostsTemplate posts ("Tag: " ++ tag)
+            addHamlet $ allPostsTemplate posts ("Tag: " ++ tag)
 
 -- | Rss feed
 getFeedR :: Handler RepRss
