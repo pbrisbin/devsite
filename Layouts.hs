@@ -21,13 +21,7 @@ module Layouts
 import Yesod
 import DevSite
 import Posts
-import Comments
-import Comments.Templates
-import Comments.Storage
 import qualified Settings as S
-
---myDB = fileDB "comments.db"
-myDB = testDB
 
 -- | Like defaultLayout, just with breadcrumbs, used with any top level
 --   pages
@@ -47,7 +41,6 @@ postLayout post = do
     mmesg            <- getMessage
     (t, h)           <- breadcrumbs
     postContent      <- liftIO $ loadPostContent post
-    commentsTemplate <- commentsForm defaultTemplate myDB (postSlug post) (PostR $ postSlug post)
 
     pc <- widgetToPageContent $ do
         setTitle $ string $ "pbrisbin - " ++ postTitle post
