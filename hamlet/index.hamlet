@@ -78,11 +78,13 @@
   space, you can quickly navigate to or rearrange your windows, and you 
   can do all of it without ever touching the mouse. 
 
-%p
+.fixed
 
-  %a!href="/static/screenshots/current_desktop.png"
+  %p
 
-    %img.fixed!src="/static/screenshots/current_desktop-thumb.png"!id="current-desktop"!alt="Most recent desktop shot"
+    %a!href="/static/screenshots/current_desktop.png"
+
+      %img!src="/static/screenshots/current_desktop-thumb.png"!id="current-desktop"!alt="Most recent desktop shot"
 
 %h3 About Arch
 

@@ -118,11 +118,13 @@ anyway).
 The result is an instantly full and beautiful library. Here are
 some screenshots:
 
-<div class="centered">
+<p class="centered">
 [![HTPC Shot](/static/screenshots/htpc_0-thumb.bmp)](/static/screenshots/htpc_0.bmp) [![HTPC Shot](/static/screenshots/htpc_1-thumb.bmp)](/static/screenshots/htpc_1.bmp)
+</p>
 
+<p class="centered">
 [![HTPC Shot](/static/screenshots/htpc_2-thumb.bmp)](/static/screenshots/htpc_2.bmp) [![HTPC Shot](/static/screenshots/htpc_4-thumb.bmp)](/static/screenshots/htpc_4.bmp)
-</div>
+</p>
 
 ### Remote configuration
 
