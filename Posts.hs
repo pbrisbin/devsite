@@ -212,11 +212,11 @@ allPosts =
     , Post
         "XMonad Scratchpad"
         "xmonad_scratchpad"
+        "Sat, 10 Apr 2010 00:34:24 -0400"
         ("How to add a scratchpad terminal to your XMonad setup. If "
         ++ "you've ever used Quake or some other drop-down terminal, you "
         ++ "know how useful these are. XMonad's contrib module makes it easy "
         ++ "to add one of these natively to your WM.")
-        "Sat, 10 Apr 2010 00:34:24 -0400"
         ["Haskell", "XMonad"]
 
     , Post
