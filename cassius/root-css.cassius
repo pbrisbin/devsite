@@ -84,16 +84,16 @@ h2 a:link, h3 a:link, h2 a:visited, h3 a:visited
 h2 a:hover, h3 a:hover
   color: #a291c2
 
-.validation img
+img.validation
   width:  88px
   height: 31px
 
-.centered img
+div.centered img
   display:      block
   margin-left:  auto
   margin-right: auto
 
-.fixed img
+div.fixed img
   display:      block
   margin-left:  auto
   margin-right: auto
