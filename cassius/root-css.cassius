@@ -62,7 +62,7 @@ h3, h4, h5, h6
 pre
   color: #ffffff
   font-weight: normal
-  margin-left: 5%
+  padding-left: 25px
 
 strong
   color: #ffffff
@@ -117,6 +117,11 @@ div.fixed img
 
 #comments td
   vertical-align: top
+
+#aur_pkgs td
+  vertical-align: top
+  border:         1px dotted #909090
+  padding:        5px
 
 .dsq-by, .dsq-dc-logo, .dsq-options
   display: none

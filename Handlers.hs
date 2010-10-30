@@ -28,6 +28,7 @@ module Handlers
 import Yesod
 import DevSite
 import Posts
+import Pkgs
 import Layouts
 import qualified Settings as S
 import Helpers.RssFeed

@@ -121,6 +121,10 @@
   respect of the group; and, at least in the beginning, I'll bet you 
   find your question's already been asked and answered somewhere.
 
+%h3 Aur Packages
+
+^pkgsTemplate.allPkgs^
+
 %h3 
 
   %a#Recent_Posts!href="#Recent_Posts" Recent Posts
