@@ -31,9 +31,10 @@ type Widget  = GWidget  DevSite DevSite
 -- | Define all of the routes and handlers
 mkYesodData "DevSite" [$parseRoutes|
 /              RootR    GET
+/stats         StatsR   GET
 /about         AboutR   GET
 /posts         PostsR   GET
-/posts/#String PostR    GET POST
+/posts/#String PostR    GET
 /tags          TagsR    GET
 /tags/#String  TagR     GET
 /feed          FeedR    GET
@@ -62,6 +63,9 @@ instance YesodBreadcrumbs DevSite where
 
     -- about goes back home
     breadcrumb AboutR = return ("about", Just RootR)
+
+    -- stats goes back home
+    breadcrumb StatsR = return ("stats", Just RootR)
 
     -- all posts goes back home and individual posts go to all posts
     breadcrumb PostsR       = return ("all posts", Just RootR)

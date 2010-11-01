@@ -99,6 +99,20 @@ div.fixed img
   margin-right: auto
   width:        680px
 
+#aur_pkgs td
+  vertical-align: top
+  border:         1px dotted #909090
+  padding:        5px
+
+.stats
+  margin-bottom: 20px
+
+.stats_top_entry table
+  margin-left: 25px
+
+.stats_top_entry td
+  padding-right: 20px
+
 #comments
   border:         1px solid #ffffff
   border-top:     1px solid #909090
@@ -117,11 +131,6 @@ div.fixed img
 
 #comments td
   vertical-align: top
-
-#aur_pkgs td
-  vertical-align: top
-  border:         1px dotted #909090
-  padding:        5px
 
 .dsq-by, .dsq-dc-logo, .dsq-options
   display: none

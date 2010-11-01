@@ -15,15 +15,17 @@
 module Handlers
     ( getRootR
     , getAboutR
+    , getStatsR
     , getPostsR
     , getPostR
-    , postPostR
     , getTagsR
     , getTagR
     , getFeedR
     , getFaviconR
     , getRobotsR
     ) where
+
+import Stats
 
 import Yesod
 import DevSite
@@ -53,6 +55,21 @@ getRootR = defaultLayout $ do
     setTitle $ string "pbrisbin - Home"
     addHamlet $(S.hamletFile "index")
      
+-- | Stats page
+getStatsR :: Handler RepHtml
+getStatsR = pageLayout $ do
+    content <- liftHandler $ statsTemplate myLogFile myTopEntries
+    setTitle $ string "pbrisbin - Stats"
+    addHamlet $ content
+
+myLogFile :: LogFile
+myLogFile = lighttpdLog "/var/log/lighttpd/access.log" ["192.168.0.5", "66.30.118.211"]
+
+myTopEntries :: [(String, String)]
+myTopEntries = [ ("posts"         , "^/posts/.*"             )
+               , ("xmonad modules", "^/xmonad/docs/.*\\.html")
+               ]
+
 -- | About page
 getAboutR :: Handler RepHtml
 getAboutR = pageLayout $ do
@@ -71,10 +88,6 @@ getPostR slug =
     case getPostBySlug slug of
         []       -> notFound
         (post:_) -> postLayout post
-
--- | posting a comment is the same route
-postPostR :: String -> Handler RepHtml
-postPostR = getPostR
 
 -- | All tags
 getTagsR :: Handler RepHtml

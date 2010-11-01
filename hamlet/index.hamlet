@@ -1,11 +1,18 @@
 %p.small
-  %a!href=@AboutR@ about $
-  %a!href=@PostsR@ all posts $
-  %a!href="http://github.com/pbrisbin/dotfiles" dotfiles $
+  %a!href=@AboutR@ about
+  \ | 
+  %a!href=@StatsR@ stats
+  \ | 
+  %a!href="/xmonad/docs/" xmonad modules
+  \ | 
+  %a!href="http://github.com/pbrisbin/dotfiles" dotfiles
+  \ | 
   %a!href="http://github.com/pbrisbin/scripts" scripts
 
   %span!style="float: right;"
     %a!href="#Recent_Posts" recent posts
+    \ | 
+    %a!href=@PostsR@ all posts
 
 %hr
 %h1 pbrisbin dot com
