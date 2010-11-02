@@ -17,6 +17,14 @@
 
   \ framework. It's a web framework built on haskell. 
 
+%p
+
+  The haskell source for this very site is available in my 
+
+  %a!href="http://github.com/pbrisbin/devsite" git repo
+
+  \ as well.
+
 %h3 About Me
 
 %p
