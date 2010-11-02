@@ -34,23 +34,29 @@ import System.Locale      (defaultTimeLocale)
 import Text.Regex.Posix   ((=~))
 import Text.Hamlet        (HamletValue(..))
 
+-- | Represents a single GET request and the useful info about it
 data LogEntry = LogEntry 
     { ipAddress   :: String
     , dateStamp   :: String
     , requestFile :: String
     }
 
+-- | Define a LogFile by providing the path to the file and the parsing
+--   function to get from a line of text to a LogEntry
 data LogFile = LogFile
     { logFilePath  :: FilePath
     , readLogEntry :: String -> Maybe LogEntry 
     }
 
+-- | Represents a \"top requests\" of a particular category found by
+--   regular expression, see 'getTopEntry'
 data TopEntry = TopEntry
     { entryTitle     :: String
     , totalDownloads :: Int
     , downloadCounts :: [(String,Int)]
     }
 
+-- | Parse a 'LogFile' into a list of 'LogEntry's
 readLog :: LogFile -> IO [LogEntry]
 readLog lf = do
     contents <- readFile $ logFilePath lf
@@ -84,10 +90,10 @@ statsTemplate lf tes = do
     timeNow    <- liftIO getCurrentTime
     logEntries <- liftIO $ readLog lf
 
-    let topEntries   = map (getTopEntry logEntries) tes
     let periodFrom   = head $ map dateStamp logEntries
     let uniqueVisits = show . length $ uniqueIps logEntries
     let frequentIp   = fst . head $ frequentIps logEntries
+    let topEntries   = map (getTopEntry logEntries) tes
 
     return [$hamlet|
     %h1 Site Statistics

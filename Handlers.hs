@@ -25,12 +25,11 @@ module Handlers
     , getRobotsR
     ) where
 
-import Stats
-
 import Yesod
 import DevSite
 import Posts
 import Pkgs
+import Stats
 import Layouts
 import qualified Settings as S
 import Helpers.RssFeed
