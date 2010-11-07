@@ -1,1 +1,2 @@
-Migrating my entire site over to one driven by the Yesod framework... slowly.
+Souce code for http://pbrisbin.com using the Yesod web framework in
+haskell.
