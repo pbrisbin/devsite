@@ -111,6 +111,18 @@ postTemplate arg = [$hamlet|
 allPosts :: [Post]
 allPosts =
     [ Post
+        "Vim Registers"
+        "vim_registers"
+        "Sun, 07 Nov 2010 14:05:42 -0500"
+        ( "When you use an extremely powerful text editor such as vi, vim, or "
+        ++ "emacs, there are often times where you'll discover a feature or command "
+        ++ "that literally changes the way you write text. It's not a very large "
+        ++ "leap to say that, for a developer, that can be life-changing. "
+        ++ "I've recently made one such discovery via vim's :help registers "
+        ++ "command. So I'd like to boil it down a bit and share it here. ")
+        ["Linux", "Vim"]
+    
+    , Post
         "Site Migration"
         "site_migration"
         "Sat, 09 Oct 2010 23:31:43 -0400"
