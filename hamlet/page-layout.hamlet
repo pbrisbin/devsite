@@ -8,23 +8,18 @@
     %title $pageTitle.pc$
     %link!rel="alternate"!type="application/rss+xml"!title="rss feed"!href=@FeedR@
     ^pageHead.pc^
-
   %body
-    %p.small
+    #header
+      %p
+        $forall h node
+          %a!href=@fst.node@ $snd.node$ 
+          \ / 
+        \ $t$
 
-      $forall h node
-
-        %a!href=@fst.node@ $snd.node$ 
-        
-        \ / 
-
-      \ $t$
-
-    $maybe mmesg msg
-      #message $msg$
-
-    %hr
-
-    ^pageBody.pc^
-
-    ^footerTemplate^
+      $maybe mmesg msg
+        #message 
+          %p $msg$
+    #body
+      ^pageBody.pc^
+    #footer
+      ^footerTemplate^

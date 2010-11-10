@@ -27,27 +27,40 @@
   padding-top:      0.5%
   padding-bottom:   0.5%
 
-#script
-  margin-left:  5%
-  margin-right: 5%
+#header
+  font-size:     85%
+  line-height:   50%
+  margin-top:    25px
+  margin-bottom: -10px
+
+#body
+  border-bottom: 1px solid #909090
 
 #footer
-  font-size:  90%
+  font-size:     85%
+  line-height:   75%
+  margin-top:    -5px
+  margin-bottom: 25px
 
 body
+  color:            #bbbbbb
+  background-color: #303030
   display:          block
   width:            710px
   margin-left:      auto
   margin-right:     auto
-  color:            #bbbbbb
-  background-color: #303030
   font-family:      Verdana, sans-serif
   font-weight:      normal
 
 h1
-  color:       #ffffff
-  text-align:  center
-  font-weight: normal
+  color:          #ffffff
+  text-align:     center
+  font-weight:    normal
+  margin-bottom:  10px
+  border-top:     1px solid #909090
+  border-bottom:  1px solid #909090
+  padding-top:    20px
+  padding-bottom: 20px
 
 h2
   color:       #ffffff

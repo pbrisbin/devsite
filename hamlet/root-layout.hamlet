@@ -9,10 +9,6 @@
     %link!rel="alternate"!type="application/rss+xml"!title="rss feed"!href=@FeedR@
     ^pageHead.pc^
   %body
-
-    $maybe mmesg msg
-      #message $msg$
-
     ^pageBody.pc^
-
-    ^footerTemplate^
+    #footer
+      ^footerTemplate^

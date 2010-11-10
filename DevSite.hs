@@ -92,18 +92,13 @@ instance YesodBreadcrumbs DevSite where
 --   define it here
 footerTemplate :: Hamlet DevSiteRoute
 footerTemplate = [$hamlet|
-#footer
-    %hr
-    %p
-        %a!href=@RootR@ pbrisbin
-
-        \ dot com 2010 
-
-        %span!style="float: right;"
-            powered by 
-            
-            %a!href="http://docs.yesodweb.com/" yesod
-|]
+                 %p
+                     %a!href=@RootR@ pbrisbin
+                     \ dot com 2010 
+                     %span!style="float: right;"
+                         powered by 
+                         %a!href="http://docs.yesodweb.com/" yesod
+                 |]
 
 -- | Template haskell to automate function declarations for use in
 --   hamlet files

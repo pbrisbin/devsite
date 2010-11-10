@@ -8,44 +8,39 @@
     %title $pageTitle.pc$
     %link!rel="alternate"!type="application/rss+xml"!title="rss feed"!href=@FeedR@
     ^pageHead.pc^
-
   %body
-    %p.small
 
-      $forall h node
-        %a!href=@fst.node@ $snd.node$ 
-        
-        \ / 
+    #header
+      %p
+        $forall h node
+          %a!href=@fst.node@ $snd.node$ 
+          \ / 
+        \ $t$
 
-      \ $t$
+        %span!style="float: right;"
+          Tags: 
+          $forall postTags.post tag
+            %a!href=@TagR.tag@ $tag$ 
 
-      %span!style="float: right;"
-        
-        Tags: 
+    #body
+      %h1 $postTitle.post$
 
-        $forall postTags.post tag
-          %a!href=@TagR.tag@ $tag$ 
+      $maybe mmesg msg
+        #message
+          %p $msg$
 
-    %hr
-    %h1 $postTitle.post$
-    %hr
+      $postContent$
 
-    $maybe mmesg msg
-      #message $msg$
+      %h3 
+        %a!href="#Comments"!id="Comments" Comments
 
-    $postContent$
+      #disqus_thread
+        %script!type="text/javascript"
+          var disqus_shortname = 'pbrisbin'; 
+          var disqus_identifier = $postSlug.post$; 
+        %script!type="text/javascript"!src="http://pbrisbin.disqus.com/embed.js"
+        %noscript
+          Sadly, javascript is required for comments on this site.
 
-    %h3 Comments
-
-    #disqus_thread
-
-      %script!type="text/javascript"
-        var disqus_shortname = 'pbrisbin'; 
-        var disqus_identifier = $postSlug.post$;
-
-      %script!type="text/javascript"!src="http://pbrisbin.disqus.com/embed.js"
-
-      %noscript
-        Sadly, javascript is required for comments on this site.
-
-    ^footerTemplate^
+    #footer
+      ^footerTemplate^

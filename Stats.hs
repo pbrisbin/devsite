@@ -97,7 +97,6 @@ statsTemplate lf tes = do
 
     return [$hamlet|
     %h1 Site Statistics
-    %hr
 
     .stats
         %h3 General statistics

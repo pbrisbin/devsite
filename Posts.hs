@@ -78,7 +78,6 @@ loadPostContent p = do
 allPostsTemplate :: [Post] -> String -> Hamlet DevSiteRoute
 allPostsTemplate posts title = [$hamlet|
 %h1 $title$
-%hr
 
 #posts
     $forall posts post
