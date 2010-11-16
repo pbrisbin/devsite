@@ -9,6 +9,7 @@
     %link!rel="alternate"!type="application/rss+xml"!title="rss feed"!href=@FeedR@
     ^pageHead.pc^
   %body
-    ^pageBody.pc^
+    #body
+      ^pageBody.pc^
     #footer
       ^footerTemplate^
