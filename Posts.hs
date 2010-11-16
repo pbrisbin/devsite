@@ -354,4 +354,11 @@ allPosts =
         ("A How-to describing the setup required for a convenient "
         ++ "offlineimap + mutt + msmtp email solution on linux.")
         ["Mutt", "Offlineimap", "GMail"]
+    , Post
+        "Display Manager"
+        "display_manager"
+        "Sat, 05 Dec 2009 18:50:44 -0500"
+        ("A simple approach to a display manager. Just drop a few lines "
+        ++ "in ~/.bashrc to conditionally startx")
+        ["Bash", "Linux", "Arch"]
     ]
