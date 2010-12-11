@@ -110,6 +110,20 @@ postTemplate arg = [$hamlet|
 allPosts :: [Post]
 allPosts =
     [ Post
+        "Android Receiver"
+        "android_receiver"
+        "Sat, 11 Dec 2010 16:28:24 -0500"
+        ( "Android notifier is a great little app I just recently found "
+        ++ "on the marketplace. What it does is use your wifi network or a "
+        ++ "bluetooth connection to send out a broadcast when certain events "
+        ++ "happen on your phone. Things like incoming calls or SMS "
+        ++ "messages. The Linux application designed to receive these events "
+        ++ "and display a desktop notification were overkill for me. This "
+        ++ "post describes my simpler reciever using just netcat, dzen, and "
+        ++ "bash.")
+        ["Linux", "Android", "Bash"]
+    
+    , Post
         "Vim Registers"
         "vim_registers"
         "Sun, 07 Nov 2010 14:05:42 -0500"
@@ -214,11 +228,11 @@ allPosts =
 
     , Post
         "HTPC"
-        "httpc"
+        "htpc"
         "Sat, 01 May 2010 11:22:59 -0400"
         ("Details on my recent HTPC build; hardware I got, software I "
         ++ "installed, and even some screenshots.")
-        ["HTPC","Arch","Linux"]
+        ["Home Theatre","Arch","Linux"]
 
     , Post
         "XMonad Scratchpad"
