@@ -1,4 +1,6 @@
-{-# LANGUAGE QuasiQuotes #-}
+{-# LANGUAGE QuasiQuotes                #-}
+{-# LANGUAGE TypeFamilies               #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 -------------------------------------------------------------------------------
 -- |
 -- Module      :  Posts
@@ -16,9 +18,9 @@
 module Posts
     ( Post (..)
     , loadPostContent
+    , selectPosts
     , getPostBySlug
     , getPostsByTag
-    , allPosts
     , mkPostSlugs
     , mkPostTags
     , allPostsTemplate
@@ -30,18 +32,54 @@ import DevSite
 
 import Data.Char (toLower)
 import Data.List (nub)
+import Data.Maybe (mapMaybe)
 import System.Directory (doesFileExist)
 import Language.Haskell.TH.Syntax
 import Text.Pandoc
 
--- | The datatype of a Post
-data Post = Post
-    { postTitle :: String   -- ^ The Title
-    , postSlug  :: String   -- ^ the_slug, also used as pandoc filename
-    , postDate  :: String   -- ^ the post date in format of `date -R`
-    , postDescr :: String   -- ^ description used for post listing and RSS feed
-    , postTags  :: [String] -- ^ list of tags that apply to the post
+import Data.Time.Clock  (UTCTime)
+import Data.Time.Format (formatTime, parseTime)
+import System.Locale    (defaultTimeLocale)
+
+import Database.Persist.TH         (share2)
+import Database.Persist.GenericSql (mkMigrate)
+
+
+-- | The old type of post
+data OldPost = OldPost
+    { oPostTitle :: String
+    , oPostSlug  :: String
+    , oPostDate  :: String
+    , oPostDescr :: String
+    , oPostTags  :: [String]
     }
+
+-- | The data type of a single post
+data Post = Post
+    { postSlug  :: String
+    , postDate  :: UTCTime
+    , postTitle :: String
+    , postDescr :: String
+    , postTags  :: [String]
+    }
+
+-- | Generate data base instances for post meta-data
+share2 mkPersist (mkMigrate "migratePosts") [$persist|
+SqlPost
+    slug        String Eq
+    date        UTCTime Eq Desc
+    title       String
+    description String
+    UniqueSqlPost title
+|]
+
+-- | Tags are kept in a separate n:n table related on title
+share2 mkPersist (mkMigrate "migrateTags") [$persist|
+SqlTag
+    tag         String Eq
+    postSlug    String Eq
+    UniqueSqlTag tag postSlug
+|]
 
 -- | Locate posts with a given slug
 getPostBySlug :: String -> [Post]
@@ -95,7 +133,7 @@ postTemplate arg = [$hamlet|
     
   %p.small
 
-    Published on $postDate.arg$
+    Published on $format.postDate.arg$
 
     %span!style="float: right;"
 
@@ -106,10 +144,14 @@ postTemplate arg = [$hamlet|
         %a!href=@TagR.tag@ $tag$ 
 |]
 
+    where
+        format :: UTCTime -> String
+        format t = formatTime defaultTimeLocale rfc822DateFormat t
+
 -- | The master list of all posts known to the site
-allPosts :: [Post]
-allPosts =
-    [ Post
+existingPosts :: [OldPost]
+existingPosts =
+    [ OldPost
         "Android Receiver"
         "android_receiver"
         "Sat, 11 Dec 2010 16:28:24 -0500"
@@ -123,7 +165,7 @@ allPosts =
         ++ "bash.")
         ["Linux", "Android", "Bash"]
     
-    , Post
+    , OldPost
         "Vim Registers"
         "vim_registers"
         "Sun, 07 Nov 2010 14:05:42 -0500"
@@ -135,7 +177,7 @@ allPosts =
         ++ "command. So I'd like to boil it down a bit and share it here. ")
         ["Linux", "Vim"]
     
-    , Post
+    , OldPost
         "Site Migration"
         "site_migration"
         "Sat, 09 Oct 2010 23:31:43 -0400"
@@ -145,7 +187,7 @@ allPosts =
         ++ "and a little bit about the framework itself: Yesod.")
         ["Haskell", "Website"]
     
-    , Post
+    , OldPost
         "PHP Authentication"
         "php_authentication"
         "Fri, 01 Oct 2010 21:29:03 -0400"
@@ -156,7 +198,7 @@ allPosts =
         ++ "PHP_AUTH_USER and PHP_AUTH_PW. Simple but affective.")
         ["PHP", "Website"]
 
-    , Post
+    , OldPost
         "XMonad Modules"
         "xmonad_modules"
         "Mon, 30 Aug 2010 22:38:22 -0400"
@@ -169,7 +211,7 @@ allPosts =
         ++ "the module documentation.")
         ["Haskell", "XMonad", "Dzen"]
 
-    , Post
+    , OldPost
         "Haskell RSS Reader"
         "rss_reader"
         "Sun, 15 Aug 2010 11:51:28 -0400"
@@ -180,7 +222,7 @@ allPosts =
         ++ "you think.")
         ["Haskell", "XMonad", "Dzen"]
 
-    , Post
+    , OldPost
         "Web Preview"
         "web_preview"
         "Mon, 26 Jul 2010 19:47:51 -0400"
@@ -195,7 +237,7 @@ allPosts =
         ++ "I'm really happy with the result.")
         ["Website", "Arch", "Uzbl"]
 
-    , Post
+    , OldPost
         "Scratchpad Everything"
         "scratchpad_everything"
         "Sun, 13 Jun 2010 20:46:21 -0400"
@@ -206,7 +248,7 @@ allPosts =
         ++ "mixer, resource monitor, etc.")
         ["Haskell", "XMonad"]
 
-    , Post
+    , OldPost
         "Raw Audio"
         "raw_audio"
         "Thu, 27 May 2010 21:05:54 -0400"
@@ -217,7 +259,7 @@ allPosts =
         ++ "through the Classes method by method and explain what they do.")
         ["Java", "Android"]
 
-    , Post
+    , OldPost
         "MapToggle"
         "maptoggle"
         "Sat, 08 May 2010 21:08:21 -0400"
@@ -226,7 +268,7 @@ allPosts =
         ++ "its on home.")
         ["Vim"]
 
-    , Post
+    , OldPost
         "HTPC"
         "htpc"
         "Sat, 01 May 2010 11:22:59 -0400"
@@ -234,7 +276,7 @@ allPosts =
         ++ "installed, and even some screenshots.")
         ["Home Theatre","Arch","Linux"]
 
-    , Post
+    , OldPost
         "XMonad Scratchpad"
         "xmonad_scratchpad"
         "Sat, 10 Apr 2010 00:34:24 -0400"
@@ -244,7 +286,7 @@ allPosts =
         ++ "to add one of these natively to your WM.")
         ["Haskell", "XMonad"]
 
-    , Post
+    , OldPost
         "Controlling MPlayer"
         "controlling_mplayer"
         "Thu, 08 Apr 2010 19:55:59 -0400"
@@ -252,7 +294,7 @@ allPosts =
         ++ "the use of a fifo.")
         ["Arch", "Linux","Bash"]
 
-    , Post
+    , OldPost
         "Irssi"
         "irssi"
         "Sat, 20 Mar 2010 00:27:55 -0400"
@@ -260,7 +302,7 @@ allPosts =
         ++ "Hat-tip to rson for the post idea.")
         ["Arch", "Linux", "IRC"]
 
-    , Post
+    , OldPost
         "Automounting"
         "automounting"
         "Mon, 11 Jan 2010 21:25:30 -0500"
@@ -268,7 +310,7 @@ allPosts =
         ++ "automount the occasional flashdrive.")
         ["Arch", "Linux"]
 
-    , Post
+    , OldPost
         "Backups"
         "backups"
         "Sun, 03 Jan 2010 12:15:32 -0500"
@@ -276,7 +318,7 @@ allPosts =
         ++ "for me, and even why it might not work for you.")
         ["Arch", "Linux"]
 
-    , Post
+    , OldPost
         "XMonad's IM Layout"
         "xmonads_im_layout"
         "Sat, 05 Dec 2009 18:50:44 -0500"
@@ -284,7 +326,7 @@ allPosts =
         ++ "client. Using one of the best contrib modules, IMLayout.")
         ["XMonad", "Haskell", "Arch"]
 
-    , Post
+    , OldPost
         "Using Two IMAP Accounts in Mutt"
         "two_accounts_in_mutt"
         "Sat, 05 Dec 2009 18:50:44 -0500"
@@ -292,14 +334,14 @@ allPosts =
         ++ "describe how I added a second account (GMX) into the mix.")
         ["Mutt", "Offlineimap", "GMail"]
 
-    , Post
+    , OldPost
         "Aurget"
         "aurget"
         "Sat, 05 Dec 2009 18:50:44 -0500"
         "All about my AUR helper app, Arch linux users only."
         ["Linux", "Arch", "AUR"]
 
-    , Post
+    , OldPost
         "Dvdcopy"
         "dvdcopy"
         "Sat, 05 Dec 2009 18:50:44 -0500"
@@ -308,7 +350,7 @@ allPosts =
         ++ "mencoder.")
         ["Arch", "Linux", "Bash"]
 
-    , Post
+    , OldPost
         "Screen Tricks"
         "screen_tricks"
         "Sat, 05 Dec 2009 18:50:44 -0500"
@@ -317,7 +359,7 @@ allPosts =
         ++ "screen.")
         ["Arch", "Linux", "Screen"]
 
-    , Post
+    , OldPost
         "Text From CLI"
         "text_from_cli"
         "Sat, 05 Dec 2009 18:50:44 -0500"
@@ -326,7 +368,7 @@ allPosts =
         ++ "up alerts or bug your friends, whatever works.")
         ["Arch", "Linux"]
 
-    , Post
+    , OldPost
         "Downgrade"
         "downgrade"
         "Sat, 05 Dec 2009 18:50:44 -0500"
@@ -334,7 +376,7 @@ allPosts =
         ++ "cache or the A.R.M. Arch users only.")
         ["Arch", "Linux"]
 
-    , Post
+    , OldPost
         "Wifi Pipe"
         "wifi_pipe"
         "Sat, 05 Dec 2009 18:50:44 -0500"
@@ -343,7 +385,7 @@ allPosts =
         ++ "available wifi hotspots. Click to connect.")
         ["Arch", "Linux", "Openbox", "Bash"]
 
-    , Post
+    , OldPost
         "Status Bars in XMonad"
         "xmonad_statusbars"
         "Sat, 05 Dec 2009 18:50:44 -0500"
@@ -352,7 +394,7 @@ allPosts =
         ++ "available; here, I outline step-by-step how I do it.")
         ["XMonad", "Haskell", "Dzen"]
 
-    , Post
+    , OldPost
         "Goodsong"
         "goodsong"
         "Sat, 05 Dec 2009 18:50:44 -0500"
@@ -361,14 +403,14 @@ allPosts =
         ++ "build a playlist of 'good' songs, etc.")
         ["Arch", "Linux", "Bash"]
 
-    , Post
+    , OldPost
         "Mutt + Gmail + Offlineimap"
         "mutt_gmail_offlineimap"
         "Sat, 05 Dec 2009 18:50:44 -0500"
         ("A How-to describing the setup required for a convenient "
         ++ "offlineimap + mutt + msmtp email solution on linux.")
         ["Mutt", "Offlineimap", "GMail"]
-    , Post
+    , OldPost
         "Display Manager"
         "display_manager"
         "Sat, 05 Dec 2009 18:50:44 -0500"
@@ -376,3 +418,25 @@ allPosts =
         ++ "in ~/.bashrc to conditionally startx")
         ["Bash", "Linux", "Arch"]
     ]
+
+allPosts :: [Post]
+allPosts = mapMaybe readPost existingPosts
+    where
+        readPost old = case readUTCTime $ oPostDate old of
+            Just utc -> Just $ Post (oPostSlug old) utc (oPostTitle old) (oPostDescr old) (oPostTags old)
+            Nothing  -> Nothing
+
+selectPosts :: Int -> [Post]
+selectPosts 0 = allPosts
+selectPosts n = take n allPosts
+
+-- | Read the output of `date -R` into a UTCTime
+readUTCTime :: String -> Maybe UTCTime
+readUTCTime = parseTime defaultTimeLocale rfc822DateFormat
+
+-- | An alternative to System.Local.rfc822DateFormat, this one agrees
+--   with the output of `date -R`
+rfc822DateFormat :: String
+rfc822DateFormat = "%a, %d %b %Y %H:%M:%S %z"
+
+
