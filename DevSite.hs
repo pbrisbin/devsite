@@ -23,8 +23,10 @@ import qualified Settings as S
 import Data.Char (toLower)
 import Language.Haskell.TH.Syntax
 
+import Database.Persist.GenericSql
+
 -- | The main site type
-data DevSite = DevSite
+data DevSite = DevSite { connPool :: ConnectionPool }
 type Handler = GHandler DevSite DevSite
 type Widget  = GWidget  DevSite DevSite
 
@@ -87,6 +89,12 @@ instance YesodBreadcrumbs DevSite where
 
     -- be sure to fail noticably so i fix it when it happens
     breadcrumb _ = return ("%%%", Just RootR)
+
+-- | Make my site an instance of Persist so that i can store post
+--   metatdata in a db
+instance YesodPersist DevSite where
+    type YesodDB DevSite = SqlPersist
+    runDB db = fmap connPool getYesod >>= runSqlPool db
 
 -- | This footer template needs to be in scope everywhere, so we'll
 --   define it here

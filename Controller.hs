@@ -16,11 +16,18 @@ module Controller (withServer) where
 
 import Yesod
 import DevSite
+import Settings
+import Posts
 import Handlers
+
+import Database.Persist.GenericSql
 
 -- | Instantiate the Yesod route types
 mkYesodDispatch "DevSite" resourcesDevSite
 
 -- | Create a Wai App of the site
 withServer :: (Application -> IO a) -> IO a
-withServer f = toWaiApp DevSite >>= f
+withServer f = withConnectionPool $ \p -> do
+    runSqlPool (runMigration migratePosts) p
+    let h = DevSite p
+    toWaiApp h >>= f

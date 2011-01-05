@@ -16,11 +16,15 @@ module Settings
     ( approot
     , hamletFile
     , cassiusFile
+    , withConnectionPool
     ) where
 
 import qualified Text.Hamlet  as H
 import qualified Text.Cassius as C
 import Language.Haskell.TH.Syntax
+
+import Yesod hiding (approot)
+import Database.Persist.Sqlite
 
 -- #define PRODUCTION
 
@@ -44,3 +48,9 @@ cassiusFile x = C.cassiusFile $ "cassius/" ++ x ++ ".cassius"
 #else
 cassiusFile x = C.cassiusFileDebug $ "cassius/" ++ x ++ ".cassius"
 #endif
+
+dataBase :: String
+dataBase = "comments.db3"
+
+withConnectionPool :: MonadInvertIO m => (ConnectionPool -> m a) -> m a
+withConnectionPool = withSqlitePool dataBase 10
