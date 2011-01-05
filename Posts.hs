@@ -15,8 +15,8 @@
 -- functions for finding them.
 --
 -------------------------------------------------------------------------------
-module Posts
-    ( Post (..)
+module Posts where
+{-    ( Post (..)
     , loadPostContent
     , selectPosts
     , getPostBySlug
@@ -26,14 +26,16 @@ module Posts
     , allPostsTemplate
     , postTemplate
     , migratePosts
-    ) where
+    ) where -}
 
 import Yesod
 import DevSite
 
+import Control.Monad (forM, liftM)
+
 import Data.Char (toLower)
 import Data.List (nub)
-import Data.Maybe (mapMaybe)
+import Data.Maybe (catMaybes, mapMaybe)
 import System.Directory (doesFileExist)
 import Language.Haskell.TH.Syntax
 import Text.Pandoc
@@ -63,7 +65,7 @@ SqlPost
     date        UTCTime Eq Desc
     title       String
     description String
-    UniqueSqlPost title
+    UniqueSqlPost slug
 SqlTag
     tag         String Eq
     postSlug    String Eq
@@ -74,10 +76,44 @@ selectPosts :: Int -> [Post]
 selectPosts 0 = allPosts
 selectPosts n = take n allPosts
 
---selectPost slug = do
---    post <- getBy $ UniqueSqlPost slug
---    tags <- select [SqlTagPostSlugEq slug] []
---    return (post,tags)
+postFromSql :: (SqlPost, [SqlTag]) -> Post
+postFromSql (sqlPost, sqlTags) = Post
+    { postSlug  = sqlPostSlug sqlPost
+    , postDate  = sqlPostDate sqlPost
+    , postTitle = sqlPostTitle sqlPost
+    , postDescr = sqlPostDescription sqlPost
+    , postTags  = map sqlTagTag sqlTags
+    }
+
+selectSinglePost :: String -> Handler (Maybe Post)
+selectSinglePost slug = do
+    sqlPosts <- runDB $ selectList [SqlPostSlugEq slug] [] 1 0
+    if sqlPosts == []
+        then return Nothing
+        else do
+            sqlTags <- runDB $ selectList [SqlTagPostSlugEq slug] [] 0 0
+            return $ Just $ postFromSql (snd $ head sqlPosts, map snd sqlTags)
+
+selectPosts' :: Int -> Handler [Post]
+selectPosts' n = do
+    sqlPosts <- runDB $ selectList [] [] n 0
+    if sqlPosts == []
+        then return []
+        else do
+            forM sqlPosts $ \(_, sqlPost) -> do
+                sqlTags <- runDB $ selectList [SqlTagPostSlugEq (sqlPostSlug sqlPost)] [] 0 0
+                return $ postFromSql (sqlPost, map snd sqlTags)
+
+-- todo: too many trips to the db...
+selectPostsByTag :: String -> Handler [Post]
+selectPostsByTag tag = do
+    sqlTags  <- runDB $ selectList [SqlTagTagEq tag] [] 0 0
+    if sqlTags == []
+        then return []
+        else do
+            sqlPosts <- liftM concat (forM sqlTags $ \(_, sqlTag) -> do
+                liftM nub $ runDB $ selectList [SqlPostSlugEq (sqlTagPostSlug sqlTag)] [] 0 0)
+            liftM catMaybes $ mapM selectSinglePost $ map (sqlPostSlug . snd) sqlPosts 
 
 allPosts :: [Post]
 allPosts = mapMaybe readPost existingPosts
@@ -159,5 +195,6 @@ postTemplate arg = [$hamlet|
 |]
 
     where
+
         format :: UTCTime -> String
         format t = formatTime defaultTimeLocale rfc822DateFormat t
