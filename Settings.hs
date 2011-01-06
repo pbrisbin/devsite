@@ -26,31 +26,33 @@ import Language.Haskell.TH.Syntax
 import Yesod hiding (approot)
 import Database.Persist.Sqlite
 
--- #define PRODUCTION
-
 approot :: String
-#ifdef PRODUCTION
+#ifdef PROD
 approot = "http://pbrisbin.com"
 #else
 approot = "http://localhost:3000"
 #endif
 
 hamletFile :: FilePath -> Q Exp
-#ifdef PRODUCTION
+#ifdef PROD
 hamletFile x = H.hamletFile $ "hamlet/" ++ x ++ ".hamlet"
 #else
 hamletFile x = H.hamletFileDebug $ "hamlet/" ++ x ++ ".hamlet"
 #endif
 
 cassiusFile :: FilePath -> Q Exp
-#ifdef PRODUCTION
+#ifdef PROD
 cassiusFile x = C.cassiusFile $ "cassius/" ++ x ++ ".cassius"
 #else
 cassiusFile x = C.cassiusFileDebug $ "cassius/" ++ x ++ ".cassius"
 #endif
 
 dataBase :: String
+#ifdef PROD
 dataBase = "posts.db3"
+#else
+database = "dev-posts.db3"
+#endif
 
 withConnectionPool :: MonadInvertIO m => (ConnectionPool -> m a) -> m a
 withConnectionPool = withSqlitePool dataBase 10
