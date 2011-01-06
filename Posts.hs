@@ -12,8 +12,8 @@
 -- Stability   :  unstable
 -- Portability :  unportable
 --
--- The master list of all posts known to the site plus some helper
--- functions for finding them.
+-- Logic regarding all the posts on this site: how they're stored, how
+-- they're retrieved, routes and templates for working with them.
 --
 -------------------------------------------------------------------------------
 module Posts
@@ -23,13 +23,12 @@ module Posts
     , insertPost
     , getPostBySlug
     , getPostsByTag
-    --, mkPostSlugs
-    --, mkPostTags
     , allPostsTemplate
     , postTemplate
     , migratePosts
     , getNewPostR
     , postNewPostR
+    , getDelPostR
     ) where
 
 import Yesod
@@ -115,6 +114,17 @@ insertPost post = do
         go :: SqlPostId -> String -> Handler SqlTagId
         go key tag = runDB (insert $ SqlTag key tag)
 
+-- | Delete an existing post by slug
+deletePost :: String -> Handler ()
+deletePost slug = do
+    sqlPost <- runDB $ getBy $ UniqueSqlPost slug
+    case sqlPost of
+        Just (sqlPostKey, _) -> do
+            -- delete the post and the tags
+            runDB $ deleteBy $ UniqueSqlPost slug
+            runDB $ deleteWhere [SqlTagPostEq sqlPostKey]
+        Nothing -> return ()
+
 -- | Locate posts with a given slug
 getPostBySlug :: String -> Handler [Post]
 getPostBySlug slug = do
@@ -126,15 +136,6 @@ getPostsByTag :: String -> Handler [Post]
 getPostsByTag tag = do
     allPosts <- selectPosts 0
     return $ filter (elem tag . postTags) allPosts
-
--- | Use TH to define functions for each post's slug for use in hamlet
---   templates
---mkPostSlugs :: Q [Dec]
---mkPostSlugs = mkConstants $ map postSlug allPosts
-
--- | Use TH to define functions for each tag for use in hamlet templates
---mkPostTags :: Q [Dec]
---mkPostTags = mkConstants $ nub . concat $ map postTags allPosts
 
 -- | Load a post's pandoc file and convert it to html, return not found
 --   if the pdc file doesn't exist
@@ -169,6 +170,12 @@ getNewPostR = do
 postNewPostR :: Handler RepHtml
 postNewPostR = getNewPostR
 
+getDelPostR :: String -> Handler RepHtml
+getDelPostR slug = do
+    deletePost slug
+    setMessage $ [$hamlet| %em post deleted! |]
+    redirect RedirectTemporary PostsR
+    
 -- | Convert the entered post into the correct data type by parsing the
 --   Tag list and adding a time stamp
 postFromForm :: PostForm -> Handler Post
@@ -192,8 +199,9 @@ parseCSL = filter (/= []) . parseCSL' [] []
         parseCSL' acc1 acc2 (',':rest) = parseCSL' (acc1 ++ [trim acc2]) [] rest
         parseCSL' acc1 acc2 (x:rest)   = parseCSL' acc1 (acc2 ++ [x]) rest
 
-        trim = f . f where f = dropWhile isSpace
+        trim = f . f where f = reverse . dropWhile isSpace
 
+-- | Run the new post page and insert on successfully POST
 runPostForm :: Handler (Hamlet DevSiteRoute)
 runPostForm = do
     ((res, form), enctype) <- runFormMonadPost addPostForm
@@ -205,8 +213,10 @@ runPostForm = do
             setMessage $ [$hamlet| %em new post added! |]
             redirect RedirectTemporary PostsR
 
+    -- this feels kludgy...
     return . pageBody =<< widgetToPageContent (addPostTemplate form enctype)
 
+-- | The new post form itself
 addPostForm :: FormMonad (FormResult PostForm, Widget ())
 addPostForm = do
     (slug       , fiSlug       ) <- stringField   "post slug:"   Nothing
@@ -266,6 +276,8 @@ addPostForm = do
                 %input!type="submit"!value="Add post"
     |])
 
+-- | The overall template showing the input box and a list of existing
+--   posts
 addPostTemplate :: Widget () -> Enctype -> Widget ()
 addPostTemplate form enctype = do
     posts <- liftHandler $ selectPosts 0
@@ -277,18 +289,24 @@ addPostTemplate form enctype = do
             ^form^
 
     #existing
+        %h3 Existing posts
+
         %table
             %tr
-                %td Title
-                %td Description
-                %td Posted on
+                %th Title
+                %th Description
+                %th Delete
 
             $forall posts post
                 %tr
-                    %td $postTitle.post$
-                    %td $postDescr.post$
-                    %td $formatDateTime.postDate.post$
+                    %td 
+                        %a!href=@PostR.postSlug.post@ $postTitle.post$
+                    %td $shorten.postDescr.post$
+                    %td 
+                        %a!href=@DelPostR.postSlug.post@ delete
     |]
+
+    where shorten s = if length s > 30 then take 30 s ++ "..." else s
 
 -- | A body template for a list of posts, you can also provide the title
 allPostsTemplate :: [Post] -> String -> Hamlet DevSiteRoute
