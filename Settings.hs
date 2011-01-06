@@ -50,7 +50,7 @@ cassiusFile x = C.cassiusFileDebug $ "cassius/" ++ x ++ ".cassius"
 #endif
 
 dataBase :: String
-dataBase = "comments.db3"
+dataBase = "posts.db3"
 
 withConnectionPool :: MonadInvertIO m => (ConnectionPool -> m a) -> m a
 withConnectionPool = withSqlitePool dataBase 10
