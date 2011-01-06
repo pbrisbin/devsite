@@ -18,23 +18,25 @@
 module DevSite where
 
 import Yesod hiding (lift)
-import qualified Settings as S
-
+import Yesod.Form.Core
 import Data.Char (toLower)
 import Language.Haskell.TH.Syntax
-
 import Database.Persist.GenericSql
+import qualified Settings as S
 
 -- | The main site type
 data DevSite = DevSite { connPool :: ConnectionPool }
-type Handler = GHandler DevSite DevSite
-type Widget  = GWidget  DevSite DevSite
+
+type Handler     = GHandler DevSite DevSite
+type Widget      = GWidget  DevSite DevSite
+type FormMonad a = GFormMonad DevSite DevSite a
 
 -- | Define all of the routes and handlers
 mkYesodData "DevSite" [$parseRoutes|
 /              RootR    GET
 /stats         StatsR   GET
 /about         AboutR   GET
+/new           NewPostR GET POST
 /posts         PostsR   GET
 /posts/#String PostR    GET
 /tags          TagsR    GET
