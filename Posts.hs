@@ -1,4 +1,5 @@
 {-# LANGUAGE QuasiQuotes                #-}
+{-# LANGUAGE OverloadedStrings          #-}
 {-# LANGUAGE TypeFamilies               #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 -------------------------------------------------------------------------------
@@ -27,12 +28,15 @@ module Posts
     , allPostsTemplate
     , postTemplate
     , migratePosts
+    , getNewPostR
+    , postNewPostR
     ) where
 
 import Yesod
 import DevSite
 
 import System.Directory (doesFileExist)
+import Control.Applicative ((<$>), (<*>))
 import Language.Haskell.TH.Syntax
 import Text.Pandoc
 
@@ -50,6 +54,13 @@ data Post = Post
     , postTitle :: String
     , postDescr :: String
     , postTags  :: [String]
+    }
+
+-- | Used in the new post form
+data PostForm = PostForm
+    { formSlug  :: String
+    , formDescr :: Textarea
+    , formTags  :: String
     }
 
 -- | Generate data base instances for post meta-data
@@ -137,6 +148,110 @@ loadPostContent p = do
            $ writeHtmlString defaultWriterOptions
            $ readMarkdown defaultParserState markdown
 
+getNewPostR :: Handler RepHtml
+getNewPostR = do
+    postForm <- runPostForm
+
+    defaultLayout $ do
+        setTitle $ string "Add New Post"
+        addHamlet [$hamlet|
+        #header
+            %h1 Add New Post
+        #body
+            ^postForm^
+        |]
+
+postNewPostR :: Handler RepHtml
+postNewPostR = getNewPostR
+
+postFromForm :: PostForm -> Handler Post
+postFromForm = undefined
+
+runPostForm :: Handler (Hamlet DevSiteRoute)
+runPostForm = do
+    ((res, form), enctype) <- runFormMonadPost addPostForm
+    case res of
+        FormMissing    -> return ()
+        FormFailure _  -> return ()
+        FormSuccess pf -> do
+            postFromForm pf >>= insertPost
+            setMessage $ [$hamlet| %em comment added |]
+            redirect RedirectTemporary PostsR
+
+    return . pageBody =<< widgetToPageContent (addPostTemplate form enctype)
+
+addPostForm :: FormMonad (FormResult PostForm, Widget ())
+addPostForm = do
+    (slug       , fiSlug       ) <- stringField   "post slug:"   Nothing
+    (description, fiDescription) <- textareaField "description:" Nothing
+    (tags       , fiTags       ) <- stringField   "tags:"        Nothing
+    return (PostForm <$> slug <*> description <*> tags, [$hamlet|
+    %table
+        %tr
+            %td
+                %label!for=$fiIdent.fiSlug$ $fiLabel.fiSlug$
+                .tooltip $fiTooltip.fiSlug$
+            %td
+                ^fiInput.fiSlug^
+            %td.errors
+                $maybe fiErrors.fiSlug error
+                    $error$
+                $nothing
+                    &nbsp;
+        %tr
+            %td
+                %label!for=$fiIdent.fiDescription$ $fiLabel.fiDescription$
+                .tooltip $fiTooltip.fiDescription$
+            %td
+                ^fiInput.fiDescription^
+            %td.errors
+                $maybe fiErrors.fiDescription error
+                    $error$
+                $nothing
+                    &nbsp;
+        %tr
+            %td
+                %label!for=$fiIdent.fiTags$ $fiLabel.fiTags$
+                .tooltip $fiTooltip.fiTags$
+            %td
+                ^fiInput.fiTags^
+            %td.errors
+                $maybe fiErrors.fiTags error
+                    $error$
+                $nothing
+                    &nbsp;
+
+        %tr
+            %td
+                &nbsp;
+            %td!colspan="2"
+                %input!type="submit"!value="Add post"
+    |])
+
+addPostTemplate :: Widget () -> Enctype -> Widget ()
+addPostTemplate form enctype = do
+    posts <- liftHandler $ selectPosts 0
+    [$hamlet|
+    #input
+        %h3 Add a new post:
+
+        %form!enctype=$enctype$!method="post"
+            ^form^
+
+    #existing
+        %table
+            %tr
+                %td Title
+                %td Description
+                %td Posted on
+
+            $forall posts post
+                %tr
+                    %td $postTitle.post$
+                    %td $postDescr.post$
+                    %td $formatDateTime.postDate.post$
+    |]
+
 -- | A body template for a list of posts, you can also provide the title
 allPostsTemplate :: [Post] -> String -> Hamlet DevSiteRoute
 allPostsTemplate posts title = [$hamlet|
@@ -158,7 +273,7 @@ postTemplate arg = [$hamlet|
     
   %p.small
 
-    Published on $format.postDate.arg$
+    Published on $formatDateTime.postDate.arg$
 
     %span!style="float: right;"
 
@@ -169,10 +284,9 @@ postTemplate arg = [$hamlet|
         %a!href=@TagR.tag@ $tag$ 
 |]
 
+formatDateTime :: UTCTime -> String
+formatDateTime = formatTime defaultTimeLocale rfc822DateFormat
     where
-        format :: UTCTime -> String
-        format = formatTime defaultTimeLocale rfc822DateFormat
-
         -- | An alternative to System.Local.rfc822DateFormat, this one agrees
         --   with the output of `date -R`
         rfc822DateFormat :: String
