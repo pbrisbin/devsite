@@ -34,11 +34,6 @@ import Layouts
 import qualified Settings as S
 import Helpers.RssFeed
 
--- | These two TH calls will define runnable functions for every post
---   slug and tag currently in use on the site.
---mkPostSlugs
---mkPostTags
-
 -- Since posts are now retrieved in the Handler Monad it's no longer
 -- easy to create these functions, a solution is still a big todo:
 arch           = "arch"
@@ -56,7 +51,7 @@ getRootR = do
     defaultLayout $ do
         setTitle $ string "pbrisbin - Home"
         addHamlet $(S.hamletFile "index")
-     
+
 -- | Stats page
 getStatsR :: Handler RepHtml
 getStatsR = pageLayout $ do
@@ -107,7 +102,7 @@ getTagR :: String -> Handler RepHtml
 getTagR tag = do
     posts <- getPostsByTag tag
     case posts of
-        []    -> notFound
+        []     -> notFound
         posts' -> pageLayout $ do
             setTitle $ string $ "pbrisbin - Tag: " ++ tag
             addHamlet $ allPostsTemplate posts' ("Tag: " ++ tag)
