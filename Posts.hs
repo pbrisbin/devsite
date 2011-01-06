@@ -35,12 +35,13 @@ module Posts
 import Yesod
 import DevSite
 
+import Data.Char (isSpace)
 import System.Directory (doesFileExist)
 import Control.Applicative ((<$>), (<*>))
 import Language.Haskell.TH.Syntax
 import Text.Pandoc
 
-import Data.Time.Clock  (UTCTime)
+import Data.Time.Clock  (UTCTime, getCurrentTime)
 import Data.Time.Format (formatTime)
 import System.Locale    (defaultTimeLocale)
 
@@ -59,8 +60,9 @@ data Post = Post
 -- | Used in the new post form
 data PostForm = PostForm
     { formSlug  :: String
-    , formDescr :: Textarea
+    , formTitle :: String
     , formTags  :: String
+    , formDescr :: Textarea
     }
 
 -- | Generate data base instances for post meta-data
@@ -148,6 +150,8 @@ loadPostContent p = do
            $ writeHtmlString defaultWriterOptions
            $ readMarkdown defaultParserState markdown
 
+-- | Display the add new post form, todo: authentication for use of this
+--   page
 getNewPostR :: Handler RepHtml
 getNewPostR = do
     postForm <- runPostForm
@@ -161,11 +165,34 @@ getNewPostR = do
             ^postForm^
         |]
 
+-- | POST is just GET
 postNewPostR :: Handler RepHtml
 postNewPostR = getNewPostR
 
+-- | Convert the entered post into the correct data type by parsing the
+--   Tag list and adding a time stamp
 postFromForm :: PostForm -> Handler Post
-postFromForm = undefined
+postFromForm pf = do
+    currentTime <- liftIO getCurrentTime
+    return Post
+        { postSlug  = formSlug pf
+        , postTitle = formTitle pf
+        , postDescr = unTextarea $ formDescr pf
+        , postDate  = currentTime
+        , postTags  = parseCSL $ formTags pf
+        }
+
+-- | Take a comma-separated list of tags like "foo, bar, baz" and parse
+--   that into a real haskell list
+parseCSL :: String -> [String]
+parseCSL = filter (/= []) . parseCSL' [] []
+    where
+        parseCSL' :: [String] -> String -> String -> [String]
+        parseCSL' acc1 acc2 []         = acc1
+        parseCSL' acc1 acc2 (',':rest) = parseCSL' (acc1 ++ [trim acc2]) [] rest
+        parseCSL' acc1 acc2 (x:rest)   = parseCSL' acc1 (acc2 ++ [x]) rest
+
+        trim = f . f where f = dropWhile isSpace
 
 runPostForm :: Handler (Hamlet DevSiteRoute)
 runPostForm = do
@@ -175,7 +202,7 @@ runPostForm = do
         FormFailure _  -> return ()
         FormSuccess pf -> do
             postFromForm pf >>= insertPost
-            setMessage $ [$hamlet| %em comment added |]
+            setMessage $ [$hamlet| %em new post added! |]
             redirect RedirectTemporary PostsR
 
     return . pageBody =<< widgetToPageContent (addPostTemplate form enctype)
@@ -183,9 +210,10 @@ runPostForm = do
 addPostForm :: FormMonad (FormResult PostForm, Widget ())
 addPostForm = do
     (slug       , fiSlug       ) <- stringField   "post slug:"   Nothing
-    (description, fiDescription) <- textareaField "description:" Nothing
+    (title      , fiTitle      ) <- stringField   "title:"       Nothing
     (tags       , fiTags       ) <- stringField   "tags:"        Nothing
-    return (PostForm <$> slug <*> description <*> tags, [$hamlet|
+    (description, fiDescription) <- textareaField "description:" Nothing
+    return (PostForm <$> slug <*> title <*> tags <*> description, [$hamlet|
     %table
         %tr
             %td
@@ -200,12 +228,12 @@ addPostForm = do
                     &nbsp;
         %tr
             %td
-                %label!for=$fiIdent.fiDescription$ $fiLabel.fiDescription$
-                .tooltip $fiTooltip.fiDescription$
+                %label!for=$fiIdent.fiTitle$ $fiLabel.fiTitle$
+                .tooltip $fiTooltip.fiTitle$
             %td
-                ^fiInput.fiDescription^
+                ^fiInput.fiTitle^
             %td.errors
-                $maybe fiErrors.fiDescription error
+                $maybe fiErrors.fiTitle error
                     $error$
                 $nothing
                     &nbsp;
@@ -220,7 +248,17 @@ addPostForm = do
                     $error$
                 $nothing
                     &nbsp;
-
+        %tr
+            %td
+                %label!for=$fiIdent.fiDescription$ $fiLabel.fiDescription$
+                .tooltip $fiTooltip.fiDescription$
+            %td
+                ^fiInput.fiDescription^
+            %td.errors
+                $maybe fiErrors.fiDescription error
+                    $error$
+                $nothing
+                    &nbsp;
         %tr
             %td
                 &nbsp;
