@@ -36,18 +36,26 @@ import Helpers.RssFeed
 
 -- | These two TH calls will define runnable functions for every post
 --   slug and tag currently in use on the site.
-mkPostSlugs
-mkPostTags
+--mkPostSlugs
+--mkPostTags
+
+-- Since posts are now retrieved in the Handler Monad it's no longer
+-- easy to create these functions, a solution is still a big todo:
+arch           = "arch"
+bash           = "bash"
+haskell        = "haskell"
+linux          = "linux"
+mutt           = "mutt"
+site_migration = "site_migration"
+xmonad         = "xmonad"
 
 -- | Home page
 getRootR :: Handler RepHtml
-getRootR = defaultLayout $ do
-    -- recent posts
-    let posts = selectPosts 10
-
-    -- render the page
-    setTitle $ string "pbrisbin - Home"
-    addHamlet $(S.hamletFile "index")
+getRootR = do
+    posts <- selectPosts 10
+    defaultLayout $ do
+        setTitle $ string "pbrisbin - Home"
+        addHamlet $(S.hamletFile "index")
      
 -- | Stats page
 getStatsR :: Handler RepHtml
@@ -72,46 +80,55 @@ getAboutR = pageLayout $ do
 
 -- | All posts
 getPostsR :: Handler RepHtml
-getPostsR = pageLayout $ do
-    setTitle $ string "pbrisbin - All Posts"
-    addHamlet $ allPostsTemplate (selectPosts 0) "All Posts"
+getPostsR = do
+    allPosts <- selectPosts 0
+    pageLayout $ do
+        setTitle $ string "pbrisbin - All Posts"
+        addHamlet $ allPostsTemplate allPosts "All Posts"
 
 -- | A post
 getPostR :: String -> Handler RepHtml
-getPostR slug =
-    case getPostBySlug slug of
+getPostR slug = do
+    posts <- getPostBySlug slug
+    case posts of
         []       -> notFound
         (post:_) -> postLayout post
 
 -- | All tags
 getTagsR :: Handler RepHtml
-getTagsR = pageLayout $ do
-    setTitle $ string "pbrisbin - All Tags"
-    addHamlet $ allPostsTemplate (selectPosts 0) "All Tags"
+getTagsR = do
+    allPosts <- selectPosts 0
+    pageLayout $ do
+        setTitle $ string "pbrisbin - All Tags"
+        addHamlet $ allPostsTemplate allPosts "All Tags"
 
 -- | A tag
 getTagR :: String -> Handler RepHtml
-getTagR tag = 
-    case getPostsByTag tag of
+getTagR tag = do
+    posts <- getPostsByTag tag
+    case posts of
         []    -> notFound
-        posts -> pageLayout $ do
+        posts' -> pageLayout $ do
             setTitle $ string $ "pbrisbin - Tag: " ++ tag
-            addHamlet $ allPostsTemplate posts ("Tag: " ++ tag)
+            addHamlet $ allPostsTemplate posts' ("Tag: " ++ tag)
 
 -- | Rss feed
 getFeedR :: Handler RepRss
-getFeedR = rssFeed RssFeed
-    { rssTitle       = "pbrisbin dot com"
-    , rssDescription = "New posts on pbrisbin dot com"
-    , rssLanguage    = "en-us"
-    , rssLinkSelf    = FeedR
-    , rssLinkHome    = RootR
-    , rssUpdated     = mostRecent
-    , rssEntries     = map postToRssEntry $ selectPosts 10
-    }
+getFeedR = do
+    posts <- selectPosts 10
+    rssFeed RssFeed
+        { rssTitle       = "pbrisbin dot com"
+        , rssDescription = "New posts on pbrisbin dot com"
+        , rssLanguage    = "en-us"
+        , rssLinkSelf    = FeedR
+        , rssLinkHome    = RootR
+        , rssUpdated     = mostRecent posts
+        , rssEntries     = map postToRssEntry $ posts
+        }
+
     where
-        -- note: head of empty list
-        mostRecent = rssEntryUpdated . postToRssEntry . head $ selectPosts 1
+        -- note: head of empty list possible
+        mostRecent = rssEntryUpdated . postToRssEntry . head
 
 postToRssEntry :: Post -> RssFeedEntry DevSiteRoute
 postToRssEntry post = RssFeedEntry
