@@ -1,6 +1,15 @@
 module OldPosts where
 
--- | The old type of post
+import Yesod
+import DevSite
+import Posts
+
+import Data.Maybe       (mapMaybe)
+import Data.Time.Clock  (UTCTime)
+import Data.Time.Format (parseTime)
+import System.Locale    (defaultTimeLocale)
+
+-- the old type of post
 data OldPost = OldPost
     { oPostTitle :: String
     , oPostSlug  :: String
@@ -9,7 +18,24 @@ data OldPost = OldPost
     , oPostTags  :: [String]
     }
 
--- | The master list of all posts known to the site
+getMigrateR :: Handler RepHtml
+getMigrateR = do
+    mapM_ insertPost oldPosts
+    redirect RedirectTemporary RootR
+
+oldPosts :: [Post]
+oldPosts = mapMaybe readPost existingPosts
+    where
+        readPost old = case readUTCTime $ oPostDate old of
+            Just utc -> Just $ Post (oPostSlug old) utc (oPostTitle old) (oPostDescr old) (oPostTags old)
+            Nothing  -> Nothing
+
+        readUTCTime :: String -> Maybe UTCTime
+        readUTCTime = parseTime defaultTimeLocale rfc822DateFormat
+
+        rfc822DateFormat :: String
+        rfc822DateFormat = "%a, %d %b %Y %H:%M:%S %z"
+
 existingPosts :: [OldPost]
 existingPosts =
     [ OldPost

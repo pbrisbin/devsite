@@ -15,39 +15,33 @@
 -- functions for finding them.
 --
 -------------------------------------------------------------------------------
-module Posts where
-{-    ( Post (..)
+module Posts
+    ( Post (..)
     , loadPostContent
     , selectPosts
+    , insertPost
     , getPostBySlug
     , getPostsByTag
-    , mkPostSlugs
-    , mkPostTags
+    --, mkPostSlugs
+    --, mkPostTags
     , allPostsTemplate
     , postTemplate
     , migratePosts
-    ) where -}
+    ) where
 
 import Yesod
 import DevSite
 
-import Control.Monad (forM, liftM)
-
-import Data.Char (toLower)
-import Data.List (nub)
-import Data.Maybe (catMaybes, mapMaybe)
 import System.Directory (doesFileExist)
 import Language.Haskell.TH.Syntax
 import Text.Pandoc
 
 import Data.Time.Clock  (UTCTime)
-import Data.Time.Format (formatTime, parseTime)
+import Data.Time.Format (formatTime)
 import System.Locale    (defaultTimeLocale)
 
 import Database.Persist.TH         (share2)
 import Database.Persist.GenericSql (mkMigrate)
-
-import OldPosts
 
 -- | The data type of a single post
 data Post = Post
@@ -71,12 +65,7 @@ SqlTag
     name String Asc
 |]
 
---selectPosts :: Int -> [Post]
---selectPosts 0 = allPosts
---selectPosts n = take n allPosts
-
--- | Select n posts from the database and return them in the Handler
---   Monad
+-- | Select n recent posts from the database and return them
 selectPosts :: Int -> Handler [Post]
 selectPosts n = mapM go =<< runDB (selectList [] [SqlPostDateDesc] n 0)
 
@@ -93,8 +82,7 @@ selectPosts n = mapM go =<< runDB (selectList [] [SqlPostDateDesc] n 0)
                 , postTags  = fmap (sqlTagName . snd) sqlTags
                 }
 
--- | Insert a post into the database, this should be called from a
---   cleansed and validated form
+-- | Insert a post into the database
 insertPost :: Post -> Handler ()
 insertPost post = do
     let sqlPost = SqlPost
@@ -107,36 +95,12 @@ insertPost post = do
     -- insert the Post record
     sqlPostKey <- runDB $ insert sqlPost
 
-    -- create and insert each tag record
+    -- insert each tag record
     mapM_ (go sqlPostKey) $ postTags post
     
     where
-        go :: SqlPostId -> String -> Handler ()
-        go key tag = do
-            let sqlTag = SqlTag
-                    { sqlTagPost = key
-                    , sqlTagName = tag
-                    }
-
-            runDB $ insert sqlTag
-            return ()
-
--- | A fake for now, remap the existing Posts to the new data type
---allPosts :: [Post]
---allPosts = mapMaybe readPost existingPosts
---    where
---        readPost old = case readUTCTime $ oPostDate old of
---            Just utc -> Just $ Post (oPostSlug old) utc (oPostTitle old) (oPostDescr old) (oPostTags old)
---            Nothing  -> Nothing
---
---        -- | Read the output of `date -R` into a UTCTime
---        readUTCTime :: String -> Maybe UTCTime
---        readUTCTime = parseTime defaultTimeLocale rfc822DateFormat
-
--- | An alternative to System.Local.rfc822DateFormat, this one agrees
---   with the output of `date -R`
-rfc822DateFormat :: String
-rfc822DateFormat = "%a, %d %b %Y %H:%M:%S %z"
+        go :: SqlPostId -> String -> Handler SqlTagId
+        go key tag = runDB (insert $ SqlTag key tag)
 
 -- | Locate posts with a given slug
 getPostBySlug :: String -> Handler [Post]
@@ -206,6 +170,10 @@ postTemplate arg = [$hamlet|
 |]
 
     where
-
         format :: UTCTime -> String
         format = formatTime defaultTimeLocale rfc822DateFormat
+
+        -- | An alternative to System.Local.rfc822DateFormat, this one agrees
+        --   with the output of `date -R`
+        rfc822DateFormat :: String
+        rfc822DateFormat = "%a, %d %b %Y %H:%M:%S %z"
