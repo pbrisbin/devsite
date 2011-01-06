@@ -33,17 +33,21 @@ type FormMonad a = GFormMonad DevSite DevSite a
 
 -- | Define all of the routes and handlers
 mkYesodData "DevSite" [$parseRoutes|
-/              RootR    GET
-/stats         StatsR   GET
-/about         AboutR   GET
-/new           NewPostR GET POST
-/posts         PostsR   GET
-/posts/#String PostR    GET
-/tags          TagsR    GET
-/tags/#String  TagR     GET
-/feed          FeedR    GET
-/favicon.ico   FaviconR GET
-/robots.txt    RobotsR  GET
+/      RootR  GET
+/stats StatsR GET
+/about AboutR GET
+
+/new            NewPostR GET POST
+/delete/#String DelPostR GET
+
+/posts         PostsR GET
+/posts/#String PostR  GET
+/tags          TagsR  GET
+/tags/#String  TagR   GET
+
+/feed        FeedR    GET
+/favicon.ico FaviconR GET
+/robots.txt  RobotsR  GET
 |]
 
 -- | Make my site an instance of Yesod so we can actually use it
@@ -109,27 +113,3 @@ footerTemplate = [$hamlet|
                          powered by 
                          %a!href="http://docs.yesodweb.com/" yesod
                  |]
-
--- | Template haskell to automate function declarations for use in
---   hamlet files
-mkConstant :: String -> Q [Dec]
-mkConstant s = do
-    exp <- lift s
-    let name = mkName $ cleanString s
-    return [ FunD name [ Clause [] (NormalB exp) [] ] ]
-
--- | Similar but for lists
-mkConstants :: [String] -> Q [Dec]
-mkConstants []     = return []
-mkConstants (s:ss) = do
-    exp <- lift s
-    let name = mkName $ cleanString s
-    mkConstants ss >>= (\rest -> return $ FunD name [ Clause [] (NormalB exp) [] ] : rest)
-
--- | Clean a string before it becomes a function name
-cleanString :: String -> String
-cleanString = map (toLower . doClean)
-    where
-        doClean '.' = '_'
-        doClean '-' = '_'
-        doClean c   = c
