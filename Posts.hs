@@ -61,70 +61,77 @@ data Post = Post
 -- | Generate data base instances for post meta-data
 share2 mkPersist (mkMigrate "migratePosts") [$persist|
 SqlPost
-    slug        String Eq
-    date        UTCTime Eq Desc
+    slug        String
+    date        UTCTime Desc
     title       String
-    description String
+    descr       String
     UniqueSqlPost slug
 SqlTag
-    tag         String Eq
-    postSlug    String Eq
-    UniqueSqlTag tag postSlug
+    post SqlPostId Eq
+    name String Asc
 |]
 
-selectPosts :: Int -> [Post]
-selectPosts 0 = allPosts
-selectPosts n = take n allPosts
+--selectPosts :: Int -> [Post]
+--selectPosts 0 = allPosts
+--selectPosts n = take n allPosts
 
-postFromSql :: (SqlPost, [SqlTag]) -> Post
-postFromSql (sqlPost, sqlTags) = Post
-    { postSlug  = sqlPostSlug sqlPost
-    , postDate  = sqlPostDate sqlPost
-    , postTitle = sqlPostTitle sqlPost
-    , postDescr = sqlPostDescription sqlPost
-    , postTags  = map sqlTagTag sqlTags
-    }
+-- | Select n posts from the database and return them in the Handler
+--   Monad
+selectPosts :: Int -> Handler [Post]
+selectPosts n = mapM go =<< runDB (selectList [] [SqlPostDateDesc] n 0)
 
-selectSinglePost :: String -> Handler (Maybe Post)
-selectSinglePost slug = do
-    sqlPosts <- runDB $ selectList [SqlPostSlugEq slug] [] 1 0
-    if sqlPosts == []
-        then return Nothing
-        else do
-            sqlTags <- runDB $ selectList [SqlTagPostSlugEq slug] [] 0 0
-            return $ Just $ postFromSql (snd $ head sqlPosts, map snd sqlTags)
-
-selectPosts' :: Int -> Handler [Post]
-selectPosts' n = do
-    sqlPosts <- runDB $ selectList [] [] n 0
-    if sqlPosts == []
-        then return []
-        else do
-            forM sqlPosts $ \(_, sqlPost) -> do
-                sqlTags <- runDB $ selectList [SqlTagPostSlugEq (sqlPostSlug sqlPost)] [] 0 0
-                return $ postFromSql (sqlPost, map snd sqlTags)
-
--- todo: too many trips to the db...
-selectPostsByTag :: String -> Handler [Post]
-selectPostsByTag tag = do
-    sqlTags  <- runDB $ selectList [SqlTagTagEq tag] [] 0 0
-    if sqlTags == []
-        then return []
-        else do
-            sqlPosts <- liftM concat (forM sqlTags $ \(_, sqlTag) -> do
-                liftM nub $ runDB $ selectList [SqlPostSlugEq (sqlTagPostSlug sqlTag)] [] 0 0)
-            liftM catMaybes $ mapM selectSinglePost $ map (sqlPostSlug . snd) sqlPosts 
-
-allPosts :: [Post]
-allPosts = mapMaybe readPost existingPosts
     where
-        readPost old = case readUTCTime $ oPostDate old of
-            Just utc -> Just $ Post (oPostSlug old) utc (oPostTitle old) (oPostDescr old) (oPostTags old)
-            Nothing  -> Nothing
+        go :: (Key SqlPost, SqlPost) -> Handler Post
+        go (sqlPostKey, sqlPost) = do
+            -- tags for this post
+            sqlTags <- runDB $ selectList [SqlTagPostEq sqlPostKey] [SqlTagNameAsc] 0 0
+            return Post
+                { postSlug  = sqlPostSlug  sqlPost
+                , postDate  = sqlPostDate  sqlPost
+                , postTitle = sqlPostTitle sqlPost
+                , postDescr = sqlPostDescr sqlPost
+                , postTags  = fmap (sqlTagName . snd) sqlTags
+                }
 
-        -- | Read the output of `date -R` into a UTCTime
-        readUTCTime :: String -> Maybe UTCTime
-        readUTCTime = parseTime defaultTimeLocale rfc822DateFormat
+-- | Insert a post into the database, this should be called from a
+--   cleansed and validated form
+insertPost :: Post -> Handler ()
+insertPost post = do
+    let sqlPost = SqlPost
+            { sqlPostSlug  = postSlug post
+            , sqlPostDate  = postDate post
+            , sqlPostTitle = postTitle post
+            , sqlPostDescr = postDescr post
+            }
+
+    -- insert the Post record
+    sqlPostKey <- runDB $ insert sqlPost
+
+    -- create and insert each tag record
+    mapM_ (go sqlPostKey) $ postTags post
+    
+    where
+        go :: SqlPostId -> String -> Handler ()
+        go key tag = do
+            let sqlTag = SqlTag
+                    { sqlTagPost = key
+                    , sqlTagName = tag
+                    }
+
+            runDB $ insert sqlTag
+            return ()
+
+-- | A fake for now, remap the existing Posts to the new data type
+--allPosts :: [Post]
+--allPosts = mapMaybe readPost existingPosts
+--    where
+--        readPost old = case readUTCTime $ oPostDate old of
+--            Just utc -> Just $ Post (oPostSlug old) utc (oPostTitle old) (oPostDescr old) (oPostTags old)
+--            Nothing  -> Nothing
+--
+--        -- | Read the output of `date -R` into a UTCTime
+--        readUTCTime :: String -> Maybe UTCTime
+--        readUTCTime = parseTime defaultTimeLocale rfc822DateFormat
 
 -- | An alternative to System.Local.rfc822DateFormat, this one agrees
 --   with the output of `date -R`
@@ -132,21 +139,25 @@ rfc822DateFormat :: String
 rfc822DateFormat = "%a, %d %b %Y %H:%M:%S %z"
 
 -- | Locate posts with a given slug
-getPostBySlug :: String -> [Post]
-getPostBySlug slug = filter ((== slug) . postSlug) allPosts
+getPostBySlug :: String -> Handler [Post]
+getPostBySlug slug = do
+    allPosts <- selectPosts 0
+    return $ filter ((== slug) . postSlug) allPosts
 
 -- | Locate posts with a given tag
-getPostsByTag :: String -> [Post]
-getPostsByTag tag = filter (elem tag . postTags) allPosts
+getPostsByTag :: String -> Handler [Post]
+getPostsByTag tag = do
+    allPosts <- selectPosts 0
+    return $ filter (elem tag . postTags) allPosts
 
 -- | Use TH to define functions for each post's slug for use in hamlet
 --   templates
-mkPostSlugs :: Q [Dec]
-mkPostSlugs = mkConstants $ map postSlug allPosts
+--mkPostSlugs :: Q [Dec]
+--mkPostSlugs = mkConstants $ map postSlug allPosts
 
 -- | Use TH to define functions for each tag for use in hamlet templates
-mkPostTags :: Q [Dec]
-mkPostTags = mkConstants $ nub . concat $ map postTags allPosts
+--mkPostTags :: Q [Dec]
+--mkPostTags = mkConstants $ nub . concat $ map postTags allPosts
 
 -- | Load a post's pandoc file and convert it to html, return not found
 --   if the pdc file doesn't exist
@@ -197,4 +208,4 @@ postTemplate arg = [$hamlet|
     where
 
         format :: UTCTime -> String
-        format t = formatTime defaultTimeLocale rfc822DateFormat t
+        format = formatTime defaultTimeLocale rfc822DateFormat
