@@ -31,14 +31,15 @@ module Posts
     , getDelPostR
     ) where
 
-import Yesod
 import DevSite
+
+import Yesod
+import Yesod.Markdown
 
 import Data.Char (isSpace)
 import System.Directory (doesFileExist)
 import Control.Applicative ((<$>), (<*>))
 import Language.Haskell.TH.Syntax
-import Text.Pandoc
 
 import Data.Time.Clock  (UTCTime, getCurrentTime)
 import Data.Time.Format (formatTime)
@@ -139,17 +140,15 @@ getPostsByTag tag = do
 
 -- | Load a post's pandoc file and convert it to html, return not found
 --   if the pdc file doesn't exist
-loadPostContent :: Post -> IO Html
+loadPostContent :: Post -> Handler Html
 loadPostContent p = do
     let fileName = "pandoc/" ++ postSlug p ++ ".pdc"
     markdown <- do
-        exists <- doesFileExist fileName
+        exists <- liftIO $ doesFileExist fileName
         if exists
-            then readFile fileName
+            then liftIO $ readFile fileName
             else return "File not found"
-    return $ preEscapedString
-           $ writeHtmlString defaultWriterOptions
-           $ readMarkdown defaultParserState markdown
+    (writePandoc yesodDefaultWriterOptions <$>) . localLinks . parseMarkdown yesodDefaultParserState $ Markdown markdown
 
 -- | Display the add new post form, todo: authentication for use of this
 --   page

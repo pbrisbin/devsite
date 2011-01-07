@@ -40,7 +40,7 @@ postLayout :: Post -> Handler RepHtml
 postLayout post = do
     mmesg       <- getMessage
     (t, h)      <- breadcrumbs
-    postContent <- liftIO $ loadPostContent post
+    postContent <- loadPostContent post
 
     pc <- widgetToPageContent $ do
         setTitle $ string $ "pbrisbin - " ++ postTitle post
