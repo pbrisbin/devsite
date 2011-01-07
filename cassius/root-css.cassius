@@ -117,6 +117,18 @@ div.fixed img
   border:         1px dotted #909090
   padding:        5px
 
+#post_input td
+  vertical-align: top
+
+#post_existing th
+  text-align: left
+  border-bottom: 1px solid #909090
+
+#post_existing td
+  vertical-align: top
+  padding-left:        5px
+  padding-right:       5px
+
 .stats
   margin-bottom: 20px
 
