@@ -469,9 +469,5 @@ postTemplate arg = [$hamlet|
 |]
 
 formatDateTime :: UTCTime -> String
-formatDateTime = formatTime defaultTimeLocale rfc822DateFormat
-    where
-        -- | An alternative to System.Local.rfc822DateFormat, this one agrees
-        --   with the output of `date -R`
-        rfc822DateFormat :: String
-        rfc822DateFormat = "%a, %d %b %Y %H:%M:%S %z"
+--formatDateTime = formatTime defaultTimeLocale "%a, %d %b %Y %H:%M:%S %z"
+formatDateTime = formatTime defaultTimeLocale "%a, %d %b %Y"
