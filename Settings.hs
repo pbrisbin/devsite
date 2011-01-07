@@ -51,7 +51,7 @@ dataBase :: String
 #ifdef PROD
 dataBase = "posts.db3"
 #else
-database = "dev-posts.db3"
+dataBase = "dev-posts.db3"
 #endif
 
 withConnectionPool :: MonadInvertIO m => (ConnectionPool -> m a) -> m a
