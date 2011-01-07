@@ -166,12 +166,11 @@ getManagePostR = do
         #header
             %h1 Add New Post
 
-        #body
-            $maybe mmesg msg
-                #message
-                    %p $msg$
+        $maybe mmesg msg
+            #message
+                %p $msg$
 
-            ^postForm^
+        ^postForm^
         |]
 
 postManagePostR :: Handler RepHtml
@@ -408,13 +407,13 @@ addPostTemplate :: Widget () -> Enctype -> Widget ()
 addPostTemplate form enctype = do
     posts <- liftHandler $ selectPosts 0
     [$hamlet|
-    #input
+    #post_input
         %h3 Add a new post:
 
         %form!enctype=$enctype$!method="post"
             ^form^
 
-    #existing
+    #post_existing
         %h3 Existing posts
 
         %table
