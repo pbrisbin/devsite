@@ -37,8 +37,9 @@ mkYesodData "DevSite" [$parseRoutes|
 /stats StatsR GET
 /about AboutR GET
 
-/new            NewPostR GET POST
-/delete/#String DelPostR GET
+/manage                ManagePostR GET POST
+/manage/edit/#String   EditPostR   GET POST
+/manage/delete/#String DelPostR    GET
 
 /posts         PostsR GET
 /posts/#String PostR  GET

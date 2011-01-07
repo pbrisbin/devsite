@@ -26,8 +26,10 @@ module Posts
     , allPostsTemplate
     , postTemplate
     , migratePosts
-    , getNewPostR
-    , postNewPostR
+    , getManagePostR
+    , postManagePostR
+    , getEditPostR
+    , postEditPostR
     , getDelPostR
     ) where
 
@@ -36,8 +38,9 @@ import DevSite
 import Yesod
 import Yesod.Markdown
 
-import Data.Char (isSpace)
-import System.Directory (doesFileExist)
+import Data.Char           (isSpace)
+import Data.List           (intercalate)
+import System.Directory    (doesFileExist)
 import Control.Applicative ((<$>), (<*>))
 import Language.Haskell.TH.Syntax
 
@@ -152,8 +155,9 @@ loadPostContent p = do
 
 -- | Display the add new post form, todo: authentication for use of this
 --   page
-getNewPostR :: Handler RepHtml
-getNewPostR = do
+getManagePostR :: Handler RepHtml
+getManagePostR = do
+    mmesg    <- getMessage
     postForm <- runPostForm
 
     defaultLayout $ do
@@ -161,19 +165,52 @@ getNewPostR = do
         addHamlet [$hamlet|
         #header
             %h1 Add New Post
+
         #body
+            $maybe mmesg msg
+                #message
+                    %p $msg$
+
             ^postForm^
         |]
 
--- | POST is just GET
-postNewPostR :: Handler RepHtml
-postNewPostR = getNewPostR
+postManagePostR :: Handler RepHtml
+postManagePostR = getManagePostR
 
+-- | Same as new post but prepopulate the form with existing values and
+--   hand off to a delete/recreate function
+getEditPostR :: String -> Handler RepHtml
+getEditPostR slug = do
+    post     <- getPostBySlug slug
+    case post of
+        []       -> notFound
+        (post':_) -> do
+            mmesg    <- getMessage
+            postForm <- runPostFormEdit post'
+
+            defaultLayout $ do
+                setTitle $ string "Edit Post"
+                addHamlet [$hamlet|
+                #header
+                    %h1 Edit Post
+
+                #body
+                    $maybe mmesg msg
+                        #message
+                            %p $msg$
+
+                    ^postForm^
+                |]
+
+postEditPostR :: String -> Handler RepHtml
+postEditPostR = getEditPostR
+
+-- | Delete a post by slug
 getDelPostR :: String -> Handler RepHtml
 getDelPostR slug = do
     deletePost slug
     setMessage $ [$hamlet| %em post deleted! |]
-    redirect RedirectTemporary PostsR
+    redirect RedirectTemporary ManagePostR
     
 -- | Convert the entered post into the correct data type by parsing the
 --   Tag list and adding a time stamp
@@ -188,13 +225,25 @@ postFromForm pf = do
         , postTags  = parseCSL $ formTags pf
         }
 
+-- | Update an existing post with data from a posted form without
+--   overwriting published date
+postFromFormEdit :: Post -> PostForm -> Handler Post
+postFromFormEdit post pf = do
+    return Post
+        { postSlug  = formSlug pf
+        , postTitle = formTitle pf
+        , postDescr = unTextarea $ formDescr pf
+        , postDate  = postDate post
+        , postTags  = parseCSL $ formTags pf
+        }
+
 -- | Take a comma-separated list of tags like "foo, bar, baz" and parse
 --   that into a real haskell list
 parseCSL :: String -> [String]
 parseCSL = filter (/= []) . parseCSL' [] []
     where
         parseCSL' :: [String] -> String -> String -> [String]
-        parseCSL' acc1 acc2 []         = acc1
+        parseCSL' acc1 acc2 []         = acc1 ++ [trim acc2]
         parseCSL' acc1 acc2 (',':rest) = parseCSL' (acc1 ++ [trim acc2]) [] rest
         parseCSL' acc1 acc2 (x:rest)   = parseCSL' acc1 (acc2 ++ [x]) rest
 
@@ -210,7 +259,7 @@ runPostForm = do
         FormSuccess pf -> do
             postFromForm pf >>= insertPost
             setMessage $ [$hamlet| %em new post added! |]
-            redirect RedirectTemporary PostsR
+            redirect RedirectTemporary ManagePostR
 
     -- this feels kludgy...
     return . pageBody =<< widgetToPageContent (addPostTemplate form enctype)
@@ -275,6 +324,84 @@ addPostForm = do
                 %input!type="submit"!value="Add post"
     |])
 
+-- | Not a true edit, rather a delete/recreate to make it easy on myself
+runPostFormEdit :: Post -> Handler (Hamlet DevSiteRoute)
+runPostFormEdit post = do
+    ((res, form), enctype) <- runFormMonadPost (editPostForm post)
+    case res of
+        FormMissing    -> return ()
+        FormFailure _  -> return ()
+        FormSuccess pf -> do
+            deletePost (postSlug post)
+            postFromFormEdit post pf >>= insertPost
+            setMessage $ [$hamlet| %em post updated! |]
+            redirect RedirectTemporary ManagePostR
+
+    -- this feels kludgy...
+    return . pageBody =<< widgetToPageContent (addPostTemplate form enctype)
+
+-- | The edit post form itself
+editPostForm :: Post -> FormMonad (FormResult PostForm, Widget ())
+editPostForm post = do
+    (slug       , fiSlug       ) <- stringField   "post slug:"   $ Just (postSlug post)
+    (title      , fiTitle      ) <- stringField   "title:"       $ Just (postTitle post)
+    (tags       , fiTags       ) <- stringField   "tags:"        $ Just (formatTags $ postTags post)
+    (description, fiDescription) <- textareaField "description:" $ Just (Textarea $ postDescr post)
+    return (PostForm <$> slug <*> title <*> tags <*> description, [$hamlet|
+    %table
+        %tr
+            %td
+                %label!for=$fiIdent.fiSlug$ $fiLabel.fiSlug$
+                .tooltip $fiTooltip.fiSlug$
+            %td
+                ^fiInput.fiSlug^
+            %td.errors
+                $maybe fiErrors.fiSlug error
+                    $error$
+                $nothing
+                    &nbsp;
+        %tr
+            %td
+                %label!for=$fiIdent.fiTitle$ $fiLabel.fiTitle$
+                .tooltip $fiTooltip.fiTitle$
+            %td
+                ^fiInput.fiTitle^
+            %td.errors
+                $maybe fiErrors.fiTitle error
+                    $error$
+                $nothing
+                    &nbsp;
+        %tr
+            %td
+                %label!for=$fiIdent.fiTags$ $fiLabel.fiTags$
+                .tooltip $fiTooltip.fiTags$
+            %td
+                ^fiInput.fiTags^
+            %td.errors
+                $maybe fiErrors.fiTags error
+                    $error$
+                $nothing
+                    &nbsp;
+        %tr
+            %td
+                %label!for=$fiIdent.fiDescription$ $fiLabel.fiDescription$
+                .tooltip $fiTooltip.fiDescription$
+            %td
+                ^fiInput.fiDescription^
+            %td.errors
+                $maybe fiErrors.fiDescription error
+                    $error$
+                $nothing
+                    &nbsp;
+        %tr
+            %td
+                &nbsp;
+            %td!colspan="2"
+                %input!type="submit"!value="Edit post"
+    |])
+    
+    where formatTags tags = intercalate ", " tags
+
 -- | The overall template showing the input box and a list of existing
 --   posts
 addPostTemplate :: Widget () -> Enctype -> Widget ()
@@ -294,6 +421,7 @@ addPostTemplate form enctype = do
             %tr
                 %th Title
                 %th Description
+                %th Edit
                 %th Delete
 
             $forall posts post
@@ -301,6 +429,8 @@ addPostTemplate form enctype = do
                     %td 
                         %a!href=@PostR.postSlug.post@ $postTitle.post$
                     %td $shorten.postDescr.post$
+                    %td
+                        %a!href=@EditPostR.postSlug.post@ edit
                     %td 
                         %a!href=@DelPostR.postSlug.post@ delete
     |]
