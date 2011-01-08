@@ -129,10 +129,10 @@ getManagePostR = do
     postForm <- runPostForm
 
     pageLayout $ do
-        setTitle $ string "Add New Post"
+        setTitle $ string "pbrisbin - Manage posts"
         addHamlet [$hamlet|
         #header
-            %h1 Add New Post
+            %h1 Manage Posts
 
         ^postForm^
         |]
@@ -152,7 +152,7 @@ getEditPostR slug = do
             postForm <- runPostFormEdit post'
 
             pageLayout $ do
-                setTitle $ string "Edit Post"
+                setTitle $ string "pbrisbin - Edit post"
                 addHamlet [$hamlet|
                 #header
                     %h1 Edit Post
