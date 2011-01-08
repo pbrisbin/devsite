@@ -122,6 +122,7 @@ instance YesodAuth DevSite where
     loginDest _  = ManagePostR
     logoutDest _ = RootR
 
+    -- todo: move this code to HashDB itself?
     getAuthId creds = do
         muid <- maybeAuth
         -- is there already an identier?
