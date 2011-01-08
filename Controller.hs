@@ -20,6 +20,8 @@ import Settings
 import Posts
 import Handlers
 
+import HashDB
+import Yesod.Helpers.Auth
 import Database.Persist.GenericSql
 
 -- | Instantiate the Yesod route types
@@ -29,5 +31,6 @@ mkYesodDispatch "DevSite" resourcesDevSite
 withServer :: (Application -> IO a) -> IO a
 withServer f = withConnectionPool $ \p -> do
     runSqlPool (runMigration migratePosts) p
+    runSqlPool (runMigration migrateUsers) p
     let h = DevSite p
     toWaiApp h >>= f

@@ -19,10 +19,13 @@ module DevSite where
 
 import Yesod hiding (lift)
 import Yesod.Form.Core
+import Yesod.Helpers.Auth
 import Data.Char (toLower)
 import Language.Haskell.TH.Syntax
 import Database.Persist.GenericSql
 import qualified Settings as S
+
+import HashDB
 
 -- | The main site type
 data DevSite = DevSite { connPool :: ConnectionPool }
@@ -49,11 +52,16 @@ mkYesodData "DevSite" [$parseRoutes|
 /feed        FeedR    GET
 /favicon.ico FaviconR GET
 /robots.txt  RobotsR  GET
+
+/auth AuthR Auth getAuth
 |]
 
 -- | Make my site an instance of Yesod so we can actually use it
 instance Yesod DevSite where 
     approot _ = S.approot
+
+    -- | handle authentication
+    authRoute _ = Just $ AuthR LoginR
 
     -- | override defaultLayout to provide an overall template and css
     --   file
@@ -106,6 +114,43 @@ instance YesodBreadcrumbs DevSite where
 instance YesodPersist DevSite where
     type YesodDB DevSite = SqlPersist
     runDB db = fmap connPool getYesod >>= runSqlPool db
+
+-- | Handle authentication with my custom HashDB plugin
+instance YesodAuth DevSite where
+    type AuthId DevSite = UserId
+
+    loginDest _  = ManagePostR
+    logoutDest _ = RootR
+
+    getAuthId creds = do
+        muid <- maybeAuth
+        -- is there already an identier?
+        x <- runDB $ getBy $ UniqueIdent $ credsIdent creds
+        case (x, muid) of
+            (Just (_, i), Nothing)   -> return $ Just $ identUser i
+            (Nothing, Nothing)       -> do
+                -- is there already a user with no identifier?
+                y <- runDB $ getBy $ UniqueUser (credsIdent creds)
+                case y of
+                    Just (uid, _) -> do
+                        setMessage $ [$hamlet| %em identifier added |]
+                        runDB $ insert $ Ident (credsIdent creds) uid
+                        return $ Just uid
+                    Nothing -> do
+                        setMessage $ [$hamlet| %em unhandled case |]
+                        redirect RedirectTemporary $ AuthR LoginR
+            (Nothing, Just (uid, _)) -> do
+                setMessage $ [$hamlet| %em identifier added |]
+                runDB $ insert $ Ident (credsIdent creds) uid
+                return $ Just uid
+            otherwise                -> do
+                setMessage $ [$hamlet| %em unhandled case |]
+                redirect RedirectTemporary $ AuthR LoginR
+
+    showAuthId _ = showIntegral
+    readAuthId _ = readIntegral
+
+    authPlugins = [authHashDB]
 
 -- | This footer template needs to be in scope everywhere, so we'll
 --   define it here

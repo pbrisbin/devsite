@@ -40,6 +40,8 @@ import Layouts
 import qualified Settings as S
 import Helpers.RssFeed
 
+import Yesod.Helpers.Auth
+
 -- Since posts are now retrieved in the Handler Monad it's no longer
 -- easy to create these functions, a solution is still a big todo:
 arch           = "arch"
@@ -113,10 +115,17 @@ getTagR tag = do
             setTitle $ string $ "pbrisbin - Tag: " ++ tag
             addHamlet $ allPostsTemplate posts' ("Tag: " ++ tag)
 
+-- | Handle authentication
+requireAuth' :: Handler ()
+requireAuth' = do
+    _ <- requireAuth
+    return ()
+
 -- | Display the add new post form, todo: authentication for use of this
 --   page
 getManagePostR :: Handler RepHtml
 getManagePostR = do
+    requireAuth'
     postForm <- runPostForm
 
     pageLayout $ do
@@ -135,6 +144,7 @@ postManagePostR = getManagePostR
 --   hand off to a delete/recreate function
 getEditPostR :: String -> Handler RepHtml
 getEditPostR slug = do
+    requireAuth'
     post     <- getPostBySlug slug
     case post of
         []       -> notFound
@@ -156,6 +166,7 @@ postEditPostR = getEditPostR
 -- | Delete a post by slug
 getDelPostR :: String -> Handler RepHtml
 getDelPostR slug = do
+    requireAuth'
     deletePost slug
     setMessage $ [$hamlet| %em post deleted! |]
     redirect RedirectTemporary ManagePostR
