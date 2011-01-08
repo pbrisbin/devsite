@@ -27,7 +27,7 @@
 
       $maybe mmesg msg
         #message
-          %p $msg$
+          %p.centered $msg$
 
       $postContent$
 

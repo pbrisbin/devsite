@@ -1,3 +1,4 @@
+{-# LANGUAGE QuasiQuotes     #-}
 {-# LANGUAGE TemplateHaskell #-}
 -------------------------------------------------------------------------------
 -- |
@@ -20,6 +21,11 @@ module Handlers
     , getPostR
     , getTagsR
     , getTagR
+    , getManagePostR
+    , postManagePostR
+    , getEditPostR
+    , postEditPostR
+    , getDelPostR
     , getFeedR
     , getFaviconR
     , getRobotsR
@@ -106,6 +112,54 @@ getTagR tag = do
         posts' -> pageLayout $ do
             setTitle $ string $ "pbrisbin - Tag: " ++ tag
             addHamlet $ allPostsTemplate posts' ("Tag: " ++ tag)
+
+-- | Display the add new post form, todo: authentication for use of this
+--   page
+getManagePostR :: Handler RepHtml
+getManagePostR = do
+    postForm <- runPostForm
+
+    pageLayout $ do
+        setTitle $ string "Add New Post"
+        addHamlet [$hamlet|
+        #header
+            %h1 Add New Post
+
+        ^postForm^
+        |]
+
+postManagePostR :: Handler RepHtml
+postManagePostR = getManagePostR
+
+-- | Same as new post but prepopulate the form with existing values and
+--   hand off to a delete/recreate function
+getEditPostR :: String -> Handler RepHtml
+getEditPostR slug = do
+    post     <- getPostBySlug slug
+    case post of
+        []       -> notFound
+        (post':_) -> do
+            postForm <- runPostFormEdit post'
+
+            pageLayout $ do
+                setTitle $ string "Edit Post"
+                addHamlet [$hamlet|
+                #header
+                    %h1 Edit Post
+
+                ^postForm^
+                |]
+
+postEditPostR :: String -> Handler RepHtml
+postEditPostR = getEditPostR
+
+-- | Delete a post by slug
+getDelPostR :: String -> Handler RepHtml
+getDelPostR slug = do
+    deletePost slug
+    setMessage $ [$hamlet| %em post deleted! |]
+    redirect RedirectTemporary ManagePostR
+    
 
 -- | Rss feed
 getFeedR :: Handler RepRss

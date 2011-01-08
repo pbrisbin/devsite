@@ -18,7 +18,7 @@
 
       $maybe mmesg msg
         #message 
-          %p $msg$
+          %p.centered $msg$
     #body
       ^pageBody.pc^
     #footer

@@ -26,11 +26,9 @@ module Posts
     , allPostsTemplate
     , postTemplate
     , migratePosts
-    , getManagePostR
-    , postManagePostR
-    , getEditPostR
-    , postEditPostR
-    , getDelPostR
+    , runPostForm
+    , runPostFormEdit
+    , deletePost
     ) where
 
 import DevSite
@@ -152,65 +150,6 @@ loadPostContent p = do
             then liftIO $ readFile fileName
             else return "File not found"
     (writePandoc yesodDefaultWriterOptions <$>) . localLinks . parseMarkdown yesodDefaultParserState $ Markdown markdown
-
--- | Display the add new post form, todo: authentication for use of this
---   page
-getManagePostR :: Handler RepHtml
-getManagePostR = do
-    mmesg    <- getMessage
-    postForm <- runPostForm
-
-    defaultLayout $ do
-        setTitle $ string "Add New Post"
-        addHamlet [$hamlet|
-        #header
-            %h1 Add New Post
-
-        $maybe mmesg msg
-            #message
-                %p $msg$
-
-        ^postForm^
-        |]
-
-postManagePostR :: Handler RepHtml
-postManagePostR = getManagePostR
-
--- | Same as new post but prepopulate the form with existing values and
---   hand off to a delete/recreate function
-getEditPostR :: String -> Handler RepHtml
-getEditPostR slug = do
-    post     <- getPostBySlug slug
-    case post of
-        []       -> notFound
-        (post':_) -> do
-            mmesg    <- getMessage
-            postForm <- runPostFormEdit post'
-
-            defaultLayout $ do
-                setTitle $ string "Edit Post"
-                addHamlet [$hamlet|
-                #header
-                    %h1 Edit Post
-
-                #body
-                    $maybe mmesg msg
-                        #message
-                            %p $msg$
-
-                    ^postForm^
-                |]
-
-postEditPostR :: String -> Handler RepHtml
-postEditPostR = getEditPostR
-
--- | Delete a post by slug
-getDelPostR :: String -> Handler RepHtml
-getDelPostR slug = do
-    deletePost slug
-    setMessage $ [$hamlet| %em post deleted! |]
-    redirect RedirectTemporary ManagePostR
-    
 -- | Convert the entered post into the correct data type by parsing the
 --   Tag list and adding a time stamp
 postFromForm :: PostForm -> Handler Post
@@ -426,15 +365,19 @@ addPostTemplate form enctype = do
             $forall posts post
                 %tr
                     %td 
-                        %a!href=@PostR.postSlug.post@ $postTitle.post$
-                    %td $shorten.postDescr.post$
+                        %a!href=@PostR.postSlug.post@ $shortenShort.postTitle.post$
+                    %td $shortenLong.postDescr.post$
                     %td
                         %a!href=@EditPostR.postSlug.post@ edit
                     %td 
                         %a!href=@DelPostR.postSlug.post@ delete
     |]
 
-    where shorten s = if length s > 30 then take 30 s ++ "..." else s
+    where 
+        shortenLong = shorten 50 
+        shortenShort = shorten 20
+        shorten n s = if length s > n then take n s ++ "..." else s
+
 
 -- | A body template for a list of posts, you can also provide the title
 allPostsTemplate :: [Post] -> String -> Hamlet DevSiteRoute

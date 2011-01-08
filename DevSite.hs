@@ -94,6 +94,10 @@ instance YesodBreadcrumbs DevSite where
             -- lowercase it
             format t = map toLower t ++ " tag"
 
+    -- management pages
+    breadcrumb ManagePostR      = return ("manage posts", Just RootR)
+    breadcrumb (EditPostR slug) = return ("edit post", Just ManagePostR)
+
     -- be sure to fail noticably so i fix it when it happens
     breadcrumb _ = return ("%%%", Just RootR)
 
