@@ -20,8 +20,8 @@ import Settings
 import Posts
 import Handlers
 
-import HashDB
 import Yesod.Helpers.Auth
+import Helpers.Auth.HashDB
 import Database.Persist.GenericSql
 
 -- | Instantiate the Yesod route types
