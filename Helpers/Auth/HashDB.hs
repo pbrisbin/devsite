@@ -2,7 +2,32 @@
 {-# LANGUAGE FlexibleContexts           #-}
 {-# LANGUAGE TypeFamilies               #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-module HashDB where
+-------------------------------------------------------------------------------
+-- |
+-- Module      :  Helpers.Auth.HashDB
+-- Copyright   :  (c) Patrick Brisbin 2010 
+-- License     :  as-is
+--
+-- Maintainer  :  pbrisbin@gmail.com
+-- Stability   :  unstable
+-- Portability :  unportable
+--
+-- A yesod-auth AuthPlugin designed to look users up in Persist where
+-- their user id's and a sha1 hash of their password will already be
+-- stored.
+--
+-- > echo -n 'MyPassword' | sha1sum
+--
+-- can be used to get the hash which should be inserted in the database
+-- before using this in your webapp.
+--
+-------------------------------------------------------------------------------
+module Helpers.Auth.HashDB
+    ( authHashDB
+    , getAuthIdHashDB
+    , UserId
+    , migrateUsers
+    ) where
 
 import Yesod
 import Yesod.Helpers.Auth
@@ -31,10 +56,7 @@ Ident
     UniqueIdent ident
 |]
 
-printErr :: String -> GHandler sub y ()
-printErr = liftIO . hPutStrLn stderr
-
--- | Give a (user,password) in plaintext, validate them against the
+-- | Given a (user,password) in plaintext, validate them against the
 --   database values
 validateUser :: (YesodPersist y, 
                  PersistBackend (YesodDB y (GHandler sub y))) 
@@ -61,11 +83,49 @@ postLoginR = do
 
     isValid <- validateUser (user,password)
     if isValid
-        then setCreds True $ Creds "hashdb" user [] -- wtf?
+        then setCreds True $ Creds "hashdb" user []
         else do
             setMessage $ string "Invalid username/password"
             toMaster <- getRouteToMaster
             redirect RedirectTemporary $ toMaster LoginR
+
+-- | Use this as getAuthId in your instance declaration by passing your
+--   AuthR data type
+getAuthIdHashDB :: (Key User ~ AuthId master,
+                    PersistBackend (YesodDB master (GHandler sub master)),
+                    YesodPersist master,
+                    YesodAuth master)
+                => (AuthRoute -> Route master)
+                -> Creds m
+                -> GHandler sub master (Maybe UserId)
+getAuthIdHashDB authR creds = do
+    muid <- maybeAuth
+    x <- runDB $ getBy $ UniqueIdent $ credsIdent creds
+    case (x, muid) of
+        -- Logged in and identified
+        (Just _, Just (uid, _)) -> return $ Just uid
+
+        -- Identified but not logged in
+        (Just (_, i), Nothing) -> return $ Just $ identUser i
+
+        -- Logged in but not identified
+        (Nothing, Just (uid, _)) -> do
+            setMessage $ [$hamlet| %em identifier added |]
+            runDB $ insert $ Ident (credsIdent creds) uid
+            return $ Just uid
+
+        -- Not logged in and not identified
+        (Nothing, Nothing) -> do
+            -- is there already a user but with no identifier?
+            y <- runDB $ getBy $ UniqueUser (credsIdent creds)
+            case y of
+                Just (uid, _) -> do
+                    setMessage $ [$hamlet| %em identifier added |]
+                    runDB $ insert $ Ident (credsIdent creds) uid
+                    return $ Just uid
+                Nothing -> do
+                    setMessage $ [$hamlet| %em user not found |]
+                    redirect RedirectTemporary $ authR LoginR
 
 authHashDB :: (YesodAuth y,
                YesodPersist y, 
