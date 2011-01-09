@@ -20,12 +20,11 @@ module DevSite where
 import Yesod hiding (lift)
 import Yesod.Form.Core
 import Yesod.Helpers.Auth
+import Helpers.Auth.HashDB
 import Data.Char (toLower)
 import Language.Haskell.TH.Syntax
 import Database.Persist.GenericSql
 import qualified Settings as S
-
-import HashDB
 
 -- | The main site type
 data DevSite = DevSite { connPool :: ConnectionPool }
@@ -121,37 +120,10 @@ instance YesodAuth DevSite where
 
     loginDest _  = ManagePostR
     logoutDest _ = RootR
-
-    -- todo: move this code to HashDB itself?
-    getAuthId creds = do
-        muid <- maybeAuth
-        -- is there already an identier?
-        x <- runDB $ getBy $ UniqueIdent $ credsIdent creds
-        case (x, muid) of
-            (Just (_, i), Nothing)   -> return $ Just $ identUser i
-            (Nothing, Nothing)       -> do
-                -- is there already a user with no identifier?
-                y <- runDB $ getBy $ UniqueUser (credsIdent creds)
-                case y of
-                    Just (uid, _) -> do
-                        setMessage $ [$hamlet| %em identifier added |]
-                        runDB $ insert $ Ident (credsIdent creds) uid
-                        return $ Just uid
-                    Nothing -> do
-                        setMessage $ [$hamlet| %em unhandled case |]
-                        redirect RedirectTemporary $ AuthR LoginR
-            (Nothing, Just (uid, _)) -> do
-                setMessage $ [$hamlet| %em identifier added |]
-                runDB $ insert $ Ident (credsIdent creds) uid
-                return $ Just uid
-            otherwise                -> do
-                setMessage $ [$hamlet| %em unhandled case |]
-                redirect RedirectTemporary $ AuthR LoginR
-
+    getAuthId    = getAuthIdHashDB AuthR 
     showAuthId _ = showIntegral
     readAuthId _ = readIntegral
-
-    authPlugins = [authHashDB]
+    authPlugins  = [authHashDB]
 
 -- | This footer template needs to be in scope everywhere, so we'll
 --   define it here
