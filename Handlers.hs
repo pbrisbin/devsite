@@ -39,8 +39,8 @@ import Stats
 import Layouts
 import qualified Settings as S
 import Helpers.RssFeed
-
 import Yesod.Helpers.Auth
+import Data.Time.Clock (getCurrentTime)
 
 -- Since posts are now retrieved in the Handler Monad it's no longer
 -- easy to create these functions, a solution is still a big todo:
@@ -55,7 +55,9 @@ xmonad         = "xmonad"
 -- | Home page
 getRootR :: Handler RepHtml
 getRootR = do
-    posts <- selectPosts 10
+    curTime <- liftIO getCurrentTime
+    posts'  <- selectPosts 10
+    let posts = zip posts' (repeat curTime)
     defaultLayout $ do
         setTitle $ string "pbrisbin - Home"
         addHamlet $(S.hamletFile "index")
@@ -84,10 +86,12 @@ getAboutR = pageLayout $ do
 -- | All posts
 getPostsR :: Handler RepHtml
 getPostsR = do
-    allPosts <- selectPosts 0
+    curTime <- liftIO getCurrentTime
+    posts'  <- selectPosts 0
+    let posts = zip posts' (repeat curTime)
     pageLayout $ do
         setTitle $ string "pbrisbin - All Posts"
-        addHamlet $ allPostsTemplate allPosts "All Posts"
+        addHamlet $ allPostsTemplate posts "All Posts"
 
 -- | A post
 getPostR :: String -> Handler RepHtml
@@ -100,20 +104,25 @@ getPostR slug = do
 -- | All tags
 getTagsR :: Handler RepHtml
 getTagsR = do
-    allPosts <- selectPosts 0
+    curTime  <- liftIO getCurrentTime
+    posts'   <- selectPosts 0
+    let posts = zip posts' (repeat curTime)
     pageLayout $ do
         setTitle $ string "pbrisbin - All Tags"
-        addHamlet $ allPostsTemplate allPosts "All Tags"
+        addHamlet $ allPostsTemplate posts "All Tags"
 
 -- | A tag
 getTagR :: String -> Handler RepHtml
 getTagR tag = do
-    posts <- getPostsByTag tag
-    case posts of
+    curTime <- liftIO getCurrentTime
+    posts'  <- getPostsByTag tag
+    case posts' of
         []     -> notFound
-        posts' -> pageLayout $ do
-            setTitle $ string $ "pbrisbin - Tag: " ++ tag
-            addHamlet $ allPostsTemplate posts' ("Tag: " ++ tag)
+        posts'' -> do
+            let posts = zip posts'' (repeat curTime)
+            pageLayout $ do
+                setTitle $ string $ "pbrisbin - Tag: " ++ tag
+                addHamlet $ allPostsTemplate posts ("Tag: " ++ tag)
 
 -- | Handle authentication
 requireAuth' :: Handler ()

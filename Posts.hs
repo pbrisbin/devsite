@@ -36,16 +36,14 @@ import DevSite
 import Yesod
 import Yesod.Markdown
 
+import Data.Time
+import System.Locale
+
 import Data.Char           (isSpace)
 import Data.List           (intercalate)
 import System.Directory    (doesFileExist)
 import Control.Applicative ((<$>), (<*>))
 import Language.Haskell.TH.Syntax
-
-import Data.Time.Clock  (UTCTime, getCurrentTime)
-import Data.Time.Format (formatTime)
-import System.Locale    (defaultTimeLocale)
-
 import Database.Persist.TH         (share2)
 import Database.Persist.GenericSql (mkMigrate)
 
@@ -380,7 +378,7 @@ addPostTemplate form enctype = do
 
 
 -- | A body template for a list of posts, you can also provide the title
-allPostsTemplate :: [Post] -> String -> Hamlet DevSiteRoute
+allPostsTemplate :: [(Post, UTCTime)] -> String -> Hamlet DevSiteRoute
 allPostsTemplate posts title = [$hamlet|
 %h1 $title$
 
@@ -390,27 +388,76 @@ allPostsTemplate posts title = [$hamlet|
 |]
 
 -- | The sub template for a single post
-postTemplate :: Post -> Hamlet DevSiteRoute
-postTemplate arg = [$hamlet|
+postTemplate :: (Post, UTCTime) -> Hamlet DevSiteRoute
+postTemplate (post, curTime) = [$hamlet|
 .post
   %p
 
-    %a!href=@PostR.postSlug.arg@ $postTitle.arg$
-    \ - $postDescr.arg$ 
+    %a!href=@PostR.postSlug.post@ $postTitle.post$
+    \ - $postDescr.post$ 
     
   %p.small
 
-    Published on $formatDateTime.postDate.arg$
+    Published $formatDateTime.postDate.post$
 
     %span!style="float: right;"
 
       Tags: 
 
-      $forall postTags.arg tag
+      $forall postTags.post tag
 
         %a!href=@TagR.tag@ $tag$ 
 |]
+    where
+        formatDateTime :: UTCTime -> String
+        --formatDateTime = formatTime defaultTimeLocale "%a, %d %b %Y"
+        formatDateTime = humanReadableTimeDiff curTime
 
-formatDateTime :: UTCTime -> String
---formatDateTime = formatTime defaultTimeLocale "%a, %d %b %Y %H:%M:%S %z"
-formatDateTime = formatTime defaultTimeLocale "%a, %d %b %Y"
+-- https://github.com/snoyberg/haskellers/blob/master/Haskellers.hs
+-- https://github.com/snoyberg/haskellers/blob/master/LICENSE
+humanReadableTimeDiff :: UTCTime     -- ^ current time
+                      -> UTCTime     -- ^ old time
+                      -> String
+humanReadableTimeDiff curTime oldTime =
+    helper diff
+  where
+    diff    = diffUTCTime curTime oldTime
+
+    minutes :: NominalDiffTime -> Double
+    minutes n = realToFrac $ n / 60
+
+    hours :: NominalDiffTime -> Double
+    hours   n = (minutes n) / 60
+
+    days :: NominalDiffTime -> Double
+    days    n = (hours n) / 24
+
+    weeks :: NominalDiffTime -> Double
+    weeks   n = (days n) / 7
+
+    years :: NominalDiffTime -> Double
+    years   n = (days n) / 365
+
+    i2s :: RealFrac a => a -> String
+    i2s n = show m where m = truncate n :: Int
+
+    old = utcToLocalTime utc oldTime
+
+    trim = f . f where f = reverse . dropWhile isSpace
+
+    dow           = trim $! formatTime defaultTimeLocale "%l:%M %p on %A" old
+    thisYear      = trim $! formatTime defaultTimeLocale "%b %e" old
+    previousYears = trim $! formatTime defaultTimeLocale "%b %e, %Y" old
+
+    helper  d | d < 1          = "just now"
+              | d < 60         = i2s d ++ " seconds ago"
+              | minutes d < 2  = "one minute ago"
+              | minutes d < 60 =  i2s (minutes d) ++ " minutes ago"
+              | hours d < 2    = "one hour ago"
+              | hours d < 24   = "about " ++ i2s (hours d) ++ " hours ago"
+              | days d < 5     = "at " ++ dow
+              | days d < 10    = i2s (days d)  ++ " days ago"
+              | weeks d < 2    = i2s (weeks d) ++ " week ago"
+              | weeks d < 5    = i2s (weeks d)  ++ " weeks ago"
+              | years d < 1    = "on " ++ thisYear
+              | otherwise      = "on " ++ previousYears
