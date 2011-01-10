@@ -13,7 +13,7 @@
 -- Portability :  unportable
 --
 -- Logic regarding all the posts on this site: how they're stored, how
--- they're retrieved, routes and templates for working with them.
+-- they're retrieved, forms and templates for working with them.
 --
 -------------------------------------------------------------------------------
 module Posts
@@ -43,16 +43,11 @@ import Data.List           (intercalate)
 import Data.Maybe          (isJust, fromJust)
 import System.Directory    (doesFileExist)
 import Control.Applicative ((<$>), (<*>))
-import Language.Haskell.TH.Syntax
+
 import Database.Persist.TH         (share2)
 import Database.Persist.GenericSql (mkMigrate)
 
--- | If x is Just, apply f and wrap the result in Just; if x is Nothing,
---   return Nothing
-whenJust :: (a -> b) -> Maybe a -> Maybe b
-whenJust f x = case x of
-    Just y  -> Just $ f y
-    Nothing -> Nothing
+import Language.Haskell.TH.Syntax
 
 -- | The data type of a single post
 data Post = Post
@@ -184,7 +179,6 @@ updatePostFromForm p pf = do
 
     redirect RedirectTemporary ManagePostR
 
-
 -- | Take a comma-separated list of tags like "foo, bar, baz" and parse
 --   that into a real haskell list
 parseCSL :: String -> [String]
@@ -211,20 +205,21 @@ runPostForm post = do
     return . pageBody =<< widgetToPageContent (managePostTemplate title form enctype)
 
     where
+
         title = if isJust post then "Edit post:" else "Add new post:"
 
 -- | Display the new post form inself. If the first argument is Just,
 --   then use that to prepopulate the form
 postForm :: Maybe Post -> FormMonad (FormResult PostForm, Widget ())
 postForm post = do
-    (slug       , fiSlug       ) <- stringField   "post slug:"   $ whenJust postSlug  post
-    (title      , fiTitle      ) <- stringField   "title:"       $ whenJust postTitle post
-    (tags       , fiTags       ) <- stringField   "tags:"        $ whenJust (formatTags . postTags) post
-    (description, fiDescription) <- textareaField "description:" $ whenJust (Textarea . postDescr)  post
+    (slug       , fiSlug       ) <- stringField   "post slug:"   $ fmap postSlug  post
+    (title      , fiTitle      ) <- stringField   "title:"       $ fmap postTitle post
+    (tags       , fiTags       ) <- stringField   "tags:"        $ fmap (formatTags . postTags) post
+    (description, fiDescription) <- textareaField "description:" $ fmap (Textarea . postDescr)  post
     return (PostForm <$> slug <*> title <*> tags <*> description, [$hamlet|
     %table
         %tr
-            %td
+            %th
                 %label!for=$fiIdent.fiSlug$ $fiLabel.fiSlug$
                 .tooltip $fiTooltip.fiSlug$
             %td
@@ -235,7 +230,7 @@ postForm post = do
                 $nothing
                     &nbsp;
         %tr
-            %td
+            %th
                 %label!for=$fiIdent.fiTitle$ $fiLabel.fiTitle$
                 .tooltip $fiTooltip.fiTitle$
             %td
@@ -246,7 +241,7 @@ postForm post = do
                 $nothing
                     &nbsp;
         %tr
-            %td
+            %th
                 %label!for=$fiIdent.fiTags$ $fiLabel.fiTags$
                 .tooltip $fiTooltip.fiTags$
             %td
@@ -257,7 +252,7 @@ postForm post = do
                 $nothing
                     &nbsp;
         %tr
-            %td
+            %th
                 %label!for=$fiIdent.fiDescription$ $fiLabel.fiDescription$
                 .tooltip $fiTooltip.fiDescription$
             %td
@@ -275,9 +270,9 @@ postForm post = do
     |])
 
     where
-        buttonText = string $ if isJust post then "Update post" else "Add post"
 
         formatTags = intercalate ", "
+        buttonText = string $ if isJust post then "Update post" else "Add post"
 
 -- | The overall template showing the input box and a list of existing
 --   posts
@@ -316,7 +311,6 @@ managePostTemplate title form enctype = do
         shortenLong  = shorten 50 
         shortenShort = shorten 20
         shorten n s  = if length s > n then take n s ++ "..." else s
-
 
 -- | A body template for a list of posts, you can also provide the title
 allPostsTemplate :: [(Post, UTCTime)] -> String -> Hamlet DevSiteRoute
