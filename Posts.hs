@@ -27,7 +27,6 @@ module Posts
     , postTemplate
     , migratePosts
     , runPostForm
-    , runPostFormEdit
     , deletePost
     ) where
 
@@ -41,11 +40,19 @@ import System.Locale
 
 import Data.Char           (isSpace)
 import Data.List           (intercalate)
+import Data.Maybe          (isJust, fromJust)
 import System.Directory    (doesFileExist)
 import Control.Applicative ((<$>), (<*>))
 import Language.Haskell.TH.Syntax
 import Database.Persist.TH         (share2)
 import Database.Persist.GenericSql (mkMigrate)
+
+-- | If x is Just, apply f and wrap the result in Just; if x is Nothing,
+--   return Nothing
+whenJust :: (a -> b) -> Maybe a -> Maybe b
+whenJust f x = case x of
+    Just y  -> Just $ f y
+    Nothing -> Nothing
 
 -- | The data type of a single post
 data Post = Post
@@ -148,30 +155,35 @@ loadPostContent p = do
             then liftIO $ readFile fileName
             else return "File not found"
     (writePandoc yesodDefaultWriterOptions <$>) . localLinks . parseMarkdown yesodDefaultParserState $ Markdown markdown
--- | Convert the entered post into the correct data type by parsing the
---   Tag list and adding a time stamp
-postFromForm :: PostForm -> Handler Post
-postFromForm pf = do
-    currentTime <- liftIO getCurrentTime
-    return Post
-        { postSlug  = formSlug pf
-        , postTitle = formTitle pf
-        , postDescr = unTextarea $ formDescr pf
-        , postDate  = currentTime
-        , postTags  = parseCSL $ formTags pf
-        }
 
--- | Update an existing post with data from a posted form without
---   overwriting published date
-postFromFormEdit :: Post -> PostForm -> Handler Post
-postFromFormEdit post pf = do
-    return Post
-        { postSlug  = formSlug pf
-        , postTitle = formTitle pf
-        , postDescr = unTextarea $ formDescr pf
-        , postDate  = postDate post
-        , postTags  = parseCSL $ formTags pf
-        }
+-- | Convert form input into a Post and update the db. If the first
+--   argument is Just, this is an edit of an existing Post. If the first
+--   argument is Nothing, then it's an insert
+updatePostFromForm :: Maybe Post -> PostForm -> Handler ()
+updatePostFromForm p pf = do
+    postDate' <- if isJust p 
+        -- preserve original publish date
+        then return $ postDate $ fromJust p
+        else liftIO getCurrentTime
+    let post = Post
+            { postSlug  = formSlug pf
+            , postTitle = formTitle pf
+            , postDescr = unTextarea $ formDescr pf
+            , postDate  = postDate'
+            , postTags  = parseCSL $ formTags pf
+            }
+    if isJust p
+        then do
+            -- delete the original and insert a new version
+            deletePost (postSlug post)
+            insertPost post
+            setMessage $ [$hamlet| %em post updated! |]
+        else do
+            insertPost post
+            setMessage $ [$hamlet| %em post added! |]
+
+    redirect RedirectTemporary ManagePostR
+
 
 -- | Take a comma-separated list of tags like "foo, bar, baz" and parse
 --   that into a real haskell list
@@ -185,28 +197,30 @@ parseCSL = filter (/= []) . parseCSL' [] []
 
         trim = f . f where f = reverse . dropWhile isSpace
 
--- | Run the new post page and insert on successfully POST
-runPostForm :: Handler (Hamlet DevSiteRoute)
-runPostForm = do
-    ((res, form), enctype) <- runFormMonadPost addPostForm
+-- | Run the post form and insert or update based on the entered data
+runPostForm :: Maybe Post -> Handler (Hamlet DevSiteRoute)
+runPostForm post = do
+    ((res, form), enctype) <- runFormMonadPost $ postForm post
     case res of
         FormMissing    -> return ()
         FormFailure _  -> return ()
         FormSuccess pf -> do
-            postFromForm pf >>= insertPost
-            setMessage $ [$hamlet| %em new post added! |]
-            redirect RedirectTemporary ManagePostR
+            updatePostFromForm post pf
 
     -- this feels kludgy...
-    return . pageBody =<< widgetToPageContent (addPostTemplate form enctype)
+    return . pageBody =<< widgetToPageContent (managePostTemplate title form enctype)
 
--- | The new post form itself
-addPostForm :: FormMonad (FormResult PostForm, Widget ())
-addPostForm = do
-    (slug       , fiSlug       ) <- stringField   "post slug:"   Nothing
-    (title      , fiTitle      ) <- stringField   "title:"       Nothing
-    (tags       , fiTags       ) <- stringField   "tags:"        Nothing
-    (description, fiDescription) <- textareaField "description:" Nothing
+    where
+        title = if isJust post then "Edit post:" else "Add new post:"
+
+-- | Display the new post form inself. If the first argument is Just,
+--   then use that to prepopulate the form
+postForm :: Maybe Post -> FormMonad (FormResult PostForm, Widget ())
+postForm post = do
+    (slug       , fiSlug       ) <- stringField   "post slug:"   $ whenJust postSlug  post
+    (title      , fiTitle      ) <- stringField   "title:"       $ whenJust postTitle post
+    (tags       , fiTags       ) <- stringField   "tags:"        $ whenJust (formatTags . postTags) post
+    (description, fiDescription) <- textareaField "description:" $ whenJust (Textarea . postDescr)  post
     return (PostForm <$> slug <*> title <*> tags <*> description, [$hamlet|
     %table
         %tr
@@ -257,101 +271,28 @@ addPostForm = do
             %td
                 &nbsp;
             %td!colspan="2"
-                %input!type="submit"!value="Add post"
+                %input!type="submit"!value=$buttonText$
     |])
 
--- | Not a true edit, rather a delete/recreate to make it easy on myself
-runPostFormEdit :: Post -> Handler (Hamlet DevSiteRoute)
-runPostFormEdit post = do
-    ((res, form), enctype) <- runFormMonadPost (editPostForm post)
-    case res of
-        FormMissing    -> return ()
-        FormFailure _  -> return ()
-        FormSuccess pf -> do
-            deletePost (postSlug post)
-            postFromFormEdit post pf >>= insertPost
-            setMessage $ [$hamlet| %em post updated! |]
-            redirect RedirectTemporary ManagePostR
+    where
+        buttonText = string $ if isJust post then "Update post" else "Add post"
 
-    -- this feels kludgy...
-    return . pageBody =<< widgetToPageContent (addPostTemplate form enctype)
-
--- | The edit post form itself
-editPostForm :: Post -> FormMonad (FormResult PostForm, Widget ())
-editPostForm post = do
-    (slug       , fiSlug       ) <- stringField   "post slug:"   $ Just (postSlug post)
-    (title      , fiTitle      ) <- stringField   "title:"       $ Just (postTitle post)
-    (tags       , fiTags       ) <- stringField   "tags:"        $ Just (formatTags $ postTags post)
-    (description, fiDescription) <- textareaField "description:" $ Just (Textarea $ postDescr post)
-    return (PostForm <$> slug <*> title <*> tags <*> description, [$hamlet|
-    %table
-        %tr
-            %td
-                %label!for=$fiIdent.fiSlug$ $fiLabel.fiSlug$
-                .tooltip $fiTooltip.fiSlug$
-            %td
-                ^fiInput.fiSlug^
-            %td.errors
-                $maybe fiErrors.fiSlug error
-                    $error$
-                $nothing
-                    &nbsp;
-        %tr
-            %td
-                %label!for=$fiIdent.fiTitle$ $fiLabel.fiTitle$
-                .tooltip $fiTooltip.fiTitle$
-            %td
-                ^fiInput.fiTitle^
-            %td.errors
-                $maybe fiErrors.fiTitle error
-                    $error$
-                $nothing
-                    &nbsp;
-        %tr
-            %td
-                %label!for=$fiIdent.fiTags$ $fiLabel.fiTags$
-                .tooltip $fiTooltip.fiTags$
-            %td
-                ^fiInput.fiTags^
-            %td.errors
-                $maybe fiErrors.fiTags error
-                    $error$
-                $nothing
-                    &nbsp;
-        %tr
-            %td
-                %label!for=$fiIdent.fiDescription$ $fiLabel.fiDescription$
-                .tooltip $fiTooltip.fiDescription$
-            %td
-                ^fiInput.fiDescription^
-            %td.errors
-                $maybe fiErrors.fiDescription error
-                    $error$
-                $nothing
-                    &nbsp;
-        %tr
-            %td
-                &nbsp;
-            %td!colspan="2"
-                %input!type="submit"!value="Edit post"
-    |])
-    
-    where formatTags tags = intercalate ", " tags
+        formatTags = intercalate ", "
 
 -- | The overall template showing the input box and a list of existing
 --   posts
-addPostTemplate :: Widget () -> Enctype -> Widget ()
-addPostTemplate form enctype = do
+managePostTemplate :: String -> Widget () -> Enctype -> Widget ()
+managePostTemplate title form enctype = do
     posts <- liftHandler $ selectPosts 0
     [$hamlet|
     #post_input
-        %h3 Add a new post:
+        %h3 $string.title$
 
         %form!enctype=$enctype$!method="post"
             ^form^
 
     #post_existing
-        %h3 Existing posts
+        %h3 Existing posts:
 
         %table
             %tr
@@ -372,9 +313,9 @@ addPostTemplate form enctype = do
     |]
 
     where 
-        shortenLong = shorten 50 
+        shortenLong  = shorten 50 
         shortenShort = shorten 20
-        shorten n s = if length s > n then take n s ++ "..." else s
+        shorten n s  = if length s > n then take n s ++ "..." else s
 
 
 -- | A body template for a list of posts, you can also provide the title
@@ -410,7 +351,6 @@ postTemplate (post, curTime) = [$hamlet|
 |]
     where
         formatDateTime :: UTCTime -> String
-        --formatDateTime = formatTime defaultTimeLocale "%a, %d %b %Y"
         formatDateTime = humanReadableTimeDiff curTime
 
 -- https://github.com/snoyberg/haskellers/blob/master/Haskellers.hs

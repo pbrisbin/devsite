@@ -124,18 +124,11 @@ getTagR tag = do
                 setTitle $ string $ "pbrisbin - Tag: " ++ tag
                 addHamlet $ allPostsTemplate posts ("Tag: " ++ tag)
 
--- | Handle authentication
-requireAuth' :: Handler ()
-requireAuth' = do
-    _ <- requireAuth
-    return ()
-
--- | Display the add new post form, todo: authentication for use of this
---   page
+-- | Display the add new post form
 getManagePostR :: Handler RepHtml
 getManagePostR = do
-    requireAuth'
-    postForm <- runPostForm
+    _        <- requireAuth
+    postForm <- runPostForm Nothing
 
     pageLayout $ do
         setTitle $ string "pbrisbin - Manage posts"
@@ -153,12 +146,12 @@ postManagePostR = getManagePostR
 --   hand off to a delete/recreate function
 getEditPostR :: String -> Handler RepHtml
 getEditPostR slug = do
-    requireAuth'
-    post     <- getPostBySlug slug
+    _    <- requireAuth
+    post <- getPostBySlug slug
     case post of
-        []       -> notFound
+        []        -> notFound
         (post':_) -> do
-            postForm <- runPostFormEdit post'
+            postForm <- runPostForm $ Just post'
 
             pageLayout $ do
                 setTitle $ string "pbrisbin - Edit post"
@@ -175,11 +168,10 @@ postEditPostR = getEditPostR
 -- | Delete a post by slug
 getDelPostR :: String -> Handler RepHtml
 getDelPostR slug = do
-    requireAuth'
+    _ <- requireAuth
     deletePost slug
     setMessage $ [$hamlet| %em post deleted! |]
     redirect RedirectTemporary ManagePostR
-    
 
 -- | Rss feed
 getFeedR :: Handler RepRss
