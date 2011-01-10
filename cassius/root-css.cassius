@@ -128,6 +128,10 @@ div.fixed img
 #post_input td
   vertical-align: top
 
+#post_input textarea
+  width: 550px
+  height: 150px
+
 #post_existing table
   margin-left:  auto
   margin-right: auto
