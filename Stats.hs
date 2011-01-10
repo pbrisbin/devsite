@@ -76,6 +76,7 @@ lighttpdLog file blacklist = LogFile
                     else Nothing
             otherwise -> Nothing
     }
+
     where
         notBlacklisted :: String -> Bool
         notBlacklisted = not . flip elem blacklist
@@ -125,7 +126,8 @@ statsTemplate lf tes = do
         %h3 Files accessed
         $forall topEntries topEntry
             ^topEntryTemplate.topEntry^
-|]
+    |]
+
     where
         uniqueIps   = nub . map ipAddress
         frequentIps = frequency . map ipAddress
@@ -156,6 +158,7 @@ getTopEntry logEntries (s,r) = TopEntry
         , totalDownloads = totalDownloaded r logEntries
         , downloadCounts = frequentDownloads r logEntries
         }
+
     where
         totalDownloaded s   = length . filter (isDownloadOf s)
         frequentDownloads s = frequency . map requestFile . filter (isDownloadOf s)
