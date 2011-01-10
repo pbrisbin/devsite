@@ -97,6 +97,9 @@ h2 a:link, h3 a:link, h2 a:visited, h3 a:visited
 h2 a:hover, h3 a:hover
   color: #a291c2
 
+img
+  border: 1px solid #909090
+
 img.validation
   width:  88px
   height: 31px
