@@ -101,6 +101,7 @@ img
   border: 1px solid #909090
 
 img.validation
+  border: none
   width:  88px
   height: 31px
 
