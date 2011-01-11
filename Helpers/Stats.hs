@@ -19,15 +19,19 @@ module Helpers.Stats
 
 import Yesod
 
+import Control.Arrow    ((&&&))
 import Control.Monad    (liftM)
 import Data.Function    (on)
 import Data.List        (nub, sortBy, group, sort)
 import Data.Maybe       (mapMaybe)
+import Data.Ord         (comparing)
 import Data.Time.Clock  (getCurrentTime)
 import Data.Time.Format (formatTime)
 import System.Locale    (defaultTimeLocale)
 import Text.Regex.Posix ((=~))
 import Text.Hamlet      (HamletValue(..))
+
+import Control.Monad.IO.Class (MonadIO(..))
 
 -- | Represents a single GET request and the useful info about it
 data LogEntry = LogEntry 
@@ -63,7 +67,7 @@ lighttpdLog :: FilePath -> [String] -> LogFile
 lighttpdLog file blacklist = LogFile
     { logFilePath  = file
     , readLogEntry = \xs -> 
-        case (words xs) of
+        case words xs of
             -- assumes no spaces in filenames
             (i:_: _:d:tz:"\"GET":f: _:"200":rest) -> 
                 if notBlacklisted i 
@@ -77,10 +81,10 @@ lighttpdLog file blacklist = LogFile
         notBlacklisted = not . flip elem blacklist
         
 -- | The main page template, a table inside a .stats div
-statsTemplate :: (HamletValue a, Yesod m) 
+statsTemplate :: (HamletValue a, MonadIO m) 
               => LogFile            -- ^ your log file type
-              -> [(String,String)]  -- ^ list of top entries to find/print
-              -> GHandler s m (Hamlet a)
+              -> [(String, String)] -- ^ a list of top entries to find/print
+              -> m a
 statsTemplate lf tes = do
     timeNow    <- liftIO getCurrentTime
     logEntries <- liftIO $ readLog lf
@@ -128,7 +132,7 @@ statsTemplate lf tes = do
         formatTime' = formatTime defaultTimeLocale "[%d/%b/%Y:%H:%M:%S %z]"
 
 -- | A template for printing table rows of a top entry
-topEntryTemplate :: (HamletValue a) => TopEntry -> Hamlet a
+topEntryTemplate :: (HamletValue a) => TopEntry -> a
 topEntryTemplate arg = let counts = take 10 $ downloadCounts arg in
     [$hamlet|
         .stats_top_entry
@@ -158,6 +162,6 @@ getTopEntry logEntries (s,r) = TopEntry
         frequentDownloads s = frequency . map requestFile . filter (isDownloadOf s)
         isDownloadOf s e    = requestFile e =~ s :: Bool
 
--- | Ex: frequency [a, b, c, b, a, a] -> [(3, a), (2, b), (1,c)]
+-- | Ex: frequency [a, b, c, b, b, a] -> [(b, 3), (a, 2), (c, 1)]
 frequency :: (Ord a) => [a] -> [(a, Int)]
-frequency = reverse . sortBy (compare `on` snd) .  map (\xs' -> (head xs', length xs')) . group . sort
+frequency = reverse . sortBy (comparing snd) . map (head &&& length) . group . sort
