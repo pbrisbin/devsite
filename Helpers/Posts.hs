@@ -46,6 +46,8 @@ import Database.Persist.GenericSql (mkMigrate)
 
 import Language.Haskell.TH.Syntax
 
+import qualified Settings
+
 -- | The data type of a single post
 data Post = Post
     { postSlug  :: String
@@ -195,8 +197,7 @@ runPostForm post = do
     case res of
         FormMissing    -> return ()
         FormFailure _  -> return ()
-        FormSuccess pf -> do
-            updatePostFromForm post pf
+        FormSuccess pf -> updatePostFromForm post pf
 
     -- this feels kludgy...
     return . pageBody =<< widgetToPageContent (managePostTemplate title form enctype)
@@ -358,16 +359,16 @@ humanReadableTimeDiff curTime oldTime =
     minutes n = realToFrac $ n / 60
 
     hours :: NominalDiffTime -> Double
-    hours   n = (minutes n) / 60
+    hours   n = minutes n / 60
 
     days :: NominalDiffTime -> Double
-    days    n = (hours n) / 24
+    days    n = hours n / 24
 
     weeks :: NominalDiffTime -> Double
-    weeks   n = (days n) / 7
+    weeks   n = days n / 7
 
     years :: NominalDiffTime -> Double
-    years   n = (days n) / 365
+    years   n = days n / 365
 
     i2s :: RealFrac a => a -> String
     i2s n = show m where m = truncate n :: Int
