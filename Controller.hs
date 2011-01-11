@@ -8,28 +8,27 @@
 -- Stability   :  unstable
 -- Portability :  unportable
 --
--- Imports my Site and defines one method 'withServer' to be used when
--- creating the WAI app.
---
 -------------------------------------------------------------------------------
 module Controller (withServer) where
 
 import Yesod
 import DevSite
-import Settings
-import Posts
 import Handlers
 
+import Helpers.Posts (migratePosts)
+import Helpers.Auth.HashDB (migrateUsers)
+
 import Yesod.Helpers.Auth
-import Helpers.Auth.HashDB
 import Database.Persist.GenericSql
+
+import qualified Settings
 
 -- | Instantiate the Yesod route types
 mkYesodDispatch "DevSite" resourcesDevSite
 
 -- | Create a Wai App of the site
 withServer :: (Application -> IO a) -> IO a
-withServer f = withConnectionPool $ \p -> do
+withServer f = Settings.withConnectionPool $ \p -> do
     runSqlPool (runMigration migratePosts) p
     runSqlPool (runMigration migrateUsers) p
     let h = DevSite p

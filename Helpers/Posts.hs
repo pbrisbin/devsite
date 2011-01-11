@@ -4,7 +4,7 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 -------------------------------------------------------------------------------
 -- |
--- Module      :  Posts
+-- Module      :  Helpers.Posts
 -- Copyright   :  (c) Patrick Brisbin 2010 
 -- License     :  as-is
 --
@@ -12,11 +12,8 @@
 -- Stability   :  unstable
 -- Portability :  unportable
 --
--- Logic regarding all the posts on this site: how they're stored, how
--- they're retrieved, forms and templates for working with them.
---
 -------------------------------------------------------------------------------
-module Posts
+module Helpers.Posts
     ( Post (..)
     , loadPostContent
     , selectPosts
@@ -177,7 +174,7 @@ updatePostFromForm p pf = do
             insertPost post
             setMessage $ [$hamlet| %em post added! |]
 
-    redirect RedirectTemporary ManagePostR
+    redirect RedirectTemporary ManagePostsR
 
 -- | Take a comma-separated list of tags like "foo, bar, baz" and parse
 --   that into a real haskell list

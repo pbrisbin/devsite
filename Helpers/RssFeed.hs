@@ -1,7 +1,7 @@
 {-# LANGUAGE QuasiQuotes #-}
 ---------------------------------------------------------
 --
--- Module        : Yesod.Helpers.RssFeed
+-- Module        : Helpers.RssFeed
 -- Copyright     : Patrick Brisbin
 -- License       : as-is
 --
@@ -9,11 +9,7 @@
 -- Stability     : Unstable
 -- Portability   : portable
 --
--- Generating rss news feeds. In a very similar fashion as
--- Yesod.Helpers.AtomFeed.
---
 ---------------------------------------------------------
-
 module Helpers.RssFeed
     ( RssFeed (..)
     , RssFeedEntry (..)

@@ -11,20 +11,19 @@
 -- Stability   :  unstable
 -- Portability :  unportable
 --
--- The actual site definition. What routes there are and instances it is
--- a part of.
---
 -------------------------------------------------------------------------------
 module DevSite where
 
-import Yesod hiding (lift)
-import Yesod.Form.Core
+import Yesod
 import Yesod.Helpers.Auth
-import Helpers.Auth.HashDB
+import Yesod.Form.Core (GFormMonad(..))
+
 import Data.Char (toLower)
-import Language.Haskell.TH.Syntax
 import Database.Persist.GenericSql
-import qualified Settings as S
+
+import Helpers.Auth.HashDB
+
+import qualified Settings
 
 -- | The main site type
 data DevSite = DevSite { connPool :: ConnectionPool }
@@ -39,9 +38,9 @@ mkYesodData "DevSite" [$parseRoutes|
 /stats StatsR GET
 /about AboutR GET
 
-/manage                ManagePostR GET POST
-/manage/edit/#String   EditPostR   GET POST
-/manage/delete/#String DelPostR    GET
+/manage                ManagePostsR GET POST
+/manage/edit/#String   EditPostR    GET POST
+/manage/delete/#String DelPostR     GET
 
 /posts         PostsR GET
 /posts/#String PostR  GET
@@ -57,7 +56,7 @@ mkYesodData "DevSite" [$parseRoutes|
 
 -- | Make my site an instance of Yesod so we can actually use it
 instance Yesod DevSite where 
-    approot _ = S.approot
+    approot _ = Settings.approot
 
     -- | handle authentication
     authRoute _ = Just $ AuthR LoginR
@@ -68,8 +67,8 @@ instance Yesod DevSite where
         mmesg  <- getMessage
         pc     <- widgetToPageContent $ do
             widget
-            addCassius $(S.cassiusFile "root-css")
-        hamletToRepHtml $(S.hamletFile "root-layout")
+            addCassius $(Settings.cassiusFile "root-css")
+        hamletToRepHtml $(Settings.hamletFile "root-layout")
 
 -- | Make my site an instance of breadcrumbs so that i can simply call
 --   the breadcrumbs function to get automagical breadcrumb links
@@ -102,8 +101,8 @@ instance YesodBreadcrumbs DevSite where
             format t = map toLower t ++ " tag"
 
     -- management pages
-    breadcrumb ManagePostR      = return ("manage posts", Just RootR)
-    breadcrumb (EditPostR slug) = return ("edit post", Just ManagePostR)
+    breadcrumb ManagePostsR      = return ("manage posts", Just RootR)
+    breadcrumb (EditPostR slug) = return ("edit post", Just ManagePostsR)
 
     -- be sure to fail noticably so i fix it when it happens
     breadcrumb _ = return ("%%%", Just RootR)
@@ -118,15 +117,13 @@ instance YesodPersist DevSite where
 instance YesodAuth DevSite where
     type AuthId DevSite = UserId
 
-    loginDest _  = ManagePostR
+    loginDest _  = RootR
     logoutDest _ = RootR
     getAuthId    = getAuthIdHashDB AuthR 
     showAuthId _ = showIntegral
     readAuthId _ = readIntegral
     authPlugins  = [authHashDB]
 
--- | This footer template needs to be in scope everywhere, so we'll
---   define it here
 footerTemplate :: Hamlet DevSiteRoute
 footerTemplate = [$hamlet|
                  %p

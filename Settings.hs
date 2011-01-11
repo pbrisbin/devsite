@@ -9,8 +9,6 @@
 -- Stability   :  unstable
 -- Portability :  unportable
 --
--- Static settings used in all modules.
---
 -------------------------------------------------------------------------------
 module Settings
     ( approot

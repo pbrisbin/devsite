@@ -9,12 +9,8 @@
 -- Stability   :  unstable
 -- Portability :  unportable
 --
--- Provide a page of _basic_ access statistics by parsing your server's
--- log file. A parser for lighttpd's default output is provided because,
--- well, that's what I use.
---
 -------------------------------------------------------------------------------
-module Stats 
+module Helpers.Stats 
     ( LogFile(..)
     , TopEntry(..)
     , lighttpdLog

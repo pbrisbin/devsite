@@ -1,7 +1,7 @@
 {-# LANGUAGE QuasiQuotes #-}
 ---------------------------------------------------------
 --
--- Module        : Pkgs
+-- Module        : Helpers.Pkgs
 -- Copyright     : Patrick Brisbin
 -- License       : as-is
 --
@@ -9,10 +9,8 @@
 -- Stability     : Unstable
 -- Portability   : portable
 --
--- Info about my AUR pkgs for printing on my home page.
---
 ---------------------------------------------------------
-module Pkgs 
+module Helpers.Pkgs 
     ( allPkgs
     , pkgsTemplate
     , pkgTemplate
@@ -21,7 +19,6 @@ module Pkgs
 import Yesod
 import DevSite
 
--- | The main data type used to represent an AUR package
 data AurPkg url = AurPkg
     { pkgId    :: Int
     , pkgName  :: String
