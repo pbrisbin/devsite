@@ -18,17 +18,16 @@ module Helpers.Stats
     ) where
 
 import Yesod
-import DevSite
 
-import Control.Monad      (liftM)
-import Data.Function      (on)
-import Data.List          (nub, sortBy, group, sort)
-import Data.Maybe         (mapMaybe)
-import Data.Time.Clock    (getCurrentTime)
-import Data.Time.Format   (formatTime)
-import System.Locale      (defaultTimeLocale)
-import Text.Regex.Posix   ((=~))
-import Text.Hamlet        (HamletValue(..))
+import Control.Monad    (liftM)
+import Data.Function    (on)
+import Data.List        (nub, sortBy, group, sort)
+import Data.Maybe       (mapMaybe)
+import Data.Time.Clock  (getCurrentTime)
+import Data.Time.Format (formatTime)
+import System.Locale    (defaultTimeLocale)
+import Text.Regex.Posix ((=~))
+import Text.Hamlet      (HamletValue(..))
 
 -- | Represents a single GET request and the useful info about it
 data LogEntry = LogEntry 
@@ -78,11 +77,10 @@ lighttpdLog file blacklist = LogFile
         notBlacklisted = not . flip elem blacklist
         
 -- | The main page template, a table inside a .stats div
---statsTemplate :: (HamletValue a, Yesod m) 
---              => LogFile            -- ^ your log file type
---              -> [(String,String)]  -- ^ list of top entries to find/print
---              -> GHandler s m (Hamlet a)
-statsTemplate :: LogFile -> [(String,String)] -> Handler (Hamlet DevSiteRoute)
+statsTemplate :: (HamletValue a, Yesod m) 
+              => LogFile            -- ^ your log file type
+              -> [(String,String)]  -- ^ list of top entries to find/print
+              -> GHandler s m (Hamlet a)
 statsTemplate lf tes = do
     timeNow    <- liftIO getCurrentTime
     logEntries <- liftIO $ readLog lf
@@ -130,7 +128,7 @@ statsTemplate lf tes = do
         formatTime' = formatTime defaultTimeLocale "[%d/%b/%Y:%H:%M:%S %z]"
 
 -- | A template for printing table rows of a top entry
-topEntryTemplate :: TopEntry -> Hamlet DevSiteRoute
+topEntryTemplate :: (HamletValue a) => TopEntry -> Hamlet a
 topEntryTemplate arg = let counts = take 10 $ downloadCounts arg in
     [$hamlet|
         .stats_top_entry
