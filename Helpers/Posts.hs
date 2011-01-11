@@ -18,13 +18,13 @@ module Helpers.Posts
     , loadPostContent
     , selectPosts
     , insertPost
+    , deletePost
     , getPostBySlug
     , getPostsByTag
+    , runPostForm
     , allPostsTemplate
     , postTemplate
     , migratePosts
-    , runPostForm
-    , deletePost
     ) where
 
 import DevSite

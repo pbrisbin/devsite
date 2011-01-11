@@ -24,4 +24,3 @@ getAboutR :: Handler RepHtml
 getAboutR = pageLayout $ do
     setTitle $ string "pbrisbin - About"
     addHamlet $(Settings.hamletFile "about")
-

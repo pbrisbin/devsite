@@ -13,7 +13,6 @@
 module Helpers.Layouts
     ( pageLayout
     , postLayout
-    , footerTemplate
     ) where
 
 import Yesod
@@ -46,4 +45,3 @@ postLayout post = do
         setTitle $ string $ "pbrisbin - " ++ postTitle post
         addCassius $(Settings.cassiusFile "root-css")
     hamletToRepHtml $(Settings.hamletFile "post-layout")
-

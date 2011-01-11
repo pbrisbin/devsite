@@ -15,7 +15,7 @@ import Yesod
 import DevSite
 import Handlers
 
-import Helpers.Posts (migratePosts)
+import Helpers.Posts       (migratePosts)
 import Helpers.Auth.HashDB (migrateUsers)
 
 import Yesod.Helpers.Auth
