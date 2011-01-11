@@ -14,15 +14,17 @@ module Settings
     ( approot
     , hamletFile
     , cassiusFile
+    , pandocFile
     , withConnectionPool
     ) where
 
-import qualified Text.Hamlet  as H
-import qualified Text.Cassius as C
+import Yesod hiding (approot)
+
+import Database.Persist.Sqlite
 import Language.Haskell.TH.Syntax
 
-import Yesod hiding (approot)
-import Database.Persist.Sqlite
+import qualified Text.Hamlet  as H
+import qualified Text.Cassius as C
 
 approot :: String
 #ifdef PROD
@@ -51,6 +53,9 @@ dataBase = "posts.db3"
 #else
 dataBase = "dev-posts.db3"
 #endif
+
+pandocFile :: String -> FilePath
+pandocFile x = "pandoc/" ++ x ++ ".pdc"
 
 withConnectionPool :: MonadInvertIO m => (ConnectionPool -> m a) -> m a
 withConnectionPool = withSqlitePool dataBase 10

@@ -140,7 +140,7 @@ getPostsByTag tag = do
 --   if the pdc file doesn't exist
 loadPostContent :: Post -> Handler Html
 loadPostContent p = do
-    let fileName = "pandoc/" ++ postSlug p ++ ".pdc"
+    let fileName = Settings.pandocFile $ postSlug p
     markdown <- do
         exists <- liftIO $ doesFileExist fileName
         if exists
