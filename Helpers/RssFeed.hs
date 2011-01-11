@@ -78,7 +78,7 @@ entryTemplate arg = [$xhamlet|
 
 -- | Format as string
 format :: UTCTime -> String
-format t = formatTime defaultTimeLocale rfc822DateFormat t
+format = formatTime defaultTimeLocale rfc822DateFormat
 
 -- | System.Local.rfc822DateFormat disagrees with date -R and does not
 --   validate, this one does.

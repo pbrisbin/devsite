@@ -28,7 +28,7 @@ getFeedR = do
         , rssLinkSelf    = FeedR
         , rssLinkHome    = RootR
         , rssUpdated     = mostRecent posts
-        , rssEntries     = map postToRssEntry $ posts
+        , rssEntries     = map postToRssEntry posts
         }
 
     where

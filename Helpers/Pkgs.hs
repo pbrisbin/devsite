@@ -36,7 +36,7 @@ pkgsTemplate args = [$hamlet|
 
 pkgTemplate :: AurPkg url -> Hamlet url
 pkgTemplate arg = 
-    let link = "http://aur.archlinux.org/packages.php?ID=" ++ (show $ pkgId arg)
+    let link = "http://aur.archlinux.org/packages.php?ID=" ++ show (pkgId arg)
     in [$hamlet|
 .aur_pkg
     %tr
