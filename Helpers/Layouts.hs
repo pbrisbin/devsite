@@ -19,6 +19,8 @@ module Helpers.Layouts
 import Yesod
 import DevSite
 
+import Data.Time.Clock (getCurrentTime)
+
 import Helpers.Posts
 
 import qualified Settings
@@ -64,9 +66,12 @@ pageLayout widget = do
 --   while still abstracting the overall template/css
 postLayout :: Post -> Handler RepHtml
 postLayout post = do
+    curTime     <- liftIO getCurrentTime
     mmesg       <- getMessage
     (t, h)      <- breadcrumbs
     postContent <- loadPostContent post
+
+    let prettyTime = string . humanReadableTimeDiff curTime $ postDate post
 
     pc <- widgetToPageContent $ do
         setTitle $ string $ "pbrisbin - " ++ postTitle post
@@ -104,6 +109,9 @@ postLayout post = do
               %p.centered $msg$
 
           $postContent$
+
+          %p.small
+            %em Published $prettyTime$
 
           %h3 
             %a!href="#Comments"!id="Comments" Comments

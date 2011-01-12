@@ -25,6 +25,7 @@ module Helpers.Posts
     , allPostsTemplate
     , postTemplate
     , migratePosts
+    , humanReadableTimeDiff
     ) where
 
 import DevSite
