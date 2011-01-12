@@ -34,6 +34,8 @@ import Data.Time.Clock (getCurrentTime)
 
 import qualified Settings
 
+-- Post pages
+
 -- | All posts
 getPostsR :: Handler RepHtml
 getPostsR = do
@@ -52,6 +54,8 @@ getPostR slug = do
         []       -> notFound
         (post:_) -> postLayout post
 
+-- Tag pages
+
 -- | All tags
 getTagsR :: Handler RepHtml
 getTagsR = do
@@ -68,19 +72,20 @@ getTagR tag = do
     curTime <- liftIO getCurrentTime
     posts'  <- getPostsByTag tag
     case posts' of
-        []     -> notFound
+        []      -> notFound
         posts'' -> do
             let posts = zip posts'' (repeat curTime)
             pageLayout $ do
                 setTitle $ string $ "pbrisbin - Tag: " ++ tag
                 addHamlet $ allPostsTemplate posts ("Tag: " ++ tag)
 
+-- Management pages
+
 -- | Manage posts
 getManagePostsR :: Handler RepHtml
 getManagePostsR = do
     _        <- requireAuth
     postForm <- runPostForm Nothing
-
     pageLayout $ do
         setTitle $ string "pbrisbin - Manage posts"
         addHamlet [$hamlet|
@@ -102,7 +107,6 @@ getEditPostR slug = do
         []        -> notFound
         (post':_) -> do
             postForm <- runPostForm $ Just post'
-
             pageLayout $ do
                 setTitle $ string "pbrisbin - Edit post"
                 addHamlet [$hamlet|

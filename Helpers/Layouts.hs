@@ -37,29 +37,29 @@ pageLayout widget = do
     hamletToRepHtml [$hamlet|
     !!!
     %html!lang="en"
-      %head
-        %meta!name="author"!content="pbrisbin"
-        %meta!name="keywords"!content="pbrisbin, arch linux, bash, xmonad, mutt"
-        %meta!name="description"!content="pbrisbin dot com"
-        %meta!http-equiv="Content-Type"!content="text/html; charset=UTF-8"
-        %title $pageTitle.pc$
-        %link!rel="alternate"!type="application/rss+xml"!title="rss feed"!href=@FeedR@
-        ^pageHead.pc^
-      %body
-        #header
-          %p
-            $forall h node
-              %a!href=@fst.node@ $snd.node$ 
-              \ / 
-            \ $t$
+        %head
+            %meta!name="author"!content="pbrisbin"
+            %meta!name="keywords"!content="pbrisbin, arch linux, bash, xmonad, mutt"
+            %meta!name="description"!content="pbrisbin dot com"
+            %meta!http-equiv="Content-Type"!content="text/html; charset=UTF-8"
+            %title $pageTitle.pc$
+            %link!rel="alternate"!type="application/rss+xml"!title="rss feed"!href=@FeedR@
+            ^pageHead.pc^
+        %body
+            #header
+                %p
+                    $forall h node
+                      %a!href=@fst.node@ $snd.node$ 
+                      \ / 
+                    \ $t$
 
-          $maybe mmesg msg
-            #message 
-              %p.centered $msg$
-        #body
-          ^pageBody.pc^
-        #footer
-          ^footerTemplate^
+                  $maybe mmesg msg
+                        #message 
+                            %p.centered $msg$
+            #body
+                ^pageBody.pc^
+            #footer
+                ^footerTemplate^
     |]
 
 -- | Used with posts so that we have post-specific info within scope
@@ -79,51 +79,52 @@ postLayout post = do
     hamletToRepHtml [$hamlet|
     !!!
     %html!lang="en"
-      %head
-        %meta!name="author"!content="pbrisbin"
-        %meta!name="keywords"!content="pbrisbin, arch linux, bash, haskell, xmonad, mutt"
-        %meta!name="description"!content="pbrisbin dot com"
-        %meta!http-equiv="Content-Type"!content="text/html; charset=UTF-8"
-        %title $pageTitle.pc$
-        %link!rel="alternate"!type="application/rss+xml"!title="rss feed"!href=@FeedR@
-        ^pageHead.pc^
-      %body
+        %head
+            %meta!name="author"!content="pbrisbin"
+            %meta!name="keywords"!content="pbrisbin, arch linux, bash, haskell, xmonad, mutt"
+            %meta!name="description"!content="pbrisbin dot com"
+            %meta!http-equiv="Content-Type"!content="text/html; charset=UTF-8"
+            %title $pageTitle.pc$
+            %link!rel="alternate"!type="application/rss+xml"!title="rss feed"!href=@FeedR@
+            ^pageHead.pc^
+        %body
 
-        #header
-          %p
-            $forall h node
-              %a!href=@fst.node@ $snd.node$ 
-              \ / 
-            \ $t$
+            #header
+                %p
+                    $forall h node
+                        %a!href=@fst.node@ $snd.node$ 
+                        \ / 
+                        \ $t$
 
-            %span!style="float: right;"
-              Tags: 
-              $forall postTags.post tag
-                %a!href=@TagR.tag@ $tag$ 
+                %span!style="float: right;"
+                    Tags: 
+                        $forall postTags.post tag
+                            %a!href=@TagR.tag@ $tag$ 
 
-        #body
-          %h1 $postTitle.post$
+            #body
+                %h1 $postTitle.post$
 
-          $maybe mmesg msg
-            #message
-              %p.centered $msg$
+                $maybe mmesg msg
+                    #message
+                        %p.centered $msg$
 
-          $postContent$
+                $postContent$
 
-          %p.small
-            %em Published $prettyTime$
+                %p.small
+                    %em Published $prettyTime$
 
-          %h3 
-            %a!href="#Comments"!id="Comments" Comments
+                %h3 
+                    %a!href="#Comments"!id="Comments" Comments
 
-          #disqus_thread
-            %script!type="text/javascript"
-              var disqus_shortname = 'pbrisbin'; 
-              var disqus_identifier = $postSlug.post$; 
-            %script!type="text/javascript"!src="http://pbrisbin.disqus.com/embed.js"
-            %noscript
-              Sadly, javascript is required for comments on this site.
+                #disqus_thread
+                    %script!type="text/javascript"
+                        var disqus_shortname = 'pbrisbin'; 
+                        var disqus_identifier = $postSlug.post$; 
 
-        #footer
-          ^footerTemplate^
+                    %script!type="text/javascript"!src="http://pbrisbin.disqus.com/embed.js"
+
+                    %noscript Sadly, javascript is required for comments on this site.
+
+            #footer
+                ^footerTemplate^
     |]
