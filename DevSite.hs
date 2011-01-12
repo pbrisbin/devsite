@@ -68,7 +68,26 @@ instance Yesod DevSite where
         pc     <- widgetToPageContent $ do
             widget
             addCassius $(Settings.cassiusFile "root-css")
-        hamletToRepHtml $(Settings.hamletFile "root-layout")
+        hamletToRepHtml [$hamlet|
+        !!!
+        %html!lang="en"
+          %head
+            %meta!name="author"!content="pbrisbin"
+            %meta!name="keywords"!content="pbrisbin, arch linux, bash, haskell, xmonad, mutt"
+            %meta!name="description"!content="pbrisbin dot com"
+            %meta!http-equiv="Content-Type"!content="text/html; charset=UTF-8"
+            %title $pageTitle.pc$
+            %link!rel="alternate"!type="application/rss+xml"!title="rss feed"!href=@FeedR@
+            ^pageHead.pc^
+          %body
+            $maybe mmesg msg
+              #message 
+                %p.centered $msg$
+            #body
+              ^pageBody.pc^
+            #footer
+              ^footerTemplate^
+        |]
 
 -- | Make my site an instance of breadcrumbs so that i can simply call
 --   the breadcrumbs function to get automagical breadcrumb links
