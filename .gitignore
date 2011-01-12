@@ -1,7 +1,6 @@
 tags
 TAGS
-dev-posts.db3
-posts.db3
+*.s3db
 *.aes
 *.o
 *.hi
