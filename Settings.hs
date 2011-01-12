@@ -49,9 +49,9 @@ cassiusFile x = C.cassiusFileDebug $ "cassius/" ++ x ++ ".cassius"
 
 dataBase :: String
 #ifdef PROD
-dataBase = "posts.db3"
+dataBase = "posts.s3db"
 #else
-dataBase = "dev-posts.db3"
+dataBase = "dev-posts.s3db"
 #endif
 
 pandocFile :: String -> FilePath
