@@ -49,11 +49,11 @@ pageLayout widget = do
             #header
                 %p
                     $forall h node
-                      %a!href=@fst.node@ $snd.node$ 
-                      \ / 
-                    \ $t$
+                        %a!href=@fst.node@ $snd.node$ 
+                        \ / 
+                        \ $t$
 
-                  $maybe mmesg msg
+                    $maybe mmesg msg
                         #message 
                             %p.centered $msg$
             #body
@@ -94,12 +94,12 @@ postLayout post = do
                     $forall h node
                         %a!href=@fst.node@ $snd.node$ 
                         \ / 
-                        \ $t$
+                    \ $t$
 
-                %span!style="float: right;"
-                    Tags: 
-                        $forall postTags.post tag
-                            %a!href=@TagR.tag@ $tag$ 
+                    %span!style="float: right;"
+                        Tags: 
+                            $forall postTags.post tag
+                                %a!href=@TagR.tag@ $tag$ 
 
             #body
                 %h1 $postTitle.post$
