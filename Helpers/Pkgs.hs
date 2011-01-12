@@ -28,17 +28,16 @@ data AurPkg url = AurPkg
 
 pkgsTemplate :: [AurPkg url] -> Hamlet url
 pkgsTemplate args = [$hamlet|
-#aur_pkgs
-    %table
-        $forall args arg
-            ^pkgTemplate.arg^
-|]
+    #aur_pkgs
+        %table
+            $forall args arg
+                ^pkgTemplate.arg^
+    |]
 
 pkgTemplate :: AurPkg url -> Hamlet url
 pkgTemplate arg = 
     let link = "http://aur.archlinux.org/packages.php?ID=" ++ show (pkgId arg)
     in [$hamlet|
-.aur_pkg
     %tr
         %td 
             %a!href=@homePage.arg@ $pkgName.arg$
@@ -47,7 +46,7 @@ pkgTemplate arg =
         %td [
             %a!href=$link$ pkg
             ]
-|]
+    |]
 
 allPkgs =
     [ AurPkg 31933 "aurget"    "A simple Pacman-like interface to the AUR"                                                (PostR "aurget") 
