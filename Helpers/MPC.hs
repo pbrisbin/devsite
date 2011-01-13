@@ -24,14 +24,14 @@
 -- >
 -- > -- custom connection, using YesodAuth
 -- > instance YesodMPC MyApp where
--- >     mpdConfig = Just $ MpdConfig "192.168.0.5" 6601 "Pa$$word"
+-- >     mpdConfig = Just . return $ MpdConfig "192.168.0.5" 6601 "Pa$$word"
 -- >     authHelper = do
 -- >         _ <- requireAuth
 -- >         return ()
 --
 -- Since each page load and redirect makes a new connection to MPD (and 
 -- I've yet to figure out to prevent this), I recommend you adjust your 
--- settings in /etc/mpd.conf to prevent "MPD Connection time" errors 
+-- settings in /etc/mpd.conf to prevent "MPD Connection timeout" errors 
 -- from appearing on the page during rapid "next" events
 --
 -- > connection_timeout	        "15" # was 60
@@ -99,9 +99,10 @@ withMPD f = case mpdConfig of
 getStatusR :: YesodMPC m => GHandler MPC m RepHtml
 getStatusR = do
     authHelper
-    toMaster       <- getRouteToMaster
-    nowPlayingInfo <- getNowPlaying
-    playlistInfo   <- formattedPlaylist toMaster 10
+    toMaster <- getRouteToMaster
+    playing  <- getNowPlaying
+    playlist <- formattedPlaylist toMaster 10
+    controls <- playerControls toMaster
     defaultLayout $ do
         setTitle $ string "MPD"
 
@@ -149,9 +150,9 @@ getStatusR = do
 
         addHamlet [$hamlet| 
         %h1 MPD 
-        ^nowPlayingInfo^
-        ^playlistInfo^
-        ^playerControls.toMaster^
+        ^playing^
+        ^playlist^
+        ^controls^
         %p.small
             %em
                 %a!href="https://github.com/pbrisbin/devsite/blob/master/Helpers/MPC.hs" source code
@@ -243,8 +244,8 @@ getNowPlaying = do
             |]
 
 -- | The control links themselves
-playerControls :: (HamletValue a) => (MPCRoute -> HamletUrl a) -> a
-playerControls toMaster = [$hamlet|
+playerControls :: (YesodMPC m, HamletValue a) => (MPCRoute -> HamletUrl a) -> GHandler MPC m a
+playerControls toMaster = return [$hamlet|
     .controls
         %table
             %tr
@@ -258,8 +259,7 @@ playerControls toMaster = [$hamlet|
 
 -- | A formatted play list, limited, auto-centered/highlighted on now 
 --   playing, and with links to play and remove the entries
-formattedPlaylist :: (HamletValue a, 
-                      YesodMPC m)
+formattedPlaylist :: (YesodMPC m, HamletValue a)
                   => (MPCRoute -> HamletUrl a) -- ^ route to master
                   -> Int                       -- ^ limit display
                   -> GHandler MPC m a

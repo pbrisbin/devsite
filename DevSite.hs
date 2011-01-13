@@ -52,8 +52,8 @@ mkYesodData "DevSite" [$parseRoutes|
 /favicon.ico FaviconR GET
 /robots.txt  RobotsR  GET
 
-/auth AuthR Auth getAuth
-/mpc  MpcR  MPC  getMPC
+/auth      AuthR Auth getAuth
+/apps/mpc  MpcR  MPC  getMPC
 |]
 
 -- | Make my site an instance of Yesod so we can actually use it
@@ -147,7 +147,7 @@ instance YesodAuth DevSite where
 
 -- | In browser mpd controls
 instance YesodMPC DevSite where
-    mpdConfig  = Nothing
+    mpdConfig  = Just . return $ MpdConfig "192.168.0.5" 6600 ""
     authHelper = do
         _ <- requireAuth
         return ()
