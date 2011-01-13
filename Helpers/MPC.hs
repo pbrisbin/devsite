@@ -19,8 +19,14 @@
 module Helpers.MPC where
 
 import Yesod
+
+
 import Text.Hamlet
+import Control.Monad (liftM)
+import Data.Maybe (fromMaybe)
 import Language.Haskell.TH.Syntax hiding (lift)
+
+import System.IO
 
 import qualified Data.Map as M
 import qualified Network.MPD as MPD
@@ -47,6 +53,9 @@ mkYesodSub "MPC"
     /prev       PrevR   GET
     /pause      PauseR  GET
     /next       NextR   GET
+
+    /play/#Int   PlayR GET
+    /delete/#Int DelR  GET
     |]
 
 -- | Wrap MPD.withMPD or MPD.withMPDEx depending on the users mpd 
@@ -65,26 +74,22 @@ getStatusR :: YesodMPC m => GHandler MPC m RepHtml
 getStatusR = do
     toMaster       <- getRouteToMaster
     nowPlayingInfo <- getNowPlaying
-    currentState   <- getCurrentState
+    playlistInfo   <- formattedPlaylist toMaster 10
     defaultLayout $ do
         setTitle $ string "MPD"
 
-        -- fine tune the table layouts
+        -- addCassius... {{{
         addCassius [$cassius|
-        .nowplaying table
-            margin-left: auto
-            margin-right: auto
+        .state, .artist, .album
+            color: #808080
 
-        .nowplaying th
-            width: 100px
-            text-align: right
+        .year
+            color: #707070
 
-        .nowplaying td
-            width: 300px
-            text-align: center
-
-        td.offset
-            width: 100px
+        .title
+            color: #ffffff
+            font-size: 200%
+            padding-left: 10px
 
         .controls table
             margin-left: auto
@@ -92,24 +97,38 @@ getStatusR = do
             padding: 5px
             padding-top: 20px
             padding-bottom: 20px
+
+        .playlist table
+            margin-left: auto
+            margin-right: auto
+
+        .playlist th
+            border-bottom: solid 1px #909090
+
+        .playlist td
+            padding-left: 5px
+            padding-right: 5px
+
+        tr.current
+            color: #ffffff
+
+        td.playlist_button
+            text-align: center
+            font-size: 75%
+            width: 20px
+
         |]
+        -- }}}
 
         addHamlet [$hamlet| 
         %h1 MPD 
-        %p 
-            ^currentState^
         ^nowPlayingInfo^
+        ^playlistInfo^
         ^playerControls.toMaster^
+        %p.small
+            %em
+                %a!href="https://github.com/pbrisbin/devsite/blob/master/Helpers/MPC.hs" source code
         |]
-        where
-            getCurrentState :: YesodMPC m => GHandler MPC m (Hamlet a)
-            getCurrentState = do
-                result <- withMPD MPD.status
-                case result of
-                    Right status -> case MPD.stState status of
-                        MPD.Playing -> return [$hamlet| %em currently playing |]
-                        MPD.Stopped -> return [$hamlet| %em currently stopped |]
-                        MPD.Paused  -> return [$hamlet| %em currently paused  |]
 
 -- | Previous
 getPrevR :: YesodMPC m => GHandler MPC m RepHtml
@@ -135,7 +154,14 @@ getPauseR = getPlayPause >>= actionRoute
 getNextR :: YesodMPC m => GHandler MPC m RepHtml
 getNextR = actionRoute MPD.next
 
--- | Execute an action then redirect back to the main status page
+-- | Play a specific song in playlist
+getPlayR :: YesodMPC m => Int -> GHandler MPC m RepHtml
+getPlayR = actionRoute . MPD.playId
+
+getDelR :: YesodMPC m => Int -> GHandler MPC m RepHtml
+getDelR = actionRoute . MPD.deleteId
+
+-- | Execute any mpd action then redirect back to the main status page
 actionRoute :: YesodMPC m => MPD.MPD a -> GHandler MPC m RepHtml
 actionRoute f = do
     toMaster <- getRouteToMaster
@@ -146,37 +172,43 @@ actionRoute f = do
 getNowPlaying :: YesodMPC m => GHandler MPC m (Hamlet a)
 getNowPlaying = do
     result <- withMPD MPD.currentSong
+    state  <- getCurrentState
     case result of
         Left err          -> return [$hamlet| %em $string.show.err$ |]
-        Right Nothing     -> return [$hamlet| %em nothing playing   |]
-        Right (Just song) -> return . parseTags $ MPD.sgTags song
+        Right Nothing     -> return [$hamlet| %em -/-               |]
+        Right (Just song) -> return $ formatState state song
     where
+        -- output state
+        getCurrentState :: YesodMPC m => GHandler MPC m String
+        getCurrentState = do
+            result <- withMPD MPD.status
+            case result of
+                Left err     -> return $ show err
+                Right status -> case MPD.stState status of
+                    MPD.Playing -> return "playing"
+                    MPD.Stopped -> return "stopped"
+                    MPD.Paused  -> return "paused"
+
         -- parse a Songs metatdata into a table
-        parseTags :: M.Map MPD.Metadata [String] -> Hamlet a
-        parseTags tags = let 
-            title  = head $ M.findWithDefault ["N/A"] MPD.Title  tags 
-            artist = head $ M.findWithDefault ["N/A"] MPD.Artist tags
-            album  = head $ M.findWithDefault ["N/A"] MPD.Album  tags
-            year   = head $ M.findWithDefault ["N/A"] MPD.Date   tags
+        formatState :: String -> MPD.Song -> Hamlet a
+        formatState state song = let 
+            title  = getTag MPD.Title  song
+            artist = getTag MPD.Artist song
+            album  = getTag MPD.Album  song
+            year   = getTag MPD.Date   song
             in [$hamlet|
             .nowplaying
-                %table
-                    %tr
-                        %th Title:
-                        %td $title$
-                        %td.offset &nbsp;
-                    %tr
-                        %th Artist:
-                        %td $artist$
-                        %td.offset &nbsp;
-                    %tr
-                        %th Album:
-                        %td $album$
-                        %td.offset &nbsp;
-                    %tr
-                        %th Year:
-                        %td $year$
-                        %td.offset &nbsp;
+                %p
+                    %span.state  $state$
+                    \ / 
+                    %span.artist $artist$
+                    \ - 
+                    %span.album  $album$
+                    \ 
+                    %span.year   ($year$)
+
+                %p
+                    %span.title $title$
             |]
 
 -- | The control links themselves
@@ -192,3 +224,60 @@ playerControls toMaster = [$hamlet|
                 %td
                     %a!href=@toMaster.NextR@  [ >> ]
     |]
+
+formattedPlaylist :: (HamletValue a, 
+                      YesodMPC m)
+                  => (MPCRoute -> HamletUrl a) -- ^ route to master
+                  -> Int                       -- ^ limit display
+                  -> GHandler MPC m a
+formattedPlaylist toMaster limit = do
+    cid    <- liftM (fromMaybe 0) currentId -- id of currently playing song
+    result <- withMPD $ MPD.playlistInfo (Just $ (cid - limit `div` 2, cid + limit `div` 2))
+    case result of
+        Left err    -> return [$hamlet| %em $string.show.err$ |]
+        Right songs -> do
+            return [$hamlet|
+            .playlist
+                %table
+                    %tr
+                        %th #
+                        %th Artist
+                        %th Title
+                        %th Play
+                        %th Remove
+                    $forall songs song
+                        ^formatSong.song^
+            |]
+            where
+                formatSong song = let
+                    artist = getTag MPD.Artist song
+                    title  = getTag MPD.Title  song
+                    pid    = fromMaybe 0 . fmap snd $ MPD.sgIndex song
+                    in [$hamlet| 
+                    %tr.$clazz.pid$
+                        %td $string.show.pid$
+                        %td $artist$
+                        %td $title$
+                        %td.playlist_button
+                            %a!href=@toMaster.PlayR.pid@ |>
+                        %td.playlist_button
+                            %a!href=@toMaster.DelR.pid@  X
+                    |]
+                    where
+                        clazz x = if x == cid
+                            then string "current"
+                            else string "not_current"
+
+currentId :: YesodMPC m => GHandler MPC m (Maybe Int)
+currentId = do
+    result <- withMPD $ MPD.currentSong
+    case result of
+        Left _            -> return Nothing
+        Right Nothing     -> return Nothing
+        Right (Just song) -> return . fmap snd $ MPD.sgIndex song
+
+getTag :: MPD.Metadata -> MPD.Song -> Html
+getTag tag = string . head . M.findWithDefault ["N/A"] tag . MPD.sgTags
+
+debug :: (Yesod m) => String -> GHandler s m ()
+debug = liftIO . hPutStrLn stderr
