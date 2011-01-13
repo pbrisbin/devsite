@@ -121,7 +121,7 @@ statsTemplate lf tes = do
                 %td 
                     %strong $frequentIp$
 
-        %h3 Files accessed
+        %h3 Popular files
         $forall topEntries topEntry
             ^topEntryTemplate.topEntry^
     |]
