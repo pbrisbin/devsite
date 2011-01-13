@@ -3,7 +3,7 @@
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE TypeFamilies          #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
----------------------------------------------------------
+-------------------------------------------------------------------------------
 --
 -- Module        : Helpers.MPC
 -- Copyright     : Patrick Brisbin
@@ -39,7 +39,7 @@
 --
 -- seem to work for me.
 --
----------------------------------------------------------
+-------------------------------------------------------------------------------
 module Helpers.MPC where
 
 import Yesod
