@@ -22,6 +22,7 @@ import Data.Char (toLower)
 import Database.Persist.GenericSql
 
 import Helpers.Auth.HashDB
+import Helpers.MPC
 
 import qualified Settings
 
@@ -52,6 +53,7 @@ mkYesodData "DevSite" [$parseRoutes|
 /robots.txt  RobotsR  GET
 
 /auth AuthR Auth getAuth
+/mpc  MpcR  MPC  getMPC
 |]
 
 -- | Make my site an instance of Yesod so we can actually use it
@@ -142,6 +144,10 @@ instance YesodAuth DevSite where
     showAuthId _ = showIntegral
     readAuthId _ = readIntegral
     authPlugins  = [authHashDB]
+
+-- | In browser mpd controls
+instance YesodMPC DevSite where
+    mpdConfig = Nothing
 
 footerTemplate :: Hamlet DevSiteRoute
 footerTemplate = [$hamlet|
