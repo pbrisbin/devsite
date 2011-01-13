@@ -147,7 +147,10 @@ instance YesodAuth DevSite where
 
 -- | In browser mpd controls
 instance YesodMPC DevSite where
-    mpdConfig = Nothing
+    mpdConfig  = Nothing
+    authHelper = do
+        _ <- requireAuth
+        return ()
 
 footerTemplate :: Hamlet DevSiteRoute
 footerTemplate = [$hamlet|
