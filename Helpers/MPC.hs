@@ -15,6 +15,30 @@
 --
 -- A Yesod subsite allowing in-browser controls for MPD.
 --
+-- Usage:
+--
+-- > -- default connection, no authentication
+-- > instance YesodMPC MyApp where
+-- >     mpdConfig  = Nothing
+-- >     authHelper = return ()
+-- >
+-- > -- custom connection, using YesodAuth
+-- > instance YesodMPC MyApp where
+-- >     mpdConfig = Just $ MpdConfig "192.168.0.5" 6601 "Pa$$word"
+-- >     authHelper = do
+-- >         _ <- requireAuth
+-- >         return ()
+--
+-- Since each page load and redirect makes a new connection to MPD (and 
+-- I've yet to figure out to prevent this), I recommend you adjust your 
+-- settings in /etc/mpd.conf to prevent "MPD Connection time" errors 
+-- from appearing on the page during rapid "next" events
+--
+-- > connection_timeout	        "15" # was 60
+-- > max_connections	        "30" # was 10
+--
+-- seem to work for me.
+--
 ---------------------------------------------------------
 module Helpers.MPC where
 
@@ -31,6 +55,7 @@ import System.IO
 import qualified Data.Map as M
 import qualified Network.MPD as MPD
 
+-- | Customize your connection to MPD
 data MpdConfig = MpdConfig
     { mpdHost     :: String
     , mpdPort     :: Integer
@@ -43,7 +68,8 @@ getMPC :: a -> MPC
 getMPC = const MPC
 
 class Yesod m => YesodMPC m where
-    mpdConfig :: Maybe (GHandler s m MpdConfig)
+    mpdConfig  :: Maybe (GHandler s m MpdConfig) -- ^ Just your connection info or Nothing
+    authHelper :: GHandler s m ()                -- ^ some form of requireAuth or return ()
 
 mkYesodSub "MPC" 
     [ ClassP ''YesodMPC [ VarT $ mkName "master" ]
@@ -72,6 +98,7 @@ withMPD f = case mpdConfig of
 --   support, more advanced controls, maybe some album art
 getStatusR :: YesodMPC m => GHandler MPC m RepHtml
 getStatusR = do
+    authHelper
     toMaster       <- getRouteToMaster
     nowPlayingInfo <- getNowPlaying
     playlistInfo   <- formattedPlaylist toMaster 10
@@ -132,11 +159,11 @@ getStatusR = do
 
 -- | Previous
 getPrevR :: YesodMPC m => GHandler MPC m RepHtml
-getPrevR = actionRoute MPD.previous
+getPrevR = authHelper >> actionRoute MPD.previous
 
 -- | Smart play/pause button
 getPauseR :: YesodMPC m => GHandler MPC m RepHtml
-getPauseR = getPlayPause >>= actionRoute
+getPauseR = authHelper >> getPlayPause >>= actionRoute
     where
         -- | return the correct function give the current state
         getPlayPause :: YesodMPC m => GHandler MPC m (MPD.MPD ())
@@ -152,14 +179,18 @@ getPauseR = getPlayPause >>= actionRoute
 
 -- | Next
 getNextR :: YesodMPC m => GHandler MPC m RepHtml
-getNextR = actionRoute MPD.next
+getNextR = authHelper >> actionRoute MPD.next
 
 -- | Play a specific song in playlist
 getPlayR :: YesodMPC m => Int -> GHandler MPC m RepHtml
-getPlayR = actionRoute . MPD.playId
+getPlayR pid = do
+    authHelper
+    actionRoute $ MPD.playId pid
 
 getDelR :: YesodMPC m => Int -> GHandler MPC m RepHtml
-getDelR = actionRoute . MPD.deleteId
+getDelR pid = do
+    authHelper
+    actionRoute $ MPD.deleteId pid
 
 -- | Execute any mpd action then redirect back to the main status page
 actionRoute :: YesodMPC m => MPD.MPD a -> GHandler MPC m RepHtml
@@ -225,6 +256,8 @@ playerControls toMaster = [$hamlet|
                     %a!href=@toMaster.NextR@  [ >> ]
     |]
 
+-- | A formatted play list, limited, auto-centered/highlighted on now 
+--   playing, and with links to play and remove the entries
 formattedPlaylist :: (HamletValue a, 
                       YesodMPC m)
                   => (MPCRoute -> HamletUrl a) -- ^ route to master
@@ -268,6 +301,7 @@ formattedPlaylist toMaster limit = do
                             then string "current"
                             else string "not_current"
 
+-- | Return maybe the id of the currently playing song
 currentId :: YesodMPC m => GHandler MPC m (Maybe Int)
 currentId = do
     result <- withMPD $ MPD.currentSong
@@ -276,8 +310,11 @@ currentId = do
         Right Nothing     -> return Nothing
         Right (Just song) -> return . fmap snd $ MPD.sgIndex song
 
+-- | Get the first instance of the given tag in the the passed song, 
+--   return "N/A" if it's not found
 getTag :: MPD.Metadata -> MPD.Song -> Html
 getTag tag = string . head . M.findWithDefault ["N/A"] tag . MPD.sgTags
 
+-- | print debug info out to stderr from within the GHandler monad
 debug :: (Yesod m) => String -> GHandler s m ()
 debug = liftIO . hPutStrLn stderr
