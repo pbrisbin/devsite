@@ -15,19 +15,7 @@
 --
 -- A Yesod subsite allowing in-browser controls for MPD.
 --
--- Usage:
---
--- > -- default connection, no authentication
--- > instance YesodMPC MyApp where
--- >     mpdConfig  = Nothing
--- >     authHelper = return ()
--- >
--- > -- custom connection, using YesodAuth
--- > instance YesodMPC MyApp where
--- >     mpdConfig = Just . return $ MpdConfig "192.168.0.5" 6601 "Pa$$word"
--- >     authHelper = do
--- >         _ <- requireAuth
--- >         return ()
+-- see https://github.com/pbrisbin/devsite for example usage.
 --
 -- Since each page load and redirect makes a new connection to MPD (and 
 -- I've yet to figure out to prevent this), I recommend you adjust your 
@@ -47,6 +35,7 @@ import Yesod
 
 import Text.Hamlet
 import Control.Monad (liftM)
+import Control.Concurrent (threadDelay)
 import Data.Maybe (fromMaybe)
 import Language.Haskell.TH.Syntax hiding (lift)
 
@@ -68,8 +57,9 @@ getMPC :: a -> MPC
 getMPC = const MPC
 
 class Yesod m => YesodMPC m where
-    mpdConfig  :: Maybe (GHandler s m MpdConfig) -- ^ Just your connection info or Nothing
-    authHelper :: GHandler s m ()                -- ^ some form of requireAuth or return ()
+    refreshSpeed :: GHandler s m Int -- ^ feature not yet implimented
+    mpdConfig    :: GHandler s m (Maybe MpdConfig)
+    authHelper   :: GHandler s m ()
 
 mkYesodSub "MPC" 
     [ ClassP ''YesodMPC [ VarT $ mkName "master" ]
@@ -87,11 +77,11 @@ mkYesodSub "MPC"
 -- | Wrap MPD.withMPD or MPD.withMPDEx depending on the users mpd 
 --   configuration
 withMPD :: YesodMPC m => MPD.MPD a -> GHandler MPC m (MPD.Response a)
-withMPD f = case mpdConfig of
-    Nothing     -> liftIO $ MPD.withMPD f
-    Just config -> do
-        conf <- config
-        liftIO $ MPD.withMPDEx (mpdHost conf) (mpdPort conf) (mpdPassword conf) f
+withMPD f = do
+    config <- mpdConfig
+    liftIO $ case config of
+        Nothing -> MPD.withMPD f
+        Just c  -> MPD.withMPDEx (mpdHost c) (mpdPort c) (mpdPassword c) f
 
 -- | This is the main landing page. present now playing info and simple 
 --   prev, pause, next controls. todo:s include playlist and library 
@@ -99,6 +89,7 @@ withMPD f = case mpdConfig of
 getStatusR :: YesodMPC m => GHandler MPC m RepHtml
 getStatusR = do
     authHelper
+    delay    <- liftM (*1000000) refreshSpeed
     toMaster <- getRouteToMaster
     playing  <- getNowPlaying
     playlist <- formattedPlaylist toMaster 10

@@ -147,8 +147,9 @@ instance YesodAuth DevSite where
 
 -- | In browser mpd controls
 instance YesodMPC DevSite where
-    mpdConfig  = Just . return $ MpdConfig "192.168.0.5" 6600 ""
-    authHelper = do
+    refreshSpeed = return 5 -- don't make this too small
+    mpdConfig    = return . Just $ MpdConfig "192.168.0.5" 6600 ""
+    authHelper   = do
         _ <- requireAuth
         return ()
 
