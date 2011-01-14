@@ -157,7 +157,7 @@ authHashDB = AuthPlugin "hashdb" dispatch $ \tm ->
                 %tr
                     %th Username:
                     %td
-                        %input!name=username!autofocus
+                        %input#x!name=username!autofocus
                 %tr
                     %th Password:
                     %td
@@ -166,6 +166,11 @@ authHashDB = AuthPlugin "hashdb" dispatch $ \tm ->
                     %td &nbsp;
                     %td
                         %input!type=submit!value="Login"
+
+            %script
+                if (!("autofocus" in document.createElement("input"))) {
+                    document.getElementById("x").focus();
+                }
     |]
     where
         dispatch "POST" ["login"] = postLoginR >>= sendResponse
