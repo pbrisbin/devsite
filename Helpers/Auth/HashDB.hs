@@ -157,7 +157,7 @@ authHashDB = AuthPlugin "hashdb" dispatch $ \tm ->
                 %tr
                     %th Username:
                     %td
-                        %input!name=username
+                        %input!name=username!autofocus
                 %tr
                     %th Password:
                     %td
