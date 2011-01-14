@@ -15,12 +15,13 @@
 --
 -- A Yesod subsite allowing in-browser controls for MPD.
 --
--- see https://github.com/pbrisbin/devsite for example usage.
+-- see https://github.com/pbrisbin/devsite/bob/master/DevSite.hs for 
+-- example usage.
 --
 -- Since each page load and redirect makes a new connection to MPD (and 
 -- I've yet to figure out to prevent this), I recommend you adjust your 
 -- settings in /etc/mpd.conf to prevent "MPD Connection timeout" errors 
--- from appearing on the page during rapid "next" events
+-- from appearing on the page during rapid "next" events.
 --
 -- > connection_timeout	        "15" # was 60
 -- > max_connections	        "30" # was 10
@@ -32,14 +33,10 @@ module Helpers.MPC where
 
 import Yesod
 
-
 import Text.Hamlet
 import Control.Monad (liftM)
-import Control.Concurrent (threadDelay)
 import Data.Maybe (fromMaybe)
 import Language.Haskell.TH.Syntax hiding (lift)
-
-import System.IO
 
 import qualified Data.Map as M
 import qualified Network.MPD as MPD
@@ -57,9 +54,9 @@ getMPC :: a -> MPC
 getMPC = const MPC
 
 class Yesod m => YesodMPC m where
-    refreshSpeed :: GHandler s m Int -- ^ feature not yet implimented
-    mpdConfig    :: GHandler s m (Maybe MpdConfig)
-    authHelper   :: GHandler s m ()
+    refreshSpeed :: GHandler s m Int -- ^ the status page will auto-refresh each x seconds
+    mpdConfig    :: GHandler s m (Maybe MpdConfig) -- ^ custom mpd config
+    authHelper   :: GHandler s m () -- ^ some form of requireAuth or return ()
 
 mkYesodSub "MPC" 
     [ ClassP ''YesodMPC [ VarT $ mkName "master" ]
@@ -69,7 +66,6 @@ mkYesodSub "MPC"
     /prev       PrevR   GET
     /pause      PauseR  GET
     /next       NextR   GET
-
     /play/#Int   PlayR GET
     /delete/#Int DelR  GET
     |]
@@ -89,7 +85,7 @@ withMPD f = do
 getStatusR :: YesodMPC m => GHandler MPC m RepHtml
 getStatusR = do
     authHelper
-    delay    <- liftM (*1000000) refreshSpeed
+    delay    <- liftM (*1000) refreshSpeed
     toMaster <- getRouteToMaster
     playing  <- getNowPlaying
     playlist <- formattedPlaylist toMaster 10
@@ -97,6 +93,7 @@ getStatusR = do
     defaultLayout $ do
         setTitle $ string "MPD"
 
+        -- some sane styling
         -- addCassius... {{{
         addCassius [$cassius|
         .state, .artist, .album
@@ -139,14 +136,29 @@ getStatusR = do
         |]
         -- }}}
 
+        -- auto refresh function
+        addJulius [$julius|
+            function timedRefresh() {
+                setTimeout("location.reload(true);", %show.delay%);
+            }
+            |]
+
+        -- page content
         addHamlet [$hamlet| 
+
         %h1 MPD 
+
         ^playing^
         ^playlist^
         ^controls^
+
         %p.small
             %em
                 %a!href="https://github.com/pbrisbin/devsite/blob/master/Helpers/MPC.hs" source code
+        %script
+            window.onload = timedRefresh;
+        %noscript
+            %em note: javascript is required for auto-refresh
         |]
 
 -- | Previous
@@ -305,7 +317,3 @@ currentId = do
 --   return "N/A" if it's not found
 getTag :: MPD.Metadata -> MPD.Song -> Html
 getTag tag = string . head . M.findWithDefault ["N/A"] tag . MPD.sgTags
-
--- | print debug info out to stderr from within the GHandler monad
-debug :: (Yesod m) => String -> GHandler s m ()
-debug = liftIO . hPutStrLn stderr
