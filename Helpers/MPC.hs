@@ -15,7 +15,7 @@
 --
 -- A Yesod subsite allowing in-browser controls for MPD.
 --
--- see https://github.com/pbrisbin/devsite/bob/master/DevSite.hs for 
+-- see https://github.com/pbrisbin/devsite/blob/master/DevSite.hs for 
 -- example usage.
 --
 -- Since each page load and redirect makes a new connection to MPD (and 
