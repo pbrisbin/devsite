@@ -267,8 +267,20 @@ formattedPlaylist :: (YesodMPC m, HamletValue a)
                   -> Int                       -- ^ limit display
                   -> GHandler MPC m a
 formattedPlaylist toMaster limit = do
-    cid    <- liftM (fromMaybe 0) currentId -- id of currently playing song
-    result <- withMPD $ MPD.playlistInfo (Just $ (cid - limit `div` 2, cid + limit `div` 2))
+    -- id of currently playing song
+    cid <- liftM (fromMaybe 0) currentId
+    len <- do 
+        -- length of current playlist
+        result <- withMPD $ MPD.playlistInfo Nothing
+        case result of
+            Left err    -> return 0
+            Right songs -> return $ length songs
+
+    -- prevent a bad index
+    let (lower,upper) = fixBounds cid len limit
+
+    -- get the limited, auto-centered playlist records
+    result <- withMPD $ MPD.playlistInfo (Just $ (lower, upper))
     case result of
         Left err    -> return [$hamlet| %em $string.show.err$ |]
         Right songs -> do
@@ -303,6 +315,18 @@ formattedPlaylist toMaster limit = do
                         clazz x = if x == cid
                             then string "current"
                             else string "not_current"
+
+fixBounds :: Int -> Int -> Int -> (Int, Int)
+fixBounds cid len limit = let
+    lower = cid - limit `div` 2
+    upper = cid + limit `div` 2
+    in if lower < 0 && upper > len
+        then (0, len)
+        else if lower < 0
+            then fixBounds (limit `div` 2) len limit
+            else if upper > len
+                then fixBounds (cid - (upper - len)) len limit
+                else (lower, upper)
 
 -- | Return maybe the id of the currently playing song
 currentId :: YesodMPC m => GHandler MPC m (Maybe Int)
