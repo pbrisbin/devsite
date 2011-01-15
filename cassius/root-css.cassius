@@ -27,6 +27,14 @@
   padding-top:      0.5%
   padding-bottom:   0.5%
 
+.title
+  font-weight: normal
+  color: #ffffff
+
+.current
+  font-weight: normal
+  color: #ffffff
+
 #header
   font-size:     85%
   line-height:   50%
