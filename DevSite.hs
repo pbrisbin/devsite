@@ -147,11 +147,9 @@ instance YesodAuth DevSite where
 
 -- | In-browser mpd controls
 instance YesodMPC DevSite where
-    refreshSpeed = return 3
+    refreshSpeed = return 10
     mpdConfig    = return . Just $ MpdConfig "192.168.0.5" 6600 ""
-    authHelper   = do
-        _ <- requireAuth
-        return ()
+    authHelper   = requireAuth >>= \_ -> return ()
 
 -- | Required by defaultLayout so we must define it here
 footerTemplate :: Hamlet DevSiteRoute
