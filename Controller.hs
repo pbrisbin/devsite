@@ -17,7 +17,7 @@ import Handlers
 
 import Helpers.Posts       (migratePosts)
 import Helpers.Auth.HashDB (migrateUsers)
-import Helpers.MPC
+import Yesod.Helpers.MPC
 
 import Yesod.Helpers.Auth
 import Database.Persist.GenericSql

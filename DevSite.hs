@@ -22,7 +22,7 @@ import Data.Char (toLower)
 import Database.Persist.GenericSql
 
 import Helpers.Auth.HashDB
-import Helpers.MPC
+import Yesod.Helpers.MPC
 
 import qualified Settings
 
