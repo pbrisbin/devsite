@@ -16,13 +16,15 @@ module DevSite where
 
 import Yesod
 import Yesod.Helpers.Auth
+import Yesod.Helpers.MPC
 import Yesod.Form.Core (GFormMonad(..))
 
 import Data.Char (toLower)
+import Data.List (intercalate)
 import Database.Persist.GenericSql
 
+import Helpers.RssFeed
 import Helpers.Auth.HashDB
-import Yesod.Helpers.MPC
 
 import qualified Settings
 
@@ -69,18 +71,15 @@ instance Yesod DevSite where
         mmesg  <- getMessage
         pc     <- widgetToPageContent $ do
             widget
+            standardHead ["pbrisbin", "arch linux", "bash", "haskell", "xmonad", "mutt"]
+            rssLink FeedR "rss feed"
             addCassius $(Settings.cassiusFile "root-css")
         hamletToRepHtml [$hamlet|
         !!!
         %html!lang="en"
           %head
-            %meta!name="author"!content="pbrisbin"
-            %meta!name="keywords"!content="pbrisbin, arch linux, bash, haskell, xmonad, mutt"
-            %meta!name="description"!content="pbrisbin dot com"
-            %meta!http-equiv="Content-Type"!content="text/html; charset=UTF-8"
-            %title $pageTitle.pc$
-            %link!rel="alternate"!type="application/rss+xml"!title="rss feed"!href=@FeedR@
             ^pageHead.pc^
+            %title $pageTitle.pc$
           %body
             $maybe mmesg msg
               #message 
@@ -90,6 +89,7 @@ instance Yesod DevSite where
             #footer
               ^footerTemplate^
         |]
+        where
 
 -- | Make my site an instance of breadcrumbs so that i can simply call
 --   the breadcrumbs function to get automagical breadcrumb links
@@ -122,7 +122,7 @@ instance YesodBreadcrumbs DevSite where
             format t = map toLower t ++ " tag"
 
     -- management pages
-    breadcrumb ManagePostsR      = return ("manage posts", Just RootR)
+    breadcrumb ManagePostsR     = return ("manage posts", Just RootR)
     breadcrumb (EditPostR slug) = return ("edit post", Just ManagePostsR)
 
     -- be sure to fail noticably so i fix it when it happens
@@ -147,11 +147,20 @@ instance YesodAuth DevSite where
 
 -- | In-browser mpd controls
 instance YesodMPC DevSite where
-    refreshSpeed = return 10
-    mpdConfig    = return . Just $ MpdConfig "192.168.0.5" 6600 ""
-    authHelper   = requireAuth >>= \_ -> return ()
+    mpdConfig  = return . Just $ MpdConfig "192.168.0.5" 6600 ""
+    authHelper = requireAuth >>= \_ -> return ()
 
--- | Required by defaultLayout so we must define it here
+-- | Add standard head tags given keywords
+standardHead :: [String] -> GWidget s DevSite ()
+standardHead keywords = addHamletHead [$hamlet|
+    %meta!name="author"!content="pbrisbin"
+    %meta!name="description"!content="pbrisbin dot com"
+    %meta!name="keywords"!content=$format.keywords$
+    %meta!http-equiv="Content-Type"!content="text/html; charset=UTF-8"
+    |]
+    where format = string . intercalate ", "
+
+-- | Standard foot
 footerTemplate :: Hamlet DevSiteRoute
 footerTemplate = [$hamlet|
                  %p

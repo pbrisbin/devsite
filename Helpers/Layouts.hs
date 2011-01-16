@@ -21,6 +21,7 @@ import DevSite
 
 import Data.Time.Clock (getCurrentTime)
 
+import Helpers.RssFeed
 import Helpers.Posts
 
 import qualified Settings
@@ -33,18 +34,15 @@ pageLayout widget = do
     (t, h) <- breadcrumbs
     pc <- widgetToPageContent $ do
         widget
+        standardHead ["pbrisbin", "arch linux", "bash", "haskell", "xmonad", "mutt"]
+        rssLink FeedR "rss feed"
         addCassius $(Settings.cassiusFile "root-css")
     hamletToRepHtml [$hamlet|
     !!!
     %html!lang="en"
         %head
-            %meta!name="author"!content="pbrisbin"
-            %meta!name="keywords"!content="pbrisbin, arch linux, bash, xmonad, mutt"
-            %meta!name="description"!content="pbrisbin dot com"
-            %meta!http-equiv="Content-Type"!content="text/html; charset=UTF-8"
-            %title $pageTitle.pc$
-            %link!rel="alternate"!type="application/rss+xml"!title="rss feed"!href=@FeedR@
             ^pageHead.pc^
+            %title $pageTitle.pc$
         %body
             #header
                 %p
@@ -75,20 +73,16 @@ postLayout post = do
 
     pc <- widgetToPageContent $ do
         setTitle $ string $ "pbrisbin - " ++ postTitle post
+        standardHead $ ["pbrisbin", postTitle post] ++ postTags post
+        rssLink FeedR "rss feed"
         addCassius $(Settings.cassiusFile "root-css")
     hamletToRepHtml [$hamlet|
     !!!
     %html!lang="en"
         %head
-            %meta!name="author"!content="pbrisbin"
-            %meta!name="keywords"!content="pbrisbin, arch linux, bash, haskell, xmonad, mutt"
-            %meta!name="description"!content="pbrisbin dot com"
-            %meta!http-equiv="Content-Type"!content="text/html; charset=UTF-8"
-            %title $pageTitle.pc$
-            %link!rel="alternate"!type="application/rss+xml"!title="rss feed"!href=@FeedR@
             ^pageHead.pc^
+            %title $pageTitle.pc$
         %body
-
             #header
                 %p
                     $forall h node
@@ -100,7 +94,6 @@ postLayout post = do
                         Tags: 
                             $forall postTags.post tag
                                 %a!href=@TagR.tag@ $tag$ 
-
             #body
                 %h1 $postTitle.post$
 
@@ -124,7 +117,6 @@ postLayout post = do
                     %script!type="text/javascript"!src="http://pbrisbin.disqus.com/embed.js"
 
                     %noscript Sadly, javascript is required for comments on this site.
-
             #footer
                 ^footerTemplate^
     |]
