@@ -27,11 +27,11 @@
   padding-top:      0.5%
   padding-bottom:   0.5%
 
-.title
+.mpc_title
   font-weight: normal
   color: #ffffff
 
-.current
+tr.mpc_current
   font-weight: normal
   color: #ffffff
 
