@@ -76,6 +76,11 @@ postLayout post = do
         standardHead $ ["pbrisbin", postTitle post] ++ postTags post
         rssLink FeedR "rss feed"
         addCassius $(Settings.cassiusFile "root-css")
+        addJulius [$julius|
+            var disqus_shortname  = 'pbrisbin';
+            var disqus_identifier = '%postSlug.post%';
+            var disqus_title      = '%postTitle.post%';
+            |]
     hamletToRepHtml [$hamlet|
     !!!
     %html!lang="en"
@@ -110,13 +115,11 @@ postLayout post = do
                     %a!href="#Comments"!id="Comments" Comments
 
                 #disqus_thread
-                    %script!type="text/javascript"
-                        var disqus_shortname = 'pbrisbin'; 
-                        var disqus_identifier = $postSlug.post$; 
-
                     %script!type="text/javascript"!src="http://pbrisbin.disqus.com/embed.js"
 
-                    %noscript Sadly, javascript is required for comments on this site.
+                    %noscript 
+                        %p.small
+                            %em Sadly, javascript is required for comments on this site.
             #footer
                 ^footerTemplate^
     |]
