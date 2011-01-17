@@ -307,8 +307,8 @@ managePostTemplate title form enctype = do
     |]
 
     where 
-        shortenLong  = shorten 50 
-        shortenShort = shorten 20
+        shortenLong  = shorten 40 
+        shortenShort = shorten 17 
         shorten n s  = if length s > n then take n s ++ "..." else s
 
 -- | A body template for a list of posts, you can also provide the title
