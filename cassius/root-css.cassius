@@ -27,6 +27,10 @@
   padding-top:      0.5%
   padding-bottom:   0.5%
 
+.mpc th
+  font-weight: normal
+  color: #ffffff
+
 .mpc_title
   font-weight: normal
   color: #ffffff
@@ -134,7 +138,10 @@ div.fixed img
   margin-right: auto
   padding: 10px
 
-#post_input td
+#post_input th
+  color: #ffffff
+  font-weight: normal
+  text-align: left
   vertical-align: top
 
 #post_input textarea
@@ -146,13 +153,15 @@ div.fixed img
   margin-right: auto
 
 #post_existing th
+  color: #ffffff
+  font-weight: normal
   text-align: left
   border-bottom: 1px solid #909090
 
 #post_existing td
-  vertical-align: top
-  padding-left:        5px
-  padding-right:       5px
+  white-space: nowrap
+  padding-left:  5px
+  padding-right: 5px
 
 .stats
   margin-bottom: 20px
