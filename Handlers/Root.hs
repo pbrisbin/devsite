@@ -24,13 +24,15 @@ import qualified Settings
 
 -- Since posts are now retrieved in the Handler Monad it's no longer
 -- easy to create these functions, a solution is still a big todo:
-arch           = "arch"
-bash           = "bash"
-haskell        = "haskell"
-linux          = "linux"
-mutt           = "mutt"
 site_migration = "site_migration"
-xmonad         = "xmonad"
+
+-- tags
+arch    = "Arch"
+bash    = "Bash"
+haskell = "Haskell"
+linux   = "Linux"
+mutt    = "Mutt"
+xmonad  = "XMonad"
 
 -- | Home page
 getRootR :: Handler RepHtml
