@@ -115,11 +115,7 @@ instance YesodBreadcrumbs DevSite where
 
     -- all tags goes back home and individual tags go to all tags
     breadcrumb TagsR      = return ("all tags", Just RootR)
-    breadcrumb (TagR tag) = return (format tag, Just TagsR)
-
-        where
-            -- lowercase it
-            format t = map toLower t ++ " tag"
+    breadcrumb (TagR tag) = return (map toLower tag, Just TagsR)
 
     -- management pages
     breadcrumb ManagePostsR     = return ("manage posts", Just RootR)
