@@ -49,7 +49,7 @@ pageLayout widget = do
                     $forall h node
                         %a!href=@fst.node@ $snd.node$ 
                         \ / 
-                        \ $t$
+                    \ $t$
 
                     $maybe mmesg msg
                         #message 
