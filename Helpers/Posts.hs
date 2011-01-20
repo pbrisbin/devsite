@@ -165,7 +165,7 @@ updatePostFromForm p pf = do
             , postTitle = formTitle pf
             , postDescr = unTextarea $ formDescr pf
             , postDate  = postDate'
-            , postTags  = parseCSL $ formTags pf
+            , postTags  = parseTags $ formTags pf
             }
     if isJust p
         then do
@@ -179,17 +179,18 @@ updatePostFromForm p pf = do
 
     redirect RedirectTemporary ManagePostsR
 
--- | Take a comma-separated list of tags like "foo, bar, baz" and parse
---   that into a real haskell list
-parseCSL :: String -> [String]
-parseCSL = filter (/= []) . parseCSL' [] []
-    where
-        parseCSL' :: [String] -> String -> String -> [String]
-        parseCSL' acc1 acc2 []         = acc1 ++ [trim acc2]
-        parseCSL' acc1 acc2 (',':rest) = parseCSL' (acc1 ++ [trim acc2]) [] rest
-        parseCSL' acc1 acc2 (x:rest)   = parseCSL' acc1 (acc2 ++ [x]) rest
+-- | minor changes to 
+--   <https://github.com/fortytools/lounge/blob/master/Handler/Entry.hs#L57>
+parseTags :: String -> [String]
+parseTags [] = []
+parseTags s  = let (l,s') = break (==',') $ dropWhile (==',') s
+    in trim l : case s' of
+        []      -> []
+        (_:s'') -> parseTags s''
 
-        trim = f . f where f = reverse . dropWhile isSpace
+    where 
+        trim  = trim' . trim' 
+        trim' = reverse . dropWhile isSpace
 
 -- | Run the post form and insert or update based on the entered data
 runPostForm :: Maybe Post -> Handler (Hamlet DevSiteRoute)
@@ -346,8 +347,8 @@ postTemplate (post, curTime) = [$hamlet|
         formatDateTime :: UTCTime -> String
         formatDateTime = humanReadableTimeDiff curTime
 
--- https://github.com/snoyberg/haskellers/blob/master/Haskellers.hs
--- https://github.com/snoyberg/haskellers/blob/master/LICENSE
+-- <https://github.com/snoyberg/haskellers/blob/master/Haskellers.hs>
+-- <https://github.com/snoyberg/haskellers/blob/master/LICENSE>
 humanReadableTimeDiff :: UTCTime     -- ^ current time
                       -> UTCTime     -- ^ old time
                       -> String
