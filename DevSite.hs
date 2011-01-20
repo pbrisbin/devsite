@@ -83,8 +83,8 @@ instance Yesod DevSite where
                     ^pageHead.pc^
                     %title $pageTitle.pc$
                 %body
-                    #header
-                        $if getsBreadcrumbs
+                    $if getsBreadcrumbs
+                        #header
                             %p
                                 $forall h node
                                     %a!href=@fst.node@ $snd.node$ 
@@ -100,13 +100,13 @@ instance Yesod DevSite where
                         ^footerTemplate^
             |]
         where
-            -- 404s and Index don't get breadcrumbs
+            routeGetsBreadcrumbs :: GHandler s DevSite Bool
             routeGetsBreadcrumbs = do
                 tm <- getRouteToMaster
                 mr <- getCurrentRoute
                 case mr of
-                    Nothing -> return False
                     Just r  -> return $ tm r /= RootR
+                    Nothing -> return False
 
 -- | Make my site an instance of breadcrumbs so that i can simply call
 --   the breadcrumbs function to get automagical breadcrumb links
@@ -143,7 +143,7 @@ instance YesodBreadcrumbs DevSite where
     breadcrumb (MpcR _)  = return ("mpc", Just RootR)
 
     -- be sure to fail noticably so i fix it when it happens
-    breadcrumb _ = return ("", Just RootR)
+    breadcrumb _ = return ("404", Just RootR)
 
 -- | Make my site an instance of Persist so that i can store post
 --   metatdata in a db
@@ -180,10 +180,10 @@ standardHead keywords = addHamletHead [$hamlet|
 -- | Standard foot
 footerTemplate :: Hamlet DevSiteRoute
 footerTemplate = [$hamlet|
-                 %p
-                     %a!href=@RootR@ pbrisbin
-                     \ dot com 2010 
-                     %span!style="float: right;"
-                         powered by 
-                         %a!href="http://docs.yesodweb.com/" yesod
-                 |]
+    %p
+        %a!href=@RootR@ pbrisbin
+        \ dot com 2010 
+        %span!style="float: right;"
+            powered by 
+            %a!href="http://docs.yesodweb.com/" yesod
+    |]
