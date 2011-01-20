@@ -217,62 +217,36 @@ postForm post = do
     (tags       , fiTags       ) <- stringField   "tags:"        $ fmap (formatTags . postTags) post
     (description, fiDescription) <- textareaField "description:" $ fmap (Textarea . postDescr)  post
     return (PostForm <$> slug <*> title <*> tags <*> description, [$hamlet|
-    %table
-        %tr
-            %th
-                %label!for=$fiIdent.fiSlug$ $fiLabel.fiSlug$
-                .tooltip $fiTooltip.fiSlug$
-            %td
-                ^fiInput.fiSlug^
-            %td.errors
-                $maybe fiErrors.fiSlug error
-                    $error$
-                $nothing
+        %table
+            ^fieldRow.fiSlug^
+            ^fieldRow.fiTitle^
+            ^fieldRow.fiTags^
+            ^fieldRow.fiDescription^
+            %tr
+                %td
                     &nbsp;
-        %tr
-            %th
-                %label!for=$fiIdent.fiTitle$ $fiLabel.fiTitle$
-                .tooltip $fiTooltip.fiTitle$
-            %td
-                ^fiInput.fiTitle^
-            %td.errors
-                $maybe fiErrors.fiTitle error
-                    $error$
-                $nothing
-                    &nbsp;
-        %tr
-            %th
-                %label!for=$fiIdent.fiTags$ $fiLabel.fiTags$
-                .tooltip $fiTooltip.fiTags$
-            %td
-                ^fiInput.fiTags^
-            %td.errors
-                $maybe fiErrors.fiTags error
-                    $error$
-                $nothing
-                    &nbsp;
-        %tr
-            %th
-                %label!for=$fiIdent.fiDescription$ $fiLabel.fiDescription$
-                .tooltip $fiTooltip.fiDescription$
-            %td
-                ^fiInput.fiDescription^
-            %td.errors
-                $maybe fiErrors.fiDescription error
-                    $error$
-                $nothing
-                    &nbsp;
-        %tr
-            %td
-                &nbsp;
-            %td!colspan="2"
-                %input!type="submit"!value=$buttonText$
-    |])
+                %td!colspan="2"
+                    %input!type="submit"!value=$buttonText$
+        |])
 
     where
+        fieldRow fi = [$hamlet|
+            %tr
+                %th
+                    %label!for=$fiIdent.fi$ $fiLabel.fi$
+                    .tooltip $fiTooltip.fi$
+                %td
+                    ^fiInput.fi^
+                %td
+                    $maybe fiErrors.fi error
+                        $error$
+                    $nothing
+                        &nbsp;
+            |]
 
         formatTags = intercalate ", "
         buttonText = string $ if isJust post then "Update post" else "Add post"
+
 
 -- | The overall template showing the input box and a list of existing
 --   posts
@@ -280,13 +254,13 @@ managePostTemplate :: String -> Widget () -> Enctype -> Widget ()
 managePostTemplate title form enctype = do
     posts <- liftHandler $ selectPosts 0
     [$hamlet|
-    #post_input
+    .post_input
         %h3 $string.title$
 
         %form!enctype=$enctype$!method="post"
             ^form^
 
-    #post_existing
+    .posts_existing
         %h3 Existing posts:
 
         %table
@@ -309,40 +283,36 @@ managePostTemplate title form enctype = do
 
     where 
         shortenLong  = shorten 40 
-        shortenShort = shorten 17 
+        shortenShort = shorten 15 
         shorten n s  = if length s > n then take n s ++ "..." else s
 
 -- | A body template for a list of posts, you can also provide the title
 allPostsTemplate :: [(Post, UTCTime)] -> String -> Hamlet DevSiteRoute
 allPostsTemplate posts title = [$hamlet|
-%h1 $title$
+    %h1 $title$
 
-#posts
-    $forall posts post
-        ^postTemplate.post^
-|]
+    .posts
+        $forall posts post
+            ^postTemplate.post^
+    |]
 
 -- | The sub template for a single post
 postTemplate :: (Post, UTCTime) -> Hamlet DevSiteRoute
 postTemplate (post, curTime) = [$hamlet|
-.post
-  %p
+    .post
+        %p
+            %a!href=@PostR.postSlug.post@ $postTitle.post$
+            \ - $postDescr.post$ 
+        
+        %p.small
+            Published $formatDateTime.postDate.post$
 
-    %a!href=@PostR.postSlug.post@ $postTitle.post$
-    \ - $postDescr.post$ 
-    
-  %p.small
+            %span!style="float: right;"
+                Tags: 
 
-    Published $formatDateTime.postDate.post$
-
-    %span!style="float: right;"
-
-      Tags: 
-
-      $forall postTags.post tag
-
-        %a!href=@TagR.tag@ $tag$ 
-|]
+                $forall postTags.post tag
+                    %a!href=@TagR.tag@ $tag$ 
+    |]
     where
         formatDateTime :: UTCTime -> String
         formatDateTime = humanReadableTimeDiff curTime
