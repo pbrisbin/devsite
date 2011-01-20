@@ -23,7 +23,7 @@ getFeedR = do
     posts <- selectPosts 10
     rssFeed RssFeed
         { rssTitle       = "pbrisbin dot com"
-        , rssDescription = "New posts on pbrisbin dot com"
+        , rssDescription = string $ "New posts on pbrisbin dot com"
         , rssLanguage    = "en-us"
         , rssLinkSelf    = FeedR
         , rssLinkHome    = RootR

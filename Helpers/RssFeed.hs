@@ -51,7 +51,7 @@ data RssFeed url = RssFeed
     { rssTitle       :: String
     , rssLinkSelf    :: url
     , rssLinkHome    :: url
-    , rssDescription :: String
+    , rssDescription :: Html
     , rssLanguage    :: String
     , rssUpdated     :: UTCTime
     , rssEntries     :: [RssFeedEntry url]
