@@ -27,10 +27,6 @@
   padding-top:      0.5%
   padding-bottom:   0.5%
 
-.mpc th
-  font-weight: normal
-  color: #ffffff
-
 .mpc_title
   font-weight: normal
   color: #ffffff
@@ -84,6 +80,16 @@ h3, h4, h5, h6
   margin-left: -2%
   font-weight: normal
 
+table
+  margin-left:  auto
+  margin-right: auto
+
+th
+  color:          #ffffff
+  font-weight:    normal
+  text-align:     left
+  vertical-align: top
+
 pre
   color: #ffffff
   font-weight: normal
@@ -128,45 +134,32 @@ div.fixed img
   margin-right: auto
   width:        680px
 
-#aur_pkgs td
+.aur_pkgs td
   vertical-align: top
   border:         1px dotted #909090
   padding:        5px
 
 #login table
-  margin-left: auto
-  margin-right: auto
-  padding: 10px
+  padding: 25px
 
-#post_input th
-  color: #ffffff
-  font-weight: normal
-  text-align: left
-  vertical-align: top
+.posts_existing table
+  margin-bottom: 10px
 
-#post_input textarea
-  width: 550px
-  height: 150px
-
-#post_existing table
-  margin-left:  auto
-  margin-right: auto
-
-#post_existing th
-  color: #ffffff
-  font-weight: normal
-  text-align: left
+.posts_existing th, .mpc_playlist th
   border-bottom: 1px solid #909090
 
-#post_existing td
-  white-space: nowrap
+.posts_existing td, .mpc_playlist td
   padding-left:  5px
   padding-right: 5px
+
+.post_input textarea
+  height: 150px
+  width:  550px
 
 .stats
   margin-bottom: 20px
 
-.stats_top_entry table
+.stats_top_entry table, .stats table
   margin-left: 25px
 
 .stats_top_entry td
