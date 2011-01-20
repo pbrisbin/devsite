@@ -14,10 +14,9 @@ module Handlers.Stats (getStatsR) where
 import Yesod
 import DevSite
 import Helpers.Stats
-import Helpers.Layouts
 
 getStatsR :: Handler RepHtml
-getStatsR = pageLayout $ do
+getStatsR = defaultLayout $ do
     content <- liftHandler $ statsTemplate myLogFile myTopEntries
     setTitle $ string "pbrisbin - Stats"
     addHamlet content

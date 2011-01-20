@@ -15,13 +15,11 @@ module Handlers.About (getAboutR) where
 import Yesod
 import DevSite
 
-import Helpers.Layouts
-
 import qualified Settings
 
 -- | About page
 getAboutR :: Handler RepHtml
-getAboutR = pageLayout $ do
+getAboutR = defaultLayout $ do
     setTitle $ string "pbrisbin - About"
     addHamlet [$hamlet|
     %h1 About

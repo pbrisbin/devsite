@@ -28,7 +28,6 @@ import DevSite
 import Yesod.Helpers.Auth
 
 import Helpers.Posts
-import Helpers.Layouts
 
 import Data.Time.Clock (getCurrentTime)
 
@@ -42,7 +41,7 @@ getPostsR = do
     curTime <- liftIO getCurrentTime
     posts'  <- selectPosts 0
     let posts = zip posts' (repeat curTime)
-    pageLayout $ do
+    defaultLayout $ do
         setTitle $ string "pbrisbin - All Posts"
         addHamlet $ allPostsTemplate posts "All Posts"
 
@@ -62,7 +61,7 @@ getTagsR = do
     curTime  <- liftIO getCurrentTime
     posts'   <- selectPosts 0
     let posts = zip posts' (repeat curTime)
-    pageLayout $ do
+    defaultLayout $ do
         setTitle $ string "pbrisbin - All Tags"
         addHamlet $ allPostsTemplate posts "All Tags"
 
@@ -75,7 +74,7 @@ getTagR tag = do
         []      -> notFound
         posts'' -> do
             let posts = zip posts'' (repeat curTime)
-            pageLayout $ do
+            defaultLayout $ do
                 setTitle $ string $ "pbrisbin - Tag: " ++ tag
                 addHamlet $ allPostsTemplate posts ("Tag: " ++ tag)
 
@@ -86,14 +85,13 @@ getManagePostsR :: Handler RepHtml
 getManagePostsR = do
     _        <- requireAuth
     postForm <- runPostForm Nothing
-    pageLayout $ do
+    defaultLayout $ do
         setTitle $ string "pbrisbin - Manage posts"
         addHamlet [$hamlet|
-        #header
             %h1 Manage Posts
 
-        ^postForm^
-        |]
+            ^postForm^
+            |]
 
 postManagePostsR :: Handler RepHtml
 postManagePostsR = getManagePostsR
@@ -107,14 +105,13 @@ getEditPostR slug = do
         []        -> notFound
         (post':_) -> do
             postForm <- runPostForm $ Just post'
-            pageLayout $ do
+            defaultLayout $ do
                 setTitle $ string "pbrisbin - Edit post"
                 addHamlet [$hamlet|
-                #header
                     %h1 Edit Post
 
-                ^postForm^
-                |]
+                    ^postForm^
+                    |]
 
 postEditPostR :: String -> Handler RepHtml
 postEditPostR = getEditPostR

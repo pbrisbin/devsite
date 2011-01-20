@@ -68,28 +68,45 @@ instance Yesod DevSite where
     -- | override defaultLayout to provide an overall template and css
     --   file
     defaultLayout widget = do
-        mmesg  <- getMessage
-        pc     <- widgetToPageContent $ do
+        getsBreadcrumbs <- routeGetsBreadcrumbs
+        mmesg           <- getMessage
+        (t, h)          <- breadcrumbs
+        pc              <- widgetToPageContent $ do
             widget
             standardHead ["pbrisbin", "arch linux", "bash", "haskell", "xmonad", "mutt"]
             rssLink FeedR "rss feed"
             addCassius $(Settings.cassiusFile "root-css")
         hamletToRepHtml [$hamlet|
-        !!!
-        %html!lang="en"
-          %head
-            ^pageHead.pc^
-            %title $pageTitle.pc$
-          %body
-            $maybe mmesg msg
-              #message 
-                %p.centered $msg$
-            #body
-              ^pageBody.pc^
-            #footer
-              ^footerTemplate^
-        |]
+            !!!
+            %html!lang="en"
+                %head
+                    ^pageHead.pc^
+                    %title $pageTitle.pc$
+                %body
+                    #header
+                        $if getsBreadcrumbs
+                            %p
+                                $forall h node
+                                    %a!href=@fst.node@ $snd.node$ 
+                                    \ / 
+                                \ $t$
+
+                    $maybe mmesg msg
+                        #message 
+                            %p.centered $msg$
+                    #body
+                        ^pageBody.pc^
+                    #footer
+                        ^footerTemplate^
+            |]
         where
+            -- 404s and Index don't get breadcrumbs
+            routeGetsBreadcrumbs = do
+                tm <- getRouteToMaster
+                mr <- getCurrentRoute
+                case mr of
+                    Nothing -> return False
+                    Just r  -> return $ tm r /= RootR
 
 -- | Make my site an instance of breadcrumbs so that i can simply call
 --   the breadcrumbs function to get automagical breadcrumb links
@@ -121,8 +138,12 @@ instance YesodBreadcrumbs DevSite where
     breadcrumb ManagePostsR     = return ("manage posts", Just RootR)
     breadcrumb (EditPostR slug) = return ("edit post", Just ManagePostsR)
 
+    -- auth and mpc routes
+    breadcrumb (AuthR _) = return ("login", Just RootR)
+    breadcrumb (MpcR _)  = return ("mpc", Just RootR)
+
     -- be sure to fail noticably so i fix it when it happens
-    breadcrumb _ = return ("%%%", Just RootR)
+    breadcrumb _ = return ("", Just RootR)
 
 -- | Make my site an instance of Persist so that i can store post
 --   metatdata in a db

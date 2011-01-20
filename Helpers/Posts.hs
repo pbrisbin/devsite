@@ -1,4 +1,5 @@
 {-# LANGUAGE QuasiQuotes                #-}
+{-# LANGUAGE TemplateHaskell            #-}
 {-# LANGUAGE OverloadedStrings          #-}
 {-# LANGUAGE TypeFamilies               #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
@@ -24,6 +25,7 @@ module Helpers.Posts
     , runPostForm
     , allPostsTemplate
     , postTemplate
+    , postLayout
     , migratePosts
     , humanReadableTimeDiff
     ) where
@@ -32,6 +34,7 @@ import DevSite
 
 import Yesod
 import Yesod.Markdown
+import Helpers.RssFeed
 
 import Data.Time
 import System.Locale
@@ -316,6 +319,70 @@ postTemplate (post, curTime) = [$hamlet|
     where
         formatDateTime :: UTCTime -> String
         formatDateTime = humanReadableTimeDiff curTime
+
+-- | Used with posts so that we have post-specific info within scope
+--   while still abstracting the overall template/css
+postLayout :: Post -> Handler RepHtml
+postLayout post = do
+    curTime     <- liftIO getCurrentTime
+    mmesg       <- getMessage
+    (t, h)      <- breadcrumbs
+    postContent <- loadPostContent post
+
+    let prettyTime = string . humanReadableTimeDiff curTime $ postDate post
+
+    pc <- widgetToPageContent $ do
+        setTitle $ string $ "pbrisbin - " ++ postTitle post
+        standardHead $ ["pbrisbin", postTitle post] ++ postTags post
+        rssLink FeedR "rss feed"
+        addCassius $(Settings.cassiusFile "root-css")
+        addJulius [$julius|
+            var disqus_shortname  = 'pbrisbin';
+            var disqus_identifier = '%postSlug.post%';
+            var disqus_title      = '%postTitle.post%';
+            |]
+    hamletToRepHtml [$hamlet|
+        !!!
+        %html!lang="en"
+            %head
+                ^pageHead.pc^
+                %title $pageTitle.pc$
+            %body
+                #header
+                    %p
+                        $forall h node
+                            %a!href=@fst.node@ $snd.node$ 
+                            \ / 
+                        \ $t$
+
+                        %span!style="float: right;"
+                            Tags: 
+                                $forall postTags.post tag
+                                    %a!href=@TagR.tag@ $tag$ 
+                #body
+                    %h1 $postTitle.post$
+
+                    $maybe mmesg msg
+                        #message
+                            %p.centered $msg$
+
+                    $postContent$
+
+                    %p.small
+                        %em Published $prettyTime$
+
+                    %h3 
+                        %a!href="#Comments"!id="Comments" Comments
+
+                    #disqus_thread
+                        %script!type="text/javascript"!src="http://pbrisbin.disqus.com/embed.js"
+
+                        %noscript 
+                            %p.small
+                                %em Sadly, javascript is required for comments on this site.
+                #footer
+                    ^footerTemplate^
+        |]
 
 -- <https://github.com/snoyberg/haskellers/blob/master/Haskellers.hs>
 -- <https://github.com/snoyberg/haskellers/blob/master/LICENSE>
