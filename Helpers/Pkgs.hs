@@ -28,7 +28,7 @@ data AurPkg url = AurPkg
 
 pkgsTemplate :: [AurPkg url] -> Hamlet url
 pkgsTemplate args = [$hamlet|
-    #aur_pkgs
+    .aur_pkgs
         %table
             $forall args arg
                 ^pkgTemplate.arg^
