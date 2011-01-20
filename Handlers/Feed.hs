@@ -20,20 +20,30 @@ import Helpers.RssFeed
 -- | Rss feed
 getFeedR :: Handler RepRss
 getFeedR = do
-    posts <- selectPosts 10
-    rssFeed RssFeed
-        { rssTitle       = "pbrisbin dot com"
-        , rssDescription = string $ "New posts on pbrisbin dot com"
-        , rssLanguage    = "en-us"
-        , rssLinkSelf    = FeedR
-        , rssLinkHome    = RootR
-        , rssUpdated     = mostRecent posts
-        , rssEntries     = map postToRssEntry posts
-        }
+    results <- selectPosts 10
+    case results of
+        []    -> notFound
+        posts -> feedFromPosts posts
 
-    where
-        -- note: head of empty list possible
-        mostRecent = rssEntryUpdated . postToRssEntry . head
+-- | Rss feed, limited to a tag
+getFeedTagR :: String -> Handler RepRss
+getFeedTagR tag = do
+    results <- getPostsByTag tag
+    case results of
+        []    -> notFound
+        posts -> feedFromPosts posts
+
+feedFromPosts :: [Post] -> Handler RepRss
+feedFromPosts posts = rssFeed RssFeed
+    { rssTitle       = "pbrisbin dot com"
+    , rssDescription = string $ "New posts on pbrisbin dot com"
+    , rssLanguage    = "en-us"
+    , rssLinkSelf    = FeedR
+    , rssLinkHome    = RootR
+    , rssUpdated     = mostRecent posts
+    , rssEntries     = map postToRssEntry posts
+    }
+    where mostRecent = rssEntryUpdated . postToRssEntry . head
 
 postToRssEntry :: Post -> RssFeedEntry DevSiteRoute
 postToRssEntry post = RssFeedEntry

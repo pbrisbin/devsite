@@ -50,7 +50,9 @@ mkYesodData "DevSite" [$parseRoutes|
 /tags          TagsR  GET
 /tags/#String  TagR   GET
 
-/feed        FeedR    GET
+/feed         FeedR    GET
+/feed/#String FeedTagR GET
+
 /favicon.ico FaviconR GET
 /robots.txt  RobotsR  GET
 
