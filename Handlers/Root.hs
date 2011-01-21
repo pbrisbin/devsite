@@ -110,53 +110,12 @@ getRootR = do
             default). It's a very efficient way to work with your 
             computer as you waste no screen space, you can quickly 
             navigate to or rearrange your windows, and you can do all of 
-            it without ever touching the mouse. 
+            it without ever touching the mouse.
 
         .fixed
-
             %p
-
                 %a!href="/static/screenshots/current_desktop.png"
-
                     %img!src="/static/screenshots/current_desktop-thumb.png"!id="current-desktop"!alt="Most recent desktop shot"
-
-        %h3 About Arch
-
-        %p
-
-            If you haven't noticed, my desktop runs on Arch linux. 
-      
-            %a!href="http://www.archlinux.org/" Arch
-      
-            \ is an amazing DIY distro that gives the user the barest of 
-            bare installs; from there, you can build your system, piece 
-            by piece. There is no hand-holding, and the user is expected 
-            to install, maintain, and configure his entire system on his 
-            own. Through appropriate use of the amazing Arch wiki, 
-            forums, and IRC, this isn't so bad - it simply takes 
-            reading, and time. The benefit being not only can you make 
-            it exactly what you want, but you'll learn more than you 
-            could imagine about the inner workings of your system. This 
-            transparency and required effort can lead to both 
-            fulfillment and frustration; this is a feature, not a bug. 
-
-        %p
-
-            If you want to try a distro that expects a lot from its 
-            users while still offering a great package manager and 
-            simple transparent tools for maintaining 
-
-            %em your
-
-            \ system, please try Arch. Be sure to read the Beginners 
-            guide before installing, and do some research (manpage, 
-            wiki, forum, google, and IRC) before asking questions - 
-            Though most Archers are extremely friendly, showing that 
-            you've done some research before asking the same often 
-            repeated questions will go a long way in earning the respect 
-            of the group; and, at least in the beginning, I'll bet you 
-            find your question's already been asked and answered 
-            somewhere.
 
         %h3 Aur Packages
 
