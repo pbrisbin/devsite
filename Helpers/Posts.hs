@@ -152,7 +152,10 @@ loadPostContent p = do
         if exists
             then liftIO $ readFile fileName
             else return "File not found"
-    (writePandoc yesodDefaultWriterOptions <$>) . localLinks . parseMarkdown yesodDefaultParserState $ Markdown markdown
+    (writePandoc yesodDefaultWriterOptions <$>) 
+        . localLinks 
+        . parseMarkdown yesodDefaultParserState 
+        $ Markdown markdown
 
 -- | Convert form input into a Post and update the db. If the first
 --   argument is Just, this is an edit of an existing Post. If the first
@@ -207,9 +210,7 @@ runPostForm post = do
     -- this feels kludgy...
     return . pageBody =<< widgetToPageContent (managePostTemplate title form enctype)
 
-    where
-
-        title = if isJust post then "Edit post:" else "Add new post:"
+    where title = if isJust post then "Edit post:" else "Add new post:"
 
 -- | Display the new post form inself. If the first argument is Just,
 --   then use that to prepopulate the form
@@ -290,17 +291,23 @@ managePostTemplate title form enctype = do
         shorten n s  = if length s > n then take n s ++ "..." else s
 
 -- | A body template for a list of posts, you can also provide the title
-allPostsTemplate :: [(Post, UTCTime)] -> String -> Hamlet DevSiteRoute
-allPostsTemplate posts title = [$hamlet|
+allPostsTemplate :: UTCTime -- ^ current time
+                 -> [Post]  -- ^ posts to show
+                 -> String  -- ^ title
+                 -> Hamlet DevSiteRoute
+allPostsTemplate curTime posts title = [$hamlet|
     %h1 $title$
 
     $forall posts post
-        ^postTemplate.post^
+        ^(postTemplate.curTime).post^
     |]
 
+
 -- | The sub template for a single post
-postTemplate :: (Post, UTCTime) -> Hamlet DevSiteRoute
-postTemplate (post, curTime) = [$hamlet|
+postTemplate :: UTCTime -- ^ current time
+             -> Post    -- ^ post to show
+             -> Hamlet DevSiteRoute
+postTemplate curTime post = [$hamlet|
     .post
         %p
             %a!href=@PostR.postSlug.post@ $postTitle.post$
@@ -318,6 +325,7 @@ postTemplate (post, curTime) = [$hamlet|
     where
         formatDateTime :: UTCTime -> String
         formatDateTime = humanReadableTimeDiff curTime
+
 
 -- | Used with posts so that we have post-specific info within scope
 --   while still abstracting the overall template/css

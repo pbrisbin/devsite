@@ -39,11 +39,10 @@ import qualified Settings
 getPostsR :: Handler RepHtml
 getPostsR = do
     curTime <- liftIO getCurrentTime
-    posts'  <- selectPosts 0
-    let posts = zip posts' (repeat curTime)
+    posts   <- selectPosts 0
     defaultLayout $ do
         setTitle $ string "pbrisbin - All Posts"
-        addHamlet $ allPostsTemplate posts "All Posts"
+        addHamlet $ allPostsTemplate curTime posts "All Posts"
 
 -- | A post
 getPostR :: String -> Handler RepHtml
@@ -58,12 +57,11 @@ getPostR slug = do
 -- | All tags
 getTagsR :: Handler RepHtml
 getTagsR = do
-    curTime  <- liftIO getCurrentTime
-    posts'   <- selectPosts 0
-    let posts = zip posts' (repeat curTime)
+    curTime <- liftIO getCurrentTime
+    posts   <- selectPosts 0
     defaultLayout $ do
         setTitle $ string "pbrisbin - All Tags"
-        addHamlet $ allPostsTemplate posts "All Tags"
+        addHamlet $ allPostsTemplate curTime posts "All Tags"
 
 -- | A tag
 getTagR :: String -> Handler RepHtml
@@ -71,12 +69,10 @@ getTagR tag = do
     curTime <- liftIO getCurrentTime
     posts'  <- getPostsByTag tag
     case posts' of
-        []      -> notFound
-        posts'' -> do
-            let posts = zip posts'' (repeat curTime)
-            defaultLayout $ do
-                setTitle $ string $ "pbrisbin - Tag: " ++ tag
-                addHamlet $ allPostsTemplate posts ("Tag: " ++ tag)
+        []    -> notFound
+        posts -> defaultLayout $ do
+            setTitle $ string $ "pbrisbin - Tag: " ++ tag
+            addHamlet $ allPostsTemplate curTime posts ("Tag: " ++ tag)
 
 -- Management pages
 

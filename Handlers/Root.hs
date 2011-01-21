@@ -38,8 +38,7 @@ xmonad  = "XMonad"
 getRootR :: Handler RepHtml
 getRootR = do
     curTime <- liftIO getCurrentTime
-    posts'  <- selectPosts 10
-    let posts = zip posts' (repeat curTime)
+    posts   <- selectPosts 10
     defaultLayout $ do
         setTitle $ string "pbrisbin - Home"
         addHamlet [$hamlet|
@@ -169,7 +168,7 @@ getRootR = do
 
         #recent_posts
             $forall posts post
-                ^postTemplate.post^
+                ^(postTemplate.curTime).post^
 
         %p.small
             %a!href=@PostsR@ all posts
