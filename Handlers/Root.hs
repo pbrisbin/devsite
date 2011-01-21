@@ -17,6 +17,7 @@ import DevSite
 
 import Helpers.Pkgs
 import Helpers.Posts
+import Yesod.Helpers.Stats
 
 import Data.Time.Clock (getCurrentTime)
 
@@ -37,6 +38,7 @@ xmonad  = "XMonad"
 -- | Home page
 getRootR :: Handler RepHtml
 getRootR = do
+    logRequest
     curTime <- liftIO getCurrentTime
     posts   <- selectPosts 10
     defaultLayout $ do
@@ -46,7 +48,7 @@ getRootR = do
             %p
                 %a!href=@AboutR@ about
                 \ | 
-                %a!href=@StatsR@ stats
+                %a!href="/stats" stats
                 \ | 
                 %a!href="/xmonad/docs/" xmonad modules
                 \ | 

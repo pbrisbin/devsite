@@ -26,6 +26,7 @@ import Yesod
 import DevSite
 
 import Yesod.Helpers.Auth
+import Yesod.Helpers.Stats
 
 import Helpers.Posts
 
@@ -38,6 +39,7 @@ import qualified Settings
 -- | All posts
 getPostsR :: Handler RepHtml
 getPostsR = do
+    logRequest
     curTime <- liftIO getCurrentTime
     posts   <- selectPosts 0
     defaultLayout $ do
@@ -47,6 +49,7 @@ getPostsR = do
 -- | A post
 getPostR :: String -> Handler RepHtml
 getPostR slug = do
+    logRequest
     posts <- getPostBySlug slug
     case posts of
         []       -> notFound
@@ -57,6 +60,7 @@ getPostR slug = do
 -- | All tags
 getTagsR :: Handler RepHtml
 getTagsR = do
+    logRequest
     curTime <- liftIO getCurrentTime
     posts   <- selectPosts 0
     defaultLayout $ do
@@ -66,6 +70,7 @@ getTagsR = do
 -- | A tag
 getTagR :: String -> Handler RepHtml
 getTagR tag = do
+    logRequest
     curTime <- liftIO getCurrentTime
     posts'  <- getPostsByTag tag
     case posts' of

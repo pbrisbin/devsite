@@ -17,6 +17,8 @@ module DevSite where
 import Yesod
 import Yesod.Helpers.Auth
 import Yesod.Helpers.MPC
+import Yesod.Helpers.Stats
+import Yesod.Helpers.Stats.Widgets
 import Yesod.Form.Core (GFormMonad(..))
 
 import Data.Char (toLower)
@@ -38,7 +40,6 @@ type FormMonad a = GFormMonad DevSite DevSite a
 -- | Define all of the routes and handlers
 mkYesodData "DevSite" [$parseRoutes|
 /      RootR  GET
-/stats StatsR GET
 /about AboutR GET
 
 /manage                ManagePostsR GET POST
@@ -56,8 +57,9 @@ mkYesodData "DevSite" [$parseRoutes|
 /favicon.ico FaviconR GET
 /robots.txt  RobotsR  GET
 
-/auth      AuthR Auth getAuth
-/apps/mpc  MpcR  MPC  getMPC
+/auth      AuthR   Auth   getAuth
+/stats     StatsR  Stats  getStats
+/apps/mpc  MpcR    MPC    getMPC
 |]
 
 -- | Make my site an instance of Yesod so we can actually use it
@@ -119,9 +121,6 @@ instance YesodBreadcrumbs DevSite where
     -- about goes back home
     breadcrumb AboutR = return ("about", Just RootR)
 
-    -- stats goes back home
-    breadcrumb StatsR = return ("stats", Just RootR)
-
     -- all posts goes back home and individual posts go to all posts
     breadcrumb PostsR       = return ("all posts", Just RootR)
     breadcrumb (PostR slug) = return (format slug, Just PostsR)
@@ -140,9 +139,10 @@ instance YesodBreadcrumbs DevSite where
     breadcrumb ManagePostsR     = return ("manage posts", Just RootR)
     breadcrumb (EditPostR slug) = return ("edit post", Just ManagePostsR)
 
-    -- auth and mpc routes
-    breadcrumb (AuthR _) = return ("login", Just RootR)
-    breadcrumb (MpcR _)  = return ("mpc", Just RootR)
+    -- subsites
+    breadcrumb (AuthR _)  = return ("login", Just RootR)
+    breadcrumb (StatsR _) = return ("stats", Just RootR)
+    breadcrumb (MpcR _)   = return ("mpc"  , Just RootR)
 
     -- be sure to fail noticably so i fix it when it happens
     breadcrumb _ = return ("404", Just RootR)
@@ -168,6 +168,16 @@ instance YesodAuth DevSite where
 instance YesodMPC DevSite where
     mpdConfig  = return . Just $ MpdConfig "192.168.0.5" 6600 ""
     authHelper = requireAuth >>= \_ -> return ()
+
+-- | Track statistics
+instance YesodStats DevSite where
+    blacklist  = return []
+    viewLayout = do
+        addHamlet [$hamlet| %h3 General statistics |]
+        overallStats 
+
+        addHamlet [$hamlet| %h3 Files requested    |]
+        topRequests ("posts", "^/posts/.*")
 
 -- | Add standard head tags given keywords
 standardHead :: [String] -> GWidget s DevSite ()

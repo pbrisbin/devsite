@@ -93,6 +93,7 @@ th
   font-weight:    normal
   text-align:     left
   vertical-align: top
+  border-bottom: 1px solid #909090
 
 pre
   color: #ffffff
@@ -160,14 +161,23 @@ div.fixed img
   height: 150px
   width:  550px
 
-.stats
+.stats_general
   margin-bottom: 20px
 
-.stats_top_entry table, .stats table
+.stats_top_entry table, .stats_general table
   margin-left: 25px
+
+.stats_top_entry_counts table
+  margin-left: 50px
+
+.stats_general th, .stats_top_entry th
+  border-bottom: none
 
 .stats_top_entry td
   padding-right: 20px
+
+.stats_log_link
+  font-size: 80%
 
 #comments
   border:         1px solid #ffffff
