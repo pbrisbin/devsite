@@ -185,7 +185,7 @@ footerTemplate = [$hamlet|
     %p
         %a!href=@RootR@ pbrisbin
         \ dot com 2010 
-        %span!style="float: right;"
+        %span.float_right
             powered by 
             %a!href="http://docs.yesodweb.com/" yesod
     |]

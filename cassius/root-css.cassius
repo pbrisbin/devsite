@@ -7,6 +7,9 @@
 .right
   text-align: right
 
+.float_right
+  float: right
+
 .post
   border:         solid 1px #404040
   border-left:    solid 1px #606060
@@ -14,6 +17,7 @@
   padding:        1.5%
   padding-top:    0.1%
   padding-bottom: 0.1%
+  margin: 1px
   margin-bottom:  1%
 
 .note

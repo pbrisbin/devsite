@@ -310,7 +310,7 @@ postTemplate (post, curTime) = [$hamlet|
         %p.small
             Published $formatDateTime.postDate.post$
 
-            %span!style="float: right;"
+            %span.float_right
                 Tags: 
 
                 $forall postTags.post tag
@@ -355,7 +355,7 @@ postLayout post = do
                             \ / 
                         \ $t$
 
-                        %span!style="float: right;"
+                        %span.float_right
                             Tags: 
                                 $forall postTags.post tag
                                     %a!href=@TagR.tag@ $tag$ 

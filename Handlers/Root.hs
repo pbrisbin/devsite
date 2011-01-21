@@ -55,7 +55,7 @@ getRootR = do
                 \ | 
                 %a!href="https://github.com/pbrisbin/scripts" scripts
 
-                %span!style="float: right;"
+                %span.float_right
                     %a!href="#Recent_Posts" recent posts
                     \ | 
                     %a!href=@PostsR@ all posts
