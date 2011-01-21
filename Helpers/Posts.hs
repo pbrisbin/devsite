@@ -294,9 +294,8 @@ allPostsTemplate :: [(Post, UTCTime)] -> String -> Hamlet DevSiteRoute
 allPostsTemplate posts title = [$hamlet|
     %h1 $title$
 
-    .posts
-        $forall posts post
-            ^postTemplate.post^
+    $forall posts post
+        ^postTemplate.post^
     |]
 
 -- | The sub template for a single post
