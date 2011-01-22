@@ -147,6 +147,9 @@ div.fixed img
 #login table
   padding: 25px
 
+#login th
+  border-bottom: none
+
 .posts_existing table
   margin-bottom: 10px
 
