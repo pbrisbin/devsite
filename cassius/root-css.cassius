@@ -161,20 +161,22 @@ div.fixed img
   height: 150px
   width:  550px
 
-.stats_general
-  margin-bottom: 20px
-
-.stats_top_entry table
-  margin-left: 25px
-
-.stats_general th, .stats_top_entry th
+.stats_overall_stats th
   border-bottom: none
+  padding-right: 15px
 
-.stats_top_entry td
+.stats_overall_stats table
+  margin-left: 0px
+
+.stats_top_requests p
+  margin-left: 0x
+
+.stats_top_requests table
+  margin-left:   25px
+  margin-bottom: 25px
+
+.stats_top_requests td
   padding-right: 20px
-
-.stats_log_link
-  font-size: 90%
 
 #comments
   border:         1px solid #ffffff

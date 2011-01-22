@@ -18,7 +18,6 @@ import Yesod
 import Yesod.Helpers.Auth
 import Yesod.Helpers.MPC
 import Yesod.Helpers.Stats
-import Yesod.Helpers.Stats.Widgets
 import Yesod.Form.Core (GFormMonad(..))
 
 import Data.Char (toLower)
@@ -41,6 +40,7 @@ type FormMonad a = GFormMonad DevSite DevSite a
 mkYesodData "DevSite" [$parseRoutes|
 /      RootR  GET
 /about AboutR GET
+/stats StatsR GET
 
 /manage                ManagePostsR GET POST
 /manage/edit/#String   EditPostR    GET POST
@@ -57,9 +57,8 @@ mkYesodData "DevSite" [$parseRoutes|
 /favicon.ico FaviconR GET
 /robots.txt  RobotsR  GET
 
-/auth      AuthR   Auth   getAuth
-/stats     StatsR  Stats  getStats
-/apps/mpc  MpcR    MPC    getMPC
+/auth     AuthR Auth getAuth
+/apps/mpc MpcR  MPC  getMPC
 |]
 
 -- | Make my site an instance of Yesod so we can actually use it
@@ -118,8 +117,9 @@ instance YesodBreadcrumbs DevSite where
     -- root is the parent node
     breadcrumb RootR  = return ("root" , Nothing) 
 
-    -- about goes back home
+    -- about and stats go back home
     breadcrumb AboutR = return ("about", Just RootR)
+    breadcrumb StatsR = return ("stats", Just RootR)
 
     -- all posts goes back home and individual posts go to all posts
     breadcrumb PostsR       = return ("all posts", Just RootR)
@@ -140,9 +140,8 @@ instance YesodBreadcrumbs DevSite where
     breadcrumb (EditPostR slug) = return ("edit post", Just ManagePostsR)
 
     -- subsites
-    breadcrumb (AuthR _)  = return ("login", Just RootR)
-    breadcrumb (StatsR _) = return ("stats", Just RootR)
-    breadcrumb (MpcR _)   = return ("mpc"  , Just RootR)
+    breadcrumb (AuthR _) = return ("login", Just RootR)
+    breadcrumb (MpcR _)  = return ("mpc"  , Just RootR)
 
     -- be sure to fail noticably so i fix it when it happens
     breadcrumb _ = return ("404", Just RootR)
@@ -171,14 +170,7 @@ instance YesodMPC DevSite where
 
 -- | Track statistics
 instance YesodStats DevSite where
-    blacklist  = return ["192.168.0.1","66.30.118.211"]
-    viewLayout = do
-        addHamlet [$hamlet| %h3 General statistics |]
-        overallStats 
-
-        addHamlet [$hamlet| %h3 Popular requests   |]
-        topRequests 10 ("posts", "^/posts/.*")
-        topRequests 5  ("tags" , "^/tags/.*" )
+    blacklist = return ["192.168.0.1","66.30.118.211"]
 
 -- | Add standard head tags given keywords
 standardHead :: [String] -> GWidget s DevSite ()

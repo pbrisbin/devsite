@@ -48,7 +48,7 @@ getRootR = do
             %p
                 %a!href=@AboutR@ about
                 \ | 
-                %a!href="/stats" stats
+                %a!href=@StatsR@ stats
                 \ | 
                 %a!href="/xmonad/docs/" xmonad modules
                 \ | 
