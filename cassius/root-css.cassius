@@ -164,11 +164,8 @@ div.fixed img
 .stats_general
   margin-bottom: 20px
 
-.stats_top_entry table, .stats_general table
+.stats_top_entry table
   margin-left: 25px
-
-.stats_top_entry_counts table
-  margin-left: 50px
 
 .stats_general th, .stats_top_entry th
   border-bottom: none
@@ -177,7 +174,7 @@ div.fixed img
   padding-right: 20px
 
 .stats_log_link
-  font-size: 80%
+  font-size: 90%
 
 #comments
   border:         1px solid #ffffff
