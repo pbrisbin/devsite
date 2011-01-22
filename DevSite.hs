@@ -171,7 +171,7 @@ instance YesodMPC DevSite where
 
 -- | Track statistics
 instance YesodStats DevSite where
-    blacklist  = return []
+    blacklist  = return ["192.168.0.1","66.30.118.211"]
     viewLayout = do
         addHamlet [$hamlet| %h3 General statistics |]
         overallStats 
