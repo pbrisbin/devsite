@@ -176,8 +176,9 @@ instance YesodStats DevSite where
         addHamlet [$hamlet| %h3 General statistics |]
         overallStats 
 
-        addHamlet [$hamlet| %h3 Files requested    |]
-        topRequests ("posts", "^/posts/.*")
+        addHamlet [$hamlet| %h3 Popular requests   |]
+        topRequests 10 ("posts", "^/posts/.*")
+        topRequests 5  ("tags" , "^/tags/.*" )
 
 -- | Add standard head tags given keywords
 standardHead :: [String] -> GWidget s DevSite ()
