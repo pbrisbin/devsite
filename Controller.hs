@@ -12,15 +12,16 @@
 module Controller (withServer) where
 
 import Yesod
+import Yesod.Helpers.Auth
+import Yesod.Helpers.MPC
+
 import DevSite
 import Handlers
 
 import Helpers.Posts       (migratePosts)
 import Helpers.Auth.HashDB (migrateUsers)
-import Yesod.Helpers.MPC
-import Yesod.Helpers.Stats
+import Yesod.Helpers.Stats (migrateStats)
 
-import Yesod.Helpers.Auth
 import Database.Persist.GenericSql
 
 import qualified Settings
