@@ -199,16 +199,15 @@ parseTags s  = let (l,s') = break (==',') $ dropWhile (==',') s
         trim' = reverse . dropWhile isSpace
 
 -- | Run the post form and insert or update based on the entered data
-runPostForm :: Maybe Post -> Handler (Hamlet DevSiteRoute)
+runPostForm :: Maybe Post -> Widget ()
 runPostForm post = do
-    ((res, form), enctype) <- runFormMonadPost $ postForm post
+    ((res, form), enctype) <- liftHandler . runFormMonadPost $ postForm post
     case res of
         FormMissing    -> return ()
         FormFailure _  -> return ()
-        FormSuccess pf -> updatePostFromForm post pf
+        FormSuccess pf -> liftHandler $ updatePostFromForm post pf
 
-    -- this feels kludgy...
-    return . pageBody =<< widgetToPageContent (managePostTemplate title form enctype)
+    managePostTemplate title form enctype
 
     where title = if isJust post then "Edit post:" else "Add new post:"
 

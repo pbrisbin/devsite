@@ -84,15 +84,11 @@ getTagR tag = do
 -- | Manage posts
 getManagePostsR :: Handler RepHtml
 getManagePostsR = do
-    _        <- requireAuth
-    postForm <- runPostForm Nothing
+    _ <- requireAuth
     defaultLayout $ do
         setTitle $ string "pbrisbin - Manage posts"
-        addHamlet [$hamlet|
-            %h1 Manage Posts
-
-            ^postForm^
-            |]
+        addHamlet [$hamlet| %h1 Manage Posts |]
+        runPostForm Nothing
 
 postManagePostsR :: Handler RepHtml
 postManagePostsR = getManagePostsR
@@ -105,14 +101,10 @@ getEditPostR slug = do
     case post of
         []        -> notFound
         (post':_) -> do
-            postForm <- runPostForm $ Just post'
             defaultLayout $ do
                 setTitle $ string "pbrisbin - Edit post"
-                addHamlet [$hamlet|
-                    %h1 Edit Post
-
-                    ^postForm^
-                    |]
+                addHamlet [$hamlet| %h1 Edit Post |]
+                runPostForm $ Just post'
 
 postEditPostR :: String -> Handler RepHtml
 postEditPostR = getEditPostR
