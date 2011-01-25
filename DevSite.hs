@@ -71,29 +71,22 @@ instance Yesod DevSite where
     -- | override defaultLayout to provide an overall template and css
     --   file
     defaultLayout widget = do
-        getsBreadcrumbs <- routeGetsBreadcrumbs
-        mmesg           <- getMessage
-        (t, h)          <- breadcrumbs
-        pc              <- widgetToPageContent $ do
+        mmesg <- getMessage
+        pc    <- widgetToPageContent $ do
             widget
-            standardHead ["pbrisbin", "arch linux", "bash", "haskell", "xmonad", "mutt"]
             rssLink FeedR "rss feed"
             addCassius $(Settings.cassiusFile "root-css")
+            -- todo: ifIsSubSite, add breadcrumbs here
         hamletToRepHtml [$hamlet|
             !!!
             %html!lang="en"
                 %head
+                    %meta!name="author"!content="pbrisbin"
+                    %meta!name="description"!content="pbrisbin dot com"
+                    %meta!http-equiv="Content-Type"!content="text/html; charset=UTF-8"
                     ^pageHead.pc^
                     %title $pageTitle.pc$
                 %body
-                    $if getsBreadcrumbs
-                        #header
-                            %p
-                                $forall h node
-                                    %a!href=@fst.node@ $snd.node$ 
-                                    \ / 
-                                \ $t$
-
                     $maybe mmesg msg
                         #message 
                             %p.centered $msg$
@@ -102,14 +95,6 @@ instance Yesod DevSite where
                     #footer
                         ^footerTemplate^
             |]
-        where
-            routeGetsBreadcrumbs :: GHandler s DevSite Bool
-            routeGetsBreadcrumbs = do
-                tm <- getRouteToMaster
-                mr <- getCurrentRoute
-                case mr of
-                    Just r  -> return $ tm r /= RootR
-                    Nothing -> return False
 
 -- | Make my site an instance of breadcrumbs so that i can simply call
 --   the breadcrumbs function to get automagical breadcrumb links
@@ -141,7 +126,7 @@ instance YesodBreadcrumbs DevSite where
 
     -- subsites
     breadcrumb (AuthR _) = return ("login", Just RootR)
-    breadcrumb (MpcR _)  = return ("mpc"  , Just RootR)
+    breadcrumb (MpcR  _) = return ("mpc"  , Just RootR)
 
     -- be sure to fail noticably so i fix it when it happens
     breadcrumb _ = return ("404", Just RootR)
@@ -156,7 +141,7 @@ instance YesodPersist DevSite where
 instance YesodAuth DevSite where
     type AuthId DevSite = UserId
 
-    loginDest _  = RootR
+    loginDest  _ = RootR
     logoutDest _ = RootR
     getAuthId    = getAuthIdHashDB AuthR 
     showAuthId _ = showIntegral
@@ -172,15 +157,25 @@ instance YesodMPC DevSite where
 instance YesodStats DevSite where
     blacklist = return ["192.168.0.1","66.30.118.211"]
 
--- | Add standard head tags given keywords
-standardHead :: [String] -> GWidget s DevSite ()
-standardHead keywords = addHamletHead [$hamlet|
-    %meta!name="author"!content="pbrisbin"
-    %meta!name="description"!content="pbrisbin dot com"
-    %meta!name="keywords"!content=$format.keywords$
-    %meta!http-equiv="Content-Type"!content="text/html; charset=UTF-8"
+-- | Add breadcrumbs to a page
+addBreadcrumbs :: Widget ()
+addBreadcrumbs = do
+    (t, h) <- liftHandler breadcrumbs
+    addHamlet [$hamlet|
+    #breadcrumbs
+        %p
+            $forall h node
+                %a!href=@fst.node@ $snd.node$ 
+                \ / 
+            \ $t$
     |]
-    where format = string . intercalate ", "
+
+-- | Add a list of words to the html head as keywords
+addKeywords :: [String] -> Widget ()
+addKeywords keywords = addHamletHead [$hamlet| %meta!name="keywords"!content=$format.keywords$ |]
+    where 
+        format :: [String] -> Html
+        format = string . intercalate ", "
 
 -- | Standard foot
 footerTemplate :: Hamlet DevSiteRoute

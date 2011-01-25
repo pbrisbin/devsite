@@ -43,6 +43,7 @@ getRootR = do
     posts   <- selectPosts 10
     defaultLayout $ do
         setTitle $ string "pbrisbin - Home"
+        addKeywords ["pbrisbin", "home", "haskell", "bash", "mutt", "xmonad", "arch linux"]
         addHamlet [$hamlet|
         #header
             %p

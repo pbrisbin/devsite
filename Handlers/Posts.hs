@@ -44,6 +44,8 @@ getPostsR = do
     posts   <- selectPosts 0
     defaultLayout $ do
         setTitle $ string "pbrisbin - All Posts"
+        addKeywords ["pbrisbin", "all posts"]
+        addBreadcrumbs
         addHamlet $ allPostsTemplate curTime posts "All Posts"
 
 -- | A post
@@ -53,7 +55,7 @@ getPostR slug = do
     posts <- getPostBySlug slug
     case posts of
         []       -> notFound
-        (post:_) -> postLayout post
+        (post:_) -> defaultLayout $ addPostContent post
 
 -- Tag pages
 
@@ -65,6 +67,8 @@ getTagsR = do
     posts   <- selectPosts 0
     defaultLayout $ do
         setTitle $ string "pbrisbin - All Tags"
+        addKeywords ["pbrisbin", "all tags"]
+        addBreadcrumbs
         addHamlet $ allPostsTemplate curTime posts "All Tags"
 
 -- | A tag
@@ -77,6 +81,8 @@ getTagR tag = do
         []    -> notFound
         posts -> defaultLayout $ do
             setTitle $ string $ "pbrisbin - Tag: " ++ tag
+            addKeywords ["pbrisbin", tag]
+            addBreadcrumbs
             addHamlet $ allPostsTemplate curTime posts ("Tag: " ++ tag)
 
 -- Management pages
@@ -87,6 +93,7 @@ getManagePostsR = do
     _ <- requireAuth
     defaultLayout $ do
         setTitle $ string "pbrisbin - Manage posts"
+        addBreadcrumbs
         addHamlet [$hamlet| %h1 Manage Posts |]
         runPostForm Nothing
 
@@ -103,6 +110,7 @@ getEditPostR slug = do
         (post':_) -> do
             defaultLayout $ do
                 setTitle $ string "pbrisbin - Edit post"
+                addBreadcrumbs
                 addHamlet [$hamlet| %h1 Edit Post |]
                 runPostForm $ Just post'
 

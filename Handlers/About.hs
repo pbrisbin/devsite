@@ -25,6 +25,8 @@ getAboutR = do
     logRequest
     defaultLayout $ do
         setTitle $ string "pbrisbin - About"
+        addKeywords ["pbrisbin", "about"]
+        addBreadcrumbs
         addHamlet [$hamlet|
         %h1 About
 

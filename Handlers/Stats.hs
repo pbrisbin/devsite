@@ -20,6 +20,8 @@ import DevSite
 getStatsR :: Handler RepHtml
 getStatsR = defaultLayout $ do
     setTitle $ string "pbrisbin - Stats"
+    addKeywords ["pbrisbin", "stats"]
+    addBreadcrumbs
 
     addHamlet [$hamlet| 
         %h1 Stats

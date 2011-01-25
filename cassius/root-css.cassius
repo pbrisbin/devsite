@@ -39,7 +39,7 @@ tr.mpc_current
   font-weight: normal
   color: #ffffff
 
-#header
+#header, #breadcrumbs
   font-size:     85%
   line-height:   50%
   margin-top:    25px
