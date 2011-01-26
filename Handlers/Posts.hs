@@ -28,6 +28,7 @@ import Yesod.Helpers.Stats
 
 import DevSite
 import Helpers.Posts
+import Helpers.RssFeed (rssLink)
 
 import Data.Time.Clock (getCurrentTime)
 
@@ -79,6 +80,7 @@ getTagR tag = do
         posts -> defaultLayout $ do
             setTitle $ string $ "pbrisbin - Tag: " ++ tag
             addKeywords ["pbrisbin", tag]
+            rssLink (FeedTagR tag) ("rss feed for tag " ++ tag)
             addHamlet $ allPostsTemplate curTime posts ("Tag: " ++ tag)
 
 -- Management pages
