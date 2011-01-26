@@ -41,9 +41,17 @@ tr.mpc_current
 
 #header, #breadcrumbs
   font-size:     85%
-  line-height:   50%
+  line-height:   10px
   margin-top:    25px
   margin-bottom: -10px
+
+#tags
+  font-size:   85%
+  line-height: 10px
+  margin-top:  0px
+  float:       right
+  position:    relative
+  top:         -22px
 
 #body
   border-bottom: 1px solid #909090

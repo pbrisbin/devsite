@@ -23,11 +23,10 @@ module Handlers.Posts
     ) where
 
 import Yesod
-import DevSite
-
 import Yesod.Helpers.Auth
 import Yesod.Helpers.Stats
 
+import DevSite
 import Helpers.Posts
 
 import Data.Time.Clock (getCurrentTime)
@@ -45,7 +44,6 @@ getPostsR = do
     defaultLayout $ do
         setTitle $ string "pbrisbin - All Posts"
         addKeywords ["pbrisbin", "all posts"]
-        addBreadcrumbs
         addHamlet $ allPostsTemplate curTime posts "All Posts"
 
 -- | A post
@@ -68,7 +66,6 @@ getTagsR = do
     defaultLayout $ do
         setTitle $ string "pbrisbin - All Tags"
         addKeywords ["pbrisbin", "all tags"]
-        addBreadcrumbs
         addHamlet $ allPostsTemplate curTime posts "All Tags"
 
 -- | A tag
@@ -82,7 +79,6 @@ getTagR tag = do
         posts -> defaultLayout $ do
             setTitle $ string $ "pbrisbin - Tag: " ++ tag
             addKeywords ["pbrisbin", tag]
-            addBreadcrumbs
             addHamlet $ allPostsTemplate curTime posts ("Tag: " ++ tag)
 
 -- Management pages
@@ -93,7 +89,6 @@ getManagePostsR = do
     _ <- requireAuth
     defaultLayout $ do
         setTitle $ string "pbrisbin - Manage posts"
-        addBreadcrumbs
         addHamlet [$hamlet| %h1 Manage Posts |]
         runPostForm Nothing
 
@@ -110,7 +105,6 @@ getEditPostR slug = do
         (post':_) -> do
             defaultLayout $ do
                 setTitle $ string "pbrisbin - Edit post"
-                addBreadcrumbs
                 addHamlet [$hamlet| %h1 Edit Post |]
                 runPostForm $ Just post'
 

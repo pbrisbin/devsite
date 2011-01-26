@@ -12,10 +12,9 @@
 module Handlers.Feed where
 
 import Yesod
-import DevSite
-
 import Yesod.Helpers.Stats
 
+import DevSite
 import Helpers.Posts
 import Helpers.RssFeed
 

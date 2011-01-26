@@ -73,11 +73,7 @@ instance Yesod DevSite where
     defaultLayout widget = do
         mmesg <- getMessage
         pc    <- widgetToPageContent $ do
-            -- add breadcrumbs to known subsites
-            isSub <- liftHandler isSubSiteRoute
-            if isSub
-                then addBreadcrumbs
-                else return ()
+            addBreadcrumbs
             widget
             rssLink FeedR "rss feed"
             addCassius $(Settings.cassiusFile "root-css")
@@ -160,20 +156,6 @@ instance YesodMPC DevSite where
 -- | Track statistics
 instance YesodStats DevSite where
     blacklist = return ["192.168.0.1","66.30.118.211"]
-
--- | A helper to determine if we're actually in a subsite route, it's 
---   useful for layouts/widgets that behave differently when handling a 
---   subsite. Requires hardcoding the list of known subsites in use.
-isSubSiteRoute :: GHandler s DevSite Bool
-isSubSiteRoute = do
-    tm <- getRouteToMaster
-    mr <- getCurrentRoute
-    case mr of
-        Nothing -> return False -- 404
-        Just r  -> case tm r of
-            AuthR _ -> return True
-            MpcR  _ -> return True
-            _       -> return False
 
 -- | Add breadcrumbs to a page
 addBreadcrumbs :: GWidget s DevSite ()

@@ -342,7 +342,7 @@ addPostContent post = do
         var disqus_title      = '%postTitle.post%';
         |]
 
-    addPostBreadcrumbs post
+    addPostTags post
     addHamlet [$hamlet|
         %h1 $postTitle.post$
 
@@ -361,21 +361,14 @@ addPostContent post = do
     |]
 
 -- | Add breadcrumsb and post tags together to a page
-addPostBreadcrumbs :: Post -> Widget ()
-addPostBreadcrumbs post = do
-    (t, h) <- liftHandler breadcrumbs
+addPostTags :: Post -> Widget ()
+addPostTags post = do
     addHamlet [$hamlet|
-        #breadcrumbs
+        #tags
             %p
-                $forall h node
-                    %a!href=@fst.node@ $snd.node$ 
-                    \ / 
-                \ $t$
-
-                %span.float_right
-                    Tags: 
-                    $forall postTags.post tag
-                        %a!href=@TagR.tag@ $tag$ 
+                Tags: 
+                $forall postTags.post tag
+                    %a!href=@TagR.tag@ $tag$ 
     |]
 
 -- <https://github.com/snoyberg/haskellers/blob/master/Haskellers.hs>
