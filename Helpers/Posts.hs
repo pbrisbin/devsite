@@ -34,6 +34,7 @@ import DevSite
 
 import Yesod
 import Yesod.Markdown
+import Yesod.Form.Core
 
 import Data.Time
 import System.Locale
@@ -66,7 +67,7 @@ data PostForm = PostForm
     { formSlug  :: String
     , formTitle :: String
     , formTags  :: String
-    , formDescr :: Textarea
+    , formDescr :: Markdown
     }
 
 -- | Generate data base instances for post meta-data
@@ -170,7 +171,7 @@ updatePostFromForm p pf = do
     let post = Post
             { postSlug  = formSlug pf
             , postTitle = formTitle pf
-            , postDescr = unTextarea $ formDescr pf
+            , postDescr = fromMarkdown $ formDescr pf
             , postDate  = postDate'
             , postTags  = parseTags $ formTags pf
             }
@@ -185,6 +186,9 @@ updatePostFromForm p pf = do
             setMessage $ [$hamlet| %em post added! |]
 
     redirect RedirectTemporary ManagePostsR
+
+    where
+        fromMarkdown (Markdown s) = s
 
 -- | minor changes to 
 --   <https://github.com/fortytools/lounge/blob/master/Handler/Entry.hs#L57>
@@ -219,7 +223,7 @@ postForm post = do
     (slug       , fiSlug       ) <- stringField   "post slug:"   $ fmap postSlug  post
     (title      , fiTitle      ) <- stringField   "title:"       $ fmap postTitle post
     (tags       , fiTags       ) <- stringField   "tags:"        $ fmap (formatTags . postTags) post
-    (description, fiDescription) <- textareaField "description:" $ fmap (Textarea . postDescr)  post
+    (description, fiDescription) <- markdownField "description:" $ fmap (Markdown . postDescr)  post
     return (PostForm <$> slug <*> title <*> tags <*> description, [$hamlet|
         %table
             ^fieldRow.fiSlug^
@@ -251,6 +255,31 @@ postForm post = do
         formatTags = intercalate ", "
         buttonText = string $ if isJust post then "Update post" else "Add post"
 
+-- | Unexported code from Yesod.Markdown {{{
+markdownField :: (IsForm f, FormType f ~ Markdown)
+              => FormFieldSettings -> Maybe Markdown -> f
+markdownField = requiredFieldHelper markdownFieldProfile
+
+maybeMarkdownField :: FormFieldSettings -> FormletField sub y (Maybe Markdown)
+maybeMarkdownField = optionalFieldHelper markdownFieldProfile
+
+markdownFieldProfile :: FieldProfile sub y Markdown
+markdownFieldProfile = FieldProfile
+    { fpParse  = Right . Markdown . unlines . lines'
+    , fpRender = \(Markdown m) -> m
+    , fpWidget = \theId name val _isReq -> addHamlet [$hamlet|
+        %textarea.markdown#$theId$!name=$name$ $val$
+        |]
+    }
+
+lines' :: String -> [String]
+lines' = map go . lines
+    where
+        go []        = []
+        go ('\r':[]) = []
+        go (x:xs)    = x : go xs
+
+-- }}}
 
 -- | The overall template showing the input box and a list of existing
 --   posts
