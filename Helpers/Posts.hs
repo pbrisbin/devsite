@@ -293,21 +293,31 @@ managePostTemplate title form enctype = do
 -- | The sub template for a single post
 addPostBlock :: Post -> Widget ()
 addPostBlock post = do
-    curTime <- liftHandler $ liftIO getCurrentTime 
+    curTime         <- liftHandler $ liftIO getCurrentTime 
+    postDescription <- liftHandler . markdownToHtml . Markdown $ postDescr post
+    addCassius [$cassius|
+        .post_info
+            font-size: 85% !important
+        |]
+
     addHamlet [$hamlet|
         .post
-            %p
-                %a!href=@PostR.postSlug.post@ $postTitle.post$
-                \ - $postDescr.post$ 
-            
-            %p.small
-                published $(humanReadableTimeDiff.curTime).postDate.post$
+            .post_title
+                %p
+                    %a!href=@PostR.postSlug.post@ $postTitle.post$
 
-                %span.float_right
-                    tags: 
+            .post_description 
+                $postDescription$
 
-                    $forall postTags.post tag
-                        %a!href=@TagR.tag@ $tag$ 
+            .post_info
+                %p
+                    published $(humanReadableTimeDiff.curTime).postDate.post$
+
+                    %span.float_right
+                        tags: 
+
+                        $forall postTags.post tag
+                            %a!href=@TagR.tag@ $tag$ 
         |]
 
 -- | Add post content to the body tag
