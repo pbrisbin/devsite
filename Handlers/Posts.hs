@@ -61,13 +61,15 @@ getTagsR = do
 
         addCassius [$cassius|
             h3
-                border: none !important
+                border:  none !important
+                outline: none !important
                 margin-left: 0px
 
             .lighter
                 color: #909090
             |]
 
+        -- accordion effect
         addJulius [$julius|
             $(function() {
                 $("#accordion").accordion({
@@ -78,6 +80,7 @@ getTagsR = do
             });
             |]
 
+        -- a hack so we can embed the widget(s) within the div
         pageContent <- liftHandler $ widgetToPageContent (mapM_ go tags)
 
         addHamlet [$hamlet|
