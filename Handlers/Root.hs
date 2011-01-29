@@ -33,8 +33,7 @@ xmonad  = "XMonad"
 -- | Home page
 getRootR :: Handler RepHtml
 getRootR = do
-    curTime <- liftIO getCurrentTime
-    posts   <- selectPosts 10
+    posts <- selectPosts 10
     defaultLayout $ do
         setTitle $ string "pbrisbin - Home"
         addKeywords ["pbrisbin", "home", "haskell", "bash", "mutt", "xmonad", "arch linux"]
@@ -77,11 +76,12 @@ getRootR = do
             %h3 
 
                 %a#Recent_Posts!href="#Recent_Posts" Recent Posts
+            |]
 
-            #recent_posts
-                $forall posts post
-                    ^(postTemplate.curTime).post^
+        -- show recent posts
+        mapM_ addPostBlock posts
 
+        addHamlet [$hamlet|
             %p.small
                 %a!href=@PostsR@ all posts
                 \...

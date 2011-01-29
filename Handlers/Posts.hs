@@ -33,17 +33,15 @@ import Data.Time.Clock (getCurrentTime)
 
 import qualified Settings
 
--- Post pages
-
 -- | All posts
 getPostsR :: Handler RepHtml
 getPostsR = do
-    curTime <- liftIO getCurrentTime
-    posts   <- selectPosts 0
+    posts <- selectPosts 0
     defaultLayout $ do
         setTitle $ string "pbrisbin - All Posts"
         addKeywords ["pbrisbin", "all posts"]
-        addHamlet $ allPostsTemplate curTime posts "All Posts"
+        addHamlet [$hamlet| %h1 All Posts |]
+        mapM_ addPostBlock posts
 
 -- | A post
 getPostR :: String -> Handler RepHtml
@@ -53,32 +51,38 @@ getPostR slug = do
         []       -> notFound
         (post:_) -> defaultLayout $ addPostContent post
 
--- Tag pages
-
 -- | All tags
 getTagsR :: Handler RepHtml
 getTagsR = do
-    curTime <- liftIO getCurrentTime
-    posts   <- selectPosts 0
+    tags <- selectTags
     defaultLayout $ do
         setTitle $ string "pbrisbin - All Tags"
-        addKeywords ["pbrisbin", "all tags"]
-        addHamlet $ allPostsTemplate curTime posts "All Tags"
+        addKeywords $ "pbrisbin":tags
+        addHamlet [$hamlet| %h1 All Tags |]
+        mapM_ go tags
+    where
+        go tag = do
+            posts <- liftHandler $ getPostsByTag tag
+            addHamlet [$hamlet|
+                %h3
+                    %a!href="#$tag$"!name=$tag$ $tag$
+                |]
+            mapM_ addPostBlock posts
 
 -- | A tag
 getTagR :: String -> Handler RepHtml
 getTagR tag = do
-    curTime <- liftIO getCurrentTime
-    posts'  <- getPostsByTag tag
+    posts'<- getPostsByTag tag
     case posts' of
         []    -> notFound
         posts -> defaultLayout $ do
             setTitle $ string $ "pbrisbin - Tag: " ++ tag
             addKeywords ["pbrisbin", tag]
             rssLink (FeedTagR tag) ("rss feed for tag " ++ tag)
-            addHamlet $ allPostsTemplate curTime posts ("Tag: " ++ tag)
-
--- Management pages
+            addHamlet [$hamlet| 
+                %h1 Tag: $tag$ 
+                |]
+            mapM_ addPostBlock posts
 
 -- | Manage posts
 getManagePostsR :: Handler RepHtml

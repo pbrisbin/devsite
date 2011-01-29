@@ -18,13 +18,13 @@ module Helpers.Posts
     ( Post (..)
     , loadPostContent
     , selectPosts
+    , selectTags
     , insertPost
     , deletePost
     , getPostBySlug
     , getPostsByTag
     , runPostForm
-    , allPostsTemplate
-    , postTemplate
+    , addPostBlock
     , addPostContent
     , migratePosts
     , humanReadableTimeDiff
@@ -39,8 +39,9 @@ import Helpers.RssFeed
 import Data.Time
 import System.Locale
 
+import Control.Monad       (liftM)
 import Data.Char           (isSpace)
-import Data.List           (intercalate)
+import Data.List           (nub, intercalate)
 import Data.Maybe          (isJust, fromJust)
 import System.Directory    (doesFileExist)
 import Control.Applicative ((<$>), (<*>))
@@ -98,6 +99,10 @@ selectPosts n = mapM go =<< runDB (selectList [] [SqlPostDateDesc] n 0)
                 , postDescr = sqlPostDescr sqlPost
                 , postTags  = fmap (sqlTagName . snd) sqlTags
                 }
+
+-- | Select the list of all unique tags as strings
+selectTags :: Handler [String]
+selectTags = return . nub . map (sqlTagName . snd) =<< runDB (selectList [] [SqlTagNameAsc] 0 0)
 
 -- | Insert a post into the database
 insertPost :: Post -> Handler ()
@@ -289,41 +294,25 @@ managePostTemplate title form enctype = do
         shortenShort = shorten 15 
         shorten n s  = if length s > n then take n s ++ "..." else s
 
--- | A body template for a list of posts, you can also provide the title
-allPostsTemplate :: UTCTime -- ^ current time
-                 -> [Post]  -- ^ posts to show
-                 -> String  -- ^ title
-                 -> Hamlet DevSiteRoute
-allPostsTemplate curTime posts title = [$hamlet|
-    %h1 $title$
-
-    $forall posts post
-        ^(postTemplate.curTime).post^
-    |]
-
-
 -- | The sub template for a single post
-postTemplate :: UTCTime -- ^ current time
-             -> Post    -- ^ post to show
-             -> Hamlet DevSiteRoute
-postTemplate curTime post = [$hamlet|
-    .post
-        %p
-            %a!href=@PostR.postSlug.post@ $postTitle.post$
-            \ - $postDescr.post$ 
-        
-        %p.small
-            published $formatDateTime.postDate.post$
+addPostBlock :: Post -> Widget ()
+addPostBlock post = do
+    curTime <- liftHandler $ liftIO getCurrentTime 
+    addHamlet [$hamlet|
+        .post
+            %p
+                %a!href=@PostR.postSlug.post@ $postTitle.post$
+                \ - $postDescr.post$ 
+            
+            %p.small
+                published $(humanReadableTimeDiff.curTime).postDate.post$
 
-            %span.float_right
-                tags: 
+                %span.float_right
+                    tags: 
 
-                $forall postTags.post tag
-                    %a!href=@TagR.tag@ $tag$ 
-    |]
-    where
-        formatDateTime :: UTCTime -> String
-        formatDateTime = humanReadableTimeDiff curTime
+                    $forall postTags.post tag
+                        %a!href=@TagR.tag@ $tag$ 
+        |]
 
 -- | Add post content to the body tag
 addPostContent :: Post -> Widget ()
