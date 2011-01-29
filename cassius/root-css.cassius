@@ -6,7 +6,7 @@ body
   font-family:      helvetica, verdana, sans-serif
   padding:          5%
   padding-top:      48px
-  max-width:        100ex
+  max-width:        97ex
 
 .navigation
   display:          block
