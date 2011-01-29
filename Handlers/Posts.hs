@@ -59,10 +59,12 @@ getTagsR = do
         setTitle $ string "pbrisbin - All Tags"
         addKeywords $ "pbrisbin":tags
 
+        -- add some styling for this page only
         addCassius [$cassius|
             h3
-                border:  none !important
-                outline: none !important
+                cursor:      pointer
+                border:      none !important
+                outline:     none !important
                 margin-left: 0px
 
             .lighter
@@ -80,7 +82,7 @@ getTagsR = do
             });
             |]
 
-        -- a hack so we can embed the widget(s) within the div
+        -- a hack so we can embed the widget(s) within a div
         pageContent <- liftHandler $ widgetToPageContent (mapM_ go tags)
 
         addHamlet [$hamlet|
