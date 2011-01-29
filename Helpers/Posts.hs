@@ -34,7 +34,6 @@ import DevSite
 
 import Yesod
 import Yesod.Markdown
-import Helpers.RssFeed
 
 import Data.Time
 import System.Locale
@@ -147,8 +146,8 @@ getPostsByTag tag = do
     allPosts <- selectPosts 0
     return $ filter (elem tag . postTags) allPosts
 
--- | Load a post's pandoc file and convert it to html, return not found
---   if the pdc file doesn't exist
+-- | Load a post's pandoc file and convert it to html, return the post 
+--   decription text if the pdc file doesn't exist
 loadPostContent :: Post -> Handler Html
 loadPostContent p = do
     let fileName = Settings.pandocFile $ postSlug p
@@ -156,7 +155,7 @@ loadPostContent p = do
         exists <- liftIO $ doesFileExist fileName
         if exists
             then liftIO $ readFile fileName
-            else return "File not found"
+            else return $ postDescr p
     (writePandoc yesodDefaultWriterOptions <$>) 
         . localLinks 
         . parseMarkdown yesodDefaultParserState 
