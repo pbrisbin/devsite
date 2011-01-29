@@ -14,7 +14,6 @@ module Handlers
     , getRobotsR
     , module Handlers.Root
     , module Handlers.About
-    , module Handlers.Stats
     , module Handlers.Posts
     , module Handlers.Feed
     ) where
@@ -24,7 +23,6 @@ import DevSite
 
 import Handlers.Root
 import Handlers.About
-import Handlers.Stats
 import Handlers.Posts
 import Handlers.Feed
 

@@ -13,16 +13,12 @@
 module Handlers.About (getAboutR) where
 
 import Yesod
-import Yesod.Helpers.Stats
-
 import DevSite
-
 import qualified Settings
 
 -- | About page
 getAboutR :: Handler RepHtml
 getAboutR = do
-    logRequest
     defaultLayout $ do
         setTitle $ string "pbrisbin - About"
         addKeywords ["pbrisbin", "about"]

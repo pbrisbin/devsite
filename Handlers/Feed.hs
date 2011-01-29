@@ -12,8 +12,6 @@
 module Handlers.Feed where
 
 import Yesod
-import Yesod.Helpers.Stats
-
 import DevSite
 import Helpers.Posts
 import Helpers.RssFeed
@@ -21,7 +19,6 @@ import Helpers.RssFeed
 -- | Rss feed
 getFeedR :: Handler RepRss
 getFeedR = do
-    logRequest
     results <- selectPosts 10
     case results of
         []    -> notFound
@@ -30,7 +27,6 @@ getFeedR = do
 -- | Rss feed, limited to a tag
 getFeedTagR :: String -> Handler RepRss
 getFeedTagR tag = do
-    logRequest
     results <- getPostsByTag tag
     case results of
         []    -> notFound

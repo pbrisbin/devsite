@@ -313,10 +313,10 @@ postTemplate curTime post = [$hamlet|
             \ - $postDescr.post$ 
         
         %p.small
-            Published $formatDateTime.postDate.post$
+            published $formatDateTime.postDate.post$
 
             %span.float_right
-                Tags: 
+                tags: 
 
                 $forall postTags.post tag
                     %a!href=@TagR.tag@ $tag$ 
@@ -342,14 +342,20 @@ addPostContent post = do
         var disqus_title      = '%postTitle.post%';
         |]
 
-    addPostTags post
     addHamlet [$hamlet|
         %h1 $postTitle.post$
 
         $postContent$
 
         %p.small
-            %em Published $prettyTime$
+            %em 
+                published $prettyTime$
+                %span.float_right
+                    tags:
+                    $forall postTags.post tag
+                        \ 
+                        %a!href=@TagR.tag@ $tag$
+            
         %h3 
             %a!href="#Comments"!id="Comments" Comments
 
@@ -358,17 +364,6 @@ addPostContent post = do
             %noscript 
                 %p.small
                     %em Sadly, javascript is required for comments on this site.
-    |]
-
--- | Add breadcrumsb and post tags together to a page
-addPostTags :: Post -> Widget ()
-addPostTags post = do
-    addHamlet [$hamlet|
-        #tags
-            %p
-                Tags: 
-                $forall postTags.post tag
-                    %a!href=@TagR.tag@ $tag$ 
     |]
 
 -- <https://github.com/snoyberg/haskellers/blob/master/Haskellers.hs>

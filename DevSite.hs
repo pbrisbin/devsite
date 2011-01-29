@@ -17,7 +17,6 @@ module DevSite where
 import Yesod
 import Yesod.Helpers.Auth
 import Yesod.Helpers.MPC
-import Yesod.Helpers.Stats
 import Yesod.Form.Core (GFormMonad(..))
 
 import Data.Char (toLower)
@@ -38,45 +37,38 @@ type FormMonad a = GFormMonad DevSite DevSite a
 
 -- | Define all of the routes and handlers
 mkYesodData "DevSite" [$parseRoutes|
-/      RootR  GET
-/about AboutR GET
-/stats StatsR GET
+    /      RootR  GET
+    /about AboutR GET
 
-/manage                ManagePostsR GET POST
-/manage/edit/#String   EditPostR    GET POST
-/manage/delete/#String DelPostR     GET
+    /manage                ManagePostsR GET POST
+    /manage/edit/#String   EditPostR    GET POST
+    /manage/delete/#String DelPostR     GET
 
-/posts         PostsR GET
-/posts/#String PostR  GET
-/tags          TagsR  GET
-/tags/#String  TagR   GET
+    /posts         PostsR GET
+    /posts/#String PostR  GET
+    /tags          TagsR  GET
+    /tags/#String  TagR   GET
 
-/feed         FeedR    GET
-/feed/#String FeedTagR GET
+    /feed         FeedR    GET
+    /feed/#String FeedTagR GET
 
-/favicon.ico FaviconR GET
-/robots.txt  RobotsR  GET
+    /favicon.ico FaviconR GET
+    /robots.txt  RobotsR  GET
 
-/auth     AuthR Auth getAuth
-/apps/mpc MpcR  MPC  getMPC
-|]
+    /auth     AuthR Auth getAuth
+    /apps/mpc MpcR  MPC  getMPC
+    |]
 
--- | Make my site an instance of Yesod so we can actually use it
 instance Yesod DevSite where 
-    approot _ = Settings.approot
-
-    -- | handle authentication
+    approot _   = Settings.approot
     authRoute _ = Just $ AuthR LoginR
 
-    -- | override defaultLayout to provide an overall template and css
-    --   file
     defaultLayout widget = do
-        mmesg <- getMessage
-        pc    <- widgetToPageContent $ do
-            addBreadcrumbs
-            widget
+        pc <- widgetToPageContent $ do
             rssLink FeedR "rss feed"
             addCassius $(Settings.cassiusFile "root-css")
+            addNavigation
+            widget
         hamletToRepHtml [$hamlet|
             !!!
             %html!lang="en"
@@ -87,41 +79,33 @@ instance Yesod DevSite where
                     ^pageHead.pc^
                     %title $pageTitle.pc$
                 %body
-                    $maybe mmesg msg
-                        #message 
-                            %p.centered $msg$
-                    #body
+                    #content
                         ^pageBody.pc^
                     #footer
-                        ^footerTemplate^
+                        %p
+                            %a!href=@RootR@ pbrisbin
+                            \ dot com 2010 
+                            %span.float_right
+                                powered by 
+                                %a!href="http://docs.yesodweb.com/" yesod
             |]
 
--- | Make my site an instance of breadcrumbs so that i can simply call
---   the breadcrumbs function to get automagical breadcrumb links
 instance YesodBreadcrumbs DevSite where
-    -- root is the parent node
-    breadcrumb RootR  = return ("root" , Nothing) 
-
-    -- about and stats go back home
+    breadcrumb RootR  = return ("home" , Nothing   ) 
     breadcrumb AboutR = return ("about", Just RootR)
-    breadcrumb StatsR = return ("stats", Just RootR)
 
-    -- all posts goes back home and individual posts go to all posts
-    breadcrumb PostsR       = return ("all posts", Just RootR)
+    breadcrumb PostsR       = return ("all posts", Just RootR )
     breadcrumb (PostR slug) = return (format slug, Just PostsR)
-
         where
             -- switch underscores with spaces
             format []         = []
             format ('_':rest) = ' ': format rest
             format (x:rest)   = x  : format rest
 
-    -- all tags goes back home and individual tags go to all tags
-    breadcrumb TagsR      = return ("all tags", Just RootR)
+    breadcrumb TagsR      = return ("all tags", Just RootR     )
     breadcrumb (TagR tag) = return (map toLower tag, Just TagsR)
 
-    -- management pages
-    breadcrumb ManagePostsR     = return ("manage posts", Just RootR)
+    breadcrumb ManagePostsR     = return ("manage posts", Just RootR    )
     breadcrumb (EditPostR slug) = return ("edit post", Just ManagePostsR)
 
     -- subsites
@@ -153,37 +137,51 @@ instance YesodMPC DevSite where
     mpdConfig  = return . Just $ MpdConfig "192.168.0.5" 6600 ""
     authHelper = requireAuth >>= \_ -> return ()
 
--- | Track statistics
-instance YesodStats DevSite where
-    blacklist = return ["192.168.0.1","66.30.118.211"]
-
--- | Add breadcrumbs to a page
-addBreadcrumbs :: GWidget s DevSite ()
-addBreadcrumbs = do
-    (t, h) <- liftHandler breadcrumbs
-    addHamlet [$hamlet|
-    #breadcrumbs
-        %p
-            $forall h node
-                %a!href=@fst.node@ $snd.node$ 
-                \ / 
-            \ $t$
-    |]
-
 -- | Add a list of words to the html head as keywords
 addKeywords :: [String] -> Widget ()
-addKeywords keywords = addHamletHead [$hamlet| %meta!name="keywords"!content=$format.keywords$ |]
+addKeywords keywords = addHamletHead [$hamlet| 
+    %meta!name="keywords"!content=$format.keywords$
+    |]
     where 
         format :: [String] -> Html
         format = string . intercalate ", "
 
--- | Standard foot
-footerTemplate :: Hamlet DevSiteRoute
-footerTemplate = [$hamlet|
-    %p
-        %a!href=@RootR@ pbrisbin
-        \ dot com 2010 
-        %span.float_right
-            powered by 
-            %a!href="http://docs.yesodweb.com/" yesod
-    |]
+-- | Add navigation
+addNavigation :: GWidget s DevSite ()
+addNavigation = do
+    mmesg  <- liftHandler getMessage
+    (t, h) <- liftHandler breadcrumbs
+    addHamlet [$hamlet|
+        .navigation
+            $maybe mmesg mesg
+                #message
+                    %p $mesg$
+            #breadcrumbs
+                %p
+                    $forall h node
+                        %a!href=@fst.node@ $snd.node$ 
+                        \ / 
+                    \ $t$
+            %ul
+                %li
+                    %a!href=@RootR@  home
+                %li
+                    %a!href=@AboutR@ about
+                %li
+                    %a!href=@PostsR@ posts
+                %li
+                    %a!href=@TagsR@  tags
+                %li
+                    %a!href="https://github.com/pbrisbin" github
+                %li
+                    %a!href="http://aur.archlinux.org/packages.php?K=brisbin33&SeB=m" aur packages
+                %li
+                    %a!href="/xmonad/docs" xmonad docs
+                %li
+                    %a!href="/haskell/docs/html" haskell docs
+                %li
+                    %img!src="/static/images/feed.png"
+                    \ 
+                    %a!href=@FeedR@ subscribe
+
+        |]
