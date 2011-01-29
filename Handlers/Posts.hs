@@ -58,16 +58,45 @@ getTagsR = do
     defaultLayout $ do
         setTitle $ string "pbrisbin - All Tags"
         addKeywords $ "pbrisbin":tags
-        addHamlet [$hamlet| %h1 All Tags |]
-        mapM_ go tags
+
+        addCassius [$cassius|
+            h3
+                border: none !important
+                margin-left: 0px
+
+            .lighter
+                color: #909090
+            |]
+
+        addJulius [$julius|
+            $(function() {
+                $("#accordion").accordion({
+                collapsible:true,
+                autoHeight: false,
+                active: false
+                });
+            });
+            |]
+
+        pageContent <- liftHandler $ widgetToPageContent (mapM_ go tags)
+
+        addHamlet [$hamlet|
+            %h1 All Tags
+            #accordion
+                ^pageBody.pageContent^
+            |]
+
     where
+        -- each tags section
         go tag = do
-            posts <- liftHandler $ getPostsByTag tag
+            posts     <- liftHandler $ getPostsByTag tag
+            postsList <- liftHandler $ widgetToPageContent (mapM_ addPostBlock posts)
             addHamlet [$hamlet|
-                %h3
-                    %a!href="#$tag$"!name=$tag$ $tag$
+                %h3 $tag$ 
+                    %span.lighter - $show.length.posts$ posts
+                %div
+                    ^pageBody.postsList^
                 |]
-            mapM_ addPostBlock posts
 
 -- | A tag
 getTagR :: String -> Handler RepHtml
