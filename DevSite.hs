@@ -174,7 +174,7 @@ addNavigation = do
                 %li
                     %a!href="https://github.com/pbrisbin" github
                 %li
-                    %a!href="http://aur.archlinux.org/packages.php?K=brisbin33&SeB=m" aur packages
+                    %a!href="http://aur.archlinux.org/packages.php?K=brisbin33&amp;SeB=m" aur packages
                 %li
                     %a!href="/xmonad/docs" xmonad docs
                 %li
