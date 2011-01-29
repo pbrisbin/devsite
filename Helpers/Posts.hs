@@ -156,10 +156,7 @@ loadPostContent p = do
         if exists
             then readFile fileName
             else return $ postDescr p
-    (writePandoc yesodDefaultWriterOptions <$>) 
-        . localLinks 
-        . parseMarkdown yesodDefaultParserStateTrusted
-        $ Markdown markdown
+    markdownToHtml $ Markdown markdown
 
 -- | Convert form input into a Post and update the db. If the first
 --   argument is Just, this is an edit of an existing Post. If the first

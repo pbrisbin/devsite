@@ -15,10 +15,12 @@
 module DevSite where
 
 import Yesod
+import Yesod.Markdown
 import Yesod.Helpers.Auth
 import Yesod.Helpers.MPC
 import Yesod.Form.Core (GFormMonad(..))
 
+import Control.Applicative ((<$>))
 import Data.Char (toLower)
 import Data.List (intercalate)
 import Database.Persist.GenericSql
@@ -187,3 +189,9 @@ addNavigation = do
                     %a!href=@FeedR@ subscribe
 
         |]
+
+-- | Render from markdown, yesod-style
+markdownToHtml :: Markdown -> GHandler s DevSite Html
+markdownToHtml = (writePandoc yesodDefaultWriterOptions <$>) 
+               . localLinks 
+               . parseMarkdown yesodDefaultParserStateTrusted
