@@ -151,14 +151,14 @@ getPostsByTag tag = do
 loadPostContent :: Post -> Handler Html
 loadPostContent p = do
     let fileName = Settings.pandocFile $ postSlug p
-    markdown <- do
-        exists <- liftIO $ doesFileExist fileName
+    markdown <- liftIO $ do
+        exists <- doesFileExist fileName
         if exists
-            then liftIO $ readFile fileName
+            then readFile fileName
             else return $ postDescr p
     (writePandoc yesodDefaultWriterOptions <$>) 
         . localLinks 
-        . parseMarkdown yesodDefaultParserState 
+        . parseMarkdown yesodDefaultParserStateTrusted
         $ Markdown markdown
 
 -- | Convert form input into a Post and update the db. If the first
