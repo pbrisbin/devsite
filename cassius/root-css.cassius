@@ -50,6 +50,9 @@ body
   padding-top:      0.5%
   padding-bottom:   0.5%
 
+.post_info
+  font-size: 90%
+
 #content
   border-bottom: solid 1px #909090
 

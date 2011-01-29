@@ -324,11 +324,6 @@ addPostBlock :: Post -> Widget ()
 addPostBlock post = do
     curTime         <- liftHandler $ liftIO getCurrentTime 
     postDescription <- liftHandler . markdownToHtml . Markdown $ postDescr post
-    addCassius [$cassius|
-        .post_info
-            font-size: 85% !important
-        |]
-
     addHamlet [$hamlet|
         .post
             .post_title
