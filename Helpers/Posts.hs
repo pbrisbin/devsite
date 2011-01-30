@@ -255,32 +255,6 @@ postForm post = do
         formatTags = intercalate ", "
         buttonText = string $ if isJust post then "Update post" else "Add post"
 
--- | Unexported code from Yesod.Markdown {{{
-markdownField :: (IsForm f, FormType f ~ Markdown)
-              => FormFieldSettings -> Maybe Markdown -> f
-markdownField = requiredFieldHelper markdownFieldProfile
-
-maybeMarkdownField :: FormFieldSettings -> FormletField sub y (Maybe Markdown)
-maybeMarkdownField = optionalFieldHelper markdownFieldProfile
-
-markdownFieldProfile :: FieldProfile sub y Markdown
-markdownFieldProfile = FieldProfile
-    { fpParse  = Right . Markdown . unlines . lines'
-    , fpRender = \(Markdown m) -> m
-    , fpWidget = \theId name val _isReq -> addHamlet [$hamlet|
-        %textarea.markdown#$theId$!name=$name$ $val$
-        |]
-    }
-
-lines' :: String -> [String]
-lines' = map go . lines
-    where
-        go []        = []
-        go ('\r':[]) = []
-        go (x:xs)    = x : go xs
-
--- }}}
-
 -- | The overall template showing the input box and a list of existing
 --   posts
 managePostTemplate :: String -> Widget () -> Enctype -> Widget ()
