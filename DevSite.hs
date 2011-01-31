@@ -187,7 +187,6 @@ addNavigation = do
                     %img!src="/static/images/feed.png"
                     \ 
                     %a!href=@FeedR@ subscribe
-
         |]
 
 -- | Render from markdown, yesod-style
