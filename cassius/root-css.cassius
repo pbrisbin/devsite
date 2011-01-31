@@ -174,7 +174,6 @@ tr.mpc_current
   padding:        5%
 
 .sourceCode
-  padding-left: 5%
   background:   #303030
   color:        #bbbbbb
 
