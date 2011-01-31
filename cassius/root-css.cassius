@@ -4,9 +4,9 @@ body
   color:            #bbbbbb
   background-color: #303030
   font-family:      helvetica, verdana, sans-serif
-  padding:          5ex
   padding-top:      48px
-  max-width:        100ex
+  margin-left:      2.5%
+  max-width:        50%
 
 .navigation
   display:          block
@@ -16,7 +16,7 @@ body
   padding-top:      48px
   position:         fixed
   top:              0px
-  left:             110ex
+  left:             55%
   width:            100%
   height:           100%
 
