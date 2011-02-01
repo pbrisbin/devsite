@@ -39,10 +39,10 @@ feedFromPosts posts = rssFeed RssFeed
     , rssLanguage    = "en-us"
     , rssLinkSelf    = FeedR
     , rssLinkHome    = RootR
-    , rssUpdated     = mostRecent posts
+    -- note: posts is known to be not empty coming in
+    , rssUpdated     = postDate $ head posts
     , rssEntries     = map postToRssEntry posts
     }
-    where mostRecent = rssEntryUpdated . postToRssEntry . head
 
 postToRssEntry :: Post -> RssFeedEntry DevSiteRoute
 postToRssEntry post = RssFeedEntry
