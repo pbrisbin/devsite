@@ -156,6 +156,9 @@ div.fixed img
 #login th
   border-bottom: none
 
+img#mpc_cover
+  border: none
+
 #mpc_title
   color:       #ffffff
   font-weight: normal !important

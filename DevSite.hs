@@ -25,6 +25,7 @@ import Data.Char (toLower)
 import Data.List (intercalate)
 import Database.Persist.GenericSql
 
+import Helpers.AlbumArt
 import Helpers.RssFeed
 import Helpers.Auth.HashDB
 
@@ -138,8 +139,9 @@ instance YesodAuth DevSite where
 
 -- | In-browser mpd controls
 instance YesodMPC DevSite where
-    mpdConfig  = return . Just $ MpdConfig "192.168.0.5" 6600 ""
-    authHelper = requireAuth >>= \_ -> return ()
+    mpdConfig      = return . Just $ MpdConfig "192.168.0.5" 6600 ""
+    authHelper     = requireAuth >>= \_ -> return ()
+    albumArtHelper = getAlbumUrl
 
 -- | Add a list of words to the html head as keywords
 addKeywords :: [String] -> Widget ()
