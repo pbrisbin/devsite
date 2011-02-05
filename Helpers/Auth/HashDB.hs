@@ -113,7 +113,7 @@ postLoginR = do
     if isValid
         then setCreds True $ Creds "hashdb" user []
         else do
-            setMessage $ [$hamlet| %em invalid username/password |]
+            setMessage $ [$hamlet| invalid username/password |]
             toMaster <- getRouteToMaster
             redirect RedirectTemporary $ toMaster LoginR
 
@@ -137,7 +137,7 @@ getAuthIdHashDB authR creds = do
                 -- user exists
                 Just (uid, _) -> return $ Just uid
                 Nothing       -> do
-                    setMessage $ [$hamlet| %em user not found |]
+                    setMessage $ [$hamlet| user not found |]
                     redirect RedirectTemporary $ authR LoginR
 
 -- | Prompt for username and password, validate that against a database

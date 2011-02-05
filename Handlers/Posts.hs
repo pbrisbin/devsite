@@ -151,5 +151,5 @@ getDelPostR :: String -> Handler RepHtml
 getDelPostR slug = do
     _ <- requireAuth
     deletePost slug
-    setMessage $ [$hamlet| %em post deleted! |]
+    setMessage $ [$hamlet| post deleted! |]
     redirect RedirectTemporary ManagePostsR

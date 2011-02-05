@@ -53,6 +53,10 @@ body
 .post_info
   font-size: 90%
 
+#message
+  font-style: italic;
+  text-transform: lowercase;
+
 #content
   border-bottom: solid 1px #909090
 

@@ -180,10 +180,10 @@ updatePostFromForm p pf = do
             -- delete the original and insert a new version
             deletePost (postSlug post)
             insertPost post
-            setMessage $ [$hamlet| %em post updated! |]
+            setMessage $ [$hamlet| post updated! |]
         else do
             insertPost post
-            setMessage $ [$hamlet| %em post added! |]
+            setMessage $ [$hamlet| post added! |]
 
     redirect RedirectTemporary ManagePostsR
 
