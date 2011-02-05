@@ -147,10 +147,6 @@ div.fixed img
   height: 150px
   width:  550px
 
-.posts_existing tabl
-  margin-left:  auto
-  margin-right: auto
-
 #login table
   text-align:   right
   margin-left:  auto

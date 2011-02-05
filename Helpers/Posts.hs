@@ -289,8 +289,8 @@ managePostTemplate title form enctype = do
     |]
 
     where 
-        shortenLong  = shorten 40 
-        shortenShort = shorten 15 
+        shortenLong  = shorten 60
+        shortenShort = shorten 20
         shorten n s  = if length s > n then take n s ++ "..." else s
 
 -- | The sub template for a single post
