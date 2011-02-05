@@ -23,6 +23,7 @@ import Yesod.Form.Core (GFormMonad(..))
 import Control.Applicative ((<$>))
 import Data.Char (toLower)
 import Data.List (intercalate)
+import Data.Maybe (isJust)
 import Database.Persist.GenericSql
 
 import Helpers.AlbumArt
@@ -155,8 +156,9 @@ addKeywords keywords = addHamletHead [$hamlet|
 -- | Add navigation
 addNavigation :: GWidget s DevSite ()
 addNavigation = do
-    mmesg  <- liftHandler getMessage
-    (t, h) <- liftHandler breadcrumbs
+    mmesg    <- liftHandler getMessage
+    (t, h)   <- liftHandler breadcrumbs
+    loggedin <- liftHandler maybeAuthId >>= return . isJust
     addHamlet [$hamlet|
         .navigation
             $maybe mmesg mesg
@@ -189,6 +191,17 @@ addNavigation = do
                     %img!src="/static/images/feed.png"
                     \ 
                     %a!href=@FeedR@ subscribe
+
+                $if loggedin
+                    %li
+                        %a!href=@ManagePostsR@ manage posts
+                    %li
+                        %a!href=@MpcR.StatusR@ mpd
+                    %li
+                        %a!href=@AuthR.LogoutR@ logout
+                $else
+                    %li
+                        %a!href=@AuthR.LoginR@ login
         |]
 
 -- | Render from markdown, yesod-style
