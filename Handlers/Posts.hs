@@ -82,25 +82,23 @@ getTagsR = do
             });
             |]
 
-        -- a hack so we can embed the widget(s) within a div
-        pageContent <- liftHandler $ widgetToPageContent (mapM_ go tags)
-
-        addHamlet [$hamlet|
+        [$hamlet|
             %h1 All Tags
             #accordion
-                ^pageBody.pageContent^
+                $forall tags tag
+                    ^go.tag^
             |]
 
     where
         -- each tags section
         go tag = do
-            posts     <- liftHandler $ getPostsByTag tag
-            postsList <- liftHandler $ widgetToPageContent (mapM_ addPostBlock posts)
-            addHamlet [$hamlet|
+            posts <- liftHandler $ getPostsByTag tag
+            [$hamlet|
                 %h3 $tag$ 
                     %span.lighter - $show.length.posts$ posts
                 %div
-                    ^pageBody.postsList^
+                    $forall posts post
+                        ^addPostBlock.post^
                 |]
 
 -- | A tag
