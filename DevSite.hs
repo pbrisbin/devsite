@@ -192,6 +192,7 @@ addNavigation = do
                     \ 
                     %a!href=@FeedR@ subscribe
 
+            %ul.admin
                 $if loggedin
                     %li
                         %a!href=@ManagePostsR@ manage posts
