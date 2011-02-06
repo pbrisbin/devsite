@@ -29,6 +29,9 @@ import DevSite
 import Helpers.Posts
 import Helpers.RssFeed (rssLink)
 
+import Control.Monad (forM, liftM)
+import Data.List (sortBy)
+import Data.Ord (comparing)
 import Data.Time.Clock (getCurrentTime)
 
 import qualified Settings
@@ -55,6 +58,10 @@ getPostR slug = do
 getTagsR :: Handler RepHtml
 getTagsR = do
     tags <- selectTags
+    -- create a tuple [(tag, [post])] and sort on length [posts]
+    tagPosts <- liftM sortTags $ forM tags $ \tag -> do
+        posts <- getPostsByTag tag
+        return (tag, posts)
     defaultLayout $ do
         setTitle $ string "pbrisbin - All Tags"
         addKeywords $ "pbrisbin":tags
@@ -67,7 +74,7 @@ getTagsR = do
                 outline:     none !important
                 margin-left: 0px
 
-            .lighter
+            .post_count
                 color: #909090
             |]
 
@@ -85,21 +92,15 @@ getTagsR = do
         [$hamlet|
             %h1 All Tags
             #accordion
-                $forall tags tag
-                    ^go.tag^
+                $forall tagPosts tagPost
+                    %h3 $fst.tagPost$ 
+                        %span.post_count - $show.length.snd.tagPost$ posts
+                    %div
+                        $forall snd.tagPost post
+                            ^addPostBlock.post^
             |]
-
     where
-        -- each tags section
-        go tag = do
-            posts <- liftHandler $ getPostsByTag tag
-            [$hamlet|
-                %h3 $tag$ 
-                    %span.lighter - $show.length.posts$ posts
-                %div
-                    $forall posts post
-                        ^addPostBlock.post^
-                |]
+        sortTags = reverse . sortBy (comparing (length . snd))
 
 -- | A tag
 getTagR :: String -> Handler RepHtml
@@ -111,10 +112,11 @@ getTagR tag = do
             setTitle $ string $ "pbrisbin - Tag: " ++ tag
             addKeywords ["pbrisbin", tag]
             rssLink (FeedTagR tag) ("rss feed for tag " ++ tag)
-            addHamlet [$hamlet| 
+            [$hamlet| 
                 %h1 Tag: $tag$ 
+                $forall posts post
+                    ^addPostBlock.post^
                 |]
-            mapM_ addPostBlock posts
 
 -- | Manage posts
 getManagePostsR :: Handler RepHtml
