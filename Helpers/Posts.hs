@@ -327,7 +327,7 @@ addPostContent post = do
     let prettyTime = string . humanReadableTimeDiff curTime $ postDate post
 
     setTitle . string $ "pbrisbin - " ++ postTitle post
-    addKeywords $ ["pbrisbin", postTitle post] ++ postTags post
+    addKeywords $ postTitle post : postTags post
 
     addJulius [$julius|
         var disqus_shortname  = 'pbrisbin';

@@ -34,7 +34,7 @@ getTagsR = do
     tagGroups <- getTagGroups
     defaultLayout $ do
         setTitle $ string "pbrisbin - All Tags"
-        addKeywords $ "pbrisbin" : (map fst tagGroups)
+        addKeywords $ map fst tagGroups
 
         -- styling for this page only {{{
         addCassius [$cassius|
@@ -89,7 +89,7 @@ getTagR tag = do
         []    -> notFound
         posts -> defaultLayout $ do
             setTitle $ string $ "pbrisbin - Tag: " ++ tag
-            addKeywords ["pbrisbin", tag]
+            addKeywords [tag]
             rssLink (FeedTagR tag) ("rss feed for tag " ++ tag)
             [$hamlet| 
                 %h1 Tag: $tag$ 

@@ -77,7 +77,7 @@ instance Yesod DevSite where
             !!!
             %html!lang="en"
                 %head
-                    %meta!name="author"!content="pbrisbin"
+                    %meta!name="author"!content="Patrick Brisbin"
                     %meta!name="description"!content="pbrisbin dot com"
                     %meta!http-equiv="Content-Type"!content="text/html; charset=UTF-8"
                     %script!src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"
@@ -141,7 +141,7 @@ instance YesodAuth DevSite where
 -- | In-browser mpd controls
 instance YesodMPC DevSite where
     mpdConfig      = return . Just $ MpdConfig "192.168.0.5" 6600 ""
-    authHelper     = requireAuth >>= \_ -> return ()
+    authHelper     = return . const () =<< requireAuth
     albumArtHelper = getAlbumUrl
 
 -- | Add a list of words to the html head as keywords
@@ -150,8 +150,10 @@ addKeywords keywords = addHamletHead [$hamlet|
     %meta!name="keywords"!content=$format.keywords$
     |]
     where 
+        -- add some default keywords, then make the comma separated 
+        -- string
         format :: [String] -> Html
-        format = string . intercalate ", "
+        format = string . intercalate ", " . (:) "Patrick Brisbin" . (:) "pbrisbin"
 
 -- | Add navigation
 addNavigation :: GWidget s DevSite ()
@@ -195,14 +197,14 @@ addNavigation = do
             %ul.admin
                 $if loggedin
                     %li
-                        %a!href=@ManagePostsR@ manage posts
+                        %a!href=@ManagePostsR@  manage posts
                     %li
-                        %a!href=@MpcR.StatusR@ mpd
+                        %a!href=@MpcR.StatusR@  mpd
                     %li
                         %a!href=@AuthR.LogoutR@ logout
                 $else
                     %li
-                        %a!href=@AuthR.LoginR@ login
+                        %a!href=@AuthR.LoginR@  login
         |]
 
 -- | Render from markdown, yesod-style

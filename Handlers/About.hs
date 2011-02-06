@@ -21,7 +21,7 @@ getAboutR :: Handler RepHtml
 getAboutR = do
     defaultLayout $ do
         setTitle $ string "pbrisbin - About"
-        addKeywords ["pbrisbin", "about"]
+        addKeywords ["about"]
         addHamlet [$hamlet|
             %h1 About
 

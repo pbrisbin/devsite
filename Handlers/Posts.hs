@@ -36,7 +36,7 @@ getPostsR = do
     posts <- selectPosts 0
     defaultLayout $ do
         setTitle $ string "pbrisbin - All Posts"
-        addKeywords ["pbrisbin", "all posts"]
+        addKeywords ["all posts"]
         [$hamlet| 
             %h1 All Posts 
             $forall posts post
