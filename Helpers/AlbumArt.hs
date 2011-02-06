@@ -21,11 +21,7 @@ coverDir :: String
 coverDir = "static/covers/"
 
 fileRoot :: String
-#ifdef PROD
-fileRoot = ""
-#else
 fileRoot = "/srv/http/"
-#endif
 
 urlRoot :: String
 #ifdef PROD
