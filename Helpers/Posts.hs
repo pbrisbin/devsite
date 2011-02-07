@@ -16,6 +16,8 @@
 -------------------------------------------------------------------------------
 module Helpers.Posts
     ( Post (..)
+    , Tag
+    , TagGroup
     , loadPostContent
     , selectPosts
     , selectTags
@@ -23,6 +25,7 @@ module Helpers.Posts
     , deletePost
     , getPostBySlug
     , getPostsByTag
+    , getTagGroups
     , runPostForm
     , addPostBlock
     , addPostContent
@@ -39,12 +42,13 @@ import Yesod.Form.Core
 import Data.Time
 import System.Locale
 
-import Control.Monad       (liftM)
-import Data.Char           (isSpace)
-import Data.List           (nub, intercalate)
-import Data.Maybe          (isJust, fromJust)
-import System.Directory    (doesFileExist)
 import Control.Applicative ((<$>), (<*>))
+import Control.Monad       (liftM, forM)
+import Data.Char           (isSpace)
+import Data.List           (nub, intercalate, sortBy)
+import Data.Maybe          (isJust, fromJust)
+import Data.Ord            (comparing)
+import System.Directory    (doesFileExist)
 
 import Database.Persist.TH         (share2)
 import Database.Persist.GenericSql (mkMigrate)
@@ -59,7 +63,7 @@ data Post = Post
     , postDate  :: UTCTime
     , postTitle :: String
     , postDescr :: String
-    , postTags  :: [String]
+    , postTags  :: [Tag]
     }
 
 -- | Used in the new post form
@@ -69,6 +73,12 @@ data PostForm = PostForm
     , formTags  :: String
     , formDescr :: Markdown
     }
+
+-- | A tag name
+type Tag = String
+
+-- | A tag name and the list of posts that have that tag
+type TagGroup = (Tag, [Post])
 
 -- | Generate data base instances for post meta-data
 share2 mkPersist (mkMigrate "migratePosts") [$persist|
@@ -101,7 +111,7 @@ selectPosts n = mapM go =<< runDB (selectList [] [SqlPostDateDesc] n 0)
                 }
 
 -- | Select the list of all unique tags as strings
-selectTags :: Handler [String]
+selectTags :: Handler [Tag]
 selectTags = return . nub . map (sqlTagName . snd) =<< runDB (selectList [] [SqlTagNameAsc] 0 0)
 
 -- | Insert a post into the database
@@ -142,10 +152,21 @@ getPostBySlug slug = do
     return $ filter ((== slug) . postSlug) allPosts
 
 -- | Locate posts with a given tag
-getPostsByTag :: String -> Handler [Post]
+getPostsByTag :: Tag -> Handler [Post]
 getPostsByTag tag = do
     allPosts <- selectPosts 0
     return $ filter (elem tag . postTags) allPosts
+
+-- | Return all tags sorted by number of posts
+getTagGroups :: Handler [TagGroup]
+getTagGroups = do
+    tags <- selectTags
+    liftM sortTags $ forM tags $ \tag -> do
+        posts <- getPostsByTag tag
+        return (tag, posts)
+    where
+        sortTags :: [TagGroup] -> [TagGroup]
+        sortTags = reverse . sortBy (comparing (length . snd))
 
 -- | Load a post's pandoc file and convert it to html, return the post 
 --   decription text if the pdc file doesn't exist

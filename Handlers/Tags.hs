@@ -21,13 +21,6 @@ import DevSite
 import Helpers.Posts
 import Helpers.RssFeed (rssLink)
 
-import Control.Monad (forM, liftM)
-import Data.List (sortBy)
-import Data.Ord (comparing)
-
-type Tag      = String
-type TagGroup = (Tag, [Post])
-
 -- | All tags
 getTagsR :: Handler RepHtml
 getTagsR = do
@@ -36,7 +29,6 @@ getTagsR = do
         setTitle $ string "pbrisbin - All Tags"
         addKeywords $ map fst tagGroups
 
-        -- styling for this page only {{{
         addCassius [$cassius|
             h3
                 cursor:      pointer
@@ -47,9 +39,7 @@ getTagsR = do
             .post_count
                 color: #909090
             |]
-        -- }}}
 
-        -- accordion effect {{{
         addJulius [$julius|
             $(function() {
                 $("#accordion").accordion({
@@ -59,7 +49,6 @@ getTagsR = do
                 });
             });
             |]
-        -- }}}
 
         [$hamlet|
             %h1 All Tags
@@ -96,13 +85,3 @@ getTagR tag = do
                 $forall posts post
                     ^addPostBlock.post^
                 |]
-
-getTagGroups :: Handler [TagGroup]
-getTagGroups = do
-    tags <- selectTags
-    liftM sortTags $ forM tags $ \tag -> do
-        posts <- getPostsByTag tag
-        return (tag, posts)
-
-sortTags :: [TagGroup] -> [TagGroup]
-sortTags = reverse . sortBy (comparing (length . snd))
