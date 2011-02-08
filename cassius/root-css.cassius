@@ -3,7 +3,7 @@ body
   text-align:       justify
   color:            #bbbbbb
   background-color: #303030
-  font-family:      helvetica, verdana, sans-serif
+  font:             13.34px helvetica,clean,verdana,sans-serif
   padding-top:      48px
   margin-left:      2.5%
   max-width:        50%
