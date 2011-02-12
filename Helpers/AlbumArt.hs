@@ -13,7 +13,6 @@
 module Helpers.AlbumArt (getAlbumUrl) where
 
 import Yesod
-import Yesod.Helpers.MPC
 import Data.Char        (toLower)
 import System.Directory (doesFileExist)
 
@@ -42,11 +41,11 @@ fixFilename = filter (`elem` goodChars) . rmSpaces . map toLower
         rmSpaces (' ': rest) = '_': rmSpaces rest
         rmSpaces (x  : rest) = x  : rmSpaces rest
 
-getAlbumUrl :: (Yesod m) => NowPlaying -> GHandler s m (Maybe String)
-getAlbumUrl np = liftIO $ do
-    let filename = coverDir ++ (fixFilename $ npArtist np ++ " " ++ npAlbum np) ++ extension
+getAlbumUrl :: (Yesod m) => (String,String) -> GHandler s m (Maybe String)
+getAlbumUrl (artist,album) = liftIO $ do
+    let filename = coverDir ++ (fixFilename $ artist ++ " " ++ album) ++ extension
     exists <- doesFileExist $ fileRoot ++ filename
     if exists
         -- add root anchor b/c of subsite
-        then return $ Just $ urlRoot ++ filename
+        then return . Just $ urlRoot ++ filename
         else return Nothing
