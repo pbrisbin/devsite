@@ -50,12 +50,18 @@ body
   padding-top:      0.5%
   padding-bottom:   0.5%
 
-.post_info
-  font-size: 90%
+.post_info .post_info_page
+  font-size:  90%
+
+.post_info_page
+  font-style: italic
+
+.tag_list
+  float: right
 
 #message
-  font-style: italic;
-  text-transform: lowercase;
+  font-style:     italic
+  text-transform: lowercase
 
 #content
   border-bottom: solid 1px #909090

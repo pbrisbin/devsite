@@ -317,9 +317,8 @@ managePostTemplate title form enctype = do
 -- | The sub template for a single post
 addPostBlock :: Post -> Widget ()
 addPostBlock post = do
-    curTime         <- liftHandler $ liftIO getCurrentTime 
     postDescription <- liftHandler . markdownToHtml . Markdown $ postDescr post
-    addHamlet [$hamlet|
+    [$hamlet|
         .post
             .post_title
                 %p
@@ -329,14 +328,26 @@ addPostBlock post = do
                 $postDescription$
 
             .post_info
-                %p
-                    published $(humanReadableTimeDiff.curTime).postDate.post$
+                ^postInfo.post^
 
-                    %span.float_right
-                        tags: 
+        |]
 
-                        $forall postTags.post tag
-                            %a!href=@TagR.tag@ $tag$ 
+-- | A sub template for the posted time and tags
+postInfo :: Post -> Widget ()
+postInfo post = do
+    curTime <- liftHandler $ liftIO getCurrentTime
+    [$hamlet|
+        %p
+            published $(humanReadableTimeDiff.curTime).postDate.post$
+
+            %span.tag_list
+                tags: 
+
+                $forall init.postTags.post tag
+                    %a!href=@TagR.tag@ $tag$
+                    , 
+
+                %a!href=@TagR.last.postTags.post@ $last.postTags.post$
         |]
 
 -- | Add post content to the body tag
@@ -356,20 +367,14 @@ addPostContent post = do
         var disqus_title      = '%postTitle.post%';
         |]
 
-    addHamlet [$hamlet|
+    [$hamlet|
         %h1 $postTitle.post$
 
         $postContent$
 
-        %p.small
-            %em 
-                published $prettyTime$
-                %span.float_right
-                    tags:
-                    $forall postTags.post tag
-                        \ 
-                        %a!href=@TagR.tag@ $tag$
-            
+        .post_info_page
+            ^postInfo.post^
+
         %h3 
             %a!href="#Comments"!id="Comments" Comments
 
