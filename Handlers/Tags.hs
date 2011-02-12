@@ -20,6 +20,7 @@ import Yesod
 import DevSite
 import Helpers.Posts
 import Helpers.RssFeed (rssLink)
+import Data.Char (toLower, toUpper)
 
 -- | All tags
 getTagsR :: Handler RepHtml
@@ -63,16 +64,22 @@ getTagsR = do
             let posts = snd tg
             let len   = show $ length posts
             [$hamlet|
-                %h3 $tag$ 
+                %h3 $proper.tag$ 
                     %span.post_count - $len$ posts
                 %div
                     $forall posts post
                         ^addPostBlock.post^
                 |]
 
+        -- tag name -> Tag Name
+        proper            = unwords . map capitalize . words
+        capitalize []     = []
+        capitalize (x:xs) = (toUpper x) : xs
+
 -- | A tag
 getTagR :: String -> Handler RepHtml
-getTagR tag = do
+getTagR tag' = do
+    let tag = map toLower tag'
     posts'<- getPostsByTag tag
     case posts' of
         []    -> notFound
