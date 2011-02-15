@@ -132,8 +132,7 @@ getAboutR = do
 
             %p
 
-                All of my pages have been validated as HTML5, my CSS is 
-                valid level 2.1, and my RSS is valid 2.0.
+                I use and validate against HTML5/CSS3 and RSS 2.0.
 
             %p.centered
 
