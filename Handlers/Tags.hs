@@ -37,18 +37,11 @@ getTagsR = do
                 outline:     none !important
                 margin-left: 0px
 
+            #accordian div
+                display: none !important
+
             .post_count
                 color: #909090
-            |]
-
-        addJulius [$julius|
-            $(function() {
-                $("#accordion").accordion({
-                collapsible:true,
-                autoHeight: false,
-                active: false
-                });
-            });
             |]
 
         [$hamlet|
@@ -56,6 +49,17 @@ getTagsR = do
             #accordion
                 $forall tagGroups tagGroup
                     ^addTagGroup.tagGroup^
+
+            %script!src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"
+            %script!src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.9/jquery-ui.min.js"
+            %script
+                $$(function() {
+                    $$("#accordion").accordion({
+                        collapsible: true,
+                        autoHeight:  false,
+                        active:      false
+                    });
+                });
             |]
     where
         addTagGroup :: TagGroup -> Widget ()

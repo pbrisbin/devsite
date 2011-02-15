@@ -77,11 +77,9 @@ instance Yesod DevSite where
             !!!
             %html!lang="en"
                 %head
+                    %meta!http-equiv="Content-Type"!content="text/html; charset=UTF-8"
                     %meta!name="author"!content="Patrick Brisbin"
                     %meta!name="description"!content="pbrisbin dot com"
-                    %meta!http-equiv="Content-Type"!content="text/html; charset=UTF-8"
-                    %script!src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"
-                    %script!src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.9/jquery-ui.min.js"
                     ^pageHead.pc^
                     %title $pageTitle.pc$
                 %body
