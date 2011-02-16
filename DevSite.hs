@@ -188,7 +188,7 @@ addNavigation = do
                 %li
                     %a!href="/haskell/docs/html" haskell docs
                 %li
-                    %img!src="/static/images/feed.png"
+                    %img#feed!src="/static/images/feed.png"
                     \ 
                     %a!href=@FeedR@ subscribe
 

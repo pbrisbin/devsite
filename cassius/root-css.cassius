@@ -11,7 +11,8 @@ body
 .navigation
   display:          block
   color:            #909090
-  border:           solid 1px #101010
+  background-color: #393939
+  border:           solid 1px #121212
   padding-top:      2ex
   padding-left:     2ex
   position:         fixed
@@ -35,6 +36,11 @@ body
 
 .navigation p
   padding-left: 2ex
+
+img#feed
+  height: 12px
+  width:  12px
+  border: none
 
 .small
   font-size: 90%
