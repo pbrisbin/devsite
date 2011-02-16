@@ -77,11 +77,11 @@ instance Yesod DevSite where
             !!!
             %html!lang="en"
                 %head
-                    %meta!http-equiv="Content-Type"!content="text/html; charset=UTF-8"
-                    %meta!name="author"!content="Patrick Brisbin"
-                    %meta!name="description"!content="pbrisbin dot com"
-                    ^pageHead.pc^
+                    %meta!charset="utf-8"
                     %title $pageTitle.pc$
+                    %meta!name="description"!content="pbrisbin dot com"
+                    %meta!name="author"!content="Patrick Brisbin"
+                    ^pageHead.pc^
                 %body
                     #content
                         ^pageBody.pc^

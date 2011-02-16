@@ -1,3 +1,6 @@
+html
+  overflow-y: scroll
+
 body
   display:          block
   text-align:       justify
@@ -7,6 +10,16 @@ body
   padding-top:      48px
   margin-left:      2.5%
   max-width:        50%
+
+::-moz-selection
+  background:  #bbbbbb
+  color:       #303030
+  text-shadow: none
+
+::selection
+  background:  #bbbbbb
+  color:       #303030
+  text-shadow: none
 
 .navigation
   display:          block

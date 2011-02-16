@@ -26,7 +26,7 @@ urlRoot :: String
 #ifdef PROD
 urlRoot = "/"
 #else
-urlRoot = "http://pbrisbin.com/"
+urlRoot = "//pbrisbin.com/"
 #endif
 
 extension :: String
