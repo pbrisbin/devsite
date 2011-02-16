@@ -42,6 +42,9 @@ img#feed
   width:  12px
   border: none
 
+.hidden
+  display: none
+
 .small
   font-size: 90%
 

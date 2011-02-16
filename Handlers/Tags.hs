@@ -37,9 +37,6 @@ getTagsR = do
                 outline:     none !important
                 margin-left: 0px
 
-            #accordian div
-                display: none !important
-
             .post_count
                 color: #909090
             |]
@@ -70,7 +67,7 @@ getTagsR = do
             [$hamlet|
                 %h3 $proper.tag$ 
                     %span.post_count - $len$ posts
-                %div
+                %div.hidden
                     $forall posts post
                         ^addPostBlock.post^
                 |]
