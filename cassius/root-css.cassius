@@ -42,6 +42,16 @@ body
      -moz-border-top-left-radius: 10px
           border-top-left-radius: 10px
 
+li#hidden_login
+  opacity: 0;
+  -webkit-transition: all 0.3s ease-out
+     -moz-transition: all 0.3s ease-out
+       -o-transition: all 0.3s ease-out
+          transition: all 0.3s ease-out
+
+li#hidden_login:hover
+  opacity: 1;
+
 .navigation li
   font-size:        120%
   list-style-type:  none

@@ -201,7 +201,7 @@ addNavigation = do
                     %li
                         %a!href=@AuthR.LogoutR@ logout
                 $else
-                    %li
+                    %li#hidden_login
                         %a!href=@AuthR.LoginR@  login
         |]
 
