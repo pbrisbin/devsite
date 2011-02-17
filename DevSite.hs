@@ -31,6 +31,7 @@ import Helpers.PostTypes
 import Helpers.RssFeed
 import Helpers.Auth.HashDB
 
+import Settings (cssLink)
 import qualified Settings
 
 -- | The main site type
@@ -68,6 +69,7 @@ mkYesodData "DevSite" [$parseRoutes|
     /apps/mpc MpcR  MPC  getMPC
     |]
 
+
 instance Yesod DevSite where 
     approot _   = Settings.approot
     authRoute _ = Just $ AuthR LoginR
@@ -75,7 +77,6 @@ instance Yesod DevSite where
     defaultLayout widget = do
         pc <- widgetToPageContent $ do
             rssLink FeedR "rss feed"
-            addCassius $(Settings.cassiusFile "root-css")
             addNavigation
             widget
         hamletToRepHtml [$hamlet|
@@ -87,6 +88,7 @@ instance Yesod DevSite where
                     %meta!name="description"!content="pbrisbin dot com"
                     %meta!name="author"!content="Patrick Brisbin"
                     ^pageHead.pc^
+                    %link!rel="stylesheet"!href=$cssLink$
                 %body
                     #content
                         ^pageBody.pc^

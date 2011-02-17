@@ -12,8 +12,7 @@
 -------------------------------------------------------------------------------
 module Settings
     ( approot
-    , hamletFile
-    , cassiusFile
+    , cssLink
     , pandocFile
     , withConnectionPool
     ) where
@@ -33,18 +32,11 @@ approot = "http://pbrisbin.com"
 approot = "http://localhost:3000"
 #endif
 
-hamletFile :: FilePath -> Q Exp
+cssLink :: String
 #ifdef PROD
-hamletFile x = H.hamletFile $ "hamlet/" ++ x ++ ".hamlet"
+cssLink = "/static/css/style.css"
 #else
-hamletFile x = H.hamletFileDebug $ "hamlet/" ++ x ++ ".hamlet"
-#endif
-
-cassiusFile :: FilePath -> Q Exp
-#ifdef PROD
-cassiusFile x = C.cassiusFile $ "cassius/" ++ x ++ ".cassius"
-#else
-cassiusFile x = C.cassiusFileDebug $ "cassius/" ++ x ++ ".cassius"
+cssLink = "//pbrisbin.com/static/css/style.css"
 #endif
 
 dataBase :: String
@@ -55,7 +47,11 @@ dataBase = "dev-posts.s3db"
 #endif
 
 pandocFile :: String -> FilePath
+#ifdef PROD
 pandocFile x = "pandoc/" ++ x ++ ".pdc"
+#else
+pandocFile x = "/srv/http/pandoc/" ++ x ++ ".pdc"
+#endif
 
 withConnectionPool :: MonadInvertIO m => (ConnectionPool -> m a) -> m a
 withConnectionPool = withSqlitePool dataBase 10
