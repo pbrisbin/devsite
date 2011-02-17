@@ -25,6 +25,7 @@ import Yesod.Helpers.Auth
 
 import DevSite
 import Helpers.Posts
+import Helpers.PostTypes
 import Helpers.RssFeed (rssLink)
 import Data.Time.Clock (getCurrentTime)
 
@@ -33,7 +34,8 @@ import qualified Settings
 -- | All posts
 getPostsR :: Handler RepHtml
 getPostsR = do
-    posts <- selectPosts 0
+    DevSite _ hposts _ <- getYesod
+    posts              <- hposts
     defaultLayout $ do
         setTitle $ string "pbrisbin - All Posts"
         addKeywords ["all posts"]
@@ -46,8 +48,9 @@ getPostsR = do
 -- | A post
 getPostR :: String -> Handler RepHtml
 getPostR slug = do
-    posts <- getPostBySlug slug
-    case posts of
+    DevSite _ hposts _ <- getYesod
+    posts              <- hposts
+    case filter ((==) slug . postSlug) posts of
         []       -> notFound
         (post:_) -> defaultLayout $ addPostContent post
 -- | Manage posts
@@ -65,9 +68,10 @@ postManagePostsR = getManagePostsR
 -- | Edit post
 getEditPostR :: String -> Handler RepHtml
 getEditPostR slug = do
-    _    <- requireAuth
-    post <- getPostBySlug slug
-    case post of
+    _                  <- requireAuth
+    DevSite _ hposts _ <- getYesod
+    posts              <- hposts
+    case filter ((==) slug . postSlug) posts of
         []        -> notFound
         (post':_) -> do
             defaultLayout $ do

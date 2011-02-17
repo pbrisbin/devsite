@@ -15,18 +15,12 @@
 --
 -------------------------------------------------------------------------------
 module Helpers.Posts
-    ( Post (..)
-    , Tag
-    , TagGroup
+    ( loadPosts
+    , loadTagGroups
     , loadPostContent
-    , selectPosts
-    , selectTags
+    , runPostForm
     , insertPost
     , deletePost
-    , getPostBySlug
-    , getPostsByTag
-    , getTagGroups
-    , runPostForm
     , addPostBlock
     , addPostContent
     , migratePosts
@@ -34,6 +28,7 @@ module Helpers.Posts
     ) where
 
 import DevSite
+import Helpers.PostTypes
 
 import Yesod
 import Yesod.Markdown
@@ -57,16 +52,7 @@ import Language.Haskell.TH.Syntax
 
 import qualified Settings
 
--- | The data type of a single post
-data Post = Post
-    { postSlug  :: String
-    , postDate  :: UTCTime
-    , postTitle :: String
-    , postDescr :: String
-    , postTags  :: [Tag]
-    }
-
--- | Used in the new post form
+-- | Used by the new post form
 data PostForm = PostForm
     { formSlug  :: String
     , formTitle :: String
@@ -74,16 +60,10 @@ data PostForm = PostForm
     , formDescr :: Markdown
     }
 
--- | A tag name
-type Tag = String
-
--- | A tag name and the list of posts that have that tag
-type TagGroup = (Tag, [Post])
-
 -- | Generate data base instances for post meta-data
 share2 mkPersist (mkMigrate "migratePosts") [$persist|
 SqlPost
-    slug        String
+    slug        String Eq
     date        UTCTime Desc
     title       String
     descr       String
@@ -93,10 +73,9 @@ SqlTag
     name String Asc
 |]
 
--- | Select n recent posts from the database and return them
-selectPosts :: Int -> Handler [Post]
-selectPosts n = mapM go =<< runDB (selectList [] [SqlPostDateDesc] n 0)
-
+-- | Select posts from the db, most recent first
+loadPosts :: Handler [Post]
+loadPosts = mapM go =<< runDB (selectList [] [SqlPostDateDesc] 0 0)
     where
         go :: (Key SqlPost, SqlPost) -> Handler Post
         go (sqlPostKey, sqlPost) = do
@@ -110,9 +89,17 @@ selectPosts n = mapM go =<< runDB (selectList [] [SqlPostDateDesc] n 0)
                 , postTags  = fmap (sqlTagName . snd) sqlTags
                 }
 
--- | Select the list of all unique tags as strings
-selectTags :: Handler [Tag]
-selectTags = return . nub . map (sqlTagName . snd) =<< runDB (selectList [] [SqlTagNameAsc] 0 0)
+-- | Return all tags sorted by number of posts. This is as least db-trip
+--   intensive as i can get it without proper joins
+loadTagGroups :: Handler [TagGroup]
+loadTagGroups = do
+    posts <- loadPosts
+    tags  <- return . nub . map (sqlTagName . snd) =<< runDB (selectList [] [SqlTagNameAsc] 0 0)
+    return . sortByNumPosts $ map (\tag -> (tag, filter (elem tag . postTags) posts)) tags
+    where
+        sortByNumPosts :: [TagGroup] -> [TagGroup]
+        sortByNumPosts = reverse . sortBy (comparing (length . snd))
+
 
 -- | Insert a post into the database
 insertPost :: Post -> Handler ()
@@ -144,29 +131,6 @@ deletePost slug = do
             runDB $ deleteBy $ UniqueSqlPost slug
             runDB $ deleteWhere [SqlTagPostEq sqlPostKey]
         Nothing -> return ()
-
--- | Locate posts with a given slug
-getPostBySlug :: String -> Handler [Post]
-getPostBySlug slug = do
-    allPosts <- selectPosts 0
-    return $ filter ((== slug) . postSlug) allPosts
-
--- | Locate posts with a given tag
-getPostsByTag :: Tag -> Handler [Post]
-getPostsByTag tag = do
-    allPosts <- selectPosts 0
-    return $ filter (elem tag . postTags) allPosts
-
--- | Return all tags sorted by number of posts
-getTagGroups :: Handler [TagGroup]
-getTagGroups = do
-    tags <- selectTags
-    liftM sortTags $ forM tags $ \tag -> do
-        posts <- getPostsByTag tag
-        return (tag, posts)
-    where
-        sortTags :: [TagGroup] -> [TagGroup]
-        sortTags = reverse . sortBy (comparing (length . snd))
 
 -- | Load a post's pandoc file and convert it to html, return the post 
 --   decription text if the pdc file doesn't exist
@@ -280,7 +244,8 @@ postForm post = do
 --   posts
 managePostTemplate :: String -> Widget () -> Enctype -> Widget ()
 managePostTemplate title form enctype = do
-    posts <- liftHandler $ selectPosts 0
+    DevSite _ hposts _ <- liftHandler getYesod
+    posts              <- liftHandler hposts
     [$hamlet|
     .post_input
         %h3 $string.title$

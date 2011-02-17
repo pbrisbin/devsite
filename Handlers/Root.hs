@@ -33,7 +33,8 @@ xmonad  = "XMonad"
 -- | Home page
 getRootR :: Handler RepHtml
 getRootR = do
-    posts <- selectPosts 10
+    DevSite _ hposts _ <- getYesod
+    posts              <- fmap (take 10) hposts
     defaultLayout $ do
         setTitle $ string "pbrisbin - Home"
         addKeywords ["home", "haskell", "bash", "mutt", "xmonad", "arch linux"]

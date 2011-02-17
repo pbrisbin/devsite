@@ -27,13 +27,18 @@ import Data.Maybe (isJust)
 import Database.Persist.GenericSql
 
 import Helpers.AlbumArt
+import Helpers.PostTypes
 import Helpers.RssFeed
 import Helpers.Auth.HashDB
 
 import qualified Settings
 
 -- | The main site type
-data DevSite = DevSite { connPool :: ConnectionPool }
+data DevSite = DevSite
+    { connPool  :: ConnectionPool
+    , posts     :: Handler [Post]
+    , tagGroups :: Handler [TagGroup]
+    }
 
 type Handler     = GHandler DevSite DevSite
 type Widget      = GWidget  DevSite DevSite

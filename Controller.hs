@@ -18,7 +18,7 @@ import Yesod.Helpers.MPC
 import DevSite
 import Handlers
 
-import Helpers.Posts       (migratePosts)
+import Helpers.Posts       (loadPosts, loadTagGroups, migratePosts)
 import Helpers.Auth.HashDB (migrateUsers)
 
 import Database.Persist.GenericSql
@@ -33,5 +33,4 @@ withServer :: (Application -> IO a) -> IO a
 withServer f = Settings.withConnectionPool $ \p -> do
     runSqlPool (runMigration migratePosts) p
     runSqlPool (runMigration migrateUsers) p
-    let h = DevSite p
-    toWaiApp h >>= f
+    f =<< toWaiApp (DevSite p loadPosts loadTagGroups)

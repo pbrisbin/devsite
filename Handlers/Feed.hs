@@ -14,21 +14,24 @@ module Handlers.Feed where
 import Yesod
 import DevSite
 import Helpers.Posts
+import Helpers.PostTypes
 import Helpers.RssFeed
 
 -- | Rss feed
 getFeedR :: Handler RepRss
 getFeedR = do
-    results <- selectPosts 10
-    case results of
+    DevSite _ hposts _ <- getYesod
+    posts              <- fmap (take 10) hposts
+    case posts of
         []    -> notFound
         posts -> feedFromPosts posts
 
 -- | Rss feed, limited to a tag
 getFeedTagR :: String -> Handler RepRss
 getFeedTagR tag = do
-    results <- getPostsByTag tag
-    case results of
+    DevSite _ hposts _ <- getYesod
+    posts              <- hposts
+    case filter (elem tag . postTags) posts of
         []    -> notFound
         posts -> feedFromPosts posts
 

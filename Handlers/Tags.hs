@@ -19,13 +19,15 @@ import Yesod
 
 import DevSite
 import Helpers.Posts
+import Helpers.PostTypes
 import Helpers.RssFeed (rssLink)
 import Data.Char (toLower, toUpper)
 
 -- | All tags
 getTagsR :: Handler RepHtml
 getTagsR = do
-    tagGroups <- getTagGroups
+    DevSite _ _ hTagGroups <- getYesod
+    tagGroups              <- hTagGroups
     defaultLayout $ do
         setTitle $ string "pbrisbin - All Tags"
         addKeywords $ map fst tagGroups
@@ -81,8 +83,9 @@ getTagsR = do
 getTagR :: String -> Handler RepHtml
 getTagR tag' = do
     let tag = map toLower tag'
-    posts'<- getPostsByTag tag
-    case posts' of
+    DevSite _ hposts _ <- getYesod
+    posts              <- hposts
+    case filter (elem tag . postTags) posts of
         []    -> notFound
         posts -> defaultLayout $ do
             setTitle $ string $ "pbrisbin - Tag: " ++ tag
