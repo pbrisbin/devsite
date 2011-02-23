@@ -20,8 +20,7 @@ import Helpers.RssFeed
 -- | Rss feed
 getFeedR :: Handler RepRss
 getFeedR = do
-    DevSite _ hposts _ <- getYesod
-    posts              <- fmap (take 10) hposts
+    posts <- fmap (take 10) . sitePosts =<< getYesod
     case posts of
         []    -> notFound
         posts -> feedFromPosts posts
@@ -29,8 +28,7 @@ getFeedR = do
 -- | Rss feed, limited to a tag
 getFeedTagR :: String -> Handler RepRss
 getFeedTagR tag = do
-    DevSite _ hposts _ <- getYesod
-    posts              <- hposts
+    posts <- sitePosts =<< getYesod
     case filter (elem tag . postTags) posts of
         []    -> notFound
         posts -> feedFromPosts posts

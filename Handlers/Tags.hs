@@ -26,8 +26,8 @@ import Data.Char (toLower, toUpper)
 -- | All tags
 getTagsR :: Handler RepHtml
 getTagsR = do
-    DevSite _ _ hTagGroups <- getYesod
-    tagGroups              <- hTagGroups
+    posts <- sitePosts =<< getYesod
+    let tagGroups = mkTagGroups posts
     defaultLayout $ do
         setTitle $ string "pbrisbin - All Tags"
         addKeywords $ map fst tagGroups
@@ -83,8 +83,7 @@ getTagsR = do
 getTagR :: String -> Handler RepHtml
 getTagR tag' = do
     let tag = map toLower tag'
-    DevSite _ hposts _ <- getYesod
-    posts              <- hposts
+    posts <- sitePosts =<< getYesod
     case filter (elem tag . postTags) posts of
         []    -> notFound
         posts -> defaultLayout $ do

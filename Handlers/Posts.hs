@@ -34,8 +34,7 @@ import qualified Settings
 -- | All posts
 getPostsR :: Handler RepHtml
 getPostsR = do
-    DevSite _ hposts _ <- getYesod
-    posts              <- hposts
+    posts <- sitePosts =<< getYesod
     defaultLayout $ do
         setTitle $ string "pbrisbin - All Posts"
         addKeywords ["all posts"]
@@ -48,8 +47,7 @@ getPostsR = do
 -- | A post
 getPostR :: String -> Handler RepHtml
 getPostR slug = do
-    DevSite _ hposts _ <- getYesod
-    posts              <- hposts
+    posts <- sitePosts =<< getYesod
     case filter ((==) slug . postSlug) posts of
         []       -> notFound
         (post:_) -> defaultLayout $ addPostContent post
@@ -69,8 +67,7 @@ postManagePostsR = getManagePostsR
 getEditPostR :: String -> Handler RepHtml
 getEditPostR slug = do
     _                  <- requireAuth
-    DevSite _ hposts _ <- getYesod
-    posts              <- hposts
+    posts <- sitePosts =<< getYesod
     case filter ((==) slug . postSlug) posts of
         []        -> notFound
         (post':_) -> do

@@ -16,7 +16,7 @@
 -------------------------------------------------------------------------------
 module Helpers.Posts
     ( loadPosts
-    , loadTagGroups
+    , mkTagGroups
     , loadPostContent
     , runPostForm
     , insertPost
@@ -40,7 +40,7 @@ import System.Locale
 import Control.Applicative ((<$>), (<*>))
 import Control.Monad       (liftM, forM)
 import Data.Char           (isSpace)
-import Data.List           (nub, intercalate, sortBy)
+import Data.List           (nub, intercalate, sortBy, concatMap)
 import Data.Maybe          (isJust, fromJust)
 import Data.Ord            (comparing)
 import System.Directory    (doesFileExist)
@@ -89,16 +89,16 @@ loadPosts = mapM go =<< runDB (selectList [] [SqlPostDateDesc] 0 0)
                 , postTags  = fmap (sqlTagName . snd) sqlTags
                 }
 
--- | Return all tags sorted by number of posts. This is as least db-trip
---   intensive as i can get it without proper joins
-loadTagGroups :: Handler [TagGroup]
-loadTagGroups = do
-    posts <- loadPosts
-    tags  <- return . nub . map (sqlTagName . snd) =<< runDB (selectList [] [SqlTagNameAsc] 0 0)
-    return . sortByNumPosts $ map (\tag -> (tag, filter (elem tag . postTags) posts)) tags
-    where
-        sortByNumPosts :: [TagGroup] -> [TagGroup]
-        sortByNumPosts = reverse . sortBy (comparing (length . snd))
+-- | Return all tags sorted by number of posts.
+mkTagGroups :: [Post] -> [TagGroup]
+mkTagGroups posts = sortByNumPosts . go . nub $ concatMap postTags posts 
+        where 
+            go :: [Tag] -> [TagGroup] 
+            go []     = []
+            go (t:ts) = (t, filter (elem t . postTags) posts) : go ts
+
+            sortByNumPosts :: [TagGroup] -> [TagGroup]
+            sortByNumPosts = reverse . sortBy (comparing (length . snd))
 
 
 -- | Insert a post into the database
@@ -244,8 +244,7 @@ postForm post = do
 --   posts
 managePostTemplate :: String -> Widget () -> Enctype -> Widget ()
 managePostTemplate title form enctype = do
-    DevSite _ hposts _ <- liftHandler getYesod
-    posts              <- liftHandler hposts
+    posts <- liftHandler $ sitePosts =<< getYesod
     [$hamlet|
     .post_input
         %h3 $string.title$

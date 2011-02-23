@@ -37,8 +37,7 @@ import qualified Settings
 -- | The main site type
 data DevSite = DevSite
     { connPool  :: ConnectionPool
-    , posts     :: Handler [Post]
-    , tagGroups :: Handler [TagGroup]
+    , sitePosts :: Handler [Post]
     }
 
 type Handler     = GHandler DevSite DevSite
@@ -158,7 +157,11 @@ addKeywords keywords = addHamletHead [$hamlet|
         -- add some default keywords, then make the comma separated 
         -- string
         format :: [String] -> Html
-        format = string . intercalate ", " . (:) "Patrick Brisbin" . (:) "pbrisbin"
+        format = string 
+               . intercalate ", " 
+               . (:) "patrick brisbin" 
+               . (:) "pbrisbin"
+               . (:) "brisbin" 
 
 -- | Add navigation
 addNavigation :: GWidget s DevSite ()
