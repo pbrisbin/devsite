@@ -36,10 +36,12 @@ getPostsR :: Handler RepHtml
 getPostsR = do
     posts <- sitePosts =<< getYesod
     defaultLayout $ do
-        setTitle $ string "pbrisbin - All Posts"
+        setTitle $ string $ Settings.titlePrefix ++ "All Posts"
         addKeywords ["all posts"]
         [$hamlet| 
-            %h1 All Posts 
+            %header
+                %h1 All Posts
+
             $forall posts post
                 ^addPostBlock.post^ 
             |]
@@ -51,14 +53,19 @@ getPostR slug = do
     case filter ((==) slug . postSlug) posts of
         []       -> notFound
         (post:_) -> defaultLayout $ addPostContent post
+
 -- | Manage posts
 getManagePostsR :: Handler RepHtml
 getManagePostsR = do
     _ <- requireAuth
     defaultLayout $ do
-        setTitle $ string "pbrisbin - Manage posts"
-        addHamlet [$hamlet| %h1 Manage Posts |]
-        runPostForm Nothing
+        setTitle $ string $ Settings.titlePrefix ++ "Manage posts"
+        [$hamlet|
+            %header
+                %h1 Manage Posts
+            %article.fullpage
+                ^runPostForm.Nothing^
+            |]
 
 postManagePostsR :: Handler RepHtml
 postManagePostsR = getManagePostsR
@@ -72,9 +79,13 @@ getEditPostR slug = do
         []        -> notFound
         (post':_) -> do
             defaultLayout $ do
-                setTitle $ string "pbrisbin - Edit post"
-                addHamlet [$hamlet| %h1 Edit Post |]
-                runPostForm $ Just post'
+                setTitle $ string $ Settings.titlePrefix ++ "Edit post"
+                [$hamlet|
+                    %header
+                        %h1 Edit Post
+                    %article.fullpage
+                        ^runPostForm.Just.post'^
+                    |]
 
 postEditPostR :: String -> Handler RepHtml
 postEditPostR = getEditPostR

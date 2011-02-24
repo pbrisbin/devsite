@@ -283,17 +283,13 @@ addPostBlock :: Post -> Widget ()
 addPostBlock post = do
     postDescription <- liftHandler . markdownToHtml . Markdown $ postDescr post
     [$hamlet|
-        .post
-            .post_title
-                %p
-                    %a!href=@PostR.postSlug.post@ $postTitle.post$
+        %article
+            %p
+                %a!href=@PostR.postSlug.post@ $postTitle.post$
 
-            .post_description 
-                $postDescription$
+            $postDescription$
 
-            .post_info
-                ^postInfo.post^
-
+            ^postInfo.post^
         |]
 
 -- | A sub template for the posted time and tags
@@ -301,17 +297,18 @@ postInfo :: Post -> Widget ()
 postInfo post = do
     curTime <- liftHandler $ liftIO getCurrentTime
     [$hamlet|
-        %p
-            published $(humanReadableTimeDiff.curTime).postDate.post$
+        %footer
+            %small
+                published $(humanReadableTimeDiff.curTime).postDate.post$
 
-            %span.tag_list
-                tags: 
+                %span.tag_list
+                    tags: 
 
-                $forall init.postTags.post tag
-                    %a!href=@TagR.tag@ $tag$
-                    , 
+                    $forall init.postTags.post tag
+                        %a!href=@TagR.tag@ $tag$
+                        , 
 
-                %a!href=@TagR.last.postTags.post@ $last.postTags.post$
+                    %a!href=@TagR.last.postTags.post@ $last.postTags.post$
         |]
 
 -- | Add post content to the body tag
@@ -322,7 +319,7 @@ addPostContent post = do
 
     let prettyTime = string . humanReadableTimeDiff curTime $ postDate post
 
-    setTitle . string $ "pbrisbin - " ++ postTitle post
+    setTitle . string $ Settings.titlePrefix ++ postTitle post
     addKeywords $ postTitle post : postTags post
 
     addJulius [$julius|
@@ -332,11 +329,12 @@ addPostContent post = do
         |]
 
     [$hamlet|
-        %h1 $postTitle.post$
+        %header
+            %h1 $postTitle.post$
 
-        $postContent$
+        %article.fullpage
+            $postContent$
 
-        .post_info_page
             ^postInfo.post^
 
         %h3 

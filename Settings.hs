@@ -13,6 +13,7 @@
 module Settings
     ( approot
     , cssLink
+    , titlePrefix
     , pandocFile
     , withConnectionPool
     ) where
@@ -24,6 +25,9 @@ import Language.Haskell.TH.Syntax
 
 import qualified Text.Hamlet  as H
 import qualified Text.Cassius as C
+
+titlePrefix :: String
+titlePrefix = "pbrisbin - "
 
 approot :: String
 #ifdef PROD

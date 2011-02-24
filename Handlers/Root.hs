@@ -35,54 +35,77 @@ getRootR :: Handler RepHtml
 getRootR = do
     posts <- fmap (take 10) . sitePosts =<< getYesod
     defaultLayout $ do
-        setTitle $ string "pbrisbin - Home"
+        setTitle $ string $ Settings.titlePrefix ++ "Home"
         addKeywords ["home", "haskell", "bash", "mutt", "xmonad", "arch linux"]
         addHamlet [$hamlet|
-            %h1 pbrisbin dot com
+            %header
+                %h1 pbrisbin dot com
+        
+            %article.fullpage
+                %p
+                    Welcome to pbrisbin dot com. You'll find it's mostly 
+                    [GNU/]
+              
+                    %a!href=@TagR.linux@ Linux
+              
+                    -related geekery here and some of the information 
+                    presented is specific to the [amazing] distribution 
+                    known as 
+              
+                    %a!href=@TagR.arch@ Arch
+              
+                    \ Linux. Some of my favorite topics are the 
+              
+                    %a!href=@TagR.xmonad@ XMonad
+              
+                    \ window manager, 
+              
+                    %a!href=@TagR.haskell@ haskell
+              
+                    \ in general, 
+              
+                    %a!href=@TagR.bash@ Bash
+              
+                    \ scripting (or just general command-line 
+                    adventures), and the great email client 
+              
+                    %a!href=@TagR.mutt@ Mutt
+              
+                    \.
 
-            %p
-                Welcome to pbrisbin dot com. You'll find it's mostly 
-                [GNU/]
-          
-                %a!href=@TagR.linux@ Linux
-          
-                -related geekery here and some of the information 
-                presented is specific to the [amazing] distribution 
-                known as 
-          
-                %a!href=@TagR.arch@ Arch
-          
-                \ Linux. Some of my favorite topics are the 
-          
-                %a!href=@TagR.xmonad@ XMonad
-          
-                \ window manager, 
-          
-                %a!href=@TagR.haskell@ haskell
-          
-                \ in general, 
-          
-                %a!href=@TagR.bash@ Bash
-          
-                \ scripting (or just general command-line adventures), 
-                and the great email client 
-          
-                %a!href=@TagR.mutt@ Mutt
-          
-                \.
+                %p 
+                    This site does use HTML5 and CSS3 fairly heavily.
 
-            %p Enjoy the site.
+                %p
+                    No, it's nothing sexy like 
 
-            %h3 
+                    %code &lt;video&gt;
 
-                %a#Recent_Posts!href="#Recent_Posts" Recent Posts
-            |]
+                    \ or 
+
+                    %code &lt;canvas&gt;
+
+                    , but I do use some of the newer semantic tags like 
+
+                    %code &lt;aside&gt;
+
+                    \ and 
+
+                    %code &lt;nav&gt;
+
+                    \. For this reason, the site might not style 
+                    properly in older browsers. I'm sorry.
+
+                %h3 
+
+                    %a#Recent_Posts!href="#Recent_Posts" Recent Posts
+                |]
 
         -- show recent posts
         mapM_ addPostBlock posts
 
         addHamlet [$hamlet|
-            %p.small
+            %small
                 %a!href=@PostsR@ all posts
                 \...
             |]

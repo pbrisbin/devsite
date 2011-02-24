@@ -23,31 +23,24 @@ import Helpers.PostTypes
 import Helpers.RssFeed (rssLink)
 import Data.Char (toLower, toUpper)
 
+import qualified Settings
+
 -- | All tags
 getTagsR :: Handler RepHtml
 getTagsR = do
     posts <- sitePosts =<< getYesod
     let tagGroups = mkTagGroups posts
     defaultLayout $ do
-        setTitle $ string "pbrisbin - All Tags"
+        setTitle $ string $ Settings.titlePrefix ++ "All Tags"
         addKeywords $ map fst tagGroups
-
-        addCassius [$cassius|
-            h3
-                cursor:      pointer
-                border:      none !important
-                outline:     none !important
-                margin-left: 0px
-
-            .post_count
-                color: #909090
-            |]
-
         [$hamlet|
-            %h1 All Tags
-            #accordion
-                $forall tagGroups tagGroup
-                    ^addTagGroup.tagGroup^
+            %header
+                %h1 All Tags
+
+            %article.fullpage
+                #accordion
+                    $forall tagGroups tagGroup
+                        ^addTagGroup.tagGroup^
 
             %script!src="//ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"
             %script!src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.9/jquery-ui.min.js"
@@ -87,11 +80,14 @@ getTagR tag' = do
     case filter (elem tag . postTags) posts of
         []    -> notFound
         posts -> defaultLayout $ do
-            setTitle $ string $ "pbrisbin - Tag: " ++ tag
+            setTitle $ string $ Settings.titlePrefix ++ "Tag: " ++ tag
             addKeywords [tag]
             rssLink (FeedTagR tag) ("rss feed for tag " ++ tag)
             [$hamlet| 
-                %h1 Tag: $tag$ 
-                $forall posts post
-                    ^addPostBlock.post^
+                %header
+                    %h1 Tag: $tag$
+
+                %article.fullpage
+                    $forall posts post
+                        ^addPostBlock.post^
                 |]

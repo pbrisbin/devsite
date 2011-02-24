@@ -74,9 +74,9 @@ instance Yesod DevSite where
     authRoute _ = Just $ AuthR LoginR
 
     defaultLayout widget = do
+        sb <- widgetToPageContent sideBar
         pc <- widgetToPageContent $ do
             rssLink FeedR "rss feed"
-            addNavigation
             widget
         hamletToRepHtml [$hamlet|
             !!!
@@ -89,10 +89,14 @@ instance Yesod DevSite where
                     ^pageHead.pc^
                     %link!rel="stylesheet"!href=$cssLink$
                 %body
+                    %aside
+                        ^pageBody.sb^
+
                     #content
                         ^pageBody.pc^
-                    #footer
-                        %p
+
+                    %footer
+                        %small
                             %a!href=@RootR@ pbrisbin
                             \ dot com 2010 
                             %span.float_right
@@ -164,22 +168,23 @@ addKeywords keywords = addHamletHead [$hamlet|
                . (:) "brisbin" 
 
 -- | Add navigation
-addNavigation :: GWidget s DevSite ()
-addNavigation = do
+sideBar :: GWidget s DevSite ()
+sideBar = do
     mmesg    <- liftHandler getMessage
     (t, h)   <- liftHandler breadcrumbs
     loggedin <- liftHandler maybeAuthId >>= return . isJust
-    addHamlet [$hamlet|
-        .navigation
-            $maybe mmesg mesg
-                #message
-                    %p $mesg$
-            #breadcrumbs
-                %p
-                    $forall h node
-                        %a!href=@fst.node@ $snd.node$ 
-                        \ / 
-                    \ $t$
+    [$hamlet|
+        $maybe mmesg mesg
+            .message
+                %p $mesg$
+
+        .breadcrumbs
+            %p
+                $forall h node
+                    %a!href=@fst.node@ $snd.node$ 
+                    \ / 
+                \ $t$
+        %nav
             %ul
                 %li
                     %a!href=@RootR@  home
@@ -198,11 +203,10 @@ addNavigation = do
                 %li
                     %a!href="/haskell/docs/html" haskell docs
                 %li
-                    %img#feed!src="/static/images/feed.png"
+                    %img.icon!src="/static/images/feed.png"
                     \ 
                     %a!href=@FeedR@ subscribe
 
-            %ul.admin
                 $if loggedin
                     %li
                         %a!href=@ManagePostsR@  manage posts
@@ -211,7 +215,7 @@ addNavigation = do
                     %li
                         %a!href=@AuthR.LogoutR@ logout
                 $else
-                    %li#hidden_login
+                    %li.fade_in
                         %a!href=@AuthR.LoginR@  login
         |]
 
