@@ -12,7 +12,7 @@
 -------------------------------------------------------------------------------
 module Settings
     ( approot
-    , cssLink
+    , staticRoot
     , titlePrefix
     , pandocFile
     , withConnectionPool
@@ -29,6 +29,9 @@ import qualified Text.Cassius as C
 titlePrefix :: String
 titlePrefix = "pbrisbin - "
 
+pandocFile :: String -> FilePath
+pandocFile x = "/srv/http/pandoc/" ++ x ++ ".pdc"
+
 approot :: String
 #ifdef PROD
 approot = "http://pbrisbin.com"
@@ -36,11 +39,11 @@ approot = "http://pbrisbin.com"
 approot = "http://localhost:3000"
 #endif
 
-cssLink :: String
+staticRoot :: String
 #ifdef PROD
-cssLink = "/static/css/style.css"
+staticRoot = "/static"
 #else
-cssLink = "//pbrisbin.com/static/css/style.css"
+staticRoot = "http://pbrisbin.com/static"
 #endif
 
 dataBase :: String
@@ -48,13 +51,6 @@ dataBase :: String
 dataBase = "posts.s3db"
 #else
 dataBase = "dev-posts.s3db"
-#endif
-
-pandocFile :: String -> FilePath
-#ifdef PROD
-pandocFile x = "pandoc/" ++ x ++ ".pdc"
-#else
-pandocFile x = "/srv/http/pandoc/" ++ x ++ ".pdc"
 #endif
 
 withConnectionPool :: MonadInvertIO m => (ConnectionPool -> m a) -> m a

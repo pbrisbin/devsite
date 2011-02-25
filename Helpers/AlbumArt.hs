@@ -1,4 +1,3 @@
-{-# LANGUAGE CPP #-}
 -------------------------------------------------------------------------------
 -- |
 -- Module      :  Helpers.AlbumArt
@@ -16,18 +15,13 @@ import Yesod
 import Data.Char        (toLower)
 import System.Directory (doesFileExist)
 
-coverDir :: String
-coverDir = "static/covers/"
+import qualified Settings
 
 fileRoot :: String
-fileRoot = "/srv/http/"
+fileRoot = "/srv/http/static/covers/"
 
 urlRoot :: String
-#ifdef PROD
-urlRoot = "/"
-#else
-urlRoot = "http://pbrisbin.com/"
-#endif
+urlRoot = Settings.staticRoot ++ "/covers/"
 
 extension :: String
 extension = ".jpg"
@@ -43,7 +37,7 @@ fixFilename = filter (`elem` goodChars) . rmSpaces . map toLower
 
 getAlbumUrl :: (Yesod m) => (String,String) -> GHandler s m (Maybe String)
 getAlbumUrl (artist,album) = liftIO $ do
-    let filename = coverDir ++ (fixFilename $ artist ++ " " ++ album) ++ extension
+    let filename = (++ extension) . fixFilename $ artist ++ " " ++ album
     exists <- doesFileExist $ fileRoot ++ filename
     if exists
         -- add root anchor b/c of subsite

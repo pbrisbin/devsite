@@ -31,7 +31,6 @@ import Helpers.PostTypes
 import Helpers.RssFeed
 import Helpers.Auth.HashDB
 
-import Settings (cssLink)
 import qualified Settings
 
 -- | The main site type
@@ -74,6 +73,8 @@ instance Yesod DevSite where
     authRoute _ = Just $ AuthR LoginR
 
     defaultLayout widget = do
+        let cssLink = Settings.staticRoot ++ "/css/style.css"
+
         sb <- widgetToPageContent sideBar
         pc <- widgetToPageContent $ do
             rssLink FeedR "rss feed"
@@ -173,6 +174,7 @@ sideBar = do
     mmesg    <- liftHandler getMessage
     (t, h)   <- liftHandler breadcrumbs
     loggedin <- liftHandler maybeAuthId >>= return . isJust
+    let feedIcon = Settings.staticRoot ++ "/images/feed.png"
     [$hamlet|
         $maybe mmesg mesg
             .message
@@ -203,7 +205,7 @@ sideBar = do
                 %li
                     %a!href="/haskell/docs/html" haskell docs
                 %li
-                    %img.icon!src="/static/images/feed.png"
+                    %img.icon!src=$feedIcon$
                     \ 
                     %a!href=@FeedR@ subscribe
 
