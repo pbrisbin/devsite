@@ -298,17 +298,18 @@ postInfo post = do
     curTime <- liftHandler $ liftIO getCurrentTime
     [$hamlet|
         %footer
-            %small
-                published $(humanReadableTimeDiff.curTime).postDate.post$
+            %p
+                %small
+                    published $(humanReadableTimeDiff.curTime).postDate.post$
 
-                %span.tag_list
-                    tags: 
+                    %span.tag_list
+                        tags: 
 
-                    $forall init.postTags.post tag
-                        %a!href=@TagR.tag@ $tag$
-                        , 
+                        $forall init.postTags.post tag
+                            %a!href=@TagR.tag@ $tag$
+                            , 
 
-                    %a!href=@TagR.last.postTags.post@ $last.postTags.post$
+                        %a!href=@TagR.last.postTags.post@ $last.postTags.post$
         |]
 
 -- | Add post content to the body tag
@@ -343,8 +344,9 @@ addPostContent post = do
         #disqus_thread
             %script!type="text/javascript"!src="http://pbrisbin.disqus.com/embed.js"
             %noscript 
-                %p.small
-                    %em Sadly, javascript is required for comments on this site.
+                %p
+                    %small
+                        %em Sadly, javascript is required for comments on this site.
     |]
 
 -- <https://github.com/snoyberg/haskellers/blob/master/Haskellers.hs>

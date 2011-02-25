@@ -97,12 +97,13 @@ instance Yesod DevSite where
                         ^pageBody.pc^
 
                     %footer
-                        %small
-                            %a!href=@RootR@ pbrisbin
-                            \ dot com 2010 
-                            %span.float_right
-                                powered by 
-                                %a!href="http://docs.yesodweb.com/" yesod
+                        %p
+                            %small
+                                %a!href=@RootR@ pbrisbin
+                                \ dot com 2010 
+                                %span.float_right
+                                    powered by 
+                                    %a!href="http://docs.yesodweb.com/" yesod
             |]
 
 instance YesodBreadcrumbs DevSite where

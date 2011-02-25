@@ -115,7 +115,8 @@ getRootR = do
         mapM_ addPostBlock posts
 
         addHamlet [$hamlet|
-            %small
-                %a!href=@PostsR@ all posts
-                \...
+            %p
+                %small
+                    %a!href=@PostsR@ all posts
+                    \...
             |]
