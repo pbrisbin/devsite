@@ -93,8 +93,7 @@ instance Yesod DevSite where
                     %aside
                         ^pageBody.sb^
 
-                    #content
-                        ^pageBody.pc^
+                    ^pageBody.pc^
 
                     %footer
                         %p
