@@ -87,6 +87,7 @@ instance Yesod DevSite where
                     %title $pageTitle.pc$
                     %meta!name="description"!content="pbrisbin dot com"
                     %meta!name="author"!content="Patrick Brisbin"
+                    %meta!name="viewport"!content="width=device-width, initial-scale=1.0"
                     ^pageHead.pc^
                     %link!rel="stylesheet"!href=$cssLink$
                 %body
