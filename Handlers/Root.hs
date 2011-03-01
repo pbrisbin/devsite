@@ -15,20 +15,19 @@ module Handlers.Root (getRootR) where
 import Yesod
 import DevSite
 import Helpers.Posts
-import Data.Time.Clock (getCurrentTime)
+
 import qualified Settings
 
 -- Since posts are now retrieved in the Handler Monad it's no longer
--- easy to create these functions, a solution is still a big todo:
-site_migration = "site_migration"
-
--- tags
-arch    = "Arch"
-bash    = "Bash"
-haskell = "Haskell"
-linux   = "Linux"
-mutt    = "Mutt"
-xmonad  = "XMonad"
+-- easy to create these functions via template haskell, a solution is 
+-- still a big todo:
+arch, bash, haskell, linux, mutt, xmonad :: String
+arch    = "arch"
+bash    = "bash"
+haskell = "haskell"
+linux   = "linux"
+mutt    = "mutt"
+xmonad  = "xmonad"
 
 -- | Home page
 getRootR :: Handler RepHtml

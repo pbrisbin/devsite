@@ -19,12 +19,7 @@ module Settings
     ) where
 
 import Yesod hiding (approot)
-
 import Database.Persist.Sqlite
-import Language.Haskell.TH.Syntax
-
-import qualified Text.Hamlet  as H
-import qualified Text.Cassius as C
 
 titlePrefix :: String
 titlePrefix = "pbrisbin - "

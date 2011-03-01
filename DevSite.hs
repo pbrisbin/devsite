@@ -18,7 +18,7 @@ import Yesod
 import Yesod.Markdown
 import Yesod.Helpers.Auth
 import Yesod.Helpers.MPC
-import Yesod.Form.Core (GFormMonad(..))
+import Yesod.Form.Core (GFormMonad)
 
 import Control.Applicative ((<$>))
 import Data.Char (toLower)
@@ -121,8 +121,8 @@ instance YesodBreadcrumbs DevSite where
     breadcrumb TagsR      = return ("all tags", Just RootR     )
     breadcrumb (TagR tag) = return (map toLower tag, Just TagsR)
 
-    breadcrumb ManagePostsR     = return ("manage posts", Just RootR    )
-    breadcrumb (EditPostR slug) = return ("edit post", Just ManagePostsR)
+    breadcrumb ManagePostsR  = return ("manage posts", Just RootR    )
+    breadcrumb (EditPostR _) = return ("edit post", Just ManagePostsR)
 
     -- subsites
     breadcrumb (AuthR _) = return ("login", Just RootR)

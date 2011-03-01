@@ -30,25 +30,21 @@ module Helpers.Posts
 import DevSite
 import Helpers.PostTypes
 
-import Yesod
+import Yesod hiding (fileName)
 import Yesod.Markdown
-import Yesod.Form.Core
 
 import Data.Time
 import System.Locale
 
 import Control.Applicative ((<$>), (<*>))
-import Control.Monad       (liftM, forM)
 import Data.Char           (isSpace)
-import Data.List           (nub, intercalate, sortBy, concatMap)
+import Data.List           (nub, intercalate, sortBy)
 import Data.Maybe          (isJust, fromJust)
 import Data.Ord            (comparing)
 import System.Directory    (doesFileExist)
 
 import Database.Persist.TH         (share2)
 import Database.Persist.GenericSql (mkMigrate)
-
-import Language.Haskell.TH.Syntax
 
 import qualified Settings
 
@@ -119,7 +115,7 @@ insertPost post = do
     
     where
         go :: SqlPostId -> String -> Handler SqlTagId
-        go key tag = runDB (insert $ SqlTag key tag)
+        go key tag = runDB (insert $ SqlTag { sqlTagPost = key, sqlTagName = tag })
 
 -- | Delete an existing post by slug
 deletePost :: String -> Handler ()
@@ -315,10 +311,7 @@ postInfo post = do
 -- | Add post content to the body tag
 addPostContent :: Post -> Widget ()
 addPostContent post = do
-    curTime     <- liftHandler $ liftIO getCurrentTime
     postContent <- liftHandler $ loadPostContent post
-
-    let prettyTime = string . humanReadableTimeDiff curTime $ postDate post
 
     setTitle . string $ Settings.titlePrefix ++ postTitle post
     addKeywords $ postTitle post : postTags post

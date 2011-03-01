@@ -76,8 +76,8 @@ getTagsR = do
 getTagR :: String -> Handler RepHtml
 getTagR tag' = do
     let tag = map toLower tag'
-    posts <- sitePosts =<< getYesod
-    case filter (elem tag . postTags) posts of
+    posts' <- sitePosts =<< getYesod
+    case filter (elem tag . postTags) posts' of
         []    -> notFound
         posts -> defaultLayout $ do
             setTitle $ string $ Settings.titlePrefix ++ "Tag: " ++ tag

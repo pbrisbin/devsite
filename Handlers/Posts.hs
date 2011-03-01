@@ -26,8 +26,6 @@ import Yesod.Helpers.Auth
 import DevSite
 import Helpers.Posts
 import Helpers.PostTypes
-import Helpers.RssFeed (rssLink)
-import Data.Time.Clock (getCurrentTime)
 
 import qualified Settings
 
