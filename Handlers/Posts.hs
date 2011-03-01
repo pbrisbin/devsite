@@ -1,4 +1,5 @@
-{-# LANGUAGE QuasiQuotes #-}
+{-# LANGUAGE QuasiQuotes       #-}
+{-# LANGUAGE OverloadedStrings #-}
 -------------------------------------------------------------------------------
 -- |
 -- Module      :  Handlers.Posts
@@ -22,6 +23,7 @@ module Handlers.Posts
 
 import Yesod
 import Yesod.Helpers.Auth
+import Text.Blaze (toHtml)
 
 import DevSite
 import Helpers.Posts
@@ -34,14 +36,14 @@ getPostsR :: Handler RepHtml
 getPostsR = do
     posts <- sitePosts =<< getYesod
     defaultLayout $ do
-        setTitle $ string $ Settings.titlePrefix ++ "All Posts"
+        setTitle $ toHtml $ Settings.titlePrefix ++ "All Posts"
         addKeywords ["all posts"]
-        [$hamlet| 
-            %header
-                %h1 All Posts
+        [$hamlet|
+            <header>
+                <h1>All Posts
 
-            $forall posts post
-                ^addPostBlock.post^ 
+            $forall post <- posts
+                ^{addPostBlock post} 
             |]
 
 -- | A post
@@ -57,12 +59,12 @@ getManagePostsR :: Handler RepHtml
 getManagePostsR = do
     _ <- requireAuth
     defaultLayout $ do
-        setTitle $ string $ Settings.titlePrefix ++ "Manage posts"
+        setTitle $ toHtml $ Settings.titlePrefix ++ "Manage posts"
         [$hamlet|
-            %header
-                %h1 Manage Posts
-            %article.fullpage
-                ^runPostForm.Nothing^
+            <header>
+                <h1>Manage Posts
+            <article .fullpage>
+                ^{runPostForm Nothing}
             |]
 
 postManagePostsR :: Handler RepHtml
@@ -77,12 +79,12 @@ getEditPostR slug = do
         []        -> notFound
         (post':_) -> do
             defaultLayout $ do
-                setTitle $ string $ Settings.titlePrefix ++ "Edit post"
+                setTitle $ toHtml $ Settings.titlePrefix ++ "Edit post"
                 [$hamlet|
-                    %header
-                        %h1 Edit Post
-                    %article.fullpage
-                        ^runPostForm.Just.post'^
+                    <header>
+                        <h1>Edit Post
+                    <article .fullpage>
+                        ^{runPostForm (Just post')}
                     |]
 
 postEditPostR :: String -> Handler RepHtml
@@ -93,5 +95,5 @@ getDelPostR :: String -> Handler RepHtml
 getDelPostR slug = do
     _ <- requireAuth
     deletePost slug
-    setMessage $ [$hamlet| post deleted! |]
+    setMessage "post deleted!"
     redirect RedirectTemporary ManagePostsR

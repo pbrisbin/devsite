@@ -27,11 +27,9 @@ module Helpers.Posts
     , humanReadableTimeDiff
     ) where
 
-import DevSite
-import Helpers.PostTypes
-
 import Yesod hiding (fileName)
 import Yesod.Markdown
+import Text.Blaze (toHtml)
 
 import Data.Time
 import System.Locale
@@ -45,6 +43,9 @@ import System.Directory    (doesFileExist)
 
 import Database.Persist.TH         (share2)
 import Database.Persist.GenericSql (mkMigrate)
+
+import DevSite
+import Helpers.PostTypes
 
 import qualified Settings
 
@@ -161,10 +162,10 @@ updatePostFromForm p pf = do
             -- delete the original and insert a new version
             deletePost (postSlug post)
             insertPost post
-            setMessage $ [$hamlet| post updated! |]
+            setMessage "post updated!"
         else do
             insertPost post
-            setMessage $ [$hamlet| post added! |]
+            setMessage "post added!"
 
     redirect RedirectTemporary ManagePostsR
 
@@ -187,11 +188,11 @@ parseTags s  = let (l,s') = break (==',') $ dropWhile (==',') s
 -- | Run the post form and insert or update based on the entered data
 runPostForm :: Maybe Post -> Widget ()
 runPostForm post = do
-    ((res, form), enctype) <- liftHandler . runFormMonadPost $ postForm post
+    ((res, form), enctype) <- lift . runFormMonadPost $ postForm post
     case res of
         FormMissing    -> return ()
         FormFailure _  -> return ()
-        FormSuccess pf -> liftHandler $ updatePostFromForm post pf
+        FormSuccess pf -> lift $ updatePostFromForm post pf
 
     managePostTemplate title form enctype
 
@@ -206,68 +207,71 @@ postForm post = do
     (tags       , fiTags       ) <- stringField   "tags:"        $ fmap (formatTags . postTags) post
     (description, fiDescription) <- markdownField "description:" $ fmap (Markdown . postDescr)  post
     return (PostForm <$> slug <*> title <*> tags <*> description, [$hamlet|
-        %table
-            ^fieldRow.fiSlug^
-            ^fieldRow.fiTitle^
-            ^fieldRow.fiTags^
-            ^fieldRow.fiDescription^
-            %tr
-                %td
+        <table>
+            ^{fieldRow fiSlug}
+            ^{fieldRow fiTitle}
+            ^{fieldRow fiTags}
+            ^{fieldRow fiDescription}
+            <tr>
+                <td>
                     &nbsp;
-                %td!colspan="2"
-                    %input!type="submit"!value=$buttonText$
-        |])
+                <td colspan="2">
+                    <input type="submit" value="#{toHtml buttonText}">
+|])
 
     where
         fieldRow fi = [$hamlet|
-            %tr
-                %th
-                    %label!for=$fiIdent.fi$ $fiLabel.fi$
-                    .tooltip $fiTooltip.fi$
-                %td
-                    ^fiInput.fi^
-                %td
-                    $maybe fiErrors.fi error
-                        $error$
+            <tr>
+                <th>
+                    <label for="#{fiIdent fi}">#{fiLabel fi}
+                    <div .tooltip>#{fiTooltip fi}
+                <td>
+                    ^{fiInput fi}
+                <td>
+                    $maybe error <- fiErrors fi
+                        #{error}
                     $nothing
                         &nbsp;
-            |]
+
+|]
 
         formatTags = intercalate ", "
-        buttonText = string $ if isJust post then "Update post" else "Add post"
+
+        buttonText :: String
+        buttonText = if isJust post then "Update post" else "Add post"
 
 -- | The overall template showing the input box and a list of existing
 --   posts
 managePostTemplate :: String -> Widget () -> Enctype -> Widget ()
 managePostTemplate title form enctype = do
-    posts <- liftHandler $ sitePosts =<< getYesod
+    posts <- lift $ sitePosts =<< getYesod
     [$hamlet|
-    .post_input
-        %h3 $string.title$
+    <div .post_input>
+        <h3>#{toHtml title}
 
-        %form!enctype=$enctype$!method="post"
-            ^form^
+        <form enctype="#{enctype}" method="post">
+            ^{form}
 
-    .posts_existing
-        %h3 Existing posts:
+    <div .posts_existing>
+        <h3>Existing posts:
 
-        %table
-            %tr
-                %th Title
-                %th Description
-                %th Edit
-                %th Delete
+        <table>
+            <tr>
+                <th>Title
+                <th>Description
+                <th>Edit
+                <th>Delete
 
-            $forall posts post
-                %tr
-                    %td 
-                        %a!href=@PostR.postSlug.post@ $shortenShort.postTitle.post$
-                    %td $shortenLong.postDescr.post$
-                    %td
-                        %a!href=@EditPostR.postSlug.post@ edit
-                    %td 
-                        %a!href=@DelPostR.postSlug.post@ delete
-    |]
+            $forall post <- posts
+                <tr>
+                    <td>
+                        <a href="@{PostR (postSlug post)}">#{shortenShort (postTitle post)}
+                    <td>#{shortenLong (postDescr post)}
+                    <td>
+                        <a href="@{EditPostR (postSlug post)}">edit
+                    <td>
+                        <a href="@{DelPostR (postSlug post)}">delete
+|]
 
     where 
         shortenLong  = shorten 60
@@ -277,70 +281,70 @@ managePostTemplate title form enctype = do
 -- | The sub template for a single post
 addPostBlock :: Post -> Widget ()
 addPostBlock post = do
-    postDescription <- liftHandler . markdownToHtml . Markdown $ postDescr post
+    postDescription <- lift . markdownToHtml . Markdown $ postDescr post
     [$hamlet|
-        %article
-            %p
-                %a!href=@PostR.postSlug.post@ $postTitle.post$
+        <article>
+            <p>
+                <a href="@{PostR (postSlug post)}">#{postTitle post}
 
-            $postDescription$
+            #{postDescription}
 
-            ^postInfo.post^
-        |]
+            ^{postInfo post}
+|]
 
 -- | A sub template for the posted time and tags
 postInfo :: Post -> Widget ()
 postInfo post = do
-    curTime <- liftHandler $ liftIO getCurrentTime
+    curTime <- lift $ liftIO getCurrentTime
     [$hamlet|
-        %footer
-            %p
-                %small
-                    published $(humanReadableTimeDiff.curTime).postDate.post$
+        <footer>
+            <p>
+                <small>
+                    published #{humanReadableTimeDiff curTime (postDate post)}
 
-                    %span.tag_list
+                    <span .tag_list>
                         tags: 
 
-                        $forall init.postTags.post tag
-                            %a!href=@TagR.tag@ $tag$
+                        $forall tag <- init (postTags post)
+                            <a href="@{TagR tag}">#{tag}
                             , 
 
-                        %a!href=@TagR.last.postTags.post@ $last.postTags.post$
-        |]
+                        <a href="@{TagR (last (postTags post))}">#{last (postTags post)}
+|]
 
 -- | Add post content to the body tag
 addPostContent :: Post -> Widget ()
 addPostContent post = do
-    postContent <- liftHandler $ loadPostContent post
+    postContent <- lift $ loadPostContent post
 
-    setTitle . string $ Settings.titlePrefix ++ postTitle post
+    setTitle . toHtml $ Settings.titlePrefix ++ postTitle post
     addKeywords $ postTitle post : postTags post
 
     addJulius [$julius|
         var disqus_shortname  = 'pbrisbin';
-        var disqus_identifier = '%postSlug.post%';
-        var disqus_title      = '%postTitle.post%';
+        var disqus_identifier = '#{postSlug post}';
+        var disqus_title      = '#{postTitle post}';
         |]
 
     [$hamlet|
-        %header
-            %h1 $postTitle.post$
+        <header>
+            <h1>#{postTitle post}
 
-        %article.fullpage
-            $postContent$
+        <article .fullpage>
+            #{postContent}
 
-            ^postInfo.post^
+            ^{postInfo post}
 
-        %h3 
-            %a!href="#Comments"!id="Comments" Comments
+        <h3>
+            <a href="#Comments" id="Comments">Comments
 
-        #disqus_thread
-            %script!type="text/javascript"!src="http://pbrisbin.disqus.com/embed.js"
-            %noscript 
-                %p
-                    %small
-                        %em Sadly, javascript is required for comments on this site.
-    |]
+        <div id="disqus_thread">
+            <script type="text/javascript" src="http://pbrisbin.disqus.com/embed.js">
+            <noscript>
+                <p>
+                    <small>
+                        <em>Sadly, javascript is required for comments on this site.
+|]
 
 -- <https://github.com/snoyberg/haskellers/blob/master/Haskellers.hs>
 -- <https://github.com/snoyberg/haskellers/blob/master/LICENSE>

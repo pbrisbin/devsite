@@ -12,9 +12,11 @@
 module Handlers.Feed where
 
 import Yesod
+import Yesod.Helpers.RssFeed
+import Text.Blaze (toHtml)
+
 import DevSite
 import Helpers.PostTypes
-import Helpers.RssFeed
 
 -- | Rss feed
 getFeedR :: Handler RepRss
@@ -33,21 +35,21 @@ getFeedTagR tag = do
         posts -> feedFromPosts posts
 
 feedFromPosts :: [Post] -> Handler RepRss
-feedFromPosts posts = rssFeed RssFeed
-    { rssTitle       = "pbrisbin dot com"
-    , rssDescription = string $ "New posts on pbrisbin dot com"
-    , rssLanguage    = "en-us"
-    , rssLinkSelf    = FeedR
-    , rssLinkHome    = RootR
+feedFromPosts posts = rssFeed Feed
+    { feedTitle       = "pbrisbin dot com"
+    , feedDescription = toHtml $ "New posts on pbrisbin dot com"
+    , feedLanguage    = "en-us"
+    , feedLinkSelf    = FeedR
+    , feedLinkHome    = RootR
     -- note: posts is known to be not empty coming in
-    , rssUpdated     = postDate $ head posts
-    , rssEntries     = map postToRssEntry posts
+    , feedUpdated     = postDate $ head posts
+    , feedEntries     = map postToRssEntry posts
     }
 
-postToRssEntry :: Post -> RssFeedEntry DevSiteRoute
-postToRssEntry post = RssFeedEntry
-    { rssEntryLink    = PostR $ postSlug post
-    , rssEntryUpdated = postDate post
-    , rssEntryTitle   = postTitle post
-    , rssEntryContent = string $ postDescr post
+postToRssEntry :: Post -> FeedEntry DevSiteRoute
+postToRssEntry post = FeedEntry
+    { feedEntryLink    = PostR $ postSlug post
+    , feedEntryUpdated = postDate post
+    , feedEntryTitle   = postTitle post
+    , feedEntryContent = toHtml $ postDescr post
     }

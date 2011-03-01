@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 -------------------------------------------------------------------------------
 -- |
 -- Module      :  Handlers
@@ -34,4 +35,4 @@ getFaviconR = sendFile "image/x-icon" "favicon.ico"
 
 -- | Robots
 getRobotsR :: Handler RepPlain
-getRobotsR = return $ RepPlain $ toContent "User-agent: *"
+getRobotsR = return $ RepPlain $ toContent ("User-agent: *" :: String)

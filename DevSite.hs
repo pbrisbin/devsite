@@ -17,9 +17,12 @@ module DevSite where
 import Yesod
 import Yesod.Markdown
 import Yesod.Helpers.Auth
+import Yesod.Helpers.Auth.HashDB
+import Yesod.Helpers.RssFeed
 import Yesod.Helpers.MPC
 import Yesod.Form.Core (GFormMonad)
 
+import Text.Blaze (toHtml)
 import Control.Applicative ((<$>))
 import Data.Char (toLower)
 import Data.List (intercalate)
@@ -28,8 +31,6 @@ import Database.Persist.GenericSql
 
 import Helpers.AlbumArt
 import Helpers.PostTypes
-import Helpers.RssFeed
-import Helpers.Auth.HashDB
 
 import qualified Settings
 
@@ -63,9 +64,10 @@ mkYesodData "DevSite" [$parseRoutes|
     /favicon.ico FaviconR GET
     /robots.txt  RobotsR  GET
 
-    /auth     AuthR Auth getAuth
     /apps/mpc MpcR  MPC  getMPC
+    /auth     AuthR Auth getAuth
     |]
+
 
 
 instance Yesod DevSite where 
@@ -80,31 +82,32 @@ instance Yesod DevSite where
             rssLink FeedR "rss feed"
             widget
         hamletToRepHtml [$hamlet|
-            !!!
-            %html!lang="en"
-                %head
-                    %meta!charset="utf-8"
-                    %title $pageTitle.pc$
-                    %meta!name="description"!content="pbrisbin dot com"
-                    %meta!name="author"!content="Patrick Brisbin"
-                    %meta!name="viewport"!content="width=device-width, initial-scale=1.0"
-                    ^pageHead.pc^
-                    %link!rel="stylesheet"!href=$cssLink$
-                %body
-                    %aside
-                        ^pageBody.sb^
+            \<!DOCTYPE html>
 
-                    ^pageBody.pc^
+            <html lang="en">
+                <head>
+                    <meta charset="utf-8">
+                    <title>#{pageTitle pc}
+                    <meta name="description" content="pbrisbin dot com">
+                    <meta name="author" content="Patrick Brisbin">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    ^{pageHead pc}
+                    <link rel="stylesheet" href="#{cssLink}">
+                <body>
+                    <aside>
+                        ^{pageBody sb}
 
-                    %footer
-                        %p
-                            %small
-                                %a!href=@RootR@ pbrisbin
+                    ^{pageBody pc}
+
+                    <footer>
+                        <p>
+                            <small>
+                                <a href="@{RootR}">pbrisbin
                                 \ dot com 2010 
-                                %span.float_right
+                                <span .float_right>
                                     powered by 
-                                    %a!href="http://docs.yesodweb.com/" yesod
-            |]
+                                    <a href="http://docs.yesodweb.com/">yesod
+|]
 
 instance YesodBreadcrumbs DevSite where
     breadcrumb RootR  = return ("home" , Nothing   ) 
@@ -135,7 +138,7 @@ instance YesodBreadcrumbs DevSite where
 --   metatdata in a db
 instance YesodPersist DevSite where
     type YesodDB DevSite = SqlPersist
-    runDB db = fmap connPool getYesod >>= runSqlPool db
+    runDB db = liftIOHandler $ fmap connPool getYesod >>= runSqlPool db
 
 -- | Handle authentication with my custom HashDB plugin
 instance YesodAuth DevSite where
@@ -156,14 +159,14 @@ instance YesodMPC DevSite where
 
 -- | Add a list of words to the html head as keywords
 addKeywords :: [String] -> Widget ()
-addKeywords keywords = addHamletHead [$hamlet| 
-    %meta!name="keywords"!content=$format.keywords$
-    |]
+addKeywords keywords = addHamletHead [$hamlet|
+    <meta name="keywords" content="#{format keywords}">
+|]
     where 
         -- add some default keywords, then make the comma separated 
         -- string
         format :: [String] -> Html
-        format = string 
+        format = toHtml
                . intercalate ", " 
                . (:) "patrick brisbin" 
                . (:) "pbrisbin"
@@ -172,55 +175,56 @@ addKeywords keywords = addHamletHead [$hamlet|
 -- | Add navigation
 sideBar :: GWidget s DevSite ()
 sideBar = do
-    mmesg    <- liftHandler getMessage
-    (t, h)   <- liftHandler breadcrumbs
-    loggedin <- liftHandler maybeAuthId >>= return . isJust
+    mmesg    <- lift getMessage
+    (t, h)   <- lift breadcrumbs
+    loggedin <- lift maybeAuthId >>= return . isJust
     let feedIcon = Settings.staticRoot ++ "/images/feed.png"
     [$hamlet|
-        $maybe mmesg mesg
-            .message
-                %p $mesg$
+        $maybe mesg <- mmesg
+            <div .message>
+                <p>#{mesg}
 
-        .breadcrumbs
-            %p
-                $forall h node
-                    %a!href=@fst.node@ $snd.node$ 
+        <div .breadcrumbs>
+            <p>
+                $forall node <- h
+                    <a href="@{fst node}">#{snd node} 
                     \ / 
-                \ $t$
-        %nav
-            %ul
-                %li
-                    %a!href=@RootR@  home
-                %li
-                    %a!href=@AboutR@ about
-                %li
-                    %a!href=@PostsR@ posts
-                %li
-                    %a!href=@TagsR@  tags
-                %li
-                    %a!href="https://github.com/pbrisbin" github
-                %li
-                    %a!href="http://aur.archlinux.org/packages.php?K=brisbin33&amp;SeB=m" aur packages
-                %li
-                    %a!href="/xmonad/docs" xmonad docs
-                %li
-                    %a!href="/haskell/docs/html" haskell docs
-                %li
-                    %img.icon!src=$feedIcon$
+                \ #{t}
+        <nav>
+            <ul>
+                <li>
+                    <a href="@{RootR}">home
+                <li>
+                    <a href="@{AboutR}">about
+                <li>
+                    <a href="@{PostsR}">posts
+                <li>
+                    <a href="@{TagsR}">tags
+                <li>
+                    <a href="https://github.com/pbrisbin">github
+                <li>
+                    <a href="http://aur.archlinux.org/packages.php?K=brisbin33&amp;SeB=m">aur packages
+                <li>
+                    <a href="/xmonad/docs">xmonad docs
+                <li>
+                    <a href="/haskell/docs/html">haskell docs
+                <li>
+                    <img src="#{feedIcon}" .icon>
                     \ 
-                    %a!href=@FeedR@ subscribe
+                    <a href="@{FeedR}">subscribe
 
                 $if loggedin
-                    %li
-                        %a!href=@ManagePostsR@  manage posts
-                    %li
-                        %a!href=@MpcR.StatusR@  mpd
-                    %li
-                        %a!href=@AuthR.LogoutR@ logout
+                    <li>
+                        <a href="@{ManagePostsR}">manage posts
+                    <li>
+                        <a href="@{MpcR StatusR}">mpd
+                    <li>
+                        <a href="@{AuthR LogoutR}">logout
                 $else
-                    %li.fade_in
-                        %a!href=@AuthR.LoginR@  login
-        |]
+                    <li .fade_in>
+                        <a href="@{AuthR LoginR}">login
+|]
+
 
 -- | Render from markdown, yesod-style
 markdownToHtml :: Markdown -> GHandler s DevSite Html

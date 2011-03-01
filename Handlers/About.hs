@@ -13,6 +13,8 @@
 module Handlers.About (getAboutR) where
 
 import Yesod
+import Text.Blaze (toHtml)
+
 import DevSite
 import qualified Settings
 
@@ -20,66 +22,67 @@ import qualified Settings
 getAboutR :: Handler RepHtml
 getAboutR = do
     defaultLayout $ do
-        setTitle $ string $ Settings.titlePrefix ++ "About"
+        setTitle $ toHtml $ Settings.titlePrefix ++ "About"
         addKeywords ["about"]
+
+        let v1 = Settings.staticRoot ++ "/images/valid-html5.png"
+        let v2 = Settings.staticRoot ++ "/images/valid-css.png"
+        let v3 = Settings.staticRoot ++ "/images/valid-rss.png"
+
         addHamlet [$hamlet|
-            %header
-                %h1 About
-            
-            %article.fullpage
-                %p
-                    
+            <header>
+                <h1>About
+
+            <article .fullpage>
+                <p>
                     This place is to serve as a little slice of the 
                     internet where I can keep crap, link people to my 
                     crap, and practice making more better crap.
 
-                %h3 Framework
+                <h3>Framework
 
-                %p
-
+                <p>
                     This new version of the site is powered by the 
 
-                    %a!href="http://docs.yesodweb.com/" Yesod
+                    <a href="http://docs.yesodweb.com/">Yesod
 
                     \ framework. It's an extremely powerful framework 
                     written in Haskell.
 
-                %p
-
+                <p>
                     The source for the site is available in my 
 
-                    %a!href="http://github.com/pbrisbin/devsite"
+                    <a href="http://github.com/pbrisbin/devsite">
                         git repo
 
                     \ if anyone's interested.
 
-                %p
+                <p>
                     There are also a 
 
-                    %a!href="http://github.com/pbrisbin/yesod-comments" 
+                    <a href="http://github.com/pbrisbin/yesod-comments">
                         number
 
                     \ 
 
-                    %a!href="http://github.com/pbrisbin/yesod-mpc" of
+                    \<a href="http://github.com/pbrisbin/yesod-mpc">of
 
                     \ 
 
-                    %a!href="http://github.com/pbrisbin/yesod-statistics" 
+                    <a href="http://github.com/pbrisbin/yesod-statistics">
                         extensions
 
                     \ which I've written for the framework. Some I use 
                     here, some I don't.
 
-                %h3 About Arch
+                <h3>About Arch
 
-                %p
-
+                <p>
                     If you haven't noticed, my desktop runs on Arch 
                     linux. 
-              
-                    %a!href="http://www.archlinux.org/" Arch
-              
+
+                    <a href="http://www.archlinux.org/">Arch
+
                     \ is an amazing DIY distro that gives the user the 
                     barest of bare installs; from there, you can build 
                     your system, piece by piece. There is no 
@@ -94,13 +97,12 @@ getAboutR = do
                     required effort can lead to both fulfillment and 
                     frustration; this is a feature, not a bug.
 
-                %p
-
+                <p>
                     If you want to try a distro that expects a lot from 
                     its users while still offering a great package 
                     manager and simple transparent tools for maintaining 
 
-                    %em your
+                    <em>your
 
                     \ system, please try Arch. Be sure to read the 
                     Beginners guide before installing, and do some 
@@ -113,46 +115,39 @@ getAboutR = do
                     bet you find your question's already been asked and 
                     answered somewhere.
 
-                %h3 About Me
+                <h3>About Me
 
-                %p
-
+                <p>
                     I hold a degree in Aerospace Engineering from BU, 
                     but I currently work as an 
-                      
-                    %a!href="http://en.wikipedia.org/wiki/Enterprise_resource_planning"
+
+                    <a href="http://en.wikipedia.org/wiki/Enterprise_resource_planning">
                         ERP
 
                     \ Consultant writing 
-                      
-                    %a!href="http://en.wikipedia.org/wiki/X++" X++ 
+
+                    <a href="http://en.wikipedia.org/wiki/X++">X++ 
 
                     \ code for 
-                      
-                    %a!href="http://en.wikipedia.org/wiki/Microsoft_Dynamics_AX"
+
+                    <a href="http://en.wikipedia.org/wiki/Microsoft_Dynamics_AX">
                         Microsoft Dynamics AX
-                      
+
                     \. I've been using Arch Linux for a few years now 
                     and do pretty much everything you see around the 
                     site as my main hobby.
 
-                %h3 Site Validations
+                <h3>Site Validations
 
-                %p
-
+                <p>
                     All of my pages are valid HTML5. My stylesheet (with 
                     the exception of some vendor-extensions) is valid 
                     CSS3. My RSS is valid level 2.0.
 
-                %p.centered
-
-                    %img.validation!src="/static/images/valid-html5.png"!alt="Valid HTML5"
-
+                <p .centered>
+                    <img src=#{v1} alt="Valid HTML5" .validation>
                     &nbsp;
-
-                    %img.validation!src="/static/images/valid-css.png"!alt="Valid CSS"
-
+                    <img src=#{v2} alt="Valid CSS" .validation>
                     &nbsp;
-
-                    %img.validation!src="/static/images/valid-rss.png"!alt="Valid RSS"
-            |]
+                    <img src=#{v3} alt="Valid RSS" .validation>
+        |]

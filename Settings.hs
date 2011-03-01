@@ -48,5 +48,5 @@ dataBase = "posts.s3db"
 dataBase = "dev-posts.s3db"
 #endif
 
-withConnectionPool :: MonadInvertIO m => (ConnectionPool -> m a) -> m a
+withConnectionPool :: MonadPeelIO m => (ConnectionPool -> m a) -> m a
 withConnectionPool = withSqlitePool dataBase 10
