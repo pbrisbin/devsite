@@ -60,10 +60,10 @@ getTagsR = do
         addTagGroup tg = do
             let tag   = fst tg
             let posts = snd tg
-            let len   = show $ length posts
+            let len   = doShow $ length posts
             [$hamlet|
                 <h3>#{proper tag} 
-                    <span .post_count>- #{len} posts
+                    <span .post_count>- #{len}
                 <div .hidden>
                     $forall post <- posts
                         ^{addPostBlock post}
@@ -71,8 +71,14 @@ getTagsR = do
 
         -- tag name -> Tag Name
         proper            = unwords . map capitalize . words
+
         capitalize []     = []
         capitalize (x:xs) = (toUpper x) : xs
+
+        doShow 1 = "1 post"
+        doShow n = show n ++ " posts"
+
+
 
 -- | A tag
 getTagR :: String -> Handler RepHtml
