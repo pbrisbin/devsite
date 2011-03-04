@@ -20,17 +20,6 @@ import Helpers.Posts
 
 import qualified Settings
 
--- Since posts are now retrieved in the Handler Monad it's no longer
--- easy to create these functions via template haskell, a solution is 
--- still a big todo:
-arch, bash, haskell, linux, mutt, xmonad :: String
-arch    = "arch"
-bash    = "bash"
-haskell = "haskell"
-linux   = "linux"
-mutt    = "mutt"
-xmonad  = "xmonad"
-
 -- | Home page
 getRootR :: Handler RepHtml
 getRootR = do
@@ -47,30 +36,30 @@ getRootR = do
                     Welcome to pbrisbin dot com. You'll find it's mostly 
                     [GNU/]
 
-                    <a href="@{TagR linux}">Linux
+                    <a href="@{TagR "linux"}">Linux
 
                     -related geekery here and some of the information 
                     presented is specific to the [amazing] distribution 
                     known as 
 
-                    <a href="@{TagR arch}">Arch
+                    <a href="@{TagR "arch"}">Arch
 
                     \ Linux. Some of my favorite topics are the 
 
-                    <a href="@{TagR xmonad}">XMonad
+                    <a href="@{TagR "xmonad"}">XMonad
 
                     \ window manager, 
 
-                    <a href="@{TagR haskell}">haskell
+                    <a href="@{TagR "haskell"}">haskell
 
                     \ in general, 
 
-                    <a href="@{TagR bash}">Bash
+                    <a href="@{TagR "bash"}">Bash
 
                     \ scripting (or just general command-line 
                     adventures), and the great email client 
 
-                    <a href="@{TagR mutt}">Mutt
+                    <a href="@{TagR "mutt"}">Mutt
 
                     \.
 
