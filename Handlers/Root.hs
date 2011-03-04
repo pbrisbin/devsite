@@ -29,7 +29,10 @@ getRootR = do
         addKeywords ["home", "haskell", "bash", "mutt", "xmonad", "arch linux"]
         addHamlet [$hamlet|
             <header>
-                <h1>pbrisbin dot com
+                <h1>
+                    <span .title_one>pbrisbin
+                    <span .title_two>dot
+                    <span .title_three>com
 
             <article .fullpage>
                 <p>
