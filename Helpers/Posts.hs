@@ -217,7 +217,7 @@ postForm post = do
                     &nbsp;
                 <td colspan="2">
                     <input type="submit" value="#{toHtml buttonText}">
-|])
+        |])
 
     where
         fieldRow fi = [$hamlet|
@@ -233,7 +233,7 @@ postForm post = do
                     $nothing
                         &nbsp;
 
-|]
+            |]
 
         formatTags = intercalate ", "
 
@@ -246,32 +246,32 @@ managePostTemplate :: String -> Widget () -> Enctype -> Widget ()
 managePostTemplate title form enctype = do
     posts <- lift $ sitePosts =<< getYesod
     [$hamlet|
-    <div .post_input>
-        <h3>#{toHtml title}
+        <div .post_input>
+            <h3>#{toHtml title}
 
-        <form enctype="#{enctype}" method="post">
-            ^{form}
+            <form enctype="#{enctype}" method="post">
+                ^{form}
 
-    <div .posts_existing>
-        <h3>Existing posts:
+        <div .posts_existing>
+            <h3>Existing posts:
 
-        <table>
-            <tr>
-                <th>Title
-                <th>Description
-                <th>Edit
-                <th>Delete
-
-            $forall post <- posts
+            <table>
                 <tr>
-                    <td>
-                        <a href="@{PostR (postSlug post)}">#{shortenShort (postTitle post)}
-                    <td>#{shortenLong (postDescr post)}
-                    <td>
-                        <a href="@{EditPostR (postSlug post)}">edit
-                    <td>
-                        <a href="@{DelPostR (postSlug post)}">delete
-|]
+                    <th>Title
+                    <th>Description
+                    <th>Edit
+                    <th>Delete
+
+                $forall post <- posts
+                    <tr>
+                        <td>
+                            <a href="@{PostR (postSlug post)}">#{shortenShort (postTitle post)}
+                        <td>#{shortenLong (postDescr post)}
+                        <td>
+                            <a href="@{EditPostR (postSlug post)}">edit
+                        <td>
+                            <a href="@{DelPostR (postSlug post)}">delete
+        |]
 
     where 
         shortenLong  = shorten 60
@@ -290,7 +290,7 @@ addPostBlock post = do
             #{postDescription}
 
             ^{postInfo post}
-|]
+        |]
 
 -- | A sub template for the posted time and tags
 postInfo :: Post -> Widget ()
@@ -310,7 +310,7 @@ postInfo post = do
                             , 
 
                         <a href="@{TagR (last (postTags post))}">#{last (postTags post)}
-|]
+        |]
 
 -- | Add post content to the body tag
 addPostContent :: Post -> Widget ()
@@ -344,7 +344,7 @@ addPostContent post = do
                 <p>
                     <small>
                         <em>Sadly, javascript is required for comments on this site.
-|]
+        |]
 
 -- <https://github.com/snoyberg/haskellers/blob/master/Haskellers.hs>
 -- <https://github.com/snoyberg/haskellers/blob/master/LICENSE>
