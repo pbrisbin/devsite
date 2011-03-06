@@ -68,8 +68,6 @@ mkYesodData "DevSite" [$parseRoutes|
     /auth     AuthR Auth getAuth
     |]
 
-
-
 instance Yesod DevSite where 
     approot _   = Settings.approot
     authRoute _ = Just $ AuthR LoginR
@@ -83,7 +81,6 @@ instance Yesod DevSite where
             widget
         hamletToRepHtml [$hamlet|
             \<!DOCTYPE html>
-
             <html lang="en">
                 <head>
                     <meta charset="utf-8">
