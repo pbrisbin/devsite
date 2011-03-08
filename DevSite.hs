@@ -15,18 +15,19 @@
 module DevSite where
 
 import Yesod
+import Yesod.Form.Core (GFormMonad)
 import Yesod.Markdown
 import Yesod.Helpers.Auth
 import Yesod.Helpers.Auth.HashDB
 import Yesod.Helpers.RssFeed
 import Yesod.Helpers.MPC
-import Yesod.Form.Core (GFormMonad)
 
-import Text.Blaze (toHtml)
+import Text.Blaze          (toHtml)
 import Control.Applicative ((<$>))
-import Data.Char (toLower)
-import Data.List (intercalate)
-import Data.Maybe (isJust)
+import Data.Char           (toLower)
+import Data.List           (intercalate)
+import Data.Maybe          (isJust)
+
 import Database.Persist.GenericSql
 
 import Helpers.AlbumArt
@@ -64,9 +65,10 @@ mkYesodData "DevSite" [$parseRoutes|
     /favicon.ico FaviconR GET
     /robots.txt  RobotsR  GET
 
-    /apps/mpc MpcR  MPC  getMPC
     /auth     AuthR Auth getAuth
+    /apps/mpc MpcR  MPC  getMPC
     |]
+
 
 instance Yesod DevSite where 
     approot _   = Settings.approot
@@ -159,7 +161,7 @@ instance YesodMPC DevSite where
 addKeywords :: [String] -> Widget ()
 addKeywords keywords = addHamletHead [$hamlet|
     <meta name="keywords" content="#{format keywords}">
-|]
+    |]
     where 
         -- add some default keywords, then make the comma separated 
         -- string
