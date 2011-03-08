@@ -18,7 +18,7 @@ module Settings
     , withConnectionPool
     ) where
 
-import Yesod hiding (approot)
+import Control.Monad.IO.Peel (MonadPeelIO)
 import Database.Persist.Sqlite
 
 titlePrefix :: String
