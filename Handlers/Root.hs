@@ -27,7 +27,7 @@ getRootR = do
     defaultLayout $ do
         setTitle $ toHtml $ Settings.titlePrefix ++ "Home"
         addKeywords ["home", "haskell", "bash", "mutt", "xmonad", "arch linux"]
-        addHamlet [$hamlet|
+        [$hamlet|
             <header>
                 <h1>
                     <span .title_one>pbrisbin
@@ -89,27 +89,14 @@ getRootR = do
                     \. For this reason, the site might not style 
                     properly in older browsers. I'm sorry.
 
-                <p>
-                    If you're curius, 
-
-                    <a href="static/fileshare/chromium.png">here's
-
-                    \ what this page looks like in chromium.
-
-                <p>
-                    Enjoy the site!
-
                 <h3>
-
                     <a id="Recent_Posts" href="#Recent_Posts">Recent Posts
-|]
 
-        -- show recent posts
-        mapM_ addPostBlock posts
+                $forall post <- posts
+                    ^{addPostBlock post}
 
-        addHamlet [$hamlet|
-            <p>
-                <small>
-                    <a href="@{PostsR}">all posts
-                    \...
-|]
+                <p>
+                    <small>
+                        <a href="@{PostsR}">all posts
+                        \...
+            |]
