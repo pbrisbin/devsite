@@ -104,7 +104,7 @@ instance Yesod DevSite where
                                 <a href="@{RootR}">pbrisbin
                                 \ dot com 2010 
                                 <span .float_right>
-                                    proudly powered by 
+                                    powered by 
                                     <a href="http://docs.yesodweb.com/">yesod
                                     \ - #{yesodVersion}
 |]
