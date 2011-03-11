@@ -78,8 +78,6 @@ getTagsR = do
         doShow 1 = "1 post"
         doShow n = show n ++ " posts"
 
-
-
 -- | A tag
 getTagR :: String -> Handler RepHtml
 getTagR tag' = do
