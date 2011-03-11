@@ -200,28 +200,28 @@ sideBar = do
                     <a href="@{PostsR}">posts
                 <li>
                     <a href="@{TagsR}">tags
-                <li>
+                <li .extra>
                     <a href="https://github.com/pbrisbin">github
-                <li>
+                <li .extra>
                     <a href="http://aur.archlinux.org/packages.php?K=brisbin33&amp;SeB=m">aur packages
-                <li>
+                <li .extra>
                     <a href="/xmonad/docs">xmonad docs
-                <li>
+                <li .extra>
                     <a href="/haskell/docs/html">haskell docs
-                <li>
+                <li .extra>
                     <img src="#{feedIcon}" .icon>
                     \ 
                     <a href="@{FeedR}">subscribe
 
                 $if loggedin
-                    <li>
+                    <li .extra>
                         <a href="@{ManagePostsR}">manage posts
                     <li>
                         <a href="@{MpcR StatusR}">mpd
                     <li>
                         <a href="@{AuthR LogoutR}">logout
                 $else
-                    <li .fade_in>
+                    <li>
                         <a href="@{AuthR LoginR}">login
 |]
 
