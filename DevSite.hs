@@ -107,7 +107,7 @@ instance Yesod DevSite where
                                     powered by 
                                     <a href="http://docs.yesodweb.com/">yesod
                                     \ - #{yesodVersion}
-|]
+            |]
 
 instance YesodBreadcrumbs DevSite where
     breadcrumb RootR  = return ("home" , Nothing   ) 
