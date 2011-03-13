@@ -229,5 +229,5 @@ sideBar = do
 -- | Render from markdown, yesod-style
 markdownToHtml :: Markdown -> GHandler s DevSite Html
 markdownToHtml = (writePandoc yesodDefaultWriterOptions <$>) 
-               . localLinks 
+               . addTitles
                . parseMarkdown yesodDefaultParserStateTrusted
