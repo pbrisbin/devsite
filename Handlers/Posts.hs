@@ -50,9 +50,47 @@ getPostsR = do
 getPostR :: String -> Handler RepHtml
 getPostR slug = do
     posts <- sitePosts =<< getYesod
-    case filter ((==) slug . postSlug) posts of
-        []       -> notFound
-        (post:_) -> defaultLayout $ addPostContent post
+    case helper slug posts of
+        (Nothing  , Nothing, Nothing) -> notFound
+        (Just post, mprev  , mnext  ) -> defaultLayout $ do
+            addPostContent post
+            [$hamlet|
+                <p .post_nav>
+                    <span .left>
+                        $maybe prev <- mprev
+                            <a href="@{PostR $ postSlug prev}">#{postTitle prev}
+                        $nothing
+                            <a href="@{RootR}">Home
+
+                    <span .right>
+                        $maybe next <- mnext
+                            <a href="@{PostR $ postSlug next}">#{postTitle next}
+                |]
+
+    where
+        -- | Return the desired post, and maybe the post just before and 
+        -- just after it in the list
+        helper _ [] = (Nothing,Nothing,Nothing) -- not found
+
+        helper slug (p1:[]) = if postSlug p1 == slug
+            then (Just p1, Nothing, Nothing)
+            else helper slug []
+
+        helper slug (p1:p2:[]) = if postSlug p1 == slug
+            then (Just p1, Nothing, Just p2)
+            else if postSlug p2 == slug
+                then (Just p2, Just p1, Nothing)
+                else helper slug []
+
+        helper slug (p1:p2:p3:ps) = if postSlug p1 == slug
+            then (Just p1, Nothing, Just p2)
+            else if postSlug p2 == slug
+                then (Just p2, Just p1, Just p3)
+                else helper slug (p2:p3:ps)
+
+--    case filter ((==) slug . postSlug) posts of
+--        []       -> notFound
+--        (post:_) -> defaultLayout $ addPostContent post
 
 -- | Manage posts
 getManagePostsR :: Handler RepHtml
