@@ -43,7 +43,7 @@ getPostsR = do
                 <h1>All Posts
 
             $forall post <- posts
-                ^{addPostBlock post} 
+                ^{addPostBlock post}
             |]
 
 -- | A post
@@ -69,7 +69,7 @@ getPostR slug = do
 
     where
         -- | Return the desired post, and maybe the post just before and 
-        -- just after it in the list
+        --   just after it in the list
         helper _ [] = (Nothing,Nothing,Nothing) -- not found
 
         helper slug (p1:[]) = if postSlug p1 == slug
@@ -87,10 +87,6 @@ getPostR slug = do
             else if postSlug p2 == slug
                 then (Just p2, Just p1, Just p3)
                 else helper slug (p2:p3:ps)
-
---    case filter ((==) slug . postSlug) posts of
---        []       -> notFound
---        (post:_) -> defaultLayout $ addPostContent post
 
 -- | Manage posts
 getManagePostsR :: Handler RepHtml
@@ -111,7 +107,7 @@ postManagePostsR = getManagePostsR
 -- | Edit post
 getEditPostR :: String -> Handler RepHtml
 getEditPostR slug = do
-    _                  <- requireAuth
+    _     <- requireAuth
     posts <- sitePosts =<< getYesod
     case filter ((==) slug . postSlug) posts of
         []        -> notFound
