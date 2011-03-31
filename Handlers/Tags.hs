@@ -34,7 +34,7 @@ getTagsR = do
     defaultLayout $ do
         setTitle $ toHtml $ Settings.titlePrefix ++ "All Tags"
         addKeywords $ map fst tagGroups
-        [$hamlet|
+        [hamlet|
             <header>
                 <h1>All Tags
 
@@ -61,7 +61,7 @@ getTagsR = do
             let tag   = fst tg
             let posts = snd tg
             let len   = doShow $ length posts
-            [$hamlet|
+            [hamlet|
                 <h3>#{proper tag} 
                     <span .post_count>- #{len}
                 <div .hidden>
@@ -89,7 +89,7 @@ getTagR tag' = do
             setTitle $ toHtml $ Settings.titlePrefix ++ "Tag: " ++ tag
             addKeywords [tag]
             rssLink (FeedTagR tag) ("rss feed for tag " ++ tag)
-            [$hamlet|
+            [hamlet|
                 <header>
                     <h1>Tag: #{tag}
 

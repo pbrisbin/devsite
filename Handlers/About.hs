@@ -29,7 +29,7 @@ getAboutR = do
         let v2 = Settings.staticRoot ++ "/images/valid-css.png"
         let v3 = Settings.staticRoot ++ "/images/valid-rss.png"
 
-        addHamlet [$hamlet|
+        addHamlet [hamlet|
             <header>
                 <h1>About
 

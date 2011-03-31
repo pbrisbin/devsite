@@ -58,7 +58,7 @@ data PostForm = PostForm
     }
 
 -- | Generate data base instances for post meta-data
-share2 mkPersist (mkMigrate "migratePosts") [$persist|
+share2 mkPersist (mkMigrate "migratePosts") [persist|
 SqlPost
     slug        String Eq
     date        UTCTime Desc
@@ -206,7 +206,7 @@ postForm post = do
     (title      , fiTitle      ) <- stringField   "title:"       $ fmap postTitle post
     (tags       , fiTags       ) <- stringField   "tags:"        $ fmap (formatTags . postTags) post
     (description, fiDescription) <- markdownField "description:" $ fmap (Markdown . postDescr)  post
-    return (PostForm <$> slug <*> title <*> tags <*> description, [$hamlet|
+    return (PostForm <$> slug <*> title <*> tags <*> description, [hamlet|
         <table>
             ^{fieldRow fiSlug}
             ^{fieldRow fiTitle}
@@ -220,7 +220,7 @@ postForm post = do
         |])
 
     where
-        fieldRow fi = [$hamlet|
+        fieldRow fi = [hamlet|
             <tr>
                 <th>
                     <label for="#{fiIdent fi}">#{fiLabel fi}
@@ -245,7 +245,7 @@ postForm post = do
 managePostTemplate :: String -> Widget () -> Enctype -> Widget ()
 managePostTemplate title form enctype = do
     posts <- lift $ sitePosts =<< getYesod
-    [$hamlet|
+    [hamlet|
         <div .post_input>
             <h3>#{toHtml title}
 
@@ -282,7 +282,7 @@ managePostTemplate title form enctype = do
 addPostBlock :: Post -> Widget ()
 addPostBlock post = do
     postDescription <- lift . markdownToHtml . Markdown $ postDescr post
-    [$hamlet|
+    [hamlet|
         <article>
             <p>
                 <a href="@{PostR (postSlug post)}">#{postTitle post}
@@ -296,7 +296,7 @@ addPostBlock post = do
 postInfo :: Post -> Widget ()
 postInfo post = do
     curTime <- lift $ liftIO getCurrentTime
-    [$hamlet|
+    [hamlet|
         <footer>
             <p>
                 <small>
@@ -320,13 +320,13 @@ addPostContent post = do
     setTitle . toHtml $ Settings.titlePrefix ++ postTitle post
     addKeywords $ postTitle post : postTags post
 
-    addJulius [$julius|
+    addJulius [julius|
         var disqus_shortname  = 'pbrisbin';
         var disqus_identifier = '#{postSlug post}';
         var disqus_title      = '#{postTitle post}';
         |]
 
-    [$hamlet|
+    [hamlet|
         <header>
             <h1>#{postTitle post}
 

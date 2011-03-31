@@ -27,7 +27,7 @@ getRootR = do
     defaultLayout $ do
         setTitle $ toHtml $ Settings.titlePrefix ++ "Home"
         addKeywords ["home", "haskell", "bash", "mutt", "xmonad", "arch linux"]
-        [$hamlet|
+        [hamlet|
             <header>
                 <h1>
                     <span .title_one>pbrisbin

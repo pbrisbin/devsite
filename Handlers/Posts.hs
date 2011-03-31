@@ -38,7 +38,7 @@ getPostsR = do
     defaultLayout $ do
         setTitle $ toHtml $ Settings.titlePrefix ++ "All Posts"
         addKeywords ["all posts"]
-        [$hamlet|
+        [hamlet|
             <header>
                 <h1>All Posts
 
@@ -54,7 +54,7 @@ getPostR slug = do
         (Nothing  , Nothing, Nothing) -> notFound
         (Just post, mprev  , mnext  ) -> defaultLayout $ do
             addPostContent post
-            [$hamlet|
+            [hamlet|
                 <p .post_nav>
                     <span .left>
                         $maybe prev <- mprev
@@ -94,7 +94,7 @@ getManagePostsR = do
     _ <- requireAuth
     defaultLayout $ do
         setTitle $ toHtml $ Settings.titlePrefix ++ "Manage posts"
-        [$hamlet|
+        [hamlet|
             <header>
                 <h1>Manage Posts
             <article .fullpage>
@@ -114,7 +114,7 @@ getEditPostR slug = do
         (post':_) -> do
             defaultLayout $ do
                 setTitle $ toHtml $ Settings.titlePrefix ++ "Edit post"
-                [$hamlet|
+                [hamlet|
                     <header>
                         <h1>Edit Post
                     <article .fullpage>

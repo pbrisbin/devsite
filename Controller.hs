@@ -1,4 +1,5 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE TemplateHaskell       #-}
 -------------------------------------------------------------------------------
 -- |
 -- Module      :  Controller
@@ -15,7 +16,6 @@ module Controller (withServer) where
 import Yesod
 import Yesod.Helpers.Auth
 import Yesod.Helpers.Auth.HashDB (migrateUsers)
-import Yesod.Helpers.MPC
 
 import DevSite
 import Handlers

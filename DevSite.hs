@@ -45,7 +45,7 @@ type Widget      = GWidget  DevSite DevSite
 type FormMonad a = GFormMonad DevSite DevSite a
 
 -- | Define all of the routes and handlers
-mkYesodData "DevSite" [$parseRoutes|
+mkYesodData "DevSite" [parseRoutes|
     /      RootR  GET
     /about AboutR GET
 
@@ -78,7 +78,7 @@ instance Yesod DevSite where
         pc <- widgetToPageContent $ do
             rssLink FeedR "rss feed"
             widget
-        hamletToRepHtml [$hamlet|
+        hamletToRepHtml [hamlet|
             \<!DOCTYPE html>
             <html lang="en">
                 <head>
@@ -147,15 +147,9 @@ instance YesodAuth DevSite where
     readAuthId _ = readIntegral
     authPlugins  = [authHashDB]
 
--- | In-browser mpd controls
---instance YesodMPC DevSite where
---    mpdConfig      = return . Just $ MpdConfig "192.168.0.5" 6600 ""
---    authHelper     = return . const () =<< requireAuth
---    albumArtHelper = getAlbumUrl
-
 -- | Add a list of words to the html head as keywords
 addKeywords :: [String] -> Widget ()
-addKeywords keywords = addHamletHead [$hamlet|
+addKeywords keywords = addHamletHead [hamlet|
     <meta name="keywords" content="#{format keywords}">
     |]
     where 
@@ -175,7 +169,7 @@ sideBar = do
     (t, h)   <- lift breadcrumbs
     loggedin <- lift maybeAuthId >>= return . isJust
     let feedIcon = Settings.staticRoot ++ "/images/feed.png"
-    [$hamlet|
+    [hamlet|
         $maybe mesg <- mmesg
             <div .message>
                 <p>#{mesg}
