@@ -58,6 +58,7 @@ getPostR slug = do
                 <p .post_nav>
                     <span .left>
                         $maybe prev <- mprev
+                            &#9666&nbsp;&nbsp;&nbsp;
                             <a href="@{PostR $ postSlug prev}">#{postTitle prev}
                         $nothing
                             <a href="@{RootR}">Home
@@ -65,6 +66,7 @@ getPostR slug = do
                     <span .right>
                         $maybe next <- mnext
                             <a href="@{PostR $ postSlug next}">#{postTitle next}
+                            &nbsp;&nbsp;&nbsp;&#9656
                 |]
 
     where
