@@ -22,12 +22,16 @@ module Handlers.Posts
     ) where
 
 import Yesod
+import Yesod.Markdown
 import Yesod.Helpers.Auth
 import Text.Blaze (toHtml)
 
 import DevSite
 import Helpers.Posts
 import Helpers.PostTypes
+
+import Control.Monad (unless)
+import System.Directory (doesFileExist)
 
 import qualified Settings
 
@@ -51,7 +55,7 @@ getPostR :: String -> Handler RepHtml
 getPostR slug = do
     posts <- sitePosts =<< getYesod
     case helper slug posts of
-        (Nothing  , Nothing, Nothing) -> notFound
+        (Nothing  , Nothing, Nothing) -> notPublished slug
         (Just post, mprev  , mnext  ) -> defaultLayout $ do
             addPostContent post
             [hamlet|
@@ -89,6 +93,28 @@ getPostR slug = do
             else if postSlug p2 == slug
                 then (Just p2, Just p1, Just p3)
                 else helper slug (p2:p3:ps)
+
+-- | If the post is not in the DB assume it's unpublished but check if 
+--   the pandoc file exists (because i'm writing it now) and serve the 
+--   content if it is, otherwise just 404
+notPublished :: String -> Handler RepHtml
+notPublished slug = do
+    let filename = Settings.pandocFile slug
+
+    exists <- liftIO $ doesFileExist filename
+    unless exists notFound
+
+    content <- markdownToHtml . Markdown =<< liftIO (readFile filename)
+
+    defaultLayout $ do
+        setTitle . toHtml $ Settings.titlePrefix ++ slug
+        [hamlet|
+            <header>
+                <h1>Unpublished - #{slug}
+
+            <article .fullpage>
+                #{content}
+            |]
 
 -- | Manage posts
 getManagePostsR :: Handler RepHtml
