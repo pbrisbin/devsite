@@ -17,6 +17,7 @@ module DevSite where
 import Yesod
 import Yesod.Form.Core (GFormMonad)
 import Yesod.Markdown
+import Yesod.Helpers.MPC
 import Yesod.Helpers.Auth
 import Yesod.Helpers.Auth.HashDB
 import Yesod.Helpers.RssFeed
@@ -65,6 +66,7 @@ mkYesodData "DevSite" [parseRoutes|
     /robots.txt  RobotsR  GET
 
     /auth     AuthR Auth getAuth
+    /apps/mpc MpcR  MPC  getMPC
     |]
 
 instance Yesod DevSite where 
@@ -126,6 +128,7 @@ instance YesodBreadcrumbs DevSite where
 
     -- subsites
     breadcrumb (AuthR _) = return ("login", Just RootR)
+    breadcrumb (MpcR  _) = return ("mpc"  , Just RootR)
 
     -- be sure to fail noticably so i fix it when it happens
     breadcrumb _ = return ("404", Just RootR)
@@ -146,6 +149,12 @@ instance YesodAuth DevSite where
     showAuthId _ = showIntegral
     readAuthId _ = readIntegral
     authPlugins  = [authHashDB]
+
+-- | In-browser mpd controls
+instance YesodMPC DevSite where
+    mpdConfig      = return . Just $ MpdConfig "192.168.0.5" 6600 ""
+    authHelper     = return . const () =<< requireAuth
+    albumArtHelper = getAlbumUrl
 
 -- | Add a list of words to the html head as keywords
 addKeywords :: [String] -> Widget ()
@@ -206,6 +215,8 @@ sideBar = do
                 $if loggedin
                     <li .extra>
                         <a href="@{ManagePostsR}">manage posts
+                    <li>
+                        <a href="@{MpcR StatusR}">mpd
                     <li>
                         <a href="@{AuthR LogoutR}">logout
                 $else
