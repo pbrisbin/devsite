@@ -182,8 +182,12 @@ documentsList docs = [hamlet|
 
     where shorten n s = if length s > n then take n s ++ "..." else s
 
-updatePost :: Post -> Post -> Handler ()
-updatePost old new = undefined -- todo:
+updatePost :: PostId -> Post -> Handler ()
+updatePost key new = runDB $ update key 
+    [ PostSlug  $ postSlug  new
+    , PostTitle $ postTitle new
+    , PostDescr $ postDescr new
+    ]
 
 removeTags :: PostId -> Handler ()
 removeTags key = runDB $ deleteWhere [TagPostEq key]
@@ -199,7 +203,6 @@ createTags key = mapM_ (go key)
 updateTags :: PostId -> [String] -> Handler ()
 updateTags key tags = removeTags key >> createTags key tags
 
--- | Run the post form and insert or update based on the entered data
 runPostForm :: Maybe Document -> Widget ()
 runPostForm mdoc = do
     ((res, form), enctype) <- lift . runFormMonadPost $ postForm mdoc
@@ -210,7 +213,6 @@ runPostForm mdoc = do
 
     [hamlet|
         <div .post_input>
-            <h3>Edit post:
             <form enctype="#{enctype}" method="post">
                 ^{form}
         |]
@@ -264,9 +266,9 @@ processFormResult pf = do
             createTags k (parseTags $ formTags pf)
             setMessage "post created!"
 
-        Left (k, p) -> do
+        Left (k, _) -> do
             -- post exists, update
-            updatePost p post
+            updatePost k post
             updateTags k (parseTags $ formTags pf)
             setMessage "post updated!"
 
@@ -285,8 +287,7 @@ postFromForm pf = do
     where
         unMarkdown (Markdown s) = s
 
--- | minor changes to 
---   <https://github.com/fortytools/lounge/blob/master/Handler/Entry.hs#L57>
+-- <https://github.com/fortytools/lounge/blob/master/Handler/Entry.hs#L57>
 parseTags :: String -> [String]
 parseTags [] = []
 parseTags s  = let (l,s') = break (==',') $ dropWhile (==',') s

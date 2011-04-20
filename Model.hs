@@ -16,10 +16,10 @@ import Database.Persist.GenericSql (mkMigrate)
 -- | Generate data base instances for post meta-data
 share2 mkPersist (mkMigrate "migratePosts") [persist|
     Post
-        slug  String  Eq
+        slug  String  Eq Update
         date  UTCTime Desc
-        title String
-        descr String
+        title String Update
+        descr String Update
         UniquePost slug
 
     Tag

@@ -1,5 +1,5 @@
-{-# LANGUAGE QuasiQuotes       #-}
-{-# LANGUAGE TemplateHaskell   #-}
+{-# LANGUAGE QuasiQuotes     #-}
+{-# LANGUAGE TemplateHaskell #-}
 module Helpers.Documents
     ( shortDocument
     , longDocument
