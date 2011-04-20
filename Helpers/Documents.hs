@@ -19,40 +19,40 @@ import qualified Settings
 
 -- | The sub template for a single post
 shortDocument :: Document -> Widget ()
-shortDocument (Document post tags) = [hamlet|
+shortDocument (Document p ts) = [hamlet|
     <article>
         <p>
-            <a href="@{PostR $ postSlug post}">#{postTitle post}
-        #{markdownToHtml $ Markdown $ postDescr post}
-        ^{docInfo post tags}
+            <a href="@{PostR $ postSlug p}">#{postTitle p}
+        #{markdownToHtml $ Markdown $ postDescr p}
+        ^{docInfo p ts}
     |]
 
 longDocument :: Document -> Widget ()
-longDocument (Document post tags) = do
-    let file = Settings.pandocFile $ postSlug post
+longDocument (Document p ts) = do
+    let file = Settings.pandocFile $ postSlug p
 
     documentContent <- lift . liftIO $ do
         exists <- doesFileExist file
         if exists
             then readFile file
-            else return $ postDescr post
+            else return $ postDescr p
 
-    Settings.setTitle $ postTitle post
-    addKeywords $ postTitle post : map tagName tags
+    Settings.setTitle $ postTitle p
+    addKeywords $ postTitle p : map tagName ts
 
     addJulius [julius|
         var disqus_shortname  = 'pbrisbin';
-        var disqus_identifier = '#{postSlug post}';
-        var disqus_title      = '#{postTitle post}';
+        var disqus_identifier = '#{postSlug p}';
+        var disqus_title      = '#{postTitle p}';
         |]
 
     [hamlet|
         <header>
-            <h1>#{postTitle post}
+            <h1>#{postTitle p}
 
         <article .fullpage>
             #{markdownToHtml $ Markdown $ documentContent}
-            ^{docInfo post tags}
+            ^{docInfo p ts}
 
         <h3>
             <a href="#Comments" id="Comments">Comments
@@ -66,23 +66,23 @@ longDocument (Document post tags) = do
         |]
 
 docInfo :: Post -> [Tag] -> Widget ()
-docInfo post tags = do
-    timeDiff <- lift $ humanReadableTimeDiff $ postDate post
+docInfo p ts = do
+    timeDiff <- lift $ humanReadableTimeDiff $ postDate p
     [hamlet|
         <footer>
             <p>
                 <small>
                     published #{timeDiff}
 
-                    $if not $ null tags
+                    $if not $ null ts
                         <span .tag_list>
                             tags: 
 
-                            $forall tag <- init tags
+                            $forall tag <- init ts
                                 <a href="@{TagR $ tagName tag}">#{tagName tag}
                                 , 
 
-                            <a href="@{TagR $ tagName $ last tags}">#{tagName $ last $ tags}
+                            <a href="@{TagR $ tagName $ last ts}">#{tagName $ last $ ts}
         |]
 
 -- | if the post is not found in the db

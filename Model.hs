@@ -6,9 +6,8 @@
 module Model where
 
 import Yesod.Persist
-import Yesod.Markdown (Markdown)
 
-import Data.List                   (nub, concatMap)
+import Data.List                   (nub)
 import Data.Time                   (UTCTime)
 import Database.Persist.TH         (share2)
 import Database.Persist.GenericSql (mkMigrate)

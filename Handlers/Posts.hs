@@ -1,5 +1,6 @@
-{-# LANGUAGE QuasiQuotes       #-}
-{-# LANGUAGE OverloadedStrings #-}
+{-# OPTIONS -fno-warn-incomplete-patterns #-}
+{-# LANGUAGE QuasiQuotes                  #-}
+{-# LANGUAGE OverloadedStrings            #-}
 module Handlers.Posts 
     ( getPostsR
     , getPostR
@@ -78,24 +79,24 @@ getPostR slug = do
         helper :: String -> [Document] -> (Maybe Document, Maybe Post, Maybe Post)
         helper _ [] = (Nothing, Nothing, Nothing) -- not found
 
-        helper slug (d@(Document post _):[]) =
-            if postSlug post == slug
+        helper slug' (d@(Document p _):[]) =
+            if postSlug p == slug'
                 then (Just d, Nothing, Nothing)
-                else helper slug [] -- not found
+                else helper slug' [] -- not found
 
-        helper slug (d1@(Document p1 _):d2@(Document p2 _):[]) =
-            if postSlug p1 == slug
+        helper slug' (d1@(Document p1 _):d2@(Document p2 _):[]) =
+            if postSlug p1 == slug'
                 then (Just d1, Nothing, Just p2)
-                else if postSlug p2 == slug
+                else if postSlug p2 == slug'
                     then (Just d2, Just p1, Nothing)
-                    else helper slug [] -- not found
+                    else helper slug' [] -- not found
 
-        helper slug (d1@(Document p1 _):d2@(Document p2 _):d3@(Document p3 _):ds) =
-            if postSlug  p1 == slug
+        helper slug' (d1@(Document p1 _):d2@(Document p2 _):d3@(Document p3 _):ds) =
+            if postSlug  p1 == slug'
                 then (Just d1, Nothing, Just p2)
-                else if postSlug p2 == slug
+                else if postSlug p2 == slug'
                     then (Just d2, Just p1, Just p3)
-                    else helper slug (d2:d3:ds)
+                    else helper slug' (d2:d3:ds)
 
 -- | Manage posts
 getManagePostsR :: Handler RepHtml
@@ -145,8 +146,8 @@ postEditPostR = getEditPostR
 getDelPostR :: String -> Handler RepHtml
 getDelPostR slug = do
     _    <- requireAuth
-    post <- runDB $ getBy $ UniquePost slug
-    case post of
+    p <- runDB $ getBy $ UniquePost slug
+    case p of
         Just (key, _) -> do
             -- delete the post and the tags
             runDB $ deleteBy $ UniquePost slug
@@ -169,15 +170,15 @@ documentsList docs = [hamlet|
                 <th>Edit
                 <th>Delete
 
-            $forall post <- map post docs
+            $forall p <- map post docs
                 <tr>
                     <td>
-                        <a href="@{PostR $ postSlug post}">#{shorten 20 $ postTitle post}
-                    <td>#{shorten 60 $ postDescr post}
+                        <a href="@{PostR $ postSlug p}">#{shorten 20 $ postTitle p}
+                    <td>#{shorten 60 $ postDescr p}
                     <td>
-                        <a href="@{EditPostR $ postSlug post}">edit
+                        <a href="@{EditPostR $ postSlug p}">edit
                     <td>
-                        <a href="@{DelPostR $ postSlug post}">delete
+                        <a href="@{DelPostR $ postSlug p}">delete
     |]
 
     where shorten n s = if length s > n then take n s ++ "..." else s
@@ -196,12 +197,12 @@ createTags :: PostId -> [String] -> Handler ()
 createTags key = mapM_ (go key)
     where
         go :: PostId -> String -> Handler ()
-        go key tag = do
-            _ <- runDB (insertBy $ Tag key tag)
+        go key' tag = do
+            _ <- runDB (insertBy $ Tag key' tag)
             return ()
 
 updateTags :: PostId -> [String] -> Handler ()
-updateTags key tags = removeTags key >> createTags key tags
+updateTags key ts = removeTags key >> createTags key ts
 
 runPostForm :: Maybe Document -> Widget ()
 runPostForm mdoc = do
@@ -223,9 +224,9 @@ postForm :: Maybe Document -> FormMonad (FormResult PostForm, Widget ())
 postForm mdoc = do
     (slug       , fiSlug       ) <- stringField   "post slug:"   $ fmap (postSlug . post) mdoc
     (title      , fiTitle      ) <- stringField   "title:"       $ fmap (postTitle . post) mdoc
-    (tags       , fiTags       ) <- stringField   "tags:"        $ fmap (formatTags . tags) mdoc
+    (ts         , fiTags       ) <- stringField   "tags:"        $ fmap (formatTags . tags) mdoc
     (description, fiDescription) <- markdownField "description:" $ fmap (Markdown . postDescr . post) mdoc
-    return (PostForm <$> slug <*> title <*> tags <*> description, [hamlet|
+    return (PostForm <$> slug <*> title <*> ts <*> description, [hamlet|
         <table>
             ^{fieldRow fiSlug}
             ^{fieldRow fiTitle}
@@ -257,8 +258,8 @@ postForm mdoc = do
 
 processFormResult :: PostForm -> Handler ()
 processFormResult pf = do
-    post   <- postFromForm pf
-    result <- runDB $ insertBy post
+    p      <- postFromForm pf
+    result <- runDB $ insertBy p
 
     case result of
         Right k -> do
@@ -268,7 +269,7 @@ processFormResult pf = do
 
         Left (k, _) -> do
             -- post exists, update
-            updatePost k post
+            updatePost k p
             updateTags k (parseTags $ formTags pf)
             setMessage "post updated!"
 

@@ -19,7 +19,7 @@ module Settings
     ) where
 
 import Control.Monad.IO.Peel   (MonadPeelIO)
-import Database.Persist.Sqlite (ConnectionPool(..), withSqlitePool)
+import Database.Persist.Sqlite (ConnectionPool, withSqlitePool)
 import Text.Blaze              (toHtml)
 
 import qualified Yesod

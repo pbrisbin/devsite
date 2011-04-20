@@ -8,7 +8,6 @@ import DevSite
 import Model
 import Yesod
 import Yesod.Helpers.RssFeed
-import Helpers.Documents
 import Text.Blaze (toHtml)
 
 -- | Rss feed
@@ -40,9 +39,9 @@ feedFromDocs docs = rssFeed Feed
     }
 
 docToRssEntry :: Document -> FeedEntry DevSiteRoute
-docToRssEntry (Document post tags) = FeedEntry
-    { feedEntryLink    = PostR $ postSlug post
-    , feedEntryUpdated = postDate  post
-    , feedEntryTitle   = postTitle post
-    , feedEntryContent = toHtml $ postDescr post
+docToRssEntry (Document p _) = FeedEntry
+    { feedEntryLink    = PostR $ postSlug p
+    , feedEntryUpdated = postDate  p
+    , feedEntryTitle   = postTitle p
+    , feedEntryContent = toHtml $ postDescr p
     }

@@ -25,7 +25,7 @@ import Yesod.Helpers.RssFeed
 import Data.Time
 import System.Locale
 
-import Control.Monad (forM, liftM)
+import Control.Monad (forM)
 import Data.Char     (toLower, isSpace)
 import Data.List     (intercalate)
 import Data.Maybe    (isJust)
@@ -241,12 +241,12 @@ sideBar = do
 
 loadDocuments :: Handler [Document]
 loadDocuments = do
-    posts <- runDB (selectList [] [PostDateDesc] 0 0)
-    tags  <- return . map snd =<< runDB (selectList [] [TagNameAsc] 0 0)
+    ps <- runDB (selectList [] [PostDateDesc] 0 0)
+    ts <- return . map snd =<< runDB (selectList [] [TagNameAsc] 0 0)
 
-    forM posts $ \(postId, post) -> do
-        let tags' = filter ((== postId) . tagPost) tags
-        return $ Document post tags'
+    forM ps $ \(postId, p) -> do
+        let tags' = filter ((== postId) . tagPost) ts
+        return $ Document p tags'
 
 -- <https://github.com/snoyberg/haskellers/blob/master/Haskellers.hs>
 -- <https://github.com/snoyberg/haskellers/blob/master/LICENSE>

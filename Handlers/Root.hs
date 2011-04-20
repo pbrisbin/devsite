@@ -13,7 +13,6 @@
 module Handlers.Root (getRootR) where
 
 import DevSite
-import Model
 import Yesod
 import Helpers.Documents
 import qualified Settings
