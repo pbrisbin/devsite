@@ -15,33 +15,30 @@ module Handlers.Tags
     , getTagR
     ) where
 
+import DevSite
+import Model
+import Helpers.Documents
 import Yesod
 import Yesod.Helpers.RssFeed (rssLink)
-import Text.Blaze (toHtml)
-
-import DevSite
-import Helpers.Posts
-import Helpers.PostTypes
-import Data.Char (toLower, toUpper)
-
+import Data.Char (toLower,toUpper)
 import qualified Settings
 
 -- | All tags
 getTagsR :: Handler RepHtml
 getTagsR = do
-    posts <- sitePosts =<< getYesod
-    let tagGroups = mkTagGroups posts
+    docs <- siteDocs =<< getYesod
+    let collections = collectByTagName docs
     defaultLayout $ do
-        setTitle $ toHtml $ Settings.titlePrefix ++ "All Tags"
-        addKeywords $ map fst tagGroups
+        Settings.setTitle "All Tags"
+        addKeywords $ map name collections
         [hamlet|
             <header>
                 <h1>All Tags
 
             <article .fullpage>
                 <div id="accordion">
-                    $forall tagGroup <- tagGroups
-                        ^{addTagGroup tagGroup}
+                    $forall collection <- collections
+                        ^{addCollection collection}
 
             <script src="//ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js">
             <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.9/jquery-ui.min.js">
@@ -55,38 +52,37 @@ getTagsR = do
                 });
 
             |]
-    where
-        addTagGroup :: TagGroup -> Widget ()
-        addTagGroup tg = do
-            let tag   = fst tg
-            let posts = snd tg
-            let len   = doShow $ length posts
-            [hamlet|
-                <h3>#{proper tag} 
-                    <span .post_count>- #{len}
-                <div .hidden>
-                    $forall post <- posts
-                        ^{addPostBlock post}
-                |]
 
+addCollection :: Collection -> Widget ()
+addCollection collection = do
+    let len = helper . length $ documents collection
+    [hamlet|
+        <h3>#{proper $ name collection} 
+            <span .post_count>- #{len}
+        <div .hidden>
+            $forall doc <- documents collection
+                ^{shortDocument doc}
+        |]
+
+    where
         -- tag name -> Tag Name
-        proper            = unwords . map capitalize . words
+        proper = unwords . map capitalize . words
 
         capitalize []     = []
         capitalize (x:xs) = (toUpper x) : xs
 
-        doShow 1 = "1 post"
-        doShow n = show n ++ " posts"
+        helper 1 = "1 post"
+        helper n = show n ++ " posts"
 
 -- | A tag
 getTagR :: String -> Handler RepHtml
 getTagR tag' = do
     let tag = map toLower tag'
-    posts' <- sitePosts =<< getYesod
-    case filter (elem tag . postTags) posts' of
-        []    -> notFound
-        posts -> defaultLayout $ do
-            setTitle $ toHtml $ Settings.titlePrefix ++ "Tag: " ++ tag
+    docs' <- siteDocs =<< getYesod
+    case filter (hasTag tag) docs' of
+        []   -> notFound
+        docs -> defaultLayout $ do
+            Settings.setTitle $ "Tag: " ++ tag
             addKeywords [tag]
             rssLink (FeedTagR tag) ("rss feed for tag " ++ tag)
             [hamlet|
@@ -94,6 +90,6 @@ getTagR tag' = do
                     <h1>Tag: #{tag}
 
                 <article .fullpage>
-                    $forall post <- posts
-                        ^{addPostBlock post}
+                    $forall doc <- docs
+                        ^{shortDocument doc}
                 |]

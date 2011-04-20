@@ -12,20 +12,18 @@
 -------------------------------------------------------------------------------
 module Handlers.Root (getRootR) where
 
-import Yesod
-import Text.Blaze (toHtml)
-
 import DevSite
-import Helpers.Posts
-
+import Model
+import Yesod
+import Helpers.Documents
 import qualified Settings
 
 -- | Home page
 getRootR :: Handler RepHtml
 getRootR = do
-    posts <- fmap (take 10) . sitePosts =<< getYesod
+    docs <- siteDocs =<< getYesod
     defaultLayout $ do
-        setTitle $ toHtml $ Settings.titlePrefix ++ "Home"
+        Settings.setTitle "Home"
         addKeywords ["home", "haskell", "bash", "mutt", "xmonad", "arch linux"]
         [hamlet|
             <header>
@@ -92,8 +90,8 @@ getRootR = do
                 <h3>
                     <a id="Recent_Posts" href="#Recent_Posts">Recent Posts
 
-                $forall post <- posts
-                    ^{addPostBlock post}
+                $forall doc <- take 10 docs
+                    ^{shortDocument doc}
 
                 <p>
                     <small>

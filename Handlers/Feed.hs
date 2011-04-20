@@ -1,55 +1,48 @@
--------------------------------------------------------------------------------
--- |
--- Module      :  Handlers.Feed
--- Copyright   :  (c) Patrick Brisbin 2010 
--- License     :  as-is
---
--- Maintainer  :  pbrisbin@gmail.com
--- Stability   :  unstable
--- Portability :  unportable
---
--------------------------------------------------------------------------------
-module Handlers.Feed where
-
-import Yesod
-import Yesod.Helpers.RssFeed
-import Text.Blaze (toHtml)
+{-# LANGUAGE OverloadedStrings #-}
+module Handlers.Feed 
+    ( getFeedR
+    , getFeedTagR
+    ) where
 
 import DevSite
-import Helpers.PostTypes
+import Model
+import Yesod
+import Yesod.Helpers.RssFeed
+import Helpers.Documents
+import Text.Blaze (toHtml)
 
 -- | Rss feed
 getFeedR :: Handler RepRss
 getFeedR = do
-    posts' <- fmap (take 10) . sitePosts =<< getYesod
-    case posts' of
-        []    -> notFound
-        posts -> feedFromPosts posts
+    docs' <- siteDocs =<< getYesod
+    case docs' of
+        []   -> notFound
+        docs -> feedFromDocs $ take 10 docs
 
 -- | Rss feed, limited to a tag
 getFeedTagR :: String -> Handler RepRss
 getFeedTagR tag = do
-    posts' <- sitePosts =<< getYesod
-    case filter (elem tag . postTags) posts' of
-        []    -> notFound
-        posts -> feedFromPosts posts
+    docs' <- siteDocs =<< getYesod
+    case filter (hasTag tag) docs' of
+        []   -> notFound
+        docs -> feedFromDocs docs
 
-feedFromPosts :: [Post] -> Handler RepRss
-feedFromPosts posts = rssFeed Feed
+feedFromDocs :: [Document] -> Handler RepRss
+feedFromDocs docs = rssFeed Feed
     { feedTitle       = "pbrisbin dot com"
-    , feedDescription = toHtml $ "New posts on pbrisbin dot com"
+    , feedDescription = "New posts on pbrisbin dot com"
     , feedLanguage    = "en-us"
     , feedLinkSelf    = FeedR
     , feedLinkHome    = RootR
     -- note: posts is known to be not empty coming in
-    , feedUpdated     = postDate $ head posts
-    , feedEntries     = map postToRssEntry posts
+    , feedUpdated     = postDate . post $ head docs
+    , feedEntries     = map docToRssEntry docs
     }
 
-postToRssEntry :: Post -> FeedEntry DevSiteRoute
-postToRssEntry post = FeedEntry
+docToRssEntry :: Document -> FeedEntry DevSiteRoute
+docToRssEntry (Document post tags) = FeedEntry
     { feedEntryLink    = PostR $ postSlug post
-    , feedEntryUpdated = postDate post
+    , feedEntryUpdated = postDate  post
     , feedEntryTitle   = postTitle post
     , feedEntryContent = toHtml $ postDescr post
     }

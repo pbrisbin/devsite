@@ -22,23 +22,26 @@ import Yesod.Helpers.Auth
 import Yesod.Helpers.Auth.HashDB
 import Yesod.Helpers.RssFeed
 
-import Text.Blaze          (toHtml)
-import Control.Applicative ((<$>))
-import Data.Char           (toLower)
-import Data.List           (intercalate)
-import Data.Maybe          (isJust)
+import Data.Time
+import System.Locale
+
+import Control.Monad (forM, liftM)
+import Data.Char     (toLower, isSpace)
+import Data.List     (intercalate)
+import Data.Maybe    (isJust)
+import Text.Blaze    (toHtml)
 
 import Database.Persist.GenericSql
 
+import Model
 import Helpers.AlbumArt
-import Helpers.PostTypes
 
 import qualified Settings
 
 -- | The main site type
 data DevSite = DevSite
-    { connPool  :: ConnectionPool
-    , sitePosts :: Handler [Post]
+    { connPool :: ConnectionPool
+    , siteDocs :: Handler [Document]
     }
 
 type Handler     = GHandler DevSite DevSite
@@ -177,6 +180,7 @@ sideBar = do
     mmesg    <- lift getMessage
     (t, h)   <- lift breadcrumbs
     loggedin <- lift maybeAuthId >>= return . isJust
+
     let feedIcon = Settings.staticRoot ++ "/images/feed.png"
     [hamlet|
         $maybe mesg <- mmesg
@@ -235,9 +239,59 @@ sideBar = do
             })();
 |]
 
+loadDocuments :: Handler [Document]
+loadDocuments = do
+    posts <- runDB (selectList [] [PostDateDesc] 0 0)
+    tags  <- return . map snd =<< runDB (selectList [] [TagNameAsc] 0 0)
 
--- | Render from markdown, yesod-style
-markdownToHtml :: Markdown -> GHandler s DevSite Html
-markdownToHtml = (writePandoc yesodDefaultWriterOptions <$>) 
-               . addTitles
-               . parseMarkdown yesodDefaultParserStateTrusted
+    forM posts $ \(postId, post) -> do
+        let tags' = filter ((== postId) . tagPost) tags
+        return $ Document post tags'
+
+-- <https://github.com/snoyberg/haskellers/blob/master/Haskellers.hs>
+-- <https://github.com/snoyberg/haskellers/blob/master/LICENSE>
+humanReadableTimeDiff :: UTCTime -> GHandler s m String
+humanReadableTimeDiff t = return . helper . flip diffUTCTime t =<< liftIO getCurrentTime
+
+    where
+        minutes :: NominalDiffTime -> Double
+        minutes n = realToFrac $ n / 60
+
+        hours :: NominalDiffTime -> Double
+        hours   n = minutes n / 60
+
+        days :: NominalDiffTime -> Double
+        days    n = hours n / 24
+
+        weeks :: NominalDiffTime -> Double
+        weeks   n = days n / 7
+
+        years :: NominalDiffTime -> Double
+        years   n = days n / 365
+
+        i2s :: RealFrac a => a -> String
+        i2s n = show m where m = truncate n :: Int
+
+        trim = f . f where f = reverse . dropWhile isSpace
+
+        old           = utcToLocalTime utc t
+        dow           = trim $! formatTime defaultTimeLocale "%l:%M %p on %A" old
+        thisYear      = trim $! formatTime defaultTimeLocale "%b %e" old
+        previousYears = trim $! formatTime defaultTimeLocale "%b %e, %Y" old
+
+        helper d 
+            | d         < 1  = "just now"
+            | d         < 60 = i2s d ++ " seconds ago"
+            | minutes d < 2  = "one minute ago"
+            | minutes d < 60 =  i2s (minutes d) ++ " minutes ago"
+            | hours d   < 2  = "one hour ago"
+            | hours d   < 24 = "about " ++ i2s (hours d) ++ " hours ago"
+            | days d    < 5  = "at " ++ dow
+            | days d    < 10 = i2s (days d)  ++ " days ago"
+            | weeks d   < 2  = i2s (weeks d) ++ " week ago"
+            | weeks d   < 5  = i2s (weeks d) ++ " weeks ago"
+            | years d   < 1  = "on " ++ thisYear
+            | otherwise      = "on " ++ previousYears
+
+markdownToHtml :: Markdown -> Html
+markdownToHtml = writePandoc yesodDefaultWriterOptions . parseMarkdown yesodDefaultParserStateTrusted

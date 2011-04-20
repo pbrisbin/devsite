@@ -13,16 +13,19 @@
 module Settings
     ( approot
     , staticRoot
-    , titlePrefix
+    , setTitle
     , pandocFile
     , withConnectionPool
     ) where
 
-import Control.Monad.IO.Peel (MonadPeelIO)
-import Database.Persist.Sqlite
+import Control.Monad.IO.Peel   (MonadPeelIO)
+import Database.Persist.Sqlite (ConnectionPool(..), withSqlitePool)
+import Text.Blaze              (toHtml)
 
-titlePrefix :: String
-titlePrefix = "pbrisbin - "
+import qualified Yesod
+
+setTitle :: Yesod.Yesod m => String -> Yesod.GWidget s m ()
+setTitle = Yesod.setTitle . toHtml . (++) "pbrisbin - " 
 
 pandocFile :: String -> FilePath
 pandocFile x = "/srv/http/pandoc/" ++ x ++ ".pdc"
