@@ -45,11 +45,7 @@ staticRoot = "http://pbrisbin.com/static"
 #endif
 
 dataBase :: String
-#ifdef PROD
-dataBase = "posts.s3db"
-#else
-dataBase = "dev-posts.s3db"
-#endif
+dataBase = "db.s3db"
 
 withConnectionPool :: MonadPeelIO m => (ConnectionPool -> m a) -> m a
 withConnectionPool = withSqlitePool dataBase 10

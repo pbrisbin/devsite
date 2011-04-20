@@ -20,14 +20,16 @@ import Model
 import Helpers.Documents
 import Yesod
 import Yesod.Helpers.RssFeed (rssLink)
-import Data.Char (toLower,toUpper)
+import Data.Char             (toLower,toUpper)
+import Data.List             (sortBy)
+import Data.Ord              (comparing)
 import qualified Settings
 
 -- | All tags
 getTagsR :: Handler RepHtml
 getTagsR = do
     docs <- siteDocs =<< getYesod
-    let collections = collectByTagName docs
+    let collections = sortByLength $ collectByTagName docs
     defaultLayout $ do
         Settings.setTitle "All Tags"
         addKeywords $ map name collections
@@ -52,6 +54,10 @@ getTagsR = do
                 });
 
             |]
+
+    where
+        sortByLength :: [Collection] -> [Collection]
+        sortByLength = reverse . sortBy (comparing (length . documents))
 
 addCollection :: Collection -> Widget ()
 addCollection collection = do

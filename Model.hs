@@ -8,7 +8,7 @@ module Model where
 import Yesod.Persist
 import Yesod.Markdown (Markdown)
 
-import Data.List                   (group, concatMap)
+import Data.List                   (nub, concatMap)
 import Data.Time                   (UTCTime)
 import Database.Persist.TH         (share2)
 import Database.Persist.GenericSql (mkMigrate)
@@ -42,10 +42,7 @@ collect :: [Document] -> String -> (Document -> Bool) -> Collection
 collect docs n p = Collection n (filter p docs)
 
 collectByTagName :: [Document] -> [Collection]
-collectByTagName docs =
-    -- faster than nub on sorted lists
-    let uniqueTags = map head . group . map tagName $ concatMap tags docs
-    in  map (\tag -> collect docs tag (hasTag tag)) uniqueTags
+collectByTagName docs = map (\tag -> collect docs tag (hasTag tag)) . nub . map tagName $ concatMap tags docs
 
 hasTag :: String -> Document -> Bool
 hasTag t d = t `elem` (map tagName $ tags d)
