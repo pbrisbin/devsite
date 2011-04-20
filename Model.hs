@@ -23,7 +23,7 @@ share2 mkPersist (mkMigrate "migratePosts") [persist|
         UniquePost slug
 
     Tag
-        post PostId
+        post PostId Eq
         name String Asc
         UniqueTag post name
     |]

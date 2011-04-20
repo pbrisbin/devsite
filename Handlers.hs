@@ -15,9 +15,9 @@ module Handlers
     , getRobotsR
     , module Handlers.Root
     , module Handlers.About
-    , module Handlers.Feed
+    , module Handlers.Posts
     , module Handlers.Tags
-    --, module Handlers.Posts
+    , module Handlers.Feed
     ) where
 
 import Yesod
@@ -25,9 +25,9 @@ import DevSite
 
 import Handlers.Root
 import Handlers.About
-import Handlers.Feed
+import Handlers.Posts
 import Handlers.Tags
---import Handlers.Posts
+import Handlers.Feed
 
 -- | Favicon
 getFaviconR :: Handler ()

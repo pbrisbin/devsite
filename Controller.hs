@@ -7,6 +7,7 @@ import Model
 import Handlers
 
 import Yesod
+import Yesod.Helpers.MPC
 import Yesod.Helpers.Auth
 import Yesod.Helpers.Auth.HashDB (migrateUsers)
 
