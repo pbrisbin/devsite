@@ -90,8 +90,11 @@ unpublishedDocument :: String -> Widget ()
 unpublishedDocument slug = do
     let file = Settings.pandocFile $ slug
     exists <- lift . liftIO $ doesFileExist file
-
     unless exists (lift notFound)
-
-    now <- liftIO getCurrentTime
-    longDocument $ Document (Post slug now ("unpublished: " ++ slug) []) []
+    documentContent <- lift . liftIO $ readFile file
+    Settings.setTitle slug
+    [hamlet|
+        <header>
+            <h1>unpublished: #{slug}
+        <article .fullpage>#{markdownToHtml $ Markdown $ documentContent}
+        |]
