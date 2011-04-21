@@ -1,15 +1,4 @@
 {-# LANGUAGE QuasiQuotes #-}
--------------------------------------------------------------------------------
--- |
--- Module      :  Handlers.Tags
--- Copyright   :  (c) Patrick Brisbin 2010 
--- License     :  as-is
---
--- Maintainer  :  pbrisbin@gmail.com
--- Stability   :  unstable
--- Portability :  unportable
---
--------------------------------------------------------------------------------
 module Handlers.Tags
     ( getTagsR
     , getTagR

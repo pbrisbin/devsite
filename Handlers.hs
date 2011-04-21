@@ -1,15 +1,4 @@
 {-# LANGUAGE OverloadedStrings #-}
--------------------------------------------------------------------------------
--- |
--- Module      :  Handlers
--- Copyright   :  (c) Patrick Brisbin 2010 
--- License     :  as-is
---
--- Maintainer  :  pbrisbin@gmail.com
--- Stability   :  unstable
--- Portability :  unportable
---
--------------------------------------------------------------------------------
 module Handlers 
     ( getFaviconR
     , getRobotsR

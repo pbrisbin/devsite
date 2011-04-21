@@ -1,15 +1,4 @@
 {-# LANGUAGE CPP #-}
--------------------------------------------------------------------------------
--- |
--- Module      :  Settings
--- Copyright   :  (c) Patrick Brisbin 2010 
--- License     :  as-is
---
--- Maintainer  :  pbrisbin@gmail.com
--- Stability   :  unstable
--- Portability :  unportable
---
--------------------------------------------------------------------------------
 module Settings
     ( approot
     , staticRoot

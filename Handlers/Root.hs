@@ -1,15 +1,4 @@
 {-# LANGUAGE QuasiQuotes #-}
--------------------------------------------------------------------------------
--- |
--- Module      :  Handlers.Root
--- Copyright   :  (c) Patrick Brisbin 2010 
--- License     :  as-is
---
--- Maintainer  :  pbrisbin@gmail.com
--- Stability   :  unstable
--- Portability :  unportable
---
--------------------------------------------------------------------------------
 module Handlers.Root (getRootR) where
 
 import DevSite

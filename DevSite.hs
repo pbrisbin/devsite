@@ -1,17 +1,6 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies    #-}
 {-# LANGUAGE QuasiQuotes     #-}
--------------------------------------------------------------------------------
--- |
--- Module      :  DevSite
--- Copyright   :  (c) Patrick Brisbin 2010 
--- License     :  as-is
---
--- Maintainer  :  pbrisbin@gmail.com
--- Stability   :  unstable
--- Portability :  unportable
---
--------------------------------------------------------------------------------
 module DevSite where
 
 import Yesod
