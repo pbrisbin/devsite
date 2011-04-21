@@ -1,7 +1,11 @@
 {-# LANGUAGE QuasiQuotes     #-}
 {-# LANGUAGE TemplateHaskell #-}
 module Helpers.Documents
-    ( shortDocument
+    ( Link(..)
+    , linkFromPost
+    , linkFromDocument
+    , showLink
+    , shortDocument
     , longDocument
     , unpublishedDocument
     ) where
@@ -17,18 +21,35 @@ import System.Directory (doesFileExist)
 
 import qualified Settings
 
+-- | A link
+data Link a = Link
+    { route :: a
+    , title :: String
+    }
+
+linkFromPost :: Post -> Link DevSiteRoute
+linkFromPost p = Link (PostR $ postSlug p) (postTitle p)
+
+linkFromDocument :: Document -> Link DevSiteRoute
+linkFromDocument = linkFromPost . post
+
+showLink :: Link DevSiteRoute -> Widget ()
+showLink l = [hamlet|<a title="#{title l}" href="@{route l}">#{title l}|]
+
 -- | The sub template for a single post
 shortDocument :: Document -> Widget ()
 shortDocument (Document p ts) = [hamlet|
     <article>
-        <p>
-            <a href="@{PostR $ postSlug p}">#{postTitle p}
+        <p>^{showLink $ linkFromPost p}
         #{markdownToHtml $ Markdown $ postDescr p}
         ^{docInfo p ts}
     |]
 
-longDocument :: Document -> Widget ()
-longDocument (Document p ts) = do
+longDocument :: Document                  -- ^ document to display
+             -> Maybe (Link DevSiteRoute) -- ^ maybe route to previous post
+             -> Maybe (Link DevSiteRoute) -- ^ maybe route to next post
+             -> Widget ()
+longDocument (Document p ts) mprev mnext = do
     let file = Settings.pandocFile $ postSlug p
 
     documentContent <- lift . liftIO $ do
@@ -63,6 +84,19 @@ longDocument (Document p ts) = do
                 <p>
                     <small>
                         <em>Sadly, javascript is required for comments on this site.
+
+        <p .post_nav>
+            <span .left>
+                $maybe prev <- mprev
+                    &#9666&nbsp;&nbsp;&nbsp;
+                    ^{showLink prev}
+                $nothing
+                    <a href="@{RootR}">Home
+
+            <span .right>
+                $maybe next <- mnext
+                    ^{showLink next}
+                    &nbsp;&nbsp;&nbsp;&#9656
         |]
 
 docInfo :: Post -> [Tag] -> Widget ()

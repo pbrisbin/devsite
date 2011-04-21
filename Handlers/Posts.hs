@@ -55,22 +55,7 @@ getPostR slug = do
     docs <- siteDocs =<< getYesod
     case helper slug docs of
         (Nothing , Nothing, Nothing) -> defaultLayout $ unpublishedDocument slug
-        (Just doc, mprev  , mnext  ) -> defaultLayout $ do
-            longDocument doc
-            [hamlet|
-                <p .post_nav>
-                    <span .left>
-                        $maybe prev <- mprev
-                            &#9666&nbsp;&nbsp;&nbsp;
-                            <a href="@{PostR $ postSlug prev}">#{postTitle prev}
-                        $nothing
-                            <a href="@{RootR}">Home
-
-                    <span .right>
-                        $maybe next <- mnext
-                            <a href="@{PostR $ postSlug next}">#{postTitle next}
-                            &nbsp;&nbsp;&nbsp;&#9656
-                |]
+        (Just doc, mprev  , mnext  ) -> defaultLayout $ longDocument doc (fmap linkFromPost mprev) (fmap linkFromPost mnext)
 
     where
         -- | Return the desired document, and maybe the post just before 
