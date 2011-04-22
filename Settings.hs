@@ -8,7 +8,6 @@ module Settings
     , withConnectionPool
     ) where
 
-import Control.Monad.IO.Peel   (MonadPeelIO)
 import Database.Persist.Sqlite (ConnectionPool, withSqlitePool)
 import Text.Blaze              (toHtml)
 
@@ -38,7 +37,5 @@ staticRoot = "http://pbrisbin.com/static"
 dataBase :: T.Text
 dataBase = "db.s3db"
 
-withConnectionPool :: (Yesod.MonadControlIO m, MonadPeelIO m) 
-                   => (ConnectionPool -> m a) 
-                   -> m a
+withConnectionPool :: Yesod.MonadControlIO m => (ConnectionPool -> m a) -> m a
 withConnectionPool = withSqlitePool dataBase 10
