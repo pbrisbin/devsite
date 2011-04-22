@@ -6,7 +6,6 @@ module DevSite where
 
 import Yesod
 import Yesod.Form.Core (GFormMonad)
-import Yesod.Comments.Markdown
 import Yesod.Helpers.MPC
 import Yesod.Helpers.Auth
 import Yesod.Helpers.Auth.HashDB

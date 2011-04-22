@@ -209,10 +209,10 @@ runPostForm mdoc = do
 postForm :: Maybe Document -> FormMonad (FormResult PostForm, Widget ())
 postForm mdoc = do
     (slug       , fiSlug       ) <- stringField   "post slug:"   $ fmap (T.pack . postSlug . post) mdoc
-    (title      , fiTitle      ) <- stringField   "title:"       $ fmap (T.pack . postTitle . post) mdoc
+    (t          , fiTitle      ) <- stringField   "title:"       $ fmap (T.pack . postTitle . post) mdoc
     (ts         , fiTags       ) <- stringField   "tags:"        $ fmap (T.pack . formatTags . tags) mdoc
     (description, fiDescription) <- markdownField "description:" $ fmap (Markdown . postDescr . post) mdoc
-    return (PostForm <$> slug <*> title <*> ts <*> description, [hamlet|
+    return (PostForm <$> slug <*> t <*> ts <*> description, [hamlet|
         <table>
             ^{fieldRow fiSlug}
             ^{fieldRow fiTitle}

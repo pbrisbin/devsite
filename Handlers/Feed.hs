@@ -8,7 +8,6 @@ import DevSite
 import Model
 import Yesod
 import Yesod.Helpers.RssFeed
-import Text.Blaze (toHtml)
 
 import qualified Data.Text as T
 

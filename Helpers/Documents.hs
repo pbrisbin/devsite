@@ -16,7 +16,6 @@ import Model
 
 import Yesod.Comments.Markdown
 import Control.Monad    (unless)
-import Data.Time        (getCurrentTime)
 import System.Directory (doesFileExist)
 
 import qualified Settings
