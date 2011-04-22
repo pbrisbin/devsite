@@ -8,14 +8,12 @@ module Settings
     , withConnectionPool
     ) where
 
-import Database.Persist.Sqlite (ConnectionPool, withSqlitePool)
-import Text.Blaze              (toHtml)
-
+import Database.Persist.Sqlite
 import qualified Yesod
 import qualified Data.Text as T
 
 setTitle :: Yesod.Yesod m => String -> Yesod.GWidget s m ()
-setTitle = Yesod.setTitle . toHtml . (++) "pbrisbin - " 
+setTitle = Yesod.setTitle . Yesod.toHtml . (++) "pbrisbin - " 
 
 pandocFile :: String -> FilePath
 pandocFile x = "/srv/http/pandoc/" ++ x ++ ".pdc"
