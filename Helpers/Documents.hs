@@ -14,7 +14,7 @@ import Yesod
 import DevSite
 import Model
 
-import Yesod.Markdown   (Markdown(..))
+import Yesod.Comments.Markdown
 import Control.Monad    (unless)
 import Data.Time        (getCurrentTime)
 import System.Directory (doesFileExist)

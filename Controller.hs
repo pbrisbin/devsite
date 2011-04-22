@@ -1,6 +1,7 @@
 {-# OPTIONS -fno-warn-orphans      #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TemplateHaskell       #-}
+{-# LANGUAGE OverloadedStrings     #-}
 module Controller (withServer) where
 
 import DevSite

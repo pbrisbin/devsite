@@ -1,11 +1,12 @@
-{-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE TypeFamilies    #-}
-{-# LANGUAGE QuasiQuotes     #-}
+{-# LANGUAGE TemplateHaskell   #-}
+{-# LANGUAGE TypeFamilies      #-}
+{-# LANGUAGE QuasiQuotes       #-}
+{-# LANGUAGE OverloadedStrings #-}
 module DevSite where
 
 import Yesod
 import Yesod.Form.Core (GFormMonad)
-import Yesod.Markdown
+import Yesod.Comments.Markdown
 import Yesod.Helpers.MPC
 import Yesod.Helpers.Auth
 import Yesod.Helpers.Auth.HashDB
@@ -18,7 +19,6 @@ import Control.Monad (forM)
 import Data.Char     (toLower, isSpace)
 import Data.List     (intercalate)
 import Data.Maybe    (isJust)
-import Text.Blaze    (toHtml)
 
 import Database.Persist.GenericSql
 
@@ -26,6 +26,7 @@ import Model
 import Helpers.AlbumArt
 
 import qualified Settings
+import qualified Data.Text as T
 
 -- | The main site type
 data DevSite = DevSite
@@ -104,16 +105,17 @@ instance YesodBreadcrumbs DevSite where
     breadcrumb RootR  = return ("home" , Nothing   ) 
     breadcrumb AboutR = return ("about", Just RootR)
 
-    breadcrumb PostsR       = return ("all posts", Just RootR )
-    breadcrumb (PostR slug) = return (format slug, Just PostsR)
+    breadcrumb PostsR       = return ("all posts", Just RootR          )
+    breadcrumb (PostR slug) = return (T.pack $ format slug, Just PostsR)
         where
             -- switch underscores with spaces
+            format :: String -> String
             format []         = []
             format ('_':rest) = ' ': format rest
             format (x:rest)   = x  : format rest
 
-    breadcrumb TagsR      = return ("all tags", Just RootR     )
-    breadcrumb (TagR tag) = return (map toLower tag, Just TagsR)
+    breadcrumb TagsR      = return ("all tags", Just RootR              )
+    breadcrumb (TagR tag) = return (T.pack $ map toLower tag, Just TagsR)
 
     breadcrumb ManagePostsR  = return ("manage posts", Just RootR    )
     breadcrumb (EditPostR _) = return ("edit post", Just ManagePostsR)
@@ -138,8 +140,6 @@ instance YesodAuth DevSite where
     loginDest  _ = RootR
     logoutDest _ = RootR
     getAuthId    = getAuthIdHashDB AuthR 
-    showAuthId _ = showIntegral
-    readAuthId _ = readIntegral
     authPlugins  = [authHashDB]
 
 -- | In-browser mpd controls
@@ -156,9 +156,8 @@ addKeywords keywords = addHamletHead [hamlet|
     where 
         -- add some default keywords, then make the comma separated 
         -- string
-        format :: [String] -> Html
-        format = toHtml
-               . intercalate ", " 
+        format :: [String] -> String
+        format = intercalate ", " 
                . (:) "patrick brisbin" 
                . (:) "pbrisbin"
                . (:) "brisbin" 
@@ -281,6 +280,3 @@ humanReadableTimeDiff t = return . helper . flip diffUTCTime t =<< liftIO getCur
             | weeks d   < 5  = i2s (weeks d) ++ " weeks ago"
             | years d   < 1  = "on " ++ thisYear
             | otherwise      = "on " ++ previousYears
-
-markdownToHtml :: Markdown -> Html
-markdownToHtml = writePandoc yesodDefaultWriterOptions . parseMarkdown yesodDefaultParserStateTrusted

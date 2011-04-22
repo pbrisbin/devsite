@@ -10,6 +10,8 @@ import Yesod
 import Yesod.Helpers.RssFeed
 import Text.Blaze (toHtml)
 
+import qualified Data.Text as T
+
 -- | Rss feed
 getFeedR :: Handler RepRss
 getFeedR = do
@@ -42,6 +44,6 @@ docToRssEntry :: Document -> FeedEntry DevSiteRoute
 docToRssEntry (Document p _) = FeedEntry
     { feedEntryLink    = PostR $ postSlug p
     , feedEntryUpdated = postDate  p
-    , feedEntryTitle   = postTitle p
+    , feedEntryTitle   = T.pack $ postTitle p
     , feedEntryContent = toHtml $ postDescr p
     }

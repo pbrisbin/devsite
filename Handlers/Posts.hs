@@ -15,8 +15,8 @@ import DevSite
 import Model
 import Yesod
 
-import Yesod.Markdown
 import Yesod.Helpers.Auth
+import Yesod.Comments.Markdown
 import Helpers.Documents
 
 import Control.Applicative ((<$>), (<*>))
@@ -25,12 +25,13 @@ import Data.List           (intercalate)
 import Data.Time           (getCurrentTime)
 
 import qualified Settings
+import qualified Data.Text as T
 
 -- | Used by the new post form
 data PostForm = PostForm
-    { formSlug  :: String
-    , formTitle :: String
-    , formTags  :: String
+    { formSlug  :: T.Text
+    , formTitle :: T.Text
+    , formTags  :: T.Text
     , formDescr :: Markdown
     }
 
@@ -207,9 +208,9 @@ runPostForm mdoc = do
 --   then use that to prepopulate the form
 postForm :: Maybe Document -> FormMonad (FormResult PostForm, Widget ())
 postForm mdoc = do
-    (slug       , fiSlug       ) <- stringField   "post slug:"   $ fmap (postSlug . post) mdoc
-    (title      , fiTitle      ) <- stringField   "title:"       $ fmap (postTitle . post) mdoc
-    (ts         , fiTags       ) <- stringField   "tags:"        $ fmap (formatTags . tags) mdoc
+    (slug       , fiSlug       ) <- stringField   "post slug:"   $ fmap (T.pack . postSlug . post) mdoc
+    (title      , fiTitle      ) <- stringField   "title:"       $ fmap (T.pack . postTitle . post) mdoc
+    (ts         , fiTags       ) <- stringField   "tags:"        $ fmap (T.pack . formatTags . tags) mdoc
     (description, fiDescription) <- markdownField "description:" $ fmap (Markdown . postDescr . post) mdoc
     return (PostForm <$> slug <*> title <*> ts <*> description, [hamlet|
         <table>
@@ -249,13 +250,13 @@ processFormResult pf = do
     case result of
         Right k -> do
             -- post was inserted, add the tags
-            createTags k (parseTags $ formTags pf)
+            createTags k (parseTags . T.unpack $ formTags pf)
             setMessage "post created!"
 
         Left (k, _) -> do
             -- post exists, update
             updatePost k p
-            updateTags k (parseTags $ formTags pf)
+            updateTags k (parseTags . T.unpack $ formTags pf)
             setMessage "post updated!"
 
     redirect RedirectTemporary ManagePostsR
@@ -264,8 +265,8 @@ postFromForm :: PostForm -> Handler Post
 postFromForm pf = do
     now <- liftIO getCurrentTime
     return Post
-        { postSlug  = formSlug pf
-        , postTitle = formTitle pf
+        { postSlug  = T.unpack $ formSlug pf
+        , postTitle = T.unpack $ formTitle pf
         , postDescr = unMarkdown $ formDescr pf
         , postDate  = now
         }

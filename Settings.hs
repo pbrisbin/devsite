@@ -1,4 +1,5 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE OverloadedStrings #-}
 module Settings
     ( approot
     , staticRoot
@@ -12,6 +13,7 @@ import Database.Persist.Sqlite (ConnectionPool, withSqlitePool)
 import Text.Blaze              (toHtml)
 
 import qualified Yesod
+import qualified Data.Text as T
 
 setTitle :: Yesod.Yesod m => String -> Yesod.GWidget s m ()
 setTitle = Yesod.setTitle . toHtml . (++) "pbrisbin - " 
@@ -19,7 +21,7 @@ setTitle = Yesod.setTitle . toHtml . (++) "pbrisbin - "
 pandocFile :: String -> FilePath
 pandocFile x = "/srv/http/pandoc/" ++ x ++ ".pdc"
 
-approot :: String
+approot :: T.Text
 #ifdef PROD
 approot = "http://pbrisbin.com"
 #else
@@ -33,8 +35,10 @@ staticRoot = "/static"
 staticRoot = "http://pbrisbin.com/static"
 #endif
 
-dataBase :: String
+dataBase :: T.Text
 dataBase = "db.s3db"
 
-withConnectionPool :: MonadPeelIO m => (ConnectionPool -> m a) -> m a
+withConnectionPool :: (Yesod.MonadControlIO m, MonadPeelIO m) 
+                   => (ConnectionPool -> m a) 
+                   -> m a
 withConnectionPool = withSqlitePool dataBase 10
