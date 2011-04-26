@@ -8,6 +8,7 @@ import DevSite
 import Model
 import Yesod
 import Yesod.Helpers.RssFeed
+import Yesod.Comments.Markdown
 
 import qualified Data.Text as T
 
@@ -20,7 +21,7 @@ getFeedR = do
         docs -> feedFromDocs $ take 10 docs
 
 -- | Rss feed, limited to a tag
-getFeedTagR :: String -> Handler RepRss
+getFeedTagR :: T.Text -> Handler RepRss
 getFeedTagR tag = do
     docs' <- siteDocs =<< getYesod
     case filter (hasTag tag) docs' of
@@ -43,6 +44,10 @@ docToRssEntry :: Document -> FeedEntry DevSiteRoute
 docToRssEntry (Document p _) = FeedEntry
     { feedEntryLink    = PostR $ postSlug p
     , feedEntryUpdated = postDate  p
-    , feedEntryTitle   = T.pack $ postTitle p
-    , feedEntryContent = toHtml $ postDescr p
+    , feedEntryTitle   = postTitle p
+    , feedEntryContent = plainText $ postDescr p
     }
+
+    where
+        plainText :: Markdown -> Html
+        plainText (Markdown s) = toHtml s

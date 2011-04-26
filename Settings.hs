@@ -1,4 +1,4 @@
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE CPP               #-}
 {-# LANGUAGE OverloadedStrings #-}
 module Settings
     ( approot
@@ -12,11 +12,11 @@ import Database.Persist.Sqlite
 import qualified Yesod
 import qualified Data.Text as T
 
-setTitle :: Yesod.Yesod m => String -> Yesod.GWidget s m ()
-setTitle = Yesod.setTitle . Yesod.toHtml . (++) "pbrisbin - " 
+setTitle :: Yesod.Yesod m => T.Text -> Yesod.GWidget s m ()
+setTitle = Yesod.setTitle . Yesod.toHtml . T.append "pbrisbin - "
 
-pandocFile :: String -> FilePath
-pandocFile x = "/srv/http/pandoc/" ++ x ++ ".pdc"
+pandocFile :: T.Text -> FilePath
+pandocFile x = T.unpack $ T.concat ["/srv/http/pandoc/", x, ".pdc"]
 
 approot :: T.Text
 #ifdef PROD

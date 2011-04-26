@@ -51,7 +51,7 @@ getPostsR = do
             |]
 
 -- | A post
-getPostR :: String -> Handler RepHtml
+getPostR :: T.Text -> Handler RepHtml
 getPostR slug = do
     docs <- siteDocs =<< getYesod
     case helper slug docs of
@@ -62,7 +62,7 @@ getPostR slug = do
         -- | Return the desired document, and maybe the post just before 
         --   and just after it in the list so that next/previous links 
         --   can be shown
-        helper :: String -> [Document] -> (Maybe Document, Maybe Post, Maybe Post)
+        helper :: T.Text -> [Document] -> (Maybe Document, Maybe Post, Maybe Post)
         helper _ [] = (Nothing, Nothing, Nothing) -- not found
 
         helper slug' (d@(Document p _):[]) =
@@ -103,7 +103,7 @@ postManagePostsR :: Handler RepHtml
 postManagePostsR = getManagePostsR
 
 -- | Edit post
-getEditPostR :: String -> Handler RepHtml
+getEditPostR :: T.Text -> Handler RepHtml
 getEditPostR slug = do
     _    <- requireAuth
     docs <- siteDocs =<< getYesod
@@ -125,11 +125,11 @@ getEditPostR slug = do
         safeHead []    = Nothing
         safeHead (x:_) = Just x
 
-postEditPostR :: String -> Handler RepHtml
+postEditPostR :: T.Text -> Handler RepHtml
 postEditPostR = getEditPostR
 
 -- | Delete post
-getDelPostR :: String -> Handler RepHtml
+getDelPostR :: T.Text -> Handler RepHtml
 getDelPostR slug = do
     _    <- requireAuth
     p <- runDB $ getBy $ UniquePost slug
@@ -160,14 +160,19 @@ documentsList docs = [hamlet|
                 <tr>
                     <td>
                         <a href="@{PostR $ postSlug p}">#{shorten 20 $ postTitle p}
-                    <td>#{shorten 60 $ postDescr p}
+                    <td>#{markdownToHtml $ shorten' 60 $ postDescr p}
                     <td>
                         <a href="@{EditPostR $ postSlug p}">edit
                     <td>
                         <a href="@{DelPostR $ postSlug p}">delete
     |]
 
-    where shorten n s = if length s > n then take n s ++ "..." else s
+    where 
+        -- shorten a T.Text
+        shorten n t = if T.length t > n then (T.take n t) `T.append` "..." else t
+
+        -- same for Markdown
+        shorten' n (Markdown s) = Markdown $ if length s > n then take n s ++ "..." else s
 
 updatePost :: PostId -> Post -> Handler ()
 updatePost key new = runDB $ update key 
@@ -179,15 +184,13 @@ updatePost key new = runDB $ update key
 removeTags :: PostId -> Handler ()
 removeTags key = runDB $ deleteWhere [TagPostEq key]
 
-createTags :: PostId -> [String] -> Handler ()
+createTags :: PostId -> [T.Text] -> Handler ()
 createTags key = mapM_ (go key)
     where
-        go :: PostId -> String -> Handler ()
-        go key' tag = do
-            _ <- runDB (insertBy $ Tag key' tag)
-            return ()
+        go :: PostId -> T.Text -> Handler ()
+        go key' tag = runDB (insertBy $ Tag key' tag) >>= \_ -> return ()
 
-updateTags :: PostId -> [String] -> Handler ()
+updateTags :: PostId -> [T.Text] -> Handler ()
 updateTags key ts = removeTags key >> createTags key ts
 
 runPostForm :: Maybe Document -> Widget ()
@@ -208,10 +211,10 @@ runPostForm mdoc = do
 --   then use that to prepopulate the form
 postForm :: Maybe Document -> FormMonad (FormResult PostForm, Widget ())
 postForm mdoc = do
-    (slug       , fiSlug       ) <- stringField   "post slug:"   $ fmap (T.pack . postSlug . post) mdoc
-    (t          , fiTitle      ) <- stringField   "title:"       $ fmap (T.pack . postTitle . post) mdoc
-    (ts         , fiTags       ) <- stringField   "tags:"        $ fmap (T.pack . formatTags . tags) mdoc
-    (description, fiDescription) <- markdownField "description:" $ fmap (Markdown . postDescr . post) mdoc
+    (slug       , fiSlug       ) <- stringField   "post slug:"   $ fmap (postSlug   . post) mdoc
+    (t          , fiTitle      ) <- stringField   "title:"       $ fmap (postTitle  . post) mdoc
+    (ts         , fiTags       ) <- stringField   "tags:"        $ fmap (formatTags . tags) mdoc
+    (description, fiDescription) <- markdownField "description:" $ fmap (postDescr  . post) mdoc
     return (PostForm <$> slug <*> t <*> ts <*> description, [hamlet|
         <table>
             ^{fieldRow fiSlug}
@@ -239,8 +242,8 @@ postForm mdoc = do
 
             |]
 
-        formatTags :: [Tag] -> String
-        formatTags = intercalate ", " . map tagName
+        formatTags :: [Tag] -> T.Text
+        formatTags = T.intercalate ", " . map tagName
 
 processFormResult :: PostForm -> Handler ()
 processFormResult pf = do
@@ -250,13 +253,13 @@ processFormResult pf = do
     case result of
         Right k -> do
             -- post was inserted, add the tags
-            createTags k (parseTags . T.unpack $ formTags pf)
+            createTags k (parseTags $ formTags pf)
             setMessage "post created!"
 
         Left (k, _) -> do
             -- post exists, update
             updatePost k p
-            updateTags k (parseTags . T.unpack $ formTags pf)
+            updateTags k (parseTags $ formTags pf)
             setMessage "post updated!"
 
     redirect RedirectTemporary ManagePostsR
@@ -265,23 +268,11 @@ postFromForm :: PostForm -> Handler Post
 postFromForm pf = do
     now <- liftIO getCurrentTime
     return Post
-        { postSlug  = T.unpack $ formSlug pf
-        , postTitle = T.unpack $ formTitle pf
-        , postDescr = unMarkdown $ formDescr pf
+        { postSlug  = formSlug  pf
+        , postTitle = formTitle pf
+        , postDescr = formDescr pf
         , postDate  = now
         }
 
-    where
-        unMarkdown (Markdown s) = s
-
--- <https://github.com/fortytools/lounge/blob/master/Handler/Entry.hs#L57>
-parseTags :: String -> [String]
-parseTags [] = []
-parseTags s  = let (l,s') = break (==',') $ dropWhile (==',') s
-    in trim l : case s' of
-        []      -> []
-        (_:s'') -> parseTags s''
-
-    where 
-        trim = f . f
-        f    = reverse . dropWhile isSpace
+parseTags :: T.Text -> [T.Text]
+parseTags = filter (not . T.null) . map T.strip . T.splitOn ","

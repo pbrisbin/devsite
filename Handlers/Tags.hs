@@ -1,4 +1,5 @@
-{-# LANGUAGE QuasiQuotes #-}
+{-# LANGUAGE QuasiQuotes       #-}
+{-# LANGUAGE OverloadedStrings #-}
 module Handlers.Tags
     ( getTagsR
     , getTagR
@@ -12,6 +13,8 @@ import Yesod.Helpers.RssFeed (rssLink)
 import Data.Char             (toLower,toUpper)
 import Data.List             (sortBy)
 import Data.Ord              (comparing)
+
+import qualified Data.Text as T
 import qualified Settings
 
 -- | All tags
@@ -61,25 +64,27 @@ addCollection collection = do
 
     where
         -- tag name -> Tag Name
-        proper = unwords . map capitalize . words
+        proper :: T.Text -> T.Text
+        proper = T.unwords . map capitalize . T.words
 
-        capitalize []     = []
-        capitalize (x:xs) = (toUpper x) : xs
+        capitalize :: T.Text -> T.Text
+        capitalize w = let (x,xs) = T.splitAt 1 w
+            in (T.toUpper x) `T.append` xs
 
         helper 1 = "1 post"
         helper n = show n ++ " posts"
 
 -- | A tag
-getTagR :: String -> Handler RepHtml
+getTagR :: T.Text -> Handler RepHtml
 getTagR tag' = do
-    let tag = map toLower tag'
+    let tag = T.toLower tag'
     docs' <- siteDocs =<< getYesod
     case filter (hasTag tag) docs' of
         []   -> notFound
         docs -> defaultLayout $ do
-            Settings.setTitle $ "Tag: " ++ tag
+            Settings.setTitle $ "Tag: " `T.append` tag
             addKeywords [tag]
-            rssLink (FeedTagR tag) ("rss feed for tag " ++ tag)
+            rssLink (FeedTagR tag) ("rss feed for tag " ++ T.unpack tag)
             [hamlet|
                 <header>
                     <h1>Tag: #{tag}

@@ -6,21 +6,26 @@
 module Model where
 
 import Yesod.Persist
+import Yesod.Comments.Markdown
 import Data.List (nub)
 import Data.Time (UTCTime)
+
+import qualified Data.Text as T
 
 -- | Generate data base instances for post meta-data
 share2 mkPersist (mkMigrate "migratePosts") [persist|
     Post
-        slug  String  Eq Update
-        date  UTCTime Desc
-        title String Update
-        descr String Update
+        slug  T.Text  Eq      Update
+        date  UTCTime    Desc
+        title T.Text          Update
+        descr Markdown        Update
+
         UniquePost slug
 
     Tag
         post PostId Eq
-        name String Asc
+        name T.Text    Asc
+
         UniqueTag post name
     |]
 
@@ -30,15 +35,15 @@ data Document = Document
     }
 
 data Collection = Collection
-    { name      :: String
+    { name      :: T.Text
     , documents :: [Document]
     }
 
-collect :: [Document] -> String -> (Document -> Bool) -> Collection
+collect :: [Document] -> T.Text -> (Document -> Bool) -> Collection
 collect docs n p = Collection n (filter p docs)
 
 collectByTagName :: [Document] -> [Collection]
 collectByTagName docs = map (\tag -> collect docs tag (hasTag tag)) . nub . map tagName $ concatMap tags docs
 
-hasTag :: String -> Document -> Bool
+hasTag :: T.Text -> Document -> Bool
 hasTag t d = t `elem` (map tagName $ tags d)

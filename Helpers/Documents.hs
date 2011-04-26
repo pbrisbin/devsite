@@ -18,12 +18,13 @@ import Yesod.Comments.Markdown
 import Control.Monad    (unless)
 import System.Directory (doesFileExist)
 
+import qualified Data.Text as T
 import qualified Settings
 
 -- | A link
 data Link a = Link
     { route :: a
-    , title :: String
+    , title :: T.Text
     }
 
 linkFromPost :: Post -> Link DevSiteRoute
@@ -40,7 +41,7 @@ shortDocument :: Document -> Widget ()
 shortDocument (Document p ts) = [hamlet|
     <article>
         <p>^{showLink $ linkFromPost p}
-        #{markdownToHtml $ Markdown $ postDescr p}
+        #{markdownToHtml $ postDescr p}
         ^{docInfo p ts}
     |]
 
@@ -54,7 +55,7 @@ longDocument (Document p ts) mprev mnext = do
     documentContent <- lift . liftIO $ do
         exists <- doesFileExist file
         if exists
-            then readFile file
+            then markdownFromFile file
             else return $ postDescr p
 
     Settings.setTitle $ postTitle p
@@ -71,7 +72,7 @@ longDocument (Document p ts) mprev mnext = do
             <h1>#{postTitle p}
 
         <article .fullpage>
-            #{markdownToHtml $ Markdown $ documentContent}
+            #{markdownToHtml $ documentContent}
             ^{docInfo p ts}
 
         <h3>
@@ -119,15 +120,15 @@ docInfo p ts = do
         |]
 
 -- | if the post is not found in the db
-unpublishedDocument :: String -> Widget ()
+unpublishedDocument :: T.Text -> Widget ()
 unpublishedDocument slug = do
     let file = Settings.pandocFile $ slug
     exists <- lift . liftIO $ doesFileExist file
     unless exists (lift notFound)
-    documentContent <- lift . liftIO $ readFile file
+    documentContent <- lift . liftIO $ markdownFromFile file
     Settings.setTitle slug
     [hamlet|
         <header>
             <h1>unpublished: #{slug}
-        <article .fullpage>#{markdownToHtml $ Markdown $ documentContent}
+        <article .fullpage>#{markdownToHtml $ documentContent}
         |]

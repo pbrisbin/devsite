@@ -43,16 +43,16 @@ mkYesodData "DevSite" [parseRoutes|
     /about AboutR GET
 
     /manage                ManagePostsR GET POST
-    /manage/edit/#String   EditPostR    GET POST
-    /manage/delete/#String DelPostR     GET
+    /manage/edit/#T.Text   EditPostR    GET POST
+    /manage/delete/#T.Text DelPostR     GET
 
     /posts         PostsR GET
-    /posts/#String PostR  GET
+    /posts/#T.Text PostR  GET
     /tags          TagsR  GET
-    /tags/#String  TagR   GET
+    /tags/#T.Text  TagR   GET
 
     /feed         FeedR    GET
-    /feed/#String FeedTagR GET
+    /feed/#T.Text FeedTagR GET
 
     /favicon.ico FaviconR GET
     /robots.txt  RobotsR  GET
@@ -115,17 +115,19 @@ instance YesodBreadcrumbs DevSite where
     breadcrumb RootR  = return ("home" , Nothing   ) 
     breadcrumb AboutR = return ("about", Just RootR)
 
-    breadcrumb PostsR       = return ("all posts", Just RootR          )
-    breadcrumb (PostR slug) = return (T.pack $ format slug, Just PostsR)
+    breadcrumb PostsR       = return ("all posts", Just RootR )
+    breadcrumb (PostR slug) = return (format slug, Just PostsR)
         where
             -- switch underscores with spaces
-            format :: String -> String
-            format []         = []
-            format ('_':rest) = ' ': format rest
-            format (x:rest)   = x  : format rest
+            format :: T.Text -> T.Text
+            format = T.map go
+                where 
+                    go :: Char -> Char
+                    go '_' = ' '
+                    go  x  =  x
 
-    breadcrumb TagsR      = return ("all tags", Just RootR              )
-    breadcrumb (TagR tag) = return (T.pack $ map toLower tag, Just TagsR)
+    breadcrumb TagsR      = return ("all tags"   , Just RootR)
+    breadcrumb (TagR tag) = return (T.toLower tag, Just TagsR)
 
     breadcrumb ManagePostsR  = return ("manage posts", Just RootR    )
     breadcrumb (EditPostR _) = return ("edit post", Just ManagePostsR)
@@ -159,18 +161,15 @@ instance YesodMPC DevSite where
     albumArtHelper = getAlbumUrl
 
 -- | Add a list of words to the html head as keywords
-addKeywords :: [String] -> Widget ()
+addKeywords :: [T.Text] -> Widget ()
 addKeywords keywords = addHamletHead [hamlet|
     <meta name="keywords" content="#{format keywords}">
     |]
     where 
         -- add some default keywords, then make the comma separated 
         -- string
-        format :: [String] -> String
-        format = intercalate ", " 
-               . (:) "patrick brisbin" 
-               . (:) "pbrisbin"
-               . (:) "brisbin" 
+        format :: [T.Text] -> T.Text
+        format = T.append "patrick brisbin, pbrisbin, brisbin, " . T.intercalate ", "
 
 -- | Add navigation
 sideBar :: GWidget s DevSite ()
