@@ -160,19 +160,12 @@ documentsList docs = [hamlet|
                 <tr>
                     <td>
                         <a href="@{PostR $ postSlug p}">#{shorten 20 $ postTitle p}
-                    <td>#{markdownToHtml $ shorten' 60 $ postDescr p}
+                    <td>#{markdownToHtml $ shorten 60 $ postDescr p}
                     <td>
                         <a href="@{EditPostR $ postSlug p}">edit
                     <td>
                         <a href="@{DelPostR $ postSlug p}">delete
     |]
-
-    where 
-        -- shorten a T.Text
-        shorten n t = if T.length t > n then (T.take n t) `T.append` "..." else t
-
-        -- same for Markdown
-        shorten' n (Markdown s) = Markdown $ if length s > n then take n s ++ "..." else s
 
 updatePost :: PostId -> Post -> Handler ()
 updatePost key new = runDB $ update key 

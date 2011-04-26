@@ -1,11 +1,13 @@
-{-# LANGUAGE TemplateHaskell   #-}
-{-# LANGUAGE TypeFamilies      #-}
-{-# LANGUAGE QuasiQuotes       #-}
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TemplateHaskell      #-}
+{-# LANGUAGE TypeFamilies         #-}
+{-# LANGUAGE QuasiQuotes          #-}
+{-# LANGUAGE OverloadedStrings    #-}
+{-# LANGUAGE TypeSynonymInstances #-}
 module DevSite where
 
 import Yesod
 import Yesod.Form.Core (GFormMonad)
+import Yesod.Comments.Markdown
 import Yesod.Helpers.MPC
 import Yesod.Helpers.Auth
 import Yesod.Helpers.Auth.HashDB
@@ -234,8 +236,24 @@ loadDocuments = do
         let tags' = filter ((== postId) . tagPost) ts
         return $ Document p tags'
 
--- <https://github.com/snoyberg/haskellers/blob/master/Haskellers.hs>
--- <https://github.com/snoyberg/haskellers/blob/master/LICENSE>
+-- | Shorten a variety of string-like types adding ellipsis. The use of 
+--   'IsString' is avoided to maintain efficiency with packed types like 
+--   'Text'
+class Shorten a where
+    shorten :: Int -> a -> a
+
+instance Shorten String where
+    shorten n s = if length s > n then take (n - 3) s ++ "..." else s
+
+instance Shorten T.Text where
+    shorten n t = if T.length t > n then T.take (n - 3) t `T.append` "..." else t
+
+instance Shorten Markdown where
+    shorten n (Markdown s) = Markdown $ shorten n s
+
+-- | Based on 
+--   <https://github.com/snoyberg/haskellers/blob/master/Haskellers.hs> 
+--   <https://github.com/snoyberg/haskellers/blob/master/LICENSE>
 humanReadableTimeDiff :: UTCTime -> GHandler s m String
 humanReadableTimeDiff t = return . helper . flip diffUTCTime t =<< liftIO getCurrentTime
 
