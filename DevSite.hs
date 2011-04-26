@@ -3,6 +3,7 @@
 {-# LANGUAGE QuasiQuotes          #-}
 {-# LANGUAGE OverloadedStrings    #-}
 {-# LANGUAGE TypeSynonymInstances #-}
+{-# LANGUAGE FlexibleInstances    #-}
 module DevSite where
 
 import Yesod
@@ -114,29 +115,21 @@ instance Yesod DevSite where
             |]
 
 instance YesodBreadcrumbs DevSite where
-    breadcrumb RootR  = return ("home" , Nothing   ) 
-    breadcrumb AboutR = return ("about", Just RootR)
+    breadcrumb RootR        = return ("home"       , Nothing    ) 
+    breadcrumb AboutR       = return ("about"      , Just RootR )
+    breadcrumb PostsR       = return ("all posts"  , Just RootR )
+    breadcrumb (PostR slug) = return (T.map go slug, Just PostsR)
+        -- switch underscores with spaces
+        where go :: Char -> Char
+              go '_' = ' '
+              go  x  =  x
 
-    breadcrumb PostsR       = return ("all posts", Just RootR )
-    breadcrumb (PostR slug) = return (format slug, Just PostsR)
-        where
-            -- switch underscores with spaces
-            format :: T.Text -> T.Text
-            format = T.map go
-                where 
-                    go :: Char -> Char
-                    go '_' = ' '
-                    go  x  =  x
-
-    breadcrumb TagsR      = return ("all tags"   , Just RootR)
-    breadcrumb (TagR tag) = return (T.toLower tag, Just TagsR)
-
-    breadcrumb ManagePostsR  = return ("manage posts", Just RootR    )
-    breadcrumb (EditPostR _) = return ("edit post", Just ManagePostsR)
-
-    -- subsites
-    breadcrumb (AuthR _) = return ("login", Just RootR)
-    breadcrumb (MpcR  _) = return ("mpc"  , Just RootR)
+    breadcrumb TagsR         = return ("all tags"    , Just RootR       )
+    breadcrumb (TagR tag)    = return (T.toLower tag , Just TagsR       )
+    breadcrumb ManagePostsR  = return ("manage posts", Just RootR       )
+    breadcrumb (EditPostR _) = return ("edit post"   , Just ManagePostsR)
+    breadcrumb (AuthR _)     = return ("login"       , Just RootR       )
+    breadcrumb (MpcR  _)     = return ("mpc"         , Just RootR       )
 
     -- be sure to fail noticably so i fix it when it happens
     breadcrumb _ = return ("404", Just RootR)
@@ -159,7 +152,7 @@ instance YesodAuth DevSite where
 -- | In-browser mpd controls
 instance YesodMPC DevSite where
     mpdConfig      = return . Just $ MpdConfig "192.168.0.5" 6600 ""
-    authHelper     = return . const () =<< requireAuth
+    authHelper     = requireAuth >>= \_ -> return ()
     albumArtHelper = getAlbumUrl
 
 -- | Add a list of words to the html head as keywords
@@ -181,6 +174,7 @@ sideBar = do
     loggedin <- lift maybeAuthId >>= return . isJust
 
     let feedIcon = Settings.staticRoot ++ "/images/feed.png"
+
     [hamlet|
         $maybe mesg <- mmesg
             <div .message>
@@ -230,17 +224,11 @@ sideBar = do
 loadDocuments :: Handler [Document]
 loadDocuments = do
     ps <- runDB (selectList [] [PostDateDesc] 0 0)
-    ts <- return . map snd =<< runDB (selectList [] [TagNameAsc] 0 0)
+    ts <- fmap (map snd) (runDB $ selectList [] [TagNameAsc] 0 0)
+    forM ps $ \(k,v) -> return $ Document v $ filter ((== k) . tagPost) ts
 
-    forM ps $ \(postId, p) -> do
-        let tags' = filter ((== postId) . tagPost) ts
-        return $ Document p tags'
-
--- | Shorten a variety of string-like types adding ellipsis. The use of 
---   'IsString' is avoided to maintain efficiency with packed types like 
---   'Text'
-class Shorten a where
-    shorten :: Int -> a -> a
+-- | Shorten a variety of string-like types adding ellipsis
+class Shorten a where shorten :: Int -> a -> a
 
 instance Shorten String where
     shorten n s = if length s > n then take (n - 3) s ++ "..." else s
@@ -250,6 +238,34 @@ instance Shorten T.Text where
 
 instance Shorten Markdown where
     shorten n (Markdown s) = Markdown $ shorten n s
+
+-- | An internal link
+data Link a = Link
+    { lRoute :: a
+    , lTitle :: T.Text
+    , lText  :: T.Text
+    }
+
+-- | An external link
+--data TextLink = TextLink
+--    { tlRoute :: T.Text
+--    , tlTitle :: T.Text
+--    , tlText  :: T.Text
+--    }
+
+linkFromPost :: Post -> Link DevSiteRoute
+linkFromPost p = Link (PostR $ postSlug p) (postTitle p) (postTitle p)
+
+linkFromDocument :: Document -> Link DevSiteRoute
+linkFromDocument = linkFromPost . post
+
+class ShowLink l where showLink :: l -> GWidget s DevSite ()
+
+instance ShowLink (Link DevSiteRoute) where
+    showLink (Link r t x) = [hamlet|<a title="#{t}" href="@{r}">#{x}|]
+
+--instance ShowLink TextLink where
+--    showLink (TextLink r t x) = [hamlet|<a title="#{t}" href="#{r}">#{x}|]
 
 -- | Based on 
 --   <https://github.com/snoyberg/haskellers/blob/master/Haskellers.hs> 

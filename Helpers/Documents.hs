@@ -1,40 +1,20 @@
 {-# LANGUAGE QuasiQuotes     #-}
 {-# LANGUAGE TemplateHaskell #-}
 module Helpers.Documents
-    ( Link(..)
-    , linkFromPost
-    , linkFromDocument
-    , showLink
-    , shortDocument
+    ( shortDocument
     , longDocument
     , unpublishedDocument
     ) where
 
-import Yesod
 import DevSite
 import Model
-
+import Yesod
 import Yesod.Comments.Markdown
 import Control.Monad    (unless)
 import System.Directory (doesFileExist)
 
 import qualified Data.Text as T
 import qualified Settings
-
--- | A link
-data Link a = Link
-    { route :: a
-    , title :: T.Text
-    }
-
-linkFromPost :: Post -> Link DevSiteRoute
-linkFromPost p = Link (PostR $ postSlug p) (postTitle p)
-
-linkFromDocument :: Document -> Link DevSiteRoute
-linkFromDocument = linkFromPost . post
-
-showLink :: Link DevSiteRoute -> Widget ()
-showLink l = [hamlet|<a title="#{title l}" href="@{route l}">#{title l}|]
 
 -- | The sub template for a single post
 shortDocument :: Document -> Widget ()
