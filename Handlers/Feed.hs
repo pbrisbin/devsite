@@ -35,7 +35,7 @@ feedFromDocs docs = rssFeed Feed
     , feedLanguage    = "en-us"
     , feedLinkSelf    = FeedR
     , feedLinkHome    = RootR
-    -- note: posts is known to be not empty coming in
+    -- note: docs is known to be non-empty
     , feedUpdated     = postDate . post $ head docs
     , feedEntries     = map docToRssEntry docs
     }
