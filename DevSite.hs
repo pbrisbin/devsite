@@ -18,8 +18,7 @@ import Data.Time
 import System.Locale
 
 import Control.Monad (forM)
-import Data.Char     (toLower, isSpace)
-import Data.List     (intercalate)
+import Data.Char     (isSpace)
 import Data.Maybe    (isJust)
 
 import Database.Persist.GenericSql

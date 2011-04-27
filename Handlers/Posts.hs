@@ -20,8 +20,6 @@ import Yesod.Comments.Markdown
 import Helpers.Documents
 
 import Control.Applicative ((<$>), (<*>))
-import Data.Char           (isSpace)
-import Data.List           (intercalate)
 import Data.Time           (getCurrentTime)
 
 import qualified Settings

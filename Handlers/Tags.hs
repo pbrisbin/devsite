@@ -10,7 +10,6 @@ import Model
 import Helpers.Documents
 import Yesod
 import Yesod.Helpers.RssFeed (rssLink)
-import Data.Char             (toLower,toUpper)
 import Data.List             (sortBy)
 import Data.Ord              (comparing)
 
