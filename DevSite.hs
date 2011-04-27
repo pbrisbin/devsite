@@ -223,7 +223,7 @@ sideBar = do
 
 loadDocuments :: Handler [Document]
 loadDocuments = do
-    ps <- runDB (selectList [] [PostDateDesc] 0 0)
+    ps <- runDB $ selectList [] [PostDateDesc] 0 0
     ts <- fmap (map snd) (runDB $ selectList [] [TagNameAsc] 0 0)
     forM ps $ \(k,v) -> return $ Document v $ filter ((== k) . tagPost) ts
 
@@ -246,26 +246,20 @@ data Link a = Link
     , lText  :: T.Text
     }
 
--- | An external link
---data TextLink = TextLink
---    { tlRoute :: T.Text
---    , tlTitle :: T.Text
---    , tlText  :: T.Text
---    }
-
-linkFromPost :: Post -> Link DevSiteRoute
-linkFromPost p = Link (PostR $ postSlug p) (postTitle p) (postTitle p)
-
-linkFromDocument :: Document -> Link DevSiteRoute
-linkFromDocument = linkFromPost . post
-
+-- | How to display a link
 class ShowLink l where showLink :: l -> GWidget s DevSite ()
 
+-- | Typical href with title
 instance ShowLink (Link DevSiteRoute) where
     showLink (Link r t x) = [hamlet|<a title="#{t}" href="@{r}">#{x}|]
 
---instance ShowLink TextLink where
---    showLink (TextLink r t x) = [hamlet|<a title="#{t}" href="#{r}">#{x}|]
+-- | Create a 'Link' to the 'Post'
+linkFromPost :: Post -> Link DevSiteRoute
+linkFromPost p = Link (PostR $ postSlug p) (postTitle p) (postTitle p)
+
+-- | Create a 'Link' to the 'Document'
+linkFromDocument :: Document -> Link DevSiteRoute
+linkFromDocument = linkFromPost . post
 
 -- | Based on 
 --   <https://github.com/snoyberg/haskellers/blob/master/Haskellers.hs> 
