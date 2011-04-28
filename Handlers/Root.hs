@@ -5,6 +5,7 @@ module Handlers.Root (getRootR) where
 import DevSite
 import Yesod
 import Helpers.Documents
+import Helpers.Links
 import qualified Settings
 
 -- | Home page
@@ -24,34 +25,15 @@ getRootR = do
             <article .fullpage>
                 <p>
                     Welcome to pbrisbin dot com. You'll find it's mostly 
-                    [GNU/]
-
-                    <a href="@{TagR "linux"}">Linux
-
-                    -related geekery here and some of the information 
-                    presented is specific to the [amazing] distribution 
-                    known as 
-
-                    <a href="@{TagR "arch"}">Arch
-
-                    \ Linux. Some of my favorite topics are the 
-
-                    <a href="@{TagR "xmonad"}">XMonad
-
-                    \ window manager, 
-
-                    <a href="@{TagR "haskell"}">haskell
-
-                    \ in general, 
-
-                    <a href="@{TagR "bash"}">Bash
-
-                    \ scripting (or just general command-line 
-                    adventures), and the great email client 
-
-                    <a href="@{TagR "mutt"}">Mutt
-
-                    \.
+                    [GNU/] ^{linkToText "Linux"}-related geekery here 
+                    and some of the information presented is specific to 
+                    the [amazing] distribution known as 
+                    ^{linkToText "Arch"} Linux. Some of my favorite 
+                    topics are the ^{linkToText "XMonad"} window 
+                    manager, ^{linkToText "haskell"} in general, 
+                    ^{linkToText "bash"} scripting (or just general 
+                    command-line adventures), and the great email client 
+                    ^{linkToText "mutt"}.
 
                 <p>
                     This site does use HTML5 and CSS3 fairly heavily.

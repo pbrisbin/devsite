@@ -4,6 +4,7 @@ module Helpers.Links
     , showLink
     , Linkable(..)
     , linkTo
+    , linkToText
     ) where
 
 import Yesod
@@ -36,10 +37,14 @@ instance Linkable Document where
     link = link . post
 
 -- | This is unsafe but useful. It basically says any link to raw 
---   strings is assumed to be a tag. There is no garuntee the tag exists
+--   text is assumed to be a tag. There is no assurance the tag exists
 instance Linkable T.Text where
-    link t = Link (TagR $ t) t t
+    link t = Link (TagR $ T.toLower t) t t
 
 -- | A convenience helper for links specific to this app
 linkTo :: Linkable a => a -> GWidget s DevSite ()
 linkTo = showLink . link
+
+-- | This helps where OverloadedStrings can't figure it out
+linkToText :: T.Text -> GWidget s DevSite ()
+linkToText = linkTo
