@@ -94,10 +94,9 @@ docInfo p ts = do
                             tags: 
 
                             $forall tag <- init ts
-                                <a href="@{TagR $ tagName tag}">#{tagName tag}
-                                , 
+                                ^{linkTo tag}, 
 
-                            <a href="@{TagR $ tagName $ last ts}">#{tagName $ last $ ts}
+                            ^{linkTo $ last ts}
         |]
 
 -- | if the post is not found in the db
