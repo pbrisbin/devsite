@@ -18,6 +18,7 @@ import Yesod
 import Yesod.Helpers.Auth
 import Yesod.Comments.Markdown
 import Helpers.Documents
+import Helpers.Links
 
 import Control.Applicative ((<$>), (<*>))
 import Data.Time           (getCurrentTime)

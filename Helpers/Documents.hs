@@ -10,6 +10,7 @@ import DevSite
 import Model
 import Yesod
 import Yesod.Comments.Markdown
+import Helpers.Links
 import Control.Monad    (unless)
 import System.Directory (doesFileExist)
 
