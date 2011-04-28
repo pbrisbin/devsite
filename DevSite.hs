@@ -238,27 +238,33 @@ instance Shorten T.Text where
 instance Shorten Markdown where
     shorten n (Markdown s) = Markdown $ shorten n s
 
--- | An internal link
-data Link a = Link
-    { lRoute :: a
-    , lTitle :: T.Text
-    , lText  :: T.Text
+-- | A generalized internal link
+data Link m = Link
+    { linkRoute :: Route m
+    , linkTitle :: T.Text
+    , linkText  :: T.Text
     }
 
--- | How to display a link
-class ShowLink l where showLink :: l -> GWidget s DevSite ()
+-- | How to display a general link
+showLink :: Link m -> GWidget s m ()
+showLink (Link r t x) = [hamlet|<a title="#{t}" href="@{r}">#{x}|]
 
--- | Typical href with title
-instance ShowLink (Link DevSiteRoute) where
-    showLink (Link r t x) = [hamlet|<a title="#{t}" href="@{r}">#{x}|]
+-- | Items that can be linked to within this app
+class Linkable a where
+    link :: a -> Link DevSite
 
--- | Create a 'Link' to the 'Post'
-linkFromPost :: Post -> Link DevSiteRoute
-linkFromPost p = Link (PostR $ postSlug p) (postTitle p) (postTitle p)
+instance Linkable Post where
+    link p = Link (PostR $ postSlug p) (postTitle p) (postTitle p)
 
--- | Create a 'Link' to the 'Document'
-linkFromDocument :: Document -> Link DevSiteRoute
-linkFromDocument = linkFromPost . post
+instance Linkable Tag where
+    link t = Link (TagR $ tagName t) (tagName t) (tagName t)
+
+instance Linkable Document where
+    link = link . post
+
+-- | A convenience helper for links specific to this app
+linkTo :: Linkable a => a -> GWidget s DevSite ()
+linkTo = showLink . link
 
 -- | Based on 
 --   <https://github.com/snoyberg/haskellers/blob/master/Haskellers.hs> 

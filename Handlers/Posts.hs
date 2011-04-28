@@ -54,7 +54,7 @@ getPostR slug = do
     docs <- siteDocs =<< getYesod
     case helper slug docs of
         (Nothing , Nothing, Nothing) -> defaultLayout $ unpublishedDocument slug
-        (Just doc, mprev  , mnext  ) -> defaultLayout $ longDocument doc (fmap linkFromPost mprev) (fmap linkFromPost mnext)
+        (Just doc, mprev  , mnext  ) -> defaultLayout $ longDocument doc mprev mnext
 
     where
         -- | Return the desired document, and maybe the post just before 

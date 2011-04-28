@@ -20,14 +20,14 @@ import qualified Settings
 shortDocument :: Document -> Widget ()
 shortDocument (Document p ts) = [hamlet|
     <article>
-        <p>^{showLink $ linkFromPost p}
+        <p>^{linkTo p}
         #{markdownToHtml $ postDescr p}
         ^{docInfo p ts}
     |]
 
-longDocument :: Document                  -- ^ document to display
-             -> Maybe (Link DevSiteRoute) -- ^ maybe route to previous post
-             -> Maybe (Link DevSiteRoute) -- ^ maybe route to next post
+longDocument :: Document   -- ^ document to display
+             -> Maybe Post -- ^ maybe previous post
+             -> Maybe Post -- ^ maybe next post
              -> Widget ()
 longDocument (Document p ts) mprev mnext = do
     let file = Settings.pandocFile $ postSlug p
@@ -69,13 +69,13 @@ longDocument (Document p ts) mprev mnext = do
             <span .left>
                 $maybe prev <- mprev
                     &#9666&nbsp;&nbsp;&nbsp;
-                    ^{showLink prev}
+                    ^{linkTo prev}
                 $nothing
                     <a href="@{RootR}">Home
 
             <span .right>
                 $maybe next <- mnext
-                    ^{showLink next}
+                    ^{linkTo next}
                     &nbsp;&nbsp;&nbsp;&#9656
         |]
 
