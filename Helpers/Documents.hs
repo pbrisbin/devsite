@@ -11,7 +11,6 @@ import DevSite
 import Model
 import Yesod
 import Yesod.Comments.Markdown
-import Helpers.Links
 import Control.Monad    (unless)
 import Data.Char        (isSpace)
 import System.Directory (doesFileExist)
