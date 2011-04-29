@@ -1,8 +1,7 @@
-{-# LANGUAGE TemplateHaskell      #-}
-{-# LANGUAGE TypeFamilies         #-}
-{-# LANGUAGE QuasiQuotes          #-}
-{-# LANGUAGE OverloadedStrings    #-}
-{-# LANGUAGE FlexibleInstances    #-}
+{-# LANGUAGE TypeFamilies      #-}
+{-# LANGUAGE QuasiQuotes       #-}
+{-# LANGUAGE TemplateHaskell   #-}
+{-# LANGUAGE OverloadedStrings #-}
 module DevSite where
 
 import Yesod
@@ -178,7 +177,7 @@ instance YesodBreadcrumbs DevSite where
     breadcrumb _ = return ("404", Just RootR)
 
 -- | Make my site an instance of Persist so that i can store post
---   metatdata in a db
+--   metadata in a db
 instance YesodPersist DevSite where
     type YesodDB DevSite = SqlPersist
     runDB db = liftIOHandler $ fmap connPool getYesod >>= runSqlPool db
@@ -195,5 +194,5 @@ instance YesodAuth DevSite where
 -- | In-browser mpd controls
 instance YesodMPC DevSite where
     mpdConfig      = return . Just $ MpdConfig "192.168.0.5" 6600 ""
-    authHelper     = requireAuth >>= \_ -> return ()
+    authHelper     = fmap (const ()) requireAuth
     albumArtHelper = getAlbumUrl
