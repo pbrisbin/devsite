@@ -26,7 +26,7 @@ import qualified Settings
 shortDocument :: Document -> Widget ()
 shortDocument (Document p ts) = [hamlet|
     <article>
-        <p>^{linkTo p}
+        <p>^{link p}
         #{markdownToHtml $ postDescr p}
         ^{docInfo p ts}
     |]
@@ -75,13 +75,13 @@ longDocument (Document p ts) mprev mnext = do
             <span .left>
                 $maybe prev <- mprev
                     &#9666&nbsp;&nbsp;&nbsp;
-                    ^{linkTo prev}
+                    ^{link prev}
                 $nothing
                     <a href="@{RootR}">Home
 
             <span .right>
                 $maybe next <- mnext
-                    ^{linkTo next}
+                    ^{link next}
                     &nbsp;&nbsp;&nbsp;&#9656
         |]
 
@@ -99,9 +99,9 @@ docInfo p ts = do
                             tags: 
 
                             $forall tag <- init ts
-                                ^{linkTo tag}, 
+                                ^{link tag}, 
 
-                            ^{linkTo $ last ts}
+                            ^{link $ last ts}
         |]
 
 -- | if the post is not found in the db

@@ -25,15 +25,14 @@ getRootR = do
             <article .fullpage>
                 <p>
                     Welcome to pbrisbin dot com. You'll find it's mostly 
-                    [GNU/] ^{linkToText "Linux"}-related geekery here 
-                    and some of the information presented is specific to 
-                    the [amazing] distribution known as 
-                    ^{linkToText "Arch"} Linux. Some of my favorite 
-                    topics are the ^{linkToText "XMonad"} window 
-                    manager, ^{linkToText "haskell"} in general, 
-                    ^{linkToText "bash"} scripting (or just general 
-                    command-line adventures), and the great email client 
-                    ^{linkToText "mutt"}.
+                    [GNU/] ^{tagLink "Linux"}-related geekery here and 
+                    some of the information presented is specific to the 
+                    [amazing] distribution known as ^{tagLink "Arch"} 
+                    Linux. Some of my favorite topics are the 
+                    ^{tagLink "XMonad"} window manager, 
+                    ^{tagLink "haskell"} in general, ^{tagLink "bash"} 
+                    scripting (or just general command-line adventures), 
+                    and the great email client ^{tagLink "mutt"}.
 
                 <p>
                     This site does use HTML5 and CSS3 fairly heavily.
