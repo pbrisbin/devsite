@@ -23,7 +23,7 @@ getTagsR = do
     let collections = sortByLength $ collectByTagName docs
     defaultLayout $ do
         Settings.setTitle "All Tags"
-        addKeywords $ map name collections
+        Settings.addKeywords $ map name collections
         [hamlet|
             <header>
                 <h1>All Tags
@@ -82,7 +82,7 @@ getTagR tag' = do
         []   -> notFound
         docs -> defaultLayout $ do
             Settings.setTitle $ "Tag: " `T.append` tag
-            addKeywords [tag]
+            Settings.addKeywords [tag]
             rssLink (FeedTagR tag) ("rss feed for tag " ++ T.unpack tag)
             [hamlet|
                 <header>

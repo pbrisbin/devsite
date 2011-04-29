@@ -2,30 +2,19 @@
 {-# LANGUAGE TypeFamilies         #-}
 {-# LANGUAGE QuasiQuotes          #-}
 {-# LANGUAGE OverloadedStrings    #-}
-{-# LANGUAGE TypeSynonymInstances #-}
 {-# LANGUAGE FlexibleInstances    #-}
 module DevSite where
 
 import Yesod
+import Model
+import Helpers.AlbumArt
 import Yesod.Form.Core (GFormMonad)
-import Yesod.Comments.Markdown
 import Yesod.Helpers.MPC
 import Yesod.Helpers.Auth
 import Yesod.Helpers.Auth.HashDB
 import Yesod.Helpers.RssFeed
-
-import Data.Time
-import System.Locale
-
-import Control.Monad (forM)
-import Data.Char     (isSpace)
-import Data.Maybe    (isJust)
-
+import Data.Maybe (isJust)
 import Database.Persist.GenericSql
-
-import Model
-import Helpers.AlbumArt
-
 import qualified Settings
 import qualified Data.Text as T
 
@@ -113,6 +102,61 @@ instance Yesod DevSite where
                         })();
             |]
 
+        where
+            sideBar :: GWidget s DevSite ()
+            sideBar = do
+                mmesg    <- lift getMessage
+                (t, h)   <- lift breadcrumbs
+                loggedin <- lift maybeAuthId >>= return . isJust
+
+                let feedIcon = Settings.staticRoot ++ "/images/feed.png"
+
+                [hamlet|
+                    $maybe mesg <- mmesg
+                        <div .message>
+                            <p>#{mesg}
+
+                    <div .breadcrumbs>
+                        <p>
+                            $forall node <- h
+                                <a href="@{fst node}">#{snd node} 
+                                \ / 
+                            \ #{t}
+                    <nav>
+                        <ul>
+                            <li>
+                                <a href="@{RootR}">home
+                            <li>
+                                <a href="@{AboutR}">about
+                            <li>
+                                <a href="@{PostsR}">posts
+                            <li>
+                                <a href="@{TagsR}">tags
+                            <li .extra>
+                                <a href="https://github.com/pbrisbin">github
+                            <li .extra>
+                                <a href="http://aur.archlinux.org/packages.php?K=brisbin33&amp;SeB=m">aur packages
+                            <li .extra>
+                                <a href="/xmonad/docs">xmonad docs
+                            <li .extra>
+                                <a href="/haskell/docs/html">haskell docs
+                            <li .extra>
+                                <img src="#{feedIcon}" .icon>
+                                \ 
+                                <a href="@{FeedR}">subscribe
+
+                            $if loggedin
+                                <li .extra>
+                                    <a href="@{ManagePostsR}">manage posts
+                                <li>
+                                    <a href="@{MpcR StatusR}">mpd
+                                <li>
+                                    <a href="@{AuthR LogoutR}">logout
+                            $else
+                                <li>
+                                    <a href="@{AuthR LoginR}">login
+                    |]
+
 instance YesodBreadcrumbs DevSite where
     breadcrumb RootR        = return ("home"       , Nothing    ) 
     breadcrumb AboutR       = return ("about"      , Just RootR )
@@ -153,133 +197,3 @@ instance YesodMPC DevSite where
     mpdConfig      = return . Just $ MpdConfig "192.168.0.5" 6600 ""
     authHelper     = requireAuth >>= \_ -> return ()
     albumArtHelper = getAlbumUrl
-
--- | Add a list of words to the html head as keywords
-addKeywords :: [T.Text] -> Widget ()
-addKeywords keywords = addHamletHead [hamlet|
-    <meta name="keywords" content="#{format keywords}">
-    |]
-    where 
-        -- add some default keywords, then make the comma separated 
-        -- string
-        format :: [T.Text] -> T.Text
-        format = T.append "patrick brisbin, pbrisbin, brisbin, " . T.intercalate ", "
-
--- | Add navigation
-sideBar :: GWidget s DevSite ()
-sideBar = do
-    mmesg    <- lift getMessage
-    (t, h)   <- lift breadcrumbs
-    loggedin <- lift maybeAuthId >>= return . isJust
-
-    let feedIcon = Settings.staticRoot ++ "/images/feed.png"
-
-    [hamlet|
-        $maybe mesg <- mmesg
-            <div .message>
-                <p>#{mesg}
-
-        <div .breadcrumbs>
-            <p>
-                $forall node <- h
-                    <a href="@{fst node}">#{snd node} 
-                    \ / 
-                \ #{t}
-        <nav>
-            <ul>
-                <li>
-                    <a href="@{RootR}">home
-                <li>
-                    <a href="@{AboutR}">about
-                <li>
-                    <a href="@{PostsR}">posts
-                <li>
-                    <a href="@{TagsR}">tags
-                <li .extra>
-                    <a href="https://github.com/pbrisbin">github
-                <li .extra>
-                    <a href="http://aur.archlinux.org/packages.php?K=brisbin33&amp;SeB=m">aur packages
-                <li .extra>
-                    <a href="/xmonad/docs">xmonad docs
-                <li .extra>
-                    <a href="/haskell/docs/html">haskell docs
-                <li .extra>
-                    <img src="#{feedIcon}" .icon>
-                    \ 
-                    <a href="@{FeedR}">subscribe
-
-                $if loggedin
-                    <li .extra>
-                        <a href="@{ManagePostsR}">manage posts
-                    <li>
-                        <a href="@{MpcR StatusR}">mpd
-                    <li>
-                        <a href="@{AuthR LogoutR}">logout
-                $else
-                    <li>
-                        <a href="@{AuthR LoginR}">login
-        |]
-
-loadDocuments :: Handler [Document]
-loadDocuments = do
-    ps <- runDB $ selectList [] [PostDateDesc] 0 0
-    ts <- fmap (map snd) (runDB $ selectList [] [TagNameAsc] 0 0)
-    forM ps $ \(k,v) -> return $ Document v $ filter ((== k) . tagPost) ts
-
--- | Shorten a variety of string-like types adding ellipsis
-class Shorten a where shorten :: Int -> a -> a
-
-instance Shorten String where
-    shorten n s = if length s > n then take (n - 3) s ++ "..." else s
-
-instance Shorten T.Text where
-    shorten n t = if T.length t > n then T.take (n - 3) t `T.append` "..." else t
-
-instance Shorten Markdown where
-    shorten n (Markdown s) = Markdown $ shorten n s
-
--- | Based on 
---   <https://github.com/snoyberg/haskellers/blob/master/Haskellers.hs> 
---   <https://github.com/snoyberg/haskellers/blob/master/LICENSE>
-humanReadableTimeDiff :: UTCTime -> GHandler s m String
-humanReadableTimeDiff t = return . helper . flip diffUTCTime t =<< liftIO getCurrentTime
-
-    where
-        minutes :: NominalDiffTime -> Double
-        minutes n = realToFrac $ n / 60
-
-        hours :: NominalDiffTime -> Double
-        hours   n = minutes n / 60
-
-        days :: NominalDiffTime -> Double
-        days    n = hours n / 24
-
-        weeks :: NominalDiffTime -> Double
-        weeks   n = days n / 7
-
-        years :: NominalDiffTime -> Double
-        years   n = days n / 365
-
-        i2s :: RealFrac a => a -> String
-        i2s n = show m where m = truncate n :: Int
-
-        trim = f . f where f = reverse . dropWhile isSpace
-
-        old           = utcToLocalTime utc t
-        dow           = trim $! formatTime defaultTimeLocale "%l:%M %p on %A" old
-        thisYear      = trim $! formatTime defaultTimeLocale "%b %e" old
-        previousYears = trim $! formatTime defaultTimeLocale "%b %e, %Y" old
-
-        helper d 
-            | d         < 1  = "just now"
-            | d         < 60 = i2s d ++ " seconds ago"
-            | minutes d < 2  = "one minute ago"
-            | minutes d < 60 =  i2s (minutes d) ++ " minutes ago"
-            | hours d   < 2  = "one hour ago"
-            | hours d   < 24 = "about " ++ i2s (hours d) ++ " hours ago"
-            | days d    < 5  = "at " ++ dow
-            | days d    < 10 = i2s (days d)  ++ " days ago"
-            | weeks d   < 2  = i2s (weeks d) ++ " week ago"
-            | weeks d   < 5  = i2s (weeks d) ++ " weeks ago"
-            | years d   < 1  = "on " ++ thisYear
-            | otherwise      = "on " ++ previousYears

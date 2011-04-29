@@ -10,7 +10,7 @@ import qualified Settings
 getAboutR :: Handler RepHtml
 getAboutR = defaultLayout $ do
     Settings.setTitle "About"
-    addKeywords ["about"]
+    Settings.addKeywords ["about"]
 
     let v1 = Settings.staticRoot ++ "/images/valid-html5.png"
     let v2 = Settings.staticRoot ++ "/images/valid-css.png"

@@ -14,7 +14,7 @@ getRootR = do
     docs <- siteDocs =<< getYesod
     defaultLayout $ do
         Settings.setTitle "Home"
-        addKeywords ["home", "haskell", "bash", "mutt", "xmonad", "arch linux"]
+        Settings.addKeywords ["home", "haskell", "bash", "mutt", "xmonad", "arch linux"]
         [hamlet|
             <header>
                 <h1>

@@ -12,9 +12,8 @@ import Yesod
 import Yesod.Helpers.MPC
 import Yesod.Helpers.Auth
 import Yesod.Helpers.Auth.HashDB (migrateUsers)
-
+import Control.Monad (forM)
 import Database.Persist.GenericSql
-
 import qualified Settings
 
 -- | Instantiate the Yesod route types
@@ -26,3 +25,10 @@ withServer f = Settings.withConnectionPool $ \p -> do
     runSqlPool (runMigration migratePosts) p
     runSqlPool (runMigration migrateUsers) p
     f =<< toWaiApp (DevSite p loadDocuments)
+
+    where
+        loadDocuments :: Handler [Document]
+        loadDocuments = do
+            ps <- runDB $ selectList [] [PostDateDesc] 0 0
+            ts <- fmap (map snd) (runDB $ selectList [] [TagNameAsc] 0 0)
+            forM ps $ \(k,v) -> return $ Document v $ filter ((== k) . tagPost) ts

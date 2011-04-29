@@ -18,7 +18,7 @@ import Yesod
 import Yesod.Helpers.Auth
 import Yesod.Comments.Markdown
 import Helpers.Documents
-import Helpers.Links
+import Helpers.Shorten
 
 import Control.Applicative ((<$>), (<*>))
 import Data.Time           (getCurrentTime)
@@ -40,7 +40,7 @@ getPostsR = do
     docs <- siteDocs =<< getYesod
     defaultLayout $ do
         Settings.setTitle "All Posts"
-        addKeywords ["all posts"]
+        Settings.addKeywords ["all posts"]
         [hamlet|
             <header>
                 <h1>All Posts
