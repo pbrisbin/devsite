@@ -74,9 +74,7 @@ instance Yesod DevSite where
                     ^{pageHead pc}
                     <link rel="stylesheet" href="#{cssLink}">
                 <body>
-                    <aside>
-                        ^{pageBody sb}
-
+                    ^{pageBody sb}
                     ^{pageBody pc}
 
                     <footer>
@@ -111,49 +109,50 @@ instance Yesod DevSite where
                 let feedIcon = Settings.staticRoot ++ "/images/feed.png"
 
                 [hamlet|
-                    $maybe mesg <- mmesg
-                        <div .message>
-                            <p>#{mesg}
+                    <aside>
+                        $maybe mesg <- mmesg
+                            <div .message>
+                                <p>#{mesg}
 
-                    <div .breadcrumbs>
-                        <p>
-                            $forall node <- h
-                                <a href="@{fst node}">#{snd node} 
-                                \ / 
-                            \ #{t}
-                    <nav>
-                        <ul>
-                            <li>
-                                <a href="@{RootR}">home
-                            <li>
-                                <a href="@{AboutR}">about
-                            <li>
-                                <a href="@{PostsR}">posts
-                            <li>
-                                <a href="@{TagsR}">tags
-                            <li .extra>
-                                <a href="https://github.com/pbrisbin">github
-                            <li .extra>
-                                <a href="http://aur.archlinux.org/packages.php?K=brisbin33&amp;SeB=m">aur packages
-                            <li .extra>
-                                <a href="/xmonad/docs">xmonad docs
-                            <li .extra>
-                                <a href="/haskell/docs/html">haskell docs
-                            <li .extra>
-                                <img src="#{feedIcon}" .icon>
-                                \ 
-                                <a href="@{FeedR}">subscribe
-
-                            $if loggedin
+                        <div .breadcrumbs>
+                            <p>
+                                $forall node <- h
+                                    <a href="@{fst node}">#{snd node} 
+                                    \ / 
+                                \ #{t}
+                        <nav>
+                            <ul>
+                                <li>
+                                    <a href="@{RootR}">home
+                                <li>
+                                    <a href="@{AboutR}">about
+                                <li>
+                                    <a href="@{PostsR}">posts
+                                <li>
+                                    <a href="@{TagsR}">tags
                                 <li .extra>
-                                    <a href="@{ManagePostsR}">manage posts
-                                <li>
-                                    <a href="@{MpcR StatusR}">mpd
-                                <li>
-                                    <a href="@{AuthR LogoutR}">logout
-                            $else
-                                <li>
-                                    <a href="@{AuthR LoginR}">login
+                                    <a href="https://github.com/pbrisbin">github
+                                <li .extra>
+                                    <a href="http://aur.archlinux.org/packages.php?K=brisbin33&amp;SeB=m">aur packages
+                                <li .extra>
+                                    <a href="/xmonad/docs">xmonad docs
+                                <li .extra>
+                                    <a href="/haskell/docs/html">haskell docs
+                                <li .extra>
+                                    <img src="#{feedIcon}" .icon>
+                                    \ 
+                                    <a href="@{FeedR}">subscribe
+
+                                $if loggedin
+                                    <li .extra>
+                                        <a href="@{ManagePostsR}">manage posts
+                                    <li>
+                                        <a href="@{MpcR StatusR}">mpd
+                                    <li>
+                                        <a href="@{AuthR LogoutR}">logout
+                                $else
+                                    <li>
+                                        <a href="@{AuthR LoginR}">login
                     |]
 
 instance YesodBreadcrumbs DevSite where
