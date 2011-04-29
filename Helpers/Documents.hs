@@ -24,18 +24,18 @@ import qualified Settings
 
 -- | The sub template for a single post
 shortDocument :: Document -> Widget ()
-shortDocument (Document p ts) = [hamlet|
+shortDocument d@(Document p _) = [hamlet|
     <article>
-        <p>^{link p}
+        <p>^{link d}
         #{markdownToHtml $ postDescr p}
-        ^{docInfo p ts}
+        ^{docInfo d}
     |]
 
 longDocument :: Document   -- ^ document to display
              -> Maybe Post -- ^ maybe previous post
              -> Maybe Post -- ^ maybe next post
              -> Widget ()
-longDocument (Document p ts) mprev mnext = do
+longDocument d@(Document p ts) mprev mnext = do
     let file = Settings.pandocFile $ postSlug p
 
     documentContent <- lift . liftIO $ do
@@ -59,7 +59,7 @@ longDocument (Document p ts) mprev mnext = do
 
         <article .fullpage>
             #{markdownToHtml $ documentContent}
-            ^{docInfo p ts}
+            ^{docInfo d}
 
         <h3>
             <a href="#Comments" id="Comments">Comments
@@ -85,8 +85,8 @@ longDocument (Document p ts) mprev mnext = do
                     &nbsp;&nbsp;&nbsp;&#9656
         |]
 
-docInfo :: Post -> [Tag] -> Widget ()
-docInfo p ts = do
+docInfo :: Document -> Widget ()
+docInfo (Document p ts) = do
     timeDiff <- lift $ humanReadableTime $ postDate p
     [hamlet|
         <footer>
