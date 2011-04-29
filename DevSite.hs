@@ -8,7 +8,6 @@ module DevSite where
 import Yesod
 import Model
 import Helpers.AlbumArt
-import Helpers.Links
 import Yesod.Form.Core (GFormMonad)
 import Yesod.Helpers.MPC
 import Yesod.Helpers.Auth
@@ -108,7 +107,7 @@ instance Yesod DevSite where
             sideBar = do
                 mmesg    <- lift getMessage
                 (t, h)   <- lift breadcrumbs
-                loggedin <- lift maybeAuthId >>= return . isJust
+                loggedin <- lift $ fmap isJust maybeAuthId
 
                 let feedIcon = Settings.staticRoot ++ "/images/feed.png"
 
@@ -198,29 +197,3 @@ instance YesodMPC DevSite where
     mpdConfig      = return . Just $ MpdConfig "192.168.0.5" 6600 ""
     authHelper     = requireAuth >>= \_ -> return ()
     albumArtHelper = getAlbumUrl
-
--- | Items that can be linked to within this app
-class Linkable a where
-    link :: a -> Link DevSite
-
-instance Linkable Post where
-    link p = Link (Internal $ PostR $ postSlug p) (postTitle p) (postTitle p)
-
-instance Linkable Tag where
-    link t = Link (Internal $ TagR $ tagName t) (tagName t) (tagName t)
-
-instance Linkable Document where
-    link = link . post
-
--- | This is unsafe but useful. It basically says any link to raw 
---   text is assumed to be a tag. There is no assurance the tag exists
-instance Linkable T.Text where
-    link t = Link (Internal $ TagR $ T.toLower t) t t
-
--- | A convenience helper for links specific to this app
-linkTo :: Linkable a => a -> GWidget s DevSite ()
-linkTo = showLink . link
-
--- | This helps where OverloadedStrings can't figure it out
-linkToText :: T.Text -> GWidget s DevSite ()
-linkToText = linkTo
