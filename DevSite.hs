@@ -16,6 +16,7 @@ import Data.Maybe (isJust)
 import Database.Persist.GenericSql
 import qualified Settings
 import qualified Data.Text as T
+import qualified Network.MPD as MPD
 
 -- | The main site type
 data DevSite = DevSite
@@ -192,6 +193,6 @@ instance YesodAuth DevSite where
 
 -- | In-browser mpd controls
 instance YesodMPC DevSite where
-    mpdConfig      = return . Just $ MpdConfig "192.168.0.5" 6600 ""
+    withMPD        = liftIO . MPD.withMPDEx "192.168.0.5" 6600 ""
     authHelper     = fmap (const ()) requireAuth
     albumArtHelper = getAlbumUrl
