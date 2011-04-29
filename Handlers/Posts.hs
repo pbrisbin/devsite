@@ -267,4 +267,4 @@ postFromForm pf = do
         }
 
 parseTags :: T.Text -> [T.Text]
-parseTags = filter (not . T.null) . map T.strip . T.splitOn ","
+parseTags = filter (not . T.null) . T.toLower . map T.strip . T.splitOn ","
