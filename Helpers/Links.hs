@@ -1,56 +1,45 @@
-{-# LANGUAGE QuasiQuotes #-}
--- |
--- 
--- Generic representation of an internal (type-safe) or external 
--- (text-only) link that can be placed within a widget.
---
+{-# LANGUAGE QuasiQuotes  #-}
+{-# LANGUAGE TypeFamilies #-}
 module Helpers.Links
-    ( Destination(..)
+    ( YesodLinked(..)
+    , Destination(..)
     , Link(..)
-    , showLink
-    , Linkable(..)
-    , tagLink
+    , IsLink(..)
+    , link
+    , link'
     ) where
 
-import DevSite
-import Model
-
-import Yesod (GWidget, Route, hamlet)
+import Yesod
 import qualified Data.Text as T
 
--- | Either an interal route or an external url
+-- | An internal route or external url
 data Destination m = Internal (Route m) | External T.Text
 
--- | A generalized link
+-- | A link to a 'Destination' with supplied titles and text to be used 
+--   when showing the html.
 data Link m = Link
     { linkDest  :: Destination m
     , linkTitle :: T.Text
     , linkText  :: T.Text
     }
 
--- | How to display a link
-showLink :: Link m -> GWidget s m ()
-showLink (Link (Internal i) t x) = [hamlet|<a title="#{t}" href="@{i}">#{x}|]
-showLink (Link (External e) t x) = [hamlet|<a title="#{t}" href="#{e}">#{x}|]
+-- | A type family instance used to generalize the widgets that show a 
+--   @'Route' m@ where @m@ is your foundation type.
+--
+--   > instance YesodLinked MyApp where
+--   >     type Linked = MyApp
+--
+class Yesod m => YesodLinked m where
+    type Linked
 
--- | Show a link to a type in this application
-class Linkable a where
-    link :: a -> GWidget s DevSite ()
+-- | A general way to link to any type in your application
+class IsLink a where
+    toLink :: a -> Link Linked
 
-instance Linkable Post where
-    link p = showLink $ Link (Internal $ PostR $ postSlug p) (postTitle p) (postTitle p)
+-- | The widget for any @'IsLink'@ type
+link :: IsLink a => a -> GWidget s Linked ()
+link = link' . toLink
 
-instance Linkable Tag where
-    link t = showLink $ Link (Internal $ TagR $ tagName t) (tagName t) (tagName t)
-
-instance Linkable Document where
-    link = link . post
-
--- | This is unsafe but useful. It basically says any link to raw 
---   text is assumed to be a tag. There is no assurance the tag exists
-instance Linkable T.Text where
-    link t = showLink $ Link (Internal $ TagR $ T.toLower t) t t
-
--- | The explicit type helps OverloadedStrings figure it out
-tagLink :: T.Text -> GWidget s DevSite ()
-tagLink = link
+link' :: Link m -> GWidget s m ()
+link' (Link (Internal i) t x) = [hamlet|<a title="#{t}" href="@{i}">#{x}|]
+link' (Link (External e) t x) = [hamlet|<a title="#{t}" href="#{e}">#{x}|]
