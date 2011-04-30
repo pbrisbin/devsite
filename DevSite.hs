@@ -7,6 +7,7 @@ module DevSite where
 import Yesod
 import Model
 import Helpers.AlbumArt
+import Helpers.Links
 import Yesod.Form.Core (GFormMonad)
 import Yesod.Helpers.MPC
 import Yesod.Helpers.Auth
@@ -123,38 +124,31 @@ instance Yesod DevSite where
                                 \ #{t}
                         <nav>
                             <ul>
-                                <li>
-                                    <a href="@{RootR}">home
-                                <li>
-                                    <a href="@{AboutR}">about
-                                <li>
-                                    <a href="@{PostsR}">posts
-                                <li>
-                                    <a href="@{TagsR}">tags
-                                <li .extra>
-                                    <a href="https://github.com/pbrisbin">github
-                                <li .extra>
-                                    <a href="http://aur.archlinux.org/packages.php?K=brisbin33&amp;SeB=m">aur packages
-                                <li .extra>
-                                    <a href="/xmonad/docs">xmonad docs
-                                <li .extra>
-                                    <a href="/haskell/docs/html">haskell docs
+                                <li>^{link RootR}
+                                <li>^{link AboutR}
+                                <li>^{link PostsR}
+                                <li>^{link TagsR}
+                                <li .extra>^{link' github}
+                                <li .extra>^{link' aurPkgs}
+                                <li .extra>^{link' xmonadDocs}
+                                <li .extra>^{link' haskellDocs}
                                 <li .extra>
                                     <img src="#{feedIcon}" .icon>
-                                    \ 
-                                    <a href="@{FeedR}">subscribe
+                                    \ ^{link FeedR}
 
                                 $if loggedin
-                                    <li .extra>
-                                        <a href="@{ManagePostsR}">manage posts
-                                    <li>
-                                        <a href="@{MpcR StatusR}">mpd
-                                    <li>
-                                        <a href="@{AuthR LogoutR}">logout
+                                    <li .extra>^{link ManagePostsR}
+                                    <li>^{link $ MpcR StatusR}
+                                    <li>^{link $ AuthR LogoutR}
                                 $else
-                                    <li>
-                                        <a href="@{AuthR LoginR}">login
+                                    <li>^{link $ AuthR LoginR}
                     |]
+
+                    where
+                        github      = Link (External "https://github.com/pbrisbin") "my projects on github" "github"
+                        aurPkgs     = Link (External "http://aur.archlinux.org/packages.php?K=brisbin33&amp;SeB=m") "my aur packages" "aur packages"
+                        xmonadDocs  = Link (External "/xmonad/docs") "xmonad haddocks" "xmonad docs"
+                        haskellDocs = Link (External "/haskell/docs/html") "haskell haddocks" "haskell docs"
 
 instance YesodBreadcrumbs DevSite where
     breadcrumb RootR        = return ("home"       , Nothing    ) 
@@ -196,3 +190,43 @@ instance YesodMPC DevSite where
     withMPD        = liftIO . MPD.withMPDEx "192.168.0.5" 6600 ""
     authHelper     = fmap (const ()) requireAuth
     albumArtHelper = getAlbumUrl
+
+-- | More concise links
+instance YesodLinked DevSite where
+    type Linked = DevSite
+
+-- | Make isLink instances for each route in the site
+instance IsLink DevSiteRoute where
+    toLink r@(RootR)         = Link (Internal r) "go home" "home"
+    toLink r@(AboutR)        = Link (Internal r) "about pbrisbin dot com" "about"
+    toLink r@(PostsR)        = Link (Internal r) "all posts" "all posts"
+    toLink r@(TagsR)         = Link (Internal r) "all posts grouped by tag" "all tags"
+    toLink r@(FeedR)         = Link (Internal r) "subscribe via rss" "subscribe"
+    toLink r@(ManagePostsR)  = Link (Internal r) "manage posts" "manage posts"
+    toLink r@(MpcR StatusR)  = Link (Internal r) "mpd controls" "mpd"
+    toLink r@(AuthR LoginR)  = Link (Internal r) "login" "login"
+    toLink r@(AuthR LogoutR) = Link (Internal r) "logout" "logout"
+
+    -- fail noticably
+    toLink r = Link (Internal r) "invalid use of `link'" "FIXME"
+    
+-- | Link directly to a post
+instance IsLink Post where
+    toLink p = Link (Internal $ PostR $ postSlug p) (postTitle p) (postTitle p)
+
+-- | Link directly to a tag
+instance IsLink Tag where
+    toLink t = Link (Internal $ TagR $ tagName t) (tagName t) (tagName t)
+
+-- | Link directly to a document (goes to its post)
+instance IsLink Document where
+    toLink = toLink . post
+
+-- | This is dangerous but useful, it assumes a link to raw text is
+--   meant as a tag. There is no guarantee the tag exists
+instance IsLink T.Text where
+    toLink t = Link (Internal $ TagR $ T.toLower t) t t
+
+-- | Explicit type helps OverloadedStrings
+tagLink :: T.Text -> GWidget s DevSite ()
+tagLink = link
