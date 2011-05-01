@@ -53,36 +53,10 @@ getPostsR = do
 getPostR :: T.Text -> Handler RepHtml
 getPostR slug = do
     docs <- siteDocs =<< getYesod
-    case helper slug docs of
-        (Nothing , Nothing, Nothing) -> defaultLayout $ unpublishedDocument slug
-        (Just doc, mprev  , mnext  ) -> defaultLayout $ longDocument doc mprev mnext
-
-    where
-        -- | Return the desired document, and maybe the post just before 
-        --   and just after it in the list so that next/previous links 
-        --   can be shown
-        helper :: T.Text -> [Document] -> (Maybe Document, Maybe Post, Maybe Post)
-        helper _ [] = (Nothing, Nothing, Nothing) -- not found
-
-        helper slug' (d@(Document p _):[]) =
-            if postSlug p == slug'
-                then (Just d, Nothing, Nothing)
-                else helper slug' [] -- not found
-
-        helper slug' (d1@(Document p1 _):d2@(Document p2 _):[]) =
-            if postSlug p1 == slug'
-                then (Just d1, Nothing, Just p2)
-                else if postSlug p2 == slug'
-                    then (Just d2, Just p1, Nothing)
-                    else helper slug' [] -- not found
-
-        helper slug' (d1@(Document p1 _):d2@(Document p2 _):d3@(Document p3 _):ds) =
-            if postSlug  p1 == slug'
-                then (Just d1, Nothing, Just p2)
-                else if postSlug p2 == slug'
-                    then (Just d2, Just p1, Just p3)
-                    else helper slug' (d2:d3:ds)
-
+    case lookupDocument slug docs of
+        Just doc -> defaultLayout $ longDocument doc (documentNavigation doc docs)
+        Nothing  -> defaultLayout $ unpublishedDocument slug
+        
 -- | Manage posts
 getManagePostsR :: Handler RepHtml
 getManagePostsR = do

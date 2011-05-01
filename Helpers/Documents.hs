@@ -1,7 +1,9 @@
 {-# LANGUAGE QuasiQuotes     #-}
 {-# LANGUAGE TemplateHaskell #-}
 module Helpers.Documents
-    ( shortDocument
+    ( lookupDocument
+    , documentNavigation
+    , shortDocument
     , longDocument
     , unpublishedDocument
     , humanReadableTime
@@ -22,20 +24,42 @@ import System.Locale
 import qualified Data.Text as T
 import qualified Settings
 
--- | The sub template for a single post
 shortDocument :: Document -> Widget ()
 shortDocument d@(Document p _) = [hamlet|
     <article>
         <p>^{link d}
         #{markdownToHtml $ postDescr p}
-        ^{docInfo d}
+        ^{documentInfo d}
     |]
 
-longDocument :: Document   -- ^ document to display
-             -> Maybe Post -- ^ maybe previous post
-             -> Maybe Post -- ^ maybe next post
-             -> Widget ()
-longDocument d@(Document p ts) mprev mnext = do
+-- todo: recombine these two?
+
+lookupDocument :: T.Text -> [Document] -> Maybe Document
+lookupDocument slug docs =
+    case filter ((== slug) . postSlug . post) docs of
+        []    -> Nothing
+        (x:_) -> Just x
+
+documentNavigation :: Document -> [Document] -> (Maybe Document, Maybe Document)
+documentNavigation _ []  = (Nothing, Nothing)
+documentNavigation _ [_] = (Nothing, Nothing)
+
+documentNavigation d (d1:d2:[]) =
+    if d == d1
+        then (Nothing, Just d2)
+        else if d == d2
+            then (Just d1, Nothing)
+            else (Nothing, Nothing)
+
+documentNavigation d (d1:d2:d3:ds) =
+    if d == d1
+        then (Nothing, Just d2)
+        else if d == d2
+            then (Just d1, Just d3)
+            else documentNavigation d (d2:d3:ds)
+
+longDocument :: Document -> (Maybe Document, Maybe Document) -> Widget ()
+longDocument d@(Document p ts) (mprev, mnext) = do
     let file = Settings.pandocFile $ postSlug p
 
     documentContent <- lift . liftIO $ do
@@ -59,7 +83,7 @@ longDocument d@(Document p ts) mprev mnext = do
 
         <article .fullpage>
             #{markdownToHtml $ documentContent}
-            ^{docInfo d}
+            ^{documentInfo d}
 
         <h3>
             <a href="#Comments" id="Comments">Comments
@@ -85,8 +109,8 @@ longDocument d@(Document p ts) mprev mnext = do
                     &nbsp;&nbsp;&nbsp;&#9656
         |]
 
-docInfo :: Document -> Widget ()
-docInfo (Document p ts) = do
+documentInfo :: Document -> Widget ()
+documentInfo (Document p ts) = do
     timeDiff <- lift $ humanReadableTime $ postDate p
     [hamlet|
         <footer>

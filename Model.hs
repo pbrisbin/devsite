@@ -34,6 +34,9 @@ data Document = Document
     , tags :: [Tag]
     }
 
+instance Eq Document where
+    (Document p1 _) == (Document p2 _) = postSlug p1 == postSlug p2
+
 data Collection = Collection
     { name      :: T.Text
     , documents :: [Document]

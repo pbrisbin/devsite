@@ -5,7 +5,6 @@ module Handlers.Root (getRootR) where
 import DevSite
 import Yesod
 import Helpers.Documents
-import Helpers.Links
 import qualified Settings
 
 -- | Home page

@@ -1,3 +1,4 @@
+{-# OPTIONS -fno-warn-orphans  #-}
 {-# LANGUAGE TypeFamilies      #-}
 {-# LANGUAGE QuasiQuotes       #-}
 {-# LANGUAGE TemplateHaskell   #-}
