@@ -25,14 +25,14 @@ getRootR = do
             <article .fullpage>
                 <p>
                     Welcome to pbrisbin dot com. You'll find it's mostly 
-                    [GNU/]^{tagLink "Linux"}-related geekery here and 
-                    some of the information presented is specific to the 
-                    [amazing] distribution known as ^{tagLink "Arch"} 
+                    [GNU/]^{link' "Linux"}-related geekery here and some 
+                    of the information presented is specific to the 
+                    [amazing] distribution known as ^{link' "Arch"} 
                     Linux. Some of my favorite topics are the 
-                    ^{tagLink "XMonad"} window manager, 
-                    ^{tagLink "haskell"} in general, ^{tagLink "bash"} 
-                    scripting (or just general command-line adventures), 
-                    and the great email client ^{tagLink "mutt"}.
+                    ^{link' "XMonad"} window manager, ^{link' "haskell"} 
+                    in general, ^{link' "bash"} scripting (or just 
+                    general command-line adventures), and the great 
+                    email client ^{link' "mutt"}.
 
                 <p>
                     This site does use HTML5 and CSS3 fairly heavily.
@@ -55,5 +55,9 @@ getRootR = do
             |]
             
             where
+                -- helps OverloadedStrings determine the type
+                link' :: T.Text -> GWidget s DevSite ()
+                link' = link
+
                 code :: T.Text -> GWidget s DevSite ()
                 code t = [hamlet|<code>#{t}|]

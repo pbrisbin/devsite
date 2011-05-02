@@ -232,7 +232,3 @@ instance IsLink Document where
 --   meant as a tag. There is no guarantee the tag exists
 instance IsLink T.Text where
     toLink t = Link (Internal $ TagR $ T.toLower t) t t
-
--- | Explicit type helps OverloadedStrings
-tagLink :: T.Text -> GWidget s DevSite ()
-tagLink = link
