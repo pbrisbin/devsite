@@ -7,7 +7,6 @@ module DevSite where
 import Yesod
 import Model
 import Helpers.AlbumArt
-import Helpers.Links (Link(..), Destination(..))
 import Yesod.Form.Core (GFormMonad)
 import Yesod.Helpers.MPC
 import Yesod.Helpers.Auth
@@ -16,9 +15,11 @@ import Yesod.Helpers.RssFeed
 import Data.Maybe (isJust)
 import Database.Persist.GenericSql
 import qualified Settings
-import qualified Helpers.Links as L
 import qualified Data.Text as T
 import qualified Network.MPD as MPD
+
+import Helpers.Links (Link(..), Destination(..))
+import qualified Helpers.Links as L
 
 -- | The main site type
 data DevSite = DevSite
