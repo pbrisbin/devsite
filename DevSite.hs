@@ -1,4 +1,3 @@
-{-# OPTIONS -fno-warn-orphans  #-}
 {-# LANGUAGE TypeFamilies      #-}
 {-# LANGUAGE QuasiQuotes       #-}
 {-# LANGUAGE TemplateHaskell   #-}
@@ -8,7 +7,7 @@ module DevSite where
 import Yesod
 import Model
 import Helpers.AlbumArt
-import Helpers.Links
+import Helpers.Links (Link(..), Destination(..))
 import Yesod.Form.Core (GFormMonad)
 import Yesod.Helpers.MPC
 import Yesod.Helpers.Auth
@@ -17,6 +16,7 @@ import Yesod.Helpers.RssFeed
 import Data.Maybe (isJust)
 import Database.Persist.GenericSql
 import qualified Settings
+import qualified Helpers.Links as L
 import qualified Data.Text as T
 import qualified Network.MPD as MPD
 
@@ -129,10 +129,10 @@ instance Yesod DevSite where
                                 <li>^{link AboutR}
                                 <li>^{link PostsR}
                                 <li>^{link TagsR}
-                                <li .extra>^{link' github}
-                                <li .extra>^{link' aurPkgs}
-                                <li .extra>^{link' xmonadDocs}
-                                <li .extra>^{link' haskellDocs}
+                                <li .extra>^{L.link github}
+                                <li .extra>^{L.link aurPkgs}
+                                <li .extra>^{L.link xmonadDocs}
+                                <li .extra>^{L.link haskellDocs}
                                 <li .extra>
                                     <img src="#{feedIcon}" .icon>
                                     \ ^{link FeedR}
@@ -192,9 +192,13 @@ instance YesodMPC DevSite where
     authHelper     = fmap (const ()) requireAuth
     albumArtHelper = getAlbumUrl
 
--- | More concise links
-instance YesodLinked DevSite where
-    type Linked = DevSite
+-- | Generlaize linking with a type class
+class IsLink a where
+    toLink :: a -> Link DevSite
+
+-- | Show the widget for a link to any @IsLink a@
+link :: IsLink a => a -> GWidget s DevSite ()
+link = L.link . toLink
 
 -- | Make isLink instances for each route in the site
 instance IsLink DevSiteRoute where
