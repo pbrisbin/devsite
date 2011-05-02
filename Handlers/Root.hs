@@ -6,6 +6,7 @@ import DevSite
 import Yesod
 import Helpers.Documents
 import qualified Settings
+import qualified Data.Text as T
 
 -- | Home page
 getRootR :: Handler RepHtml
@@ -24,7 +25,7 @@ getRootR = do
             <article .fullpage>
                 <p>
                     Welcome to pbrisbin dot com. You'll find it's mostly 
-                    [GNU/] ^{tagLink "Linux"}-related geekery here and 
+                    [GNU/]^{tagLink "Linux"}-related geekery here and 
                     some of the information presented is specific to the 
                     [amazing] distribution known as ^{tagLink "Arch"} 
                     Linux. Some of my favorite topics are the 
@@ -37,24 +38,11 @@ getRootR = do
                     This site does use HTML5 and CSS3 fairly heavily.
 
                 <p>
-                    No, it's nothing sexy like 
-
-                    <code>&lt;video&gt;
-
-                    \ or 
-
-                    <code>&lt;canvas&gt;
-
-                    , but I do use some of the newer semantic tags like 
-
-                    <code>&lt;aside&gt;
-
-                    \ and 
-
-                    <code>&lt;nav&gt;
-
-                    \. For this reason, the site might not style 
-                    properly in older browsers. I'm sorry.
+                    No, it's nothing sexy like ^{code "<video>"} or 
+                    ^{code "<canvas>"}, but I do use some of the newer 
+                    semantic tags like ^{code "<aside>"} and 
+                    ^{code "<nav>"}. For this reason, the site might not 
+                    style properly in older browsers. I'm sorry.
 
                 <h3>
                     <a id="Recent_Posts" href="#Recent_Posts">Recent Posts
@@ -63,7 +51,9 @@ getRootR = do
                     ^{shortDocument doc}
 
                 <p>
-                    <small>
-                        <a href="@{PostsR}">all posts
-                        \...
+                    <small>^{link PostsR}...
             |]
+            
+            where
+                code :: T.Text -> GWidget s DevSite ()
+                code t = [hamlet|<code>#{t}|]
