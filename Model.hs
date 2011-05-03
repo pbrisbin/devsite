@@ -6,7 +6,7 @@
 module Model where
 
 import Yesod.Persist
-import Yesod.Comments.Markdown
+import Yesod.Goodies.Markdown
 import Data.List (nub)
 import Data.Time (UTCTime)
 

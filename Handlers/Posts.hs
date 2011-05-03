@@ -16,9 +16,9 @@ import Model
 import Yesod
 
 import Yesod.Helpers.Auth
-import Yesod.Comments.Markdown
+import Yesod.Goodies.Markdown
+import Yesod.Goodies.Shorten (shorten)
 import Helpers.Documents
-import Helpers.Shorten
 
 import Control.Applicative ((<$>), (<*>))
 import Data.Time           (getCurrentTime)

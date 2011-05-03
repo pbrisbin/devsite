@@ -8,7 +8,7 @@ import DevSite
 import Model
 import Yesod
 import Yesod.Helpers.RssFeed
-import Yesod.Comments.Markdown
+import Yesod.Goodies.Markdown
 
 import qualified Data.Text as T
 
