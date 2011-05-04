@@ -13,6 +13,7 @@ import DevSite
 import Model
 
 import Yesod
+import Yesod.Goodies.Links
 import Yesod.Goodies.Markdown
 import Yesod.Goodies.Time
 import Control.Monad    (unless)

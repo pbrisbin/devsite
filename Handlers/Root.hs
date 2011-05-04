@@ -4,6 +4,7 @@ module Handlers.Root (getRootR) where
 
 import DevSite
 import Yesod
+import Yesod.Goodies.Links
 import Helpers.Documents
 import qualified Settings
 import qualified Data.Text as T
@@ -25,14 +26,14 @@ getRootR = do
             <article .fullpage>
                 <p>
                     Welcome to pbrisbin dot com. You'll find it's mostly 
-                    [GNU/]^{link' "Linux"}-related geekery here and some 
-                    of the information presented is specific to the 
-                    [amazing] distribution known as ^{link' "Arch"} 
+                    [GNU/]^{link'' "Linux"}-related geekery here and 
+                    some of the information presented is specific to the 
+                    [amazing] distribution known as ^{link'' "Arch"} 
                     Linux. Some of my favorite topics are the 
-                    ^{link' "XMonad"} window manager, ^{link' "haskell"} 
-                    in general, ^{link' "bash"} scripting (or just 
-                    general command-line adventures), and the great 
-                    email client ^{link' "mutt"}.
+                    ^{link'' "XMonad"} window manager, 
+                    ^{link'' "haskell"} in general, ^{link'' "bash"} 
+                    scripting (or just general command-line adventures), 
+                    and the great email client ^{link'' "mutt"}.
 
                 <p>
                     This site does use HTML5 and CSS3 fairly heavily.
@@ -56,8 +57,8 @@ getRootR = do
             
             where
                 -- helps OverloadedStrings determine the type
-                link' :: T.Text -> GWidget s DevSite ()
-                link' = link
+                link'' :: T.Text -> GWidget s DevSite ()
+                link'' = link
 
                 code :: T.Text -> GWidget s DevSite ()
                 code t = [hamlet|<code>#{t}|]

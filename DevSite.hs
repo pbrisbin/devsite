@@ -1,3 +1,4 @@
+{-# OPTIONS -fno-warn-orphans  #-}
 {-# LANGUAGE TypeFamilies      #-}
 {-# LANGUAGE QuasiQuotes       #-}
 {-# LANGUAGE TemplateHaskell   #-}
@@ -8,6 +9,7 @@ import Yesod
 import Model
 import Helpers.AlbumArt
 import Yesod.Form.Core (GFormMonad)
+import Yesod.Goodies.Links
 import Yesod.Helpers.MPC
 import Yesod.Helpers.Auth
 import Yesod.Helpers.Auth.HashDB
@@ -18,8 +20,6 @@ import qualified Settings
 import qualified Data.Text as T
 import qualified Network.MPD as MPD
 
-import Helpers.Links (Link(..), Destination(..))
-import qualified Helpers.Links as L
 
 -- | The main site type
 data DevSite = DevSite
@@ -130,10 +130,10 @@ instance Yesod DevSite where
                                 <li>^{link AboutR}
                                 <li>^{link PostsR}
                                 <li>^{link TagsR}
-                                <li .extra>^{L.link github}
-                                <li .extra>^{L.link aurPkgs}
-                                <li .extra>^{L.link xmonadDocs}
-                                <li .extra>^{L.link haskellDocs}
+                                <li .extra>^{link' github}
+                                <li .extra>^{link' aurPkgs}
+                                <li .extra>^{link' xmonadDocs}
+                                <li .extra>^{link' haskellDocs}
                                 <li .extra>
                                     <img src="#{feedIcon}" .icon>
                                     \ ^{link FeedR}
@@ -193,14 +193,6 @@ instance YesodMPC DevSite where
     authHelper     = fmap (const ()) requireAuth
     albumArtHelper = getAlbumUrl
 
--- | Generlaize linking with a type class
-class IsLink a where
-    toLink :: a -> Link DevSite
-
--- | Show the widget for a link to any @IsLink a@
-link :: IsLink a => a -> GWidget s DevSite ()
-link = L.link . toLink
-
 -- | Make isLink instances for each route in the site
 instance IsLink DevSiteRoute where
     toLink r@(RootR)         = Link (Internal r) "go home" "home"
@@ -216,6 +208,9 @@ instance IsLink DevSiteRoute where
     -- fail noticably
     toLink r = Link (Internal r) "invalid use of `link'" "FIXME"
     
+instance YesodLinked DevSite where
+    type Linked = DevSite
+
 -- | Link directly to a post
 instance IsLink Post where
     toLink p = Link (Internal $ PostR $ postSlug p) (postTitle p) (postTitle p)
