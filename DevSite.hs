@@ -20,7 +20,6 @@ import qualified Settings
 import qualified Data.Text as T
 import qualified Network.MPD as MPD
 
-
 -- | The main site type
 data DevSite = DevSite
     { connPool :: ConnectionPool
