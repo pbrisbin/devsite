@@ -38,22 +38,20 @@ lookupDocument slug docs =
         (x:_) -> Just x
 
 documentNavigation :: Document -> [Document] -> (Maybe Document, Maybe Document)
-documentNavigation _ []  = (Nothing, Nothing)
-documentNavigation _ [_] = (Nothing, Nothing)
+documentNavigation d (d1:d2:[])
+    -- exactly 2 items
+    | d == d1   = (Nothing, Just d2)
+    | d == d2   = (Just d1, Nothing)
+    | otherwise = (Nothing, Nothing)
 
-documentNavigation d (d1:d2:[]) =
-    if d == d1
-        then (Nothing, Just d2)
-        else if d == d2
-            then (Just d1, Nothing)
-            else (Nothing, Nothing)
+documentNavigation d (d1:d2:d3:ds)
+    -- 3+ items
+    | d == d1   = (Nothing, Just d2)
+    | d == d2   = (Just d1, Just d3)
+    | otherwise = documentNavigation d (d2:d3:ds)
 
-documentNavigation d (d1:d2:d3:ds) =
-    if d == d1
-        then (Nothing, Just d2)
-        else if d == d2
-            then (Just d1, Just d3)
-            else documentNavigation d (d2:d3:ds)
+-- 0 or 1 item
+documentNavigation _ _ = (Nothing, Nothing)
 
 longDocument :: Document -> (Maybe Document, Maybe Document) -> Widget ()
 longDocument d@(Document p ts) (mprev, mnext) = do
