@@ -15,7 +15,7 @@ import Yesod.Helpers.Auth.OpenId
 import Yesod.Helpers.Auth.Facebook
 import Yesod.Comments hiding (userName, userEmail)
 import Yesod.Comments.Storage
-import Data.Maybe (isJust)
+import Data.Maybe (fromMaybe)
 import Database.Persist.GenericSql
 import qualified Settings
 import qualified Data.Text as T
@@ -211,8 +211,11 @@ instance YesodComments DevSite where
     storeComment     = storeCommentPersist
     deleteComment    = deleteCommentPersist
     loadComments     = loadCommentsPersist
-    displayUser  uid = undefined --return .                maybe ""      showName  =<< runDB (get uid)
-    displayEmail uid = undefined --return . fromMaybe "" . maybe Nothing userEmail =<< runDB (get uid)
+    displayUser  uid = return . maybe' "anonymous" userName  =<< runDB (get uid)
+    displayEmail uid = return . maybe' ""          userEmail =<< runDB (get uid)
+
+maybe' :: b -> (a -> Maybe b) -> Maybe a -> b
+maybe' c f = fromMaybe c . maybe Nothing f
 
 -- | Make isLink instances for each route in the site
 instance IsLink DevSiteRoute where
