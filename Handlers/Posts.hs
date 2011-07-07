@@ -60,7 +60,7 @@ getPostR slug = do
 -- | Require admin for post management
 requireAdmin :: Handler ()
 requireAdmin = do
-    (uid, u) <- requireAuth
+    (_, u) <- requireAuth
     if userAdmin u
         then return ()
         else permissionDenied "User is not an admin"
