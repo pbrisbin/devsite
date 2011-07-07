@@ -4,6 +4,7 @@
 module Handlers.Posts 
     ( getPostsR
     , getPostR
+    , postPostR
     , getManagePostsR
     , postManagePostsR
     , getEditPostR
@@ -56,6 +57,9 @@ getPostR slug = do
     case lookupDocument slug docs of
         Just doc -> defaultLayout $ longDocument doc (documentNavigation doc docs)
         Nothing  -> defaultLayout $ unpublishedDocument slug
+
+postPostR :: T.Text -> Handler RepHtml
+postPostR = getPostR
 
 -- | Require admin for post management
 requireAdmin :: Handler ()

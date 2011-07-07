@@ -39,8 +39,11 @@ mkYesodData "DevSite" [parseRoutes|
     /manage/edit/#T.Text   EditPostR    GET POST
     /manage/delete/#T.Text DelPostR     GET
 
+    /profile      ProfileR GET
+    /profile/edit EditProfileR GET POST
+
     /posts         PostsR GET
-    /posts/#T.Text PostR  GET
+    /posts/#T.Text PostR  GET POST
     /tags          TagsR  GET
     /tags/#T.Text  TagR   GET
 
@@ -105,7 +108,6 @@ instance Yesod DevSite where
             sideBar = do
                 mmesg    <- lift getMessage
                 (t, h)   <- lift breadcrumbs
-                --loggedin <- lift $ fmap isJust maybeAuthId
 
                 let feedIcon = Settings.staticRoot ++ "/images/feed.png"
 
@@ -127,6 +129,7 @@ instance Yesod DevSite where
                                 <li>^{link AboutR}
                                 <li>^{link PostsR}
                                 <li>^{link TagsR}
+
                                 <li .extra>^{link' github}
                                 <li .extra>^{link' aurPkgs}
                                 <li .extra>^{link' xmonadDocs}
@@ -134,9 +137,34 @@ instance Yesod DevSite where
                                 <li .extra>
                                     <img src="#{feedIcon}" .icon>
                                     \ ^{link FeedR}
+
+                                ^{authLinks}
                     |]
 
                     where
+                        authLinks :: GWidget s DevSite ()
+                        authLinks = do
+                            muid <- lift maybeAuth
+                            case muid of
+                                Just (_, u) -> do
+                                    let uname = fromMaybe "anonymous" $ userName u
+
+                                    if userAdmin u
+                                        then [hamlet|
+                                            <li>
+                                                <a href="@{ProfileR}" title="manage your profile">#{uname}
+                                            <li .extra>^{link ManagePostsR}
+                                            <li>^{link $ AuthR LogoutR}
+                                            |]
+
+                                        else [hamlet|
+                                            <li>
+                                                <a href="@{ProfileR}" title="manage your profile">#{uname}
+                                            <li>^{link $ AuthR LogoutR}
+                                            |]
+
+                                _ -> [hamlet|<li>^{link $ AuthR LoginR}|]
+
                         github      = Link (External "https://github.com/pbrisbin") "my projects on github" "github"
                         aurPkgs     = Link (External "http://aur.archlinux.org/packages.php?K=brisbin33&amp;SeB=m") "my aur packages" "aur packages"
                         xmonadDocs  = Link (External "/xmonad/docs") "xmonad haddocks" "xmonad docs"
@@ -154,6 +182,8 @@ instance YesodBreadcrumbs DevSite where
 
     breadcrumb TagsR         = return ("all tags"    , Just RootR       )
     breadcrumb (TagR tag)    = return (T.toLower tag , Just TagsR       )
+    breadcrumb ProfileR      = return ("profile"     , Just RootR       )
+    breadcrumb EditProfileR  = return ("edit"        , Just ProfileR    )
     breadcrumb ManagePostsR  = return ("manage posts", Just RootR       )
     breadcrumb (EditPostR _) = return ("edit post"   , Just ManagePostsR)
     breadcrumb (AuthR _)     = return ("login"       , Just RootR       )
@@ -171,7 +201,7 @@ instance YesodPersist DevSite where
 instance YesodAuth DevSite where
     type AuthId DevSite = UserId
 
-    loginDest  _ = RootR
+    loginDest  _ = ProfileR
     logoutDest _ = RootR
 
     getAuthId creds = do
@@ -194,7 +224,7 @@ instance YesodAuth DevSite where
 
             (Just _, Just _) -> do -- this shouldn't happen
                 setMessage "That identifier is already attached to an account."
-                redirect RedirectTemporary RootR
+                redirect RedirectTemporary ProfileR
 
     authPlugins = [ authOpenId ]
 
@@ -210,14 +240,14 @@ instance YesodAuth DevSite where
                     <li #google>
                         <form method="get" action="@{AuthR forwardUrl}">
                             <input type="hidden" name="openid_identifier" value="https://www.google.com/accounts/o8/id">
-                            <input type="image" src="#{googleImg}" value="Login via Google">
+                            <input type="image" src="#{googleImg}" title="Login via Google">
                     <li #yahoo>
                         <form method="get" action="@{AuthR forwardUrl}">
                             <input type="hidden" name="openid_identifier" value="http://me.yahoo.com">
-                            <input type="image" src="#{yahooImg}" value="Login via Yahoo!">
+                            <input type="image" src="#{yahooImg}" title="Login via Yahoo!">
                     <li#openid>
                         <form method="get" action="@{AuthR forwardUrl}">
-                            <input type="image" src="#{openIdImg}" value="Login via OpenID">
+                            <input type="image" src="#{openIdImg}" title="Login via OpenID">
                             <input id="openid_identifier" type="text" name="openid_identifier" value="http://">
             |]
 
