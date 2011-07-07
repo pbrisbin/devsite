@@ -10,6 +10,7 @@ import Handlers
 
 import Yesod
 import Yesod.Helpers.Auth
+import Yesod.Comments.Storage
 import Control.Monad (forM)
 import Database.Persist.GenericSql
 import qualified Settings
@@ -21,6 +22,7 @@ mkYesodDispatch "DevSite" resourcesDevSite
 withServer :: (Application -> IO a) -> IO a
 withServer f = Settings.withConnectionPool $ \p -> do
     runSqlPool (runMigration migratePosts) p
+    runSqlPool (runMigration migrateComments) p
     f =<< toWaiApp (DevSite p loadDocuments)
 
     where

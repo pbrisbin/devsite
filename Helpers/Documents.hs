@@ -16,6 +16,7 @@ import Yesod
 import Yesod.Goodies.Links
 import Yesod.Goodies.Markdown
 import Yesod.Goodies.Time
+import Yesod.Comments
 import Control.Monad    (unless)
 import System.Directory (doesFileExist)
 import qualified Data.Text as T
@@ -66,12 +67,6 @@ longDocument d@(Document p ts) (mprev, mnext) = do
     Settings.setTitle $ postTitle p
     Settings.addKeywords $ postTitle p : map tagName ts
 
-    addJulius [julius|
-        var disqus_shortname  = 'pbrisbin';
-        var disqus_identifier = '#{postSlug p}';
-        var disqus_title      = '#{postTitle p}';
-        |]
-
     [hamlet|
         <header>
             <h1>#{postTitle p}
@@ -83,12 +78,8 @@ longDocument d@(Document p ts) (mprev, mnext) = do
         <h3>
             <a href="#Comments" id="Comments">Comments
 
-        <div id="disqus_thread">
-            <script type="text/javascript" src="http://pbrisbin.disqus.com/embed.js">
-            <noscript>
-                <p>
-                    <small>
-                        <em>Sadly, javascript is required for comments on this site.
+        <div .post_comments>
+            ^{addCommentsAuth $ postSlug p}
 
         <p .post_nav>
             <span .left>
