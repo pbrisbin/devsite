@@ -196,15 +196,30 @@ instance YesodAuth DevSite where
                 setMessage "That identifier is already attached to an account."
                 redirect RedirectTemporary RootR
 
-    authPlugins = [ authOpenId
-                  , authFacebook "" "" [] -- TODO
-                  ]
+    authPlugins = [ authOpenId ]
 
-    loginHandler = defaultLayout [hamlet|
-        <h1>Log in
-        <div .login>
-            <p>TODO
-        |]
+    loginHandler = do
+        let googleImg = Settings.staticRoot ++ "/images/google_login.png"
+        let yahooImg  = Settings.staticRoot ++ "/images/yahoo_login.png"
+        let openIdImg = Settings.staticRoot ++ "/images/openid_login.png"
+
+        defaultLayout [hamlet|
+            <h1>Log in
+            <article .fullpage .login>
+                <ul>
+                    <li #google>
+                        <form method="get" action="@{AuthR forwardUrl}">
+                            <input type="hidden" name="openid_identifier" value="https://www.google.com/accounts/o8/id">
+                            <input type="image" src="#{googleImg}" value="Login via Google">
+                    <li #yahoo>
+                        <form method="get" action="@{AuthR forwardUrl}">
+                            <input type="hidden" name="openid_identifier" value="http://me.yahoo.com">
+                            <input type="image" src="#{yahooImg}" value="Login via Yahoo!">
+                    <li#openid>
+                        <form method="get" action="@{AuthR forwardUrl}">
+                            <input type="image" src="#{openIdImg}" value="Login via OpenID">
+                            <input id="openid_identifier" type="text" name="openid_identifier" value="http://">
+            |]
 
 instance YesodComments DevSite where
     getComment       = getCommentPersist
