@@ -9,9 +9,6 @@ import Model
 import Handlers
 
 import Yesod
-import Yesod.Helpers.MPC
-import Yesod.Helpers.Auth
-import Yesod.Helpers.Auth.HashDB (migrateUsers)
 import Control.Monad (forM)
 import Database.Persist.GenericSql
 import qualified Settings
@@ -23,7 +20,6 @@ mkYesodDispatch "DevSite" resourcesDevSite
 withServer :: (Application -> IO a) -> IO a
 withServer f = Settings.withConnectionPool $ \p -> do
     runSqlPool (runMigration migratePosts) p
-    runSqlPool (runMigration migrateUsers) p
     f =<< toWaiApp (DevSite p loadDocuments)
 
     where

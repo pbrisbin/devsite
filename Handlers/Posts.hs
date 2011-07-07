@@ -60,7 +60,8 @@ getPostR slug = do
 -- | Manage posts
 getManagePostsR :: Handler RepHtml
 getManagePostsR = do
-    _    <- requireAuth
+    notFound
+    --_    <- requireAuth
     docs <- siteDocs =<< getYesod
     defaultLayout $ do
         Settings.setTitle "Manage posts"
@@ -78,7 +79,8 @@ postManagePostsR = getManagePostsR
 -- | Edit post
 getEditPostR :: T.Text -> Handler RepHtml
 getEditPostR slug = do
-    _    <- requireAuth
+    notFound
+    --_    <- requireAuth
     docs <- siteDocs =<< getYesod
 
     let mdoc = safeHead $ filter ((==) slug . postSlug . post) docs
@@ -104,7 +106,8 @@ postEditPostR = getEditPostR
 -- | Delete post
 getDelPostR :: T.Text -> Handler RepHtml
 getDelPostR slug = do
-    _    <- requireAuth
+    notFound
+    --_    <- requireAuth
     p <- runDB $ getBy $ UniquePost slug
     case p of
         Just (key, _) -> do

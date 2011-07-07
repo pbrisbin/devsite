@@ -7,18 +7,13 @@ module DevSite where
 
 import Yesod
 import Model
-import Helpers.AlbumArt
 import Yesod.Form.Core (GFormMonad)
 import Yesod.Goodies.Links
-import Yesod.Helpers.MPC
-import Yesod.Helpers.Auth
-import Yesod.Helpers.Auth.HashDB
 import Yesod.Helpers.RssFeed
 import Data.Maybe (isJust)
 import Database.Persist.GenericSql
 import qualified Settings
 import qualified Data.Text as T
-import qualified Network.MPD as MPD
 
 -- | The main site type
 data DevSite = DevSite
@@ -49,14 +44,11 @@ mkYesodData "DevSite" [parseRoutes|
 
     /favicon.ico FaviconR GET
     /robots.txt  RobotsR  GET
-
-    /auth     AuthR Auth getAuth
-    /apps/mpc MpcR  MPC  getMPC
     |]
 
 instance Yesod DevSite where 
     approot _   = Settings.approot
-    authRoute _ = Just $ AuthR LoginR
+    --authRoute _ = Just $ AuthR LoginR
 
     defaultLayout widget = do
         let cssLink = Settings.staticRoot ++ "/css/style.css"
@@ -107,7 +99,7 @@ instance Yesod DevSite where
             sideBar = do
                 mmesg    <- lift getMessage
                 (t, h)   <- lift breadcrumbs
-                loggedin <- lift $ fmap isJust maybeAuthId
+                --loggedin <- lift $ fmap isJust maybeAuthId
 
                 let feedIcon = Settings.staticRoot ++ "/images/feed.png"
 
@@ -136,13 +128,6 @@ instance Yesod DevSite where
                                 <li .extra>
                                     <img src="#{feedIcon}" .icon>
                                     \ ^{link FeedR}
-
-                                $if loggedin
-                                    <li .extra>^{link ManagePostsR}
-                                    <li>^{link $ MpcR StatusR}
-                                    <li>^{link $ AuthR LogoutR}
-                                $else
-                                    <li>^{link $ AuthR LoginR}
                     |]
 
                     where
@@ -165,8 +150,7 @@ instance YesodBreadcrumbs DevSite where
     breadcrumb (TagR tag)    = return (T.toLower tag , Just TagsR       )
     breadcrumb ManagePostsR  = return ("manage posts", Just RootR       )
     breadcrumb (EditPostR _) = return ("edit post"   , Just ManagePostsR)
-    breadcrumb (AuthR _)     = return ("login"       , Just RootR       )
-    breadcrumb (MpcR  _)     = return ("mpc"         , Just RootR       )
+    --breadcrumb (AuthR _)     = return ("login"       , Just RootR       )
 
     -- be sure to fail noticably so i fix it when it happens
     breadcrumb _ = return ("404", Just RootR)
@@ -178,19 +162,13 @@ instance YesodPersist DevSite where
     runDB db = liftIOHandler $ fmap connPool getYesod >>= runSqlPool db
 
 -- | Handle authentication with my custom HashDB plugin
-instance YesodAuth DevSite where
-    type AuthId DevSite = UserId
+{-instance YesodAuth DevSite where-}
+    {-type AuthId DevSite = UserId-}
 
-    loginDest  _ = RootR
-    logoutDest _ = RootR
-    getAuthId    = getAuthIdHashDB AuthR 
-    authPlugins  = [authHashDB]
-
--- | In-browser mpd controls
-instance YesodMPC DevSite where
-    withMPD        = liftIO . MPD.withMPDEx "192.168.0.5" 6600 ""
-    authHelper     = fmap (const ()) requireAuth
-    albumArtHelper = getAlbumUrl
+    {-loginDest  _ = RootR-}
+    {-logoutDest _ = RootR-}
+    {-getAuthId    = getAuthIdHashDB AuthR -}
+    {-authPlugins  = [authHashDB]-}
 
 -- | Make isLink instances for each route in the site
 instance IsLink DevSiteRoute where
@@ -200,9 +178,8 @@ instance IsLink DevSiteRoute where
     toLink r@(TagsR)         = Link (Internal r) "all posts grouped by tag" "all tags"
     toLink r@(FeedR)         = Link (Internal r) "subscribe via rss" "subscribe"
     toLink r@(ManagePostsR)  = Link (Internal r) "manage posts" "manage posts"
-    toLink r@(MpcR StatusR)  = Link (Internal r) "mpd controls" "mpd"
-    toLink r@(AuthR LoginR)  = Link (Internal r) "login" "login"
-    toLink r@(AuthR LogoutR) = Link (Internal r) "logout" "logout"
+    {-toLink r@(AuthR LoginR)  = Link (Internal r) "login" "login"-}
+    {-toLink r@(AuthR LogoutR) = Link (Internal r) "logout" "logout"-}
 
     -- fail noticably
     toLink r = Link (Internal r) "invalid use of `link'" "FIXME"
