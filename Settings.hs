@@ -11,7 +11,7 @@ module Settings
     ) where
 
 import Yesod (hamlet)
-import Database.Persist.Sqlite
+import Database.Persist.Postgresql
 import qualified Yesod as Y
 import qualified Data.Text as T
 
@@ -42,8 +42,11 @@ staticRoot = "/static"
 staticRoot = "http://pbrisbin.com/static"
 #endif
 
-dataBase :: T.Text
-dataBase = "db.s3db"
+connStr :: T.Text
+connStr = "user=pbrisbin password=password host=localhost port=5432 dbname=pbrisbin"
+
+connCount :: Int
+connCount = 100
 
 withConnectionPool :: Y.MonadControlIO m => (ConnectionPool -> m a) -> m a
-withConnectionPool = withSqlitePool dataBase 10
+withConnectionPool = withPostgresqlPool connStr connCount
