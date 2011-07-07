@@ -10,6 +10,9 @@ import Model
 import Yesod.Form.Core (GFormMonad)
 import Yesod.Goodies.Links
 import Yesod.Helpers.RssFeed
+import Yesod.Helpers.Auth
+import Yesod.Helpers.Auth.OpenId
+import Yesod.Helpers.Auth.Facebook
 import Data.Maybe (isJust)
 import Database.Persist.GenericSql
 import qualified Settings
@@ -42,13 +45,14 @@ mkYesodData "DevSite" [parseRoutes|
     /feed         FeedR    GET
     /feed/#T.Text FeedTagR GET
 
+    /auth        AuthR Auth getAuth
     /favicon.ico FaviconR GET
     /robots.txt  RobotsR  GET
     |]
 
 instance Yesod DevSite where 
     approot _   = Settings.approot
-    --authRoute _ = Just $ AuthR LoginR
+    authRoute _ = Just $ AuthR LoginR
 
     defaultLayout widget = do
         let cssLink = Settings.staticRoot ++ "/css/style.css"
@@ -150,7 +154,7 @@ instance YesodBreadcrumbs DevSite where
     breadcrumb (TagR tag)    = return (T.toLower tag , Just TagsR       )
     breadcrumb ManagePostsR  = return ("manage posts", Just RootR       )
     breadcrumb (EditPostR _) = return ("edit post"   , Just ManagePostsR)
-    --breadcrumb (AuthR _)     = return ("login"       , Just RootR       )
+    breadcrumb (AuthR _)     = return ("login"       , Just RootR       )
 
     -- be sure to fail noticably so i fix it when it happens
     breadcrumb _ = return ("404", Just RootR)
@@ -162,13 +166,43 @@ instance YesodPersist DevSite where
     runDB db = liftIOHandler $ fmap connPool getYesod >>= runSqlPool db
 
 -- | Handle authentication with my custom HashDB plugin
-{-instance YesodAuth DevSite where-}
-    {-type AuthId DevSite = UserId-}
+instance YesodAuth DevSite where
+    type AuthId DevSite = UserId
 
-    {-loginDest  _ = RootR-}
-    {-logoutDest _ = RootR-}
-    {-getAuthId    = getAuthIdHashDB AuthR -}
-    {-authPlugins  = [authHashDB]-}
+    loginDest  _ = RootR
+    logoutDest _ = RootR
+
+    getAuthId creds = do
+        muid <- maybeAuth
+        x    <- runDB $ getBy $ UniqueIdent $ credsIdent creds
+        case (x, muid) of
+            (Just (_, i), Nothing      ) -> return $ Just $ identUser i
+            (Nothing    , Just (uid, _)) -> do
+                _ <- runDB $ insert $ Ident (credsIdent creds) uid
+                return $ Just uid
+
+            (Nothing, Nothing) -> runDB $ do
+                uid <- insert $ User
+                    { userName  = Nothing
+                    , userEmail = Nothing
+                    , userAdmin = False
+                    }
+                _ <- insert $ Ident (credsIdent creds) uid
+                return $ Just uid
+
+            (Just _, Just _) -> do -- this shouldn't happen
+                setMessage "That identifier is already attached to an account."
+                redirect RedirectTemporary RootR
+
+    authPlugins = [ authOpenId
+                  , authFacebook "" "" [] -- TODO
+                  ]
+
+    loginHandler = defaultLayout [hamlet|
+        <h1>Log in
+        <div .login>
+            <p>TODO
+        |]
 
 -- | Make isLink instances for each route in the site
 instance IsLink DevSiteRoute where
@@ -178,8 +212,8 @@ instance IsLink DevSiteRoute where
     toLink r@(TagsR)         = Link (Internal r) "all posts grouped by tag" "all tags"
     toLink r@(FeedR)         = Link (Internal r) "subscribe via rss" "subscribe"
     toLink r@(ManagePostsR)  = Link (Internal r) "manage posts" "manage posts"
-    {-toLink r@(AuthR LoginR)  = Link (Internal r) "login" "login"-}
-    {-toLink r@(AuthR LogoutR) = Link (Internal r) "logout" "logout"-}
+    toLink r@(AuthR LoginR)  = Link (Internal r) "login" "login"
+    toLink r@(AuthR LogoutR) = Link (Internal r) "logout" "logout"
 
     -- fail noticably
     toLink r = Link (Internal r) "invalid use of `link'" "FIXME"

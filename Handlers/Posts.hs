@@ -56,12 +56,19 @@ getPostR slug = do
     case lookupDocument slug docs of
         Just doc -> defaultLayout $ longDocument doc (documentNavigation doc docs)
         Nothing  -> defaultLayout $ unpublishedDocument slug
-        
+
+-- | Require admin for post management
+requireAdmin :: Handler ()
+requireAdmin = do
+    (uid, u) <- requireAuth
+    if userAdmin u
+        then return ()
+        else permissionDenied "User is not an admin"
+
 -- | Manage posts
 getManagePostsR :: Handler RepHtml
 getManagePostsR = do
-    notFound
-    --_    <- requireAuth
+    requireAdmin
     docs <- siteDocs =<< getYesod
     defaultLayout $ do
         Settings.setTitle "Manage posts"
@@ -79,8 +86,7 @@ postManagePostsR = getManagePostsR
 -- | Edit post
 getEditPostR :: T.Text -> Handler RepHtml
 getEditPostR slug = do
-    notFound
-    --_    <- requireAuth
+    requireAdmin
     docs <- siteDocs =<< getYesod
 
     let mdoc = safeHead $ filter ((==) slug . postSlug . post) docs
@@ -106,8 +112,7 @@ postEditPostR = getEditPostR
 -- | Delete post
 getDelPostR :: T.Text -> Handler RepHtml
 getDelPostR slug = do
-    notFound
-    --_    <- requireAuth
+    requireAdmin
     p <- runDB $ getBy $ UniquePost slug
     case p of
         Just (key, _) -> do
