@@ -29,9 +29,9 @@ share2 mkPersist (mkMigrate "migratePosts") [persist|
         UniqueTag post name
 
     User
-        username      T.Text Maybe Update Asc
-        email         T.Text Maybe Update
-        admin         Bool default=false Eq Update
+        name  T.Text Maybe Update
+        email T.Text Maybe Update
+        admin Bool default=false Eq Update
 
     Ident
         ident T.Text Asc
