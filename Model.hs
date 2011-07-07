@@ -27,6 +27,17 @@ share2 mkPersist (mkMigrate "migratePosts") [persist|
         name T.Text    Asc
 
         UniqueTag post name
+
+    User
+        username      T.Text Maybe Update Asc
+        email         T.Text Maybe Update
+        admin         Bool default=false Eq Update
+
+    Ident
+        ident T.Text Asc
+        user  UserId Eq
+
+        UniqueIdent ident
     |]
 
 data Document = Document
