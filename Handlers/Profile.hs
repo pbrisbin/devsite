@@ -45,9 +45,9 @@ getProfileR = do
                     <tr>
                         <th>Email address:
                         <td>#{email}
-
-                <p #edit-profile>
-                    <a href="@{EditProfileR}">edit
+                    <tr>
+                        <td #edit-button colspan="2">
+                            <a href="@{EditProfileR}">edit
         |]
 
         where
