@@ -91,22 +91,25 @@ editForm u = do
 
     return (EditForm <$> fUsername <*> fEmail, [hamlet|
             <table>
-                ^{fieldRow fiUsername}
-                ^{fieldRow fiEmail}
+                ^{fieldRow fiUsername "comments are attributed to this username"}
+                ^{fieldRow fiEmail "never displayed, only used to find your gravatar"}
                 <tr>
                     <td>&nbsp;
                     <td .buttons colspan="2">
                         <input type="submit" value="Save">
             |])
-    where
 
-        fieldRow fi = [hamlet|
+    where
+        fieldRow :: FieldInfo sub y -> T.Text -> GWidget sub y ()
+        fieldRow fi txt = [hamlet|
             <tr ##{fiIdent fi}>
                 <th>
                     <label for="#{fiIdent fi}">#{fiLabel fi}
                     <div .tooltip>#{fiTooltip fi}
                 <td>
                     ^{fiInput fi}
+                <td>
+                    #{txt}
                 <td>
                     $maybe error <- fiErrors fi
                         #{error}
