@@ -236,6 +236,10 @@ instance YesodAuth DevSite where
         defaultLayout [hamlet|
             <h1>Log in
             <article .fullpage .login>
+                <p #open-id-help>
+                    Learn more about using 
+                    <a href="http://openid.net">Open Id
+                    \ authentication.
                 <ul>
                     <li #google>
                         <form method="get" action="@{AuthR forwardUrl}">
