@@ -1,0 +1,16 @@
+#!/bin/bash -e
+
+srv="${1:-/srv/http/}"
+
+app='app.cgi'
+ghc_opts=( -DPROD -threaded --make -o "$app" )
+
+sudo true
+
+touch Settings.hs
+ghc "${ghc_opts[@]}" fastcgi.hs
+touch Settings.hs
+
+sudo /etc/rc.d/lighttpd stop
+sudo mv "$app" "$srv"
+sudo /etc/rc.d/lighttpd start
