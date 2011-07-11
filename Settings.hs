@@ -43,7 +43,11 @@ staticRoot = "http://pbrisbin.com/static"
 #endif
 
 connStr :: T.Text
+#ifdef PROD
 connStr = "user=pbrisbin password=password host=localhost port=5432 dbname=pbrisbin"
+#else
+connStr = "user=pbrisbin password=password host=localhost port=5432 dbname=pbrisbin_dev"
+#endif
 
 connCount :: Int
 connCount = 100
