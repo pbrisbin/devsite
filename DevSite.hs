@@ -3,7 +3,17 @@
 {-# LANGUAGE QuasiQuotes       #-}
 {-# LANGUAGE TemplateHaskell   #-}
 {-# LANGUAGE OverloadedStrings #-}
-module DevSite where
+module DevSite
+    ( DevSite(..)
+    , DevSiteRoute(..)
+    , resourcesDevSite
+    , Handler
+    , Widget
+    , FormMonad
+    , module Yesod
+    , module Settings
+    , module Model
+    ) where
 
 import Yesod
 import Model
@@ -17,8 +27,8 @@ import Yesod.Comments hiding (userName, userEmail)
 import Yesod.Comments.Storage
 import Data.Maybe (fromMaybe)
 import Database.Persist.GenericSql
-import qualified Settings
 import qualified Data.Text as T
+import qualified Settings
 
 -- | The main site type
 data DevSite = DevSite
@@ -30,30 +40,7 @@ type Handler     = GHandler DevSite DevSite
 type Widget      = GWidget  DevSite DevSite
 type FormMonad a = GFormMonad DevSite DevSite a
 
--- | Define all of the routes and handlers
-mkYesodData "DevSite" [parseRoutes|
-    /      RootR  GET
-    /about AboutR GET
-
-    /manage                ManagePostsR GET POST
-    /manage/edit/#T.Text   EditPostR    GET POST
-    /manage/delete/#T.Text DelPostR     GET
-
-    /profile      ProfileR GET
-    /profile/edit EditProfileR GET POST
-
-    /posts         PostsR GET
-    /posts/#T.Text PostR  GET POST
-    /tags          TagsR  GET
-    /tags/#T.Text  TagR   GET
-
-    /feed         FeedR    GET
-    /feed/#T.Text FeedTagR GET
-
-    /auth        AuthR Auth getAuth
-    /favicon.ico FaviconR GET
-    /robots.txt  RobotsR  GET
-    |]
+mkYesodData "DevSite" $(parseRoutesFile "config/routes")
 
 instance Yesod DevSite where 
     approot _   = Settings.approot

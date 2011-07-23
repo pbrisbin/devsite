@@ -1,0 +1,16 @@
+/                      RootR        GET
+/about                 AboutR       GET
+/posts                 PostsR       GET
+/posts/#T.Text         PostR        GET POST
+/tags                  TagsR        GET
+/tags/#T.Text          TagR         GET
+/manage                ManagePostsR GET POST
+/manage/edit/#T.Text   EditPostR    GET POST
+/manage/delete/#T.Text DelPostR     GET
+/profile               ProfileR     GET
+/profile/edit          EditProfileR GET POST
+/feed                  FeedR        GET
+/feed/#T.Text          FeedTagR     GET
+/favicon.ico           FaviconR     GET
+/robots.txt            RobotsR      GET
+/auth                  AuthR Auth getAuth

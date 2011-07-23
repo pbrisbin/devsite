@@ -1,0 +1,21 @@
+Post
+    slug  Text     Eq Update
+    date  UTCTime  Desc
+    title Text     Update
+    descr Markdown Update
+    UniquePost slug
+
+Tag
+    post PostId Eq
+    name Text   Asc
+    UniqueTag post name
+
+User
+    name  Text Maybe Update
+    email Text Maybe Update
+    admin Bool default=false Eq Update
+
+Ident
+    ident Text   Asc
+    user  UserId Eq
+    UniqueIdent ident
