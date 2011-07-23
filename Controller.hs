@@ -5,23 +5,19 @@
 module Controller (withServer) where
 
 import DevSite
-import Model
 import Handlers
 
-import Yesod
 import Yesod.Helpers.Auth
 import Yesod.Comments.Storage
 import Control.Monad (forM)
 import Database.Persist.GenericSql
 import qualified Settings
 
--- | Instantiate the Yesod route types
 mkYesodDispatch "DevSite" resourcesDevSite
 
--- | Create a Wai App of the site
 withServer :: (Application -> IO a) -> IO a
 withServer f = Settings.withConnectionPool $ \p -> do
-    runSqlPool (runMigration migratePosts) p
+    runSqlPool (runMigration migratePosts)    p
     runSqlPool (runMigration migrateComments) p
     f =<< toWaiApp (DevSite p loadDocuments)
 

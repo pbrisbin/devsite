@@ -6,15 +6,13 @@ module Handlers.Tags
     ) where
 
 import DevSite
-import Model
 import Helpers.Documents
-import Yesod
 import Yesod.Helpers.RssFeed (rssLink)
 import Data.List             (sortBy)
 import Data.Ord              (comparing)
 
+import Data.Text (Text)
 import qualified Data.Text as T
-import qualified Settings
 
 -- | All tags
 getTagsR :: Handler RepHtml
@@ -22,8 +20,8 @@ getTagsR = do
     docs <- siteDocs =<< getYesod
     let collections = sortByLength $ collectByTagName docs
     defaultLayout $ do
-        Settings.setTitle "All Tags"
-        Settings.addKeywords $ map name collections
+        setTitle "All Tags"
+        addKeywords $ map name collections
         [hamlet|
             <header>
                 <h1>All Tags
@@ -63,10 +61,10 @@ addCollection collection = do
 
     where
         -- tag name -> Tag Name
-        proper :: T.Text -> T.Text
+        proper :: Text -> Text
         proper = T.unwords . map capitalize . T.words
 
-        capitalize :: T.Text -> T.Text
+        capitalize :: Text -> Text
         capitalize w = let (x,xs) = T.splitAt 1 w
             in (T.toUpper x) `T.append` xs
 
@@ -74,15 +72,15 @@ addCollection collection = do
         helper n = show n ++ " posts"
 
 -- | A tag
-getTagR :: T.Text -> Handler RepHtml
+getTagR :: Text -> Handler RepHtml
 getTagR tag' = do
     let tag = T.toLower tag'
     docs' <- siteDocs =<< getYesod
     case filter (hasTag tag) docs' of
         []   -> notFound
         docs -> defaultLayout $ do
-            Settings.setTitle $ "Tag: " `T.append` tag
-            Settings.addKeywords [tag]
+            setTitle $ "Tag: " `T.append` tag
+            addKeywords [tag]
             rssLink (FeedTagR tag) ("rss feed for tag " ++ T.unpack tag)
             [hamlet|
                 <header>

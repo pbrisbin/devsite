@@ -27,7 +27,7 @@ import qualified Data.Text as T
 import Yesod (MonadControlIO, hamlet, addWidget, addCassius, addJulius, addLucius)
 import qualified Yesod as Y
 
-import Data.Monoid (mempty, mappend)
+import Data.Monoid (mempty)
 import System.Directory (doesFileExist)
 
 setTitle :: Y.Yesod m => T.Text -> Y.GWidget s m ()
@@ -109,5 +109,5 @@ connStr = "user=pbrisbin password=password host=localhost port=5432 dbname=pbris
 connCount :: Int
 connCount = 100
 
-withConnectionPool :: Y.MonadControlIO m => (ConnectionPool -> m a) -> m a
+withConnectionPool :: MonadControlIO m => (ConnectionPool -> m a) -> m a
 withConnectionPool = withPostgresqlPool connStr connCount

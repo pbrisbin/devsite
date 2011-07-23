@@ -3,18 +3,15 @@
 module Handlers.About (getAboutR) where
 
 import DevSite
-import Yesod
-import qualified Settings
 
--- | About page
 getAboutR :: Handler RepHtml
 getAboutR = defaultLayout $ do
-    Settings.setTitle "About"
-    Settings.addKeywords ["about"]
+    setTitle "About"
+    addKeywords ["about"]
 
-    let v1 = Settings.staticRoot ++ "/images/valid-html5.png"
-    let v2 = Settings.staticRoot ++ "/images/valid-css.png"
-    let v3 = Settings.staticRoot ++ "/images/valid-rss.png"
+    let v1 = staticRoot ++ "/images/valid-html5.png"
+    let v2 = staticRoot ++ "/images/valid-css.png"
+    let v3 = staticRoot ++ "/images/valid-rss.png"
 
     [hamlet|
         <header>

@@ -3,19 +3,17 @@
 module Handlers.Root (getRootR) where
 
 import DevSite
-import Yesod
 import Yesod.Goodies.Links
 import Helpers.Documents
-import qualified Settings
-import qualified Data.Text as T
+import Data.Text (Text)
 
 -- | Home page
 getRootR :: Handler RepHtml
 getRootR = do
     docs <- siteDocs =<< getYesod
     defaultLayout $ do
-        Settings.setTitle "Home"
-        Settings.addKeywords ["home", "haskell", "bash", "mutt", "xmonad", "arch linux"]
+        setTitle "Home"
+        addKeywords ["home", "haskell", "bash", "mutt", "xmonad", "arch linux"]
         [hamlet|
             <header>
                 <h1>
@@ -57,8 +55,8 @@ getRootR = do
             
             where
                 -- helps OverloadedStrings determine the type
-                link'' :: T.Text -> GWidget s DevSite ()
+                link'' :: Text -> GWidget s DevSite ()
                 link'' = link
 
-                code :: T.Text -> GWidget s DevSite ()
+                code :: Text -> GWidget s DevSite ()
                 code t = [hamlet|<code>#{t}|]

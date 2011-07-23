@@ -7,18 +7,15 @@ module Handlers.Profile
     ) where
 
 import DevSite
-import Model
-import Yesod
 import Yesod.Helpers.Auth
 import Yesod.Goodies.Gravatar
 import Control.Applicative ((<$>), (<*>))
+import Data.Text           (Text)
 import Data.Maybe          (fromMaybe)
-import qualified Data.Text as T
-import qualified Settings
 
 data EditForm = EditForm
-    { eUsername :: Maybe T.Text
-    , eEmail    :: Maybe T.Text
+    { eUsername :: Maybe Text
+    , eEmail    :: Maybe Text
     }
 
 getProfileR :: Handler RepHtml
@@ -30,7 +27,7 @@ getProfileR = do
     let pic      = gravatarImg email gravatarOpts
 
     defaultLayout $ do
-        Settings.setTitle "View profile"
+        setTitle "View profile"
         [hamlet|
             <h1>You
             <article .fullpage .profile>
@@ -59,7 +56,7 @@ getProfileR = do
 
 getEditProfileR :: Handler RepHtml 
 getEditProfileR = defaultLayout $ do
-    Settings.setTitle "Edit profile"
+    setTitle "Edit profile"
     [hamlet|
         <h1>Edit
         <article .fullpage .profile
@@ -100,7 +97,7 @@ editForm u = do
             |])
 
     where
-        fieldRow :: FieldInfo sub y -> T.Text -> GWidget sub y ()
+        fieldRow :: FieldInfo sub y -> Text -> GWidget sub y ()
         fieldRow fi txt = [hamlet|
             <tr ##{fiIdent fi}>
                 <th>

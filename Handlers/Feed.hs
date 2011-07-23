@@ -5,8 +5,6 @@ module Handlers.Feed
     ) where
 
 import DevSite
-import Model
-import Yesod
 import Yesod.Helpers.RssFeed
 import Yesod.Goodies.Markdown
 

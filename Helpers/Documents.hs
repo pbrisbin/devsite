@@ -10,17 +10,15 @@ module Helpers.Documents
     ) where
 
 import DevSite
-import Model
 
-import Yesod
 import Yesod.Goodies.Links
 import Yesod.Goodies.Markdown
 import Yesod.Goodies.Time
 import Yesod.Comments
+
 import Control.Monad    (unless)
+import Data.Text        (Text)
 import System.Directory (doesFileExist)
-import qualified Data.Text as T
-import qualified Settings
 
 shortDocument :: Document -> Widget ()
 shortDocument d@(Document p _) = [hamlet|
@@ -32,7 +30,7 @@ shortDocument d@(Document p _) = [hamlet|
 
 -- todo: recombine these two?
 
-lookupDocument :: T.Text -> [Document] -> Maybe Document
+lookupDocument :: Text -> [Document] -> Maybe Document
 lookupDocument slug docs =
     case filter ((== slug) . postSlug . post) docs of
         []    -> Nothing
@@ -56,7 +54,7 @@ documentNavigation _ _ = (Nothing, Nothing)
 
 longDocument :: Document -> (Maybe Document, Maybe Document) -> Widget ()
 longDocument d@(Document p ts) (mprev, mnext) = do
-    let file = Settings.pandocFile $ postSlug p
+    let file = pandocFile $ postSlug p
 
     documentContent <- lift . liftIO $ do
         exists <- doesFileExist file
@@ -64,8 +62,8 @@ longDocument d@(Document p ts) (mprev, mnext) = do
             then markdownFromFile file
             else return $ postDescr p
 
-    Settings.setTitle $ postTitle p
-    Settings.addKeywords $ postTitle p : map tagName ts
+    setTitle $ postTitle p
+    addKeywords $ postTitle p : map tagName ts
 
     [hamlet|
         <header>
@@ -115,13 +113,13 @@ documentInfo (Document p ts) = do
         |]
 
 -- | if the post is not found in the db
-unpublishedDocument :: T.Text -> Widget ()
+unpublishedDocument :: Text -> Widget ()
 unpublishedDocument slug = do
-    let file = Settings.pandocFile $ slug
+    let file = pandocFile $ slug
     exists <- lift . liftIO $ doesFileExist file
     unless exists (lift notFound)
     documentContent <- lift . liftIO $ markdownFromFile file
-    Settings.setTitle slug
+    setTitle slug
     [hamlet|
         <header>
             <h1>unpublished: #{slug}

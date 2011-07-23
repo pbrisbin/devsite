@@ -13,8 +13,6 @@ module Handlers.Posts
     ) where
 
 import DevSite
-import Model
-import Yesod
 
 import Yesod.Helpers.Auth
 import Yesod.Goodies.Markdown
@@ -24,14 +22,14 @@ import Helpers.Documents
 import Control.Applicative ((<$>), (<*>))
 import Data.Time           (getCurrentTime)
 
-import qualified Settings
+import Data.Text (Text)
 import qualified Data.Text as T
 
 -- | Used by the new post form
 data PostForm = PostForm
-    { formSlug  :: T.Text
-    , formTitle :: T.Text
-    , formTags  :: T.Text
+    { formSlug  :: Text
+    , formTitle :: Text
+    , formTags  :: Text
     , formDescr :: Markdown
     }
 
@@ -40,8 +38,8 @@ getPostsR :: Handler RepHtml
 getPostsR = do
     docs <- siteDocs =<< getYesod
     defaultLayout $ do
-        Settings.setTitle "All Posts"
-        Settings.addKeywords ["all posts"]
+        setTitle "All Posts"
+        addKeywords ["all posts"]
         [hamlet|
             <header>
                 <h1>All Posts
@@ -51,14 +49,14 @@ getPostsR = do
             |]
 
 -- | A post
-getPostR :: T.Text -> Handler RepHtml
+getPostR :: Text -> Handler RepHtml
 getPostR slug = do
     docs <- siteDocs =<< getYesod
     case lookupDocument slug docs of
         Just doc -> defaultLayout $ longDocument doc (documentNavigation doc docs)
         Nothing  -> defaultLayout $ unpublishedDocument slug
 
-postPostR :: T.Text -> Handler RepHtml
+postPostR :: Text -> Handler RepHtml
 postPostR = getPostR
 
 -- | Require admin for post management
@@ -75,7 +73,7 @@ getManagePostsR = do
     requireAdmin
     docs <- siteDocs =<< getYesod
     defaultLayout $ do
-        Settings.setTitle "Manage posts"
+        setTitle "Manage posts"
         [hamlet|
             <header>
                 <h1>Manage Posts
@@ -88,7 +86,7 @@ postManagePostsR :: Handler RepHtml
 postManagePostsR = getManagePostsR
 
 -- | Edit post
-getEditPostR :: T.Text -> Handler RepHtml
+getEditPostR :: Text -> Handler RepHtml
 getEditPostR slug = do
     requireAdmin
     docs <- siteDocs =<< getYesod
@@ -96,7 +94,7 @@ getEditPostR slug = do
     let mdoc = safeHead $ filter ((==) slug . postSlug . post) docs
 
     defaultLayout $ do
-        Settings.setTitle "Edit post"
+        setTitle "Edit post"
         [hamlet|
             <header>
                 <h1>Edit Post
@@ -110,11 +108,11 @@ getEditPostR slug = do
         safeHead []    = Nothing
         safeHead (x:_) = Just x
 
-postEditPostR :: T.Text -> Handler RepHtml
+postEditPostR :: Text -> Handler RepHtml
 postEditPostR = getEditPostR
 
 -- | Delete post
-getDelPostR :: T.Text -> Handler RepHtml
+getDelPostR :: Text -> Handler RepHtml
 getDelPostR slug = do
     requireAdmin
     p <- runDB $ getBy $ UniquePost slug
@@ -162,13 +160,13 @@ updatePost key new = runDB $ update key
 removeTags :: PostId -> Handler ()
 removeTags key = runDB $ deleteWhere [TagPostEq key]
 
-createTags :: PostId -> [T.Text] -> Handler ()
+createTags :: PostId -> [Text] -> Handler ()
 createTags key = mapM_ (go key)
     where
-        go :: PostId -> T.Text -> Handler ()
+        go :: PostId -> Text -> Handler ()
         go key' tag = runDB (insertBy $ Tag key' tag) >>= \_ -> return ()
 
-updateTags :: PostId -> [T.Text] -> Handler ()
+updateTags :: PostId -> [Text] -> Handler ()
 updateTags key ts = removeTags key >> createTags key ts
 
 runPostForm :: Maybe Document -> Widget ()
@@ -220,7 +218,7 @@ postForm mdoc = do
 
             |]
 
-        formatTags :: [Tag] -> T.Text
+        formatTags :: [Tag] -> Text
         formatTags = T.intercalate ", " . map tagName
 
 processFormResult :: PostForm -> Handler ()
@@ -252,5 +250,5 @@ postFromForm pf = do
         , postDate  = now
         }
 
-parseTags :: T.Text -> [T.Text]
+parseTags :: Text -> [Text]
 parseTags = filter (not . T.null) . map (T.toLower . T.strip) . T.splitOn ","

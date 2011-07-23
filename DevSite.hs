@@ -15,24 +15,33 @@ module DevSite
     , module Model
     ) where
 
-import Yesod
 import Model
+import Yesod hiding (setTitle)
 import Yesod.Form.Core (GFormMonad)
 import Yesod.Goodies.Links
 import Yesod.Helpers.RssFeed
 import Yesod.Helpers.Auth
 import Yesod.Helpers.Auth.OpenId
-import Yesod.Helpers.Auth.Facebook
+--import Yesod.Helpers.Auth.Facebook
 import Yesod.Comments hiding (userName, userEmail)
 import Yesod.Comments.Storage
 import Data.Maybe (fromMaybe)
 import Database.Persist.GenericSql
 import qualified Data.Text as T
 
-import Settings (hamletFile, cassiusFile, luciusFile, juliusFile, widgetFile)
+import Settings ( setTitle
+                , addKeywords
+                , staticRoot 
+                , hamletFile
+                , cassiusFile
+                , luciusFile
+                , juliusFile
+                , widgetFile
+                , pandocFile
+                )
+
 import qualified Settings
 
--- | The main site type
 data DevSite = DevSite
     { connPool :: ConnectionPool
     , siteDocs :: Handler [Document]
@@ -49,7 +58,7 @@ instance Yesod DevSite where
     authRoute _ = Just $ AuthR LoginR
 
     defaultLayout widget = do
-        let cssLink = Settings.staticRoot ++ "/css/style.css"
+        let cssLink = staticRoot ++ "/css/style.css"
 
         sb <- widgetToPageContent sideBar
         pc <- widgetToPageContent $ do
@@ -98,7 +107,7 @@ instance Yesod DevSite where
                 mmesg    <- lift getMessage
                 (t, h)   <- lift breadcrumbs
 
-                let feedIcon = Settings.staticRoot ++ "/images/feed.png"
+                let feedIcon = staticRoot ++ "/images/feed.png"
 
                 [hamlet|
                     <aside>
@@ -218,9 +227,9 @@ instance YesodAuth DevSite where
     authPlugins = [ authOpenId ]
 
     loginHandler = do
-        let googleImg = Settings.staticRoot ++ "/images/google_login.png"
-        let yahooImg  = Settings.staticRoot ++ "/images/yahoo_login.png"
-        let openIdImg = Settings.staticRoot ++ "/images/openid_login.png"
+        let googleImg = staticRoot ++ "/images/google_login.png"
+        let yahooImg  = staticRoot ++ "/images/yahoo_login.png"
+        let openIdImg = staticRoot ++ "/images/openid_login.png"
 
         defaultLayout [hamlet|
             <h1>Log in
