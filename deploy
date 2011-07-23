@@ -3,7 +3,7 @@
 srv="${1:-/srv/http/}"
 
 app='app.cgi'
-ghc_opts=( -DPROD -threaded --make -o "$app" )
+ghc_opts=( -iconfig -DPROD -threaded --make -o "$app" )
 
 sudo true
 
