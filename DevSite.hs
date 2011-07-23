@@ -28,6 +28,8 @@ import Yesod.Comments.Storage
 import Data.Maybe (fromMaybe)
 import Database.Persist.GenericSql
 import qualified Data.Text as T
+
+import Settings (hamletFile, cassiusFile, luciusFile, juliusFile, widgetFile)
 import qualified Settings
 
 -- | The main site type
