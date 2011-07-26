@@ -1,5 +1,4 @@
-tags
-TAGS
+dist
 *.s3db
 *.aes
 *.o
