@@ -1,0 +1,22 @@
+<h1>Log in
+
+<article .fullpage .login>
+
+  <p #open-id-help>
+    Learn more about using 
+    <a href="http://openid.net">Open Id
+    \ authentication.
+
+  <ul>
+    <li #google>
+      <form method="get" action="@{AuthR forwardUrl}">
+        <input type="hidden" name="openid_identifier" value="https://www.google.com/accounts/o8/id">
+        <input type="image" src="#{googleImg}" title="Login via Google">
+    <li #yahoo>
+      <form method="get" action="@{AuthR forwardUrl}">
+        <input type="hidden" name="openid_identifier" value="http://me.yahoo.com">
+        <input type="image" src="#{yahooImg}" title="Login via Yahoo!">
+    <li#openid>
+      <form method="get" action="@{AuthR forwardUrl}">
+        <input type="image" src="#{openIdImg}" title="Login via OpenID">
+        <input id="openid_identifier" type="text" name="openid_identifier" value="http://">

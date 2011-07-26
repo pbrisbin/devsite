@@ -22,7 +22,6 @@ import Yesod.Goodies.Links
 import Yesod.Helpers.RssFeed
 import Yesod.Helpers.Auth
 import Yesod.Helpers.Auth.OpenId
---import Yesod.Helpers.Auth.Facebook
 import Yesod.Comments hiding (userName, userEmail)
 import Yesod.Comments.Storage
 import Data.Maybe (fromMaybe)
@@ -64,42 +63,7 @@ instance Yesod DevSite where
         pc <- widgetToPageContent $ do
             rssLink FeedR "rss feed"
             widget
-        hamletToRepHtml [hamlet|
-            \<!DOCTYPE html>
-            <html lang="en">
-                <head>
-                    <meta charset="utf-8">
-                    <title>#{pageTitle pc}
-                    <meta name="description" content="pbrisbin dot com">
-                    <meta name="author" content="Patrick Brisbin">
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    ^{pageHead pc}
-                    <link rel="stylesheet" href="#{cssLink}">
-                <body>
-                    ^{pageBody sb}
-                    ^{pageBody pc}
-
-                    <footer>
-                        <p>
-                            <small>
-                                <a href="@{RootR}">pbrisbin
-                                \ dot com 2010 
-                                <span .float_right>
-                                    powered by 
-                                    <a href="http://docs.yesodweb.com/">yesod
-                                    \ - #{yesodVersion}
-
-                    <script>
-                        var _gaq = _gaq || [];
-                        _gaq.push(['_setAccount', 'UA-22304237-1']);
-                        _gaq.push(['_trackPageview']);
-
-                        (function() {
-                            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-                            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-                            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-                        })();
-            |]
+        hamletToRepHtml $(Settings.hamletFile "default-layout")
 
         where
             sideBar :: GWidget s DevSite ()
@@ -109,64 +73,35 @@ instance Yesod DevSite where
 
                 let feedIcon = staticRoot ++ "/images/feed.png"
 
-                [hamlet|
-                    <aside>
-                        $maybe mesg <- mmesg
-                            <div .message>
-                                <p>#{mesg}
+                addWidget $(widgetFile "sidebar")
 
-                        <div .breadcrumbs>
-                            <p>
-                                $forall node <- h
-                                    <a href="@{fst node}">#{snd node} 
-                                    \ / 
-                                \ #{t}
-                        <nav>
-                            <ul>
-                                <li>^{link RootR}
-                                <li>^{link AboutR}
-                                <li>^{link PostsR}
-                                <li>^{link TagsR}
+            authLinks :: GWidget s DevSite ()
+            authLinks = do
+                muid <- lift maybeAuth
+                case muid of
+                    Just (_, u) -> do
+                        let uname = fromMaybe "anonymous" $ userName u
 
-                                <li .extra>^{link' github}
-                                <li .extra>^{link' aurPkgs}
-                                <li .extra>^{link' xmonadDocs}
-                                <li .extra>^{link' haskellDocs}
-                                <li .extra>
-                                    <img src="#{feedIcon}" .icon alt="rss icon">
-                                    \ ^{link FeedR}
+                        if userAdmin u
+                            then [hamlet|
+                                <li>
+                                    <a href="@{ProfileR}" title="manage your profile">#{uname}
+                                <li .extra>^{link ManagePostsR}
+                                <li>^{link $ AuthR LogoutR}
+                                |]
 
-                                ^{authLinks}
-                    |]
+                            else [hamlet|
+                                <li>
+                                    <a href="@{ProfileR}" title="manage your profile">#{uname}
+                                <li>^{link $ AuthR LogoutR}
+                                |]
 
-                    where
-                        authLinks :: GWidget s DevSite ()
-                        authLinks = do
-                            muid <- lift maybeAuth
-                            case muid of
-                                Just (_, u) -> do
-                                    let uname = fromMaybe "anonymous" $ userName u
+                    _ -> [hamlet|<li>^{link $ AuthR LoginR}|]
 
-                                    if userAdmin u
-                                        then [hamlet|
-                                            <li>
-                                                <a href="@{ProfileR}" title="manage your profile">#{uname}
-                                            <li .extra>^{link ManagePostsR}
-                                            <li>^{link $ AuthR LogoutR}
-                                            |]
-
-                                        else [hamlet|
-                                            <li>
-                                                <a href="@{ProfileR}" title="manage your profile">#{uname}
-                                            <li>^{link $ AuthR LogoutR}
-                                            |]
-
-                                _ -> [hamlet|<li>^{link $ AuthR LoginR}|]
-
-                        github      = Link (External "https://github.com/pbrisbin") "my projects on github" "github"
-                        aurPkgs     = Link (External "https://aur.archlinux.org/packages.php?K=brisbin33&SeB=m") "my aur packages" "aur packages"
-                        xmonadDocs  = Link (External "/xmonad/docs") "xmonad haddocks" "xmonad docs"
-                        haskellDocs = Link (External "/haskell/docs/html") "haskell haddocks" "haskell docs"
+            github      = Link (External "https://github.com/pbrisbin") "my projects on github" "github"
+            aurPkgs     = Link (External "https://aur.archlinux.org/packages.php?K=brisbin33&SeB=m") "my aur packages" "aur packages"
+            xmonadDocs  = Link (External "/xmonad/docs") "xmonad haddocks" "xmonad docs"
+            haskellDocs = Link (External "/haskell/docs/html") "haskell haddocks" "haskell docs"
 
 instance YesodBreadcrumbs DevSite where
     breadcrumb RootR        = return ("home"       , Nothing    ) 
@@ -231,27 +166,9 @@ instance YesodAuth DevSite where
         let yahooImg  = staticRoot ++ "/images/yahoo_login.png"
         let openIdImg = staticRoot ++ "/images/openid_login.png"
 
-        defaultLayout [hamlet|
-            <h1>Log in
-            <article .fullpage .login>
-                <p #open-id-help>
-                    Learn more about using 
-                    <a href="http://openid.net">Open Id
-                    \ authentication.
-                <ul>
-                    <li #google>
-                        <form method="get" action="@{AuthR forwardUrl}">
-                            <input type="hidden" name="openid_identifier" value="https://www.google.com/accounts/o8/id">
-                            <input type="image" src="#{googleImg}" title="Login via Google">
-                    <li #yahoo>
-                        <form method="get" action="@{AuthR forwardUrl}">
-                            <input type="hidden" name="openid_identifier" value="http://me.yahoo.com">
-                            <input type="image" src="#{yahooImg}" title="Login via Yahoo!">
-                    <li#openid>
-                        <form method="get" action="@{AuthR forwardUrl}">
-                            <input type="image" src="#{openIdImg}" title="Login via OpenID">
-                            <input id="openid_identifier" type="text" name="openid_identifier" value="http://">
-            |]
+        defaultLayout $ do
+            setTitle "Login"
+            addWidget $(widgetFile "login")
 
 instance YesodComments DevSite where
     getComment       = getCommentPersist

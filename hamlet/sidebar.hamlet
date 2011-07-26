@@ -1,0 +1,28 @@
+<aside>
+  $maybe mesg <- mmesg
+    <div .message>
+        <p>#{mesg}
+
+  <div .breadcrumbs>
+    <p>
+      $forall node <- h
+        <a href="@{fst node}">#{snd node} 
+        \ / 
+      \ #{t}
+
+  <nav>
+    <ul>
+      <li>^{link RootR}
+      <li>^{link AboutR}
+      <li>^{link PostsR}
+      <li>^{link TagsR}
+
+      <li .extra>^{link' github}
+      <li .extra>^{link' aurPkgs}
+      <li .extra>^{link' xmonadDocs}
+      <li .extra>^{link' haskellDocs}
+      <li .extra>
+        <img src="#{feedIcon}" .icon alt="rss icon">
+        \ ^{link FeedR}
+
+      ^{authLinks}
