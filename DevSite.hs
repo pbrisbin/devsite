@@ -135,7 +135,7 @@ instance Yesod DevSite where
                                 <li .extra>^{link' xmonadDocs}
                                 <li .extra>^{link' haskellDocs}
                                 <li .extra>
-                                    <img src="#{feedIcon}" .icon>
+                                    <img src="#{feedIcon}" .icon alt="rss icon">
                                     \ ^{link FeedR}
 
                                 ^{authLinks}
