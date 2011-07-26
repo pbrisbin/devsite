@@ -166,7 +166,7 @@ instance Yesod DevSite where
                                 _ -> [hamlet|<li>^{link $ AuthR LoginR}|]
 
                         github      = Link (External "https://github.com/pbrisbin") "my projects on github" "github"
-                        aurPkgs     = Link (External "http://aur.archlinux.org/packages.php?K=brisbin33&amp;SeB=m") "my aur packages" "aur packages"
+                        aurPkgs     = Link (External "https://aur.archlinux.org/packages.php?K=brisbin33&SeB=m") "my aur packages" "aur packages"
                         xmonadDocs  = Link (External "/xmonad/docs") "xmonad haddocks" "xmonad docs"
                         haskellDocs = Link (External "/haskell/docs/html") "haskell haddocks" "haskell docs"
 
