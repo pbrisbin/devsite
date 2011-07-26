@@ -1,4 +1,4 @@
-import Controller
+import Controller (withServer)
 import Network.Wai.Handler.FastCGI (run)
 
 main :: IO ()

@@ -1,0 +1,4 @@
+#!/bin/bash -e
+
+touch config/Settings.hs
+runhaskell -iconfig config/simple-server.hs

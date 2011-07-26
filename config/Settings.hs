@@ -44,14 +44,14 @@ pandocFile :: T.Text -> FilePath
 pandocFile x = T.unpack $ T.concat ["/srv/http/pandoc/", x, ".pdc"]
 
 approot :: T.Text
-#ifdef PROD
+#ifdef PRODUCTION
 approot = "http://pbrisbin.com"
 #else
 approot = "http://localhost:3000"
 #endif
 
 staticRoot :: String
-#ifdef PROD
+#ifdef PRODUCTION
 staticRoot = "/static"
 #else
 staticRoot = "http://pbrisbin.com/static"
@@ -65,7 +65,7 @@ hamletFile = H.hamletFile . globFile "hamlet"
 
 cassiusFile :: FilePath -> Q Exp
 cassiusFile = 
-#ifdef PROD
+#ifdef PRODUCTION
   H.cassiusFile . globFile "cassius"
 #else
   H.cassiusFileDebug . globFile "cassius"
@@ -73,7 +73,7 @@ cassiusFile =
 
 luciusFile :: FilePath -> Q Exp
 luciusFile = 
-#ifdef PROD
+#ifdef PRODUCTION
   H.luciusFile . globFile "lucius"
 #else
   H.luciusFileDebug . globFile "lucius"
@@ -81,7 +81,7 @@ luciusFile =
 
 juliusFile :: FilePath -> Q Exp
 juliusFile =
-#ifdef PROD
+#ifdef PRODUCTION
   H.juliusFile . globFile "julius"
 #else
   H.juliusFileDebug . globFile "julius"
@@ -100,7 +100,7 @@ widgetFile x = do
         if e then f x else [|mempty|]
 
 connStr :: T.Text
-#ifdef PROD
+#ifdef PRODUCTION
 connStr = "user=pbrisbin password=password host=localhost port=5432 dbname=pbrisbin"
 #else
 connStr = "user=pbrisbin password=password host=localhost port=5432 dbname=pbrisbin_dev"
