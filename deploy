@@ -1,7 +1,6 @@
 #!/bin/bash -e
 
-app='app.cgi'
-srv="${1:-/srv/http/}"
+app="${1:-/srv/http/app.cgi}"
 
 sudo true
 
@@ -9,5 +8,5 @@ touch config/Settings.hs
 cabal install --bindir=./
 
 sudo /etc/rc.d/lighttpd stop
-sudo mv "$app" "$srv"
+sudo mv devsite "$app"
 sudo /etc/rc.d/lighttpd start
