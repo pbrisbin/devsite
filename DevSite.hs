@@ -8,7 +8,6 @@ module DevSite
     , resourcesDevSite
     , Handler
     , Widget
-    , FormMonad
     , module Yesod
     , module Settings
     , module Model
@@ -16,7 +15,6 @@ module DevSite
 
 import Model
 import Yesod hiding (setTitle)
-import Yesod.Form.Core (GFormMonad)
 import Yesod.Goodies.Links
 import Yesod.Helpers.RssFeed
 import Yesod.Helpers.Auth
@@ -45,9 +43,8 @@ data DevSite = DevSite
     , siteDocs :: Handler [Document]
     }
 
-type Handler     = GHandler DevSite DevSite
-type Widget      = GWidget  DevSite DevSite
-type FormMonad a = GFormMonad DevSite DevSite a
+type Handler = GHandler DevSite DevSite
+type Widget  = GWidget  DevSite DevSite
 
 mkYesodData "DevSite" $(parseRoutesFile "config/routes")
 

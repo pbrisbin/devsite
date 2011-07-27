@@ -9,11 +9,14 @@ module Helpers.Forms
 import DevSite
 import Yesod.Helpers.Auth
 import Yesod.Goodies.Markdown
+import Yesod.Form.Core     (GFormMonad)
 import Control.Applicative ((<$>), (<*>))
 import Data.Time           (getCurrentTime)
 
 import Data.Text (Text)
 import qualified Data.Text as T
+
+type FormMonad a = GFormMonad DevSite DevSite a
 
 data ProfileEditForm = ProfileEditForm
     { eUsername :: Maybe Text
@@ -31,7 +34,7 @@ data PostEditForm = PostEditForm
 runProfileFormGet :: Widget ()
 runProfileFormGet = do
     (_, u)               <- lift requireAuth
-    ((_, form), enctype) <- lift . runFormMonadPost $ editForm u
+    ((_, form), enctype) <- lift . runFormMonadPost $ profileEditForm u
 
     [hamlet|
         <h1>Edit
@@ -46,7 +49,7 @@ runProfileFormGet = do
 runProfileFormPost :: Handler ()
 runProfileFormPost = do
     (uid, u)          <- requireAuth
-    ((res, _   ), _ ) <- runFormMonadPost $ editForm u
+    ((res, _   ), _ ) <- runFormMonadPost $ profileEditForm u
     case res of
         FormSuccess ef -> saveChanges uid ef
         _              -> return ()
@@ -62,8 +65,8 @@ runProfileFormPost = do
             tm <- getRouteToMaster
             redirect RedirectTemporary $ tm ProfileR
 
-editForm :: User -> FormMonad (FormResult ProfileEditForm, Widget())
-editForm u = do
+profileEditForm :: User -> FormMonad (FormResult ProfileEditForm, Widget())
+profileEditForm u = do
     (fUsername, fiUsername) <- maybeStringField "User name:"     $ Just $ userName u
     (fEmail   , fiEmail   ) <- maybeEmailField  "Email address:" $ Just $ userEmail u
 
@@ -107,6 +110,58 @@ runPostForm mdoc = do
                 ^{form}
         |]
 
+    where
+        processFormResult :: PostEditForm -> Handler ()
+        processFormResult pf = do
+            p      <- postFromForm pf
+            result <- runDB $ insertBy p
+
+            case result of
+                Right k -> do
+                    -- post was inserted, add the tags
+                    createTags k (parseTags $ formTags pf)
+                    setMessage "post created!"
+
+                Left (k, _) -> do
+                    -- post exists, update
+                    updatePost k p
+                    updateTags k (parseTags $ formTags pf)
+                    setMessage "post updated!"
+
+            redirect RedirectTemporary ManagePostsR
+
+        postFromForm :: PostEditForm -> Handler Post
+        postFromForm pf = do
+            now <- liftIO getCurrentTime
+            return Post
+                { postSlug  = formSlug  pf
+                , postTitle = formTitle pf
+                , postDescr = formDescr pf
+                , postDate  = now
+                }
+
+        updatePost :: PostId -> Post -> Handler ()
+        updatePost key new = runDB $ update key 
+            [ PostSlug  $ postSlug  new
+            , PostTitle $ postTitle new
+            , PostDescr $ postDescr new
+            ]
+
+        removeTags :: PostId -> Handler ()
+        removeTags key = runDB $ deleteWhere [TagPostEq key]
+
+        createTags :: PostId -> [Text] -> Handler ()
+        createTags key = mapM_ (go key)
+            where
+                go :: PostId -> Text -> Handler ()
+                go key' tag = runDB (insertBy $ Tag key' tag) >>= \_ -> return ()
+
+        updateTags :: PostId -> [Text] -> Handler ()
+        updateTags key ts = removeTags key >> createTags key ts
+
+        parseTags :: Text -> [Text]
+        parseTags = filter (not . T.null) . map (T.toLower . T.strip) . T.splitOn ","
+
 -- | Display the new post form inself. If the first argument is Just,
 --   then use that to prepopulate the form
 postForm :: Maybe Document -> FormMonad (FormResult PostEditForm, Widget ())
@@ -144,54 +199,3 @@ postForm mdoc = do
 
         formatTags :: [Tag] -> Text
         formatTags = T.intercalate ", " . map tagName
-
-processFormResult :: PostEditForm -> Handler ()
-processFormResult pf = do
-    p      <- postFromForm pf
-    result <- runDB $ insertBy p
-
-    case result of
-        Right k -> do
-            -- post was inserted, add the tags
-            createTags k (parseTags $ formTags pf)
-            setMessage "post created!"
-
-        Left (k, _) -> do
-            -- post exists, update
-            updatePost k p
-            updateTags k (parseTags $ formTags pf)
-            setMessage "post updated!"
-
-    redirect RedirectTemporary ManagePostsR
-
-postFromForm :: PostEditForm -> Handler Post
-postFromForm pf = do
-    now <- liftIO getCurrentTime
-    return Post
-        { postSlug  = formSlug  pf
-        , postTitle = formTitle pf
-        , postDescr = formDescr pf
-        , postDate  = now
-        }
-
-updatePost :: PostId -> Post -> Handler ()
-updatePost key new = runDB $ update key 
-    [ PostSlug  $ postSlug  new
-    , PostTitle $ postTitle new
-    , PostDescr $ postDescr new
-    ]
-
-removeTags :: PostId -> Handler ()
-removeTags key = runDB $ deleteWhere [TagPostEq key]
-
-createTags :: PostId -> [Text] -> Handler ()
-createTags key = mapM_ (go key)
-    where
-        go :: PostId -> Text -> Handler ()
-        go key' tag = runDB (insertBy $ Tag key' tag) >>= \_ -> return ()
-
-updateTags :: PostId -> [Text] -> Handler ()
-updateTags key ts = removeTags key >> createTags key ts
-
-parseTags :: Text -> [Text]
-parseTags = filter (not . T.null) . map (T.toLower . T.strip) . T.splitOn ","
