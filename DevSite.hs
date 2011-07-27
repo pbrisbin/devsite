@@ -56,21 +56,18 @@ instance Yesod DevSite where
     authRoute _ = Just $ AuthR LoginR
 
     defaultLayout widget = do
-        sb <- widgetToPageContent sideBar
+        muid   <- maybeAuth
+        mmesg  <- getMessage
+        (t, h) <- breadcrumbs
         pc <- widgetToPageContent $ do
             rssLink FeedR "rss feed"
+            addWidget $(widgetFile "sidebar")
             widget
         hamletToRepHtml $(Settings.hamletFile "default-layout")
 
         where
-            sideBar :: GWidget s DevSite ()
-            sideBar = do
-                muid   <- lift maybeAuth
-                mmesg  <- lift getMessage
-                (t, h) <- lift breadcrumbs
-
-                addWidget $(widgetFile "sidebar")
-
+            -- external links used in sidebar
+            github, aurPkgs, xmonadDocs, haskellDocs :: Link DevSite
             github      = Link (External "https://github.com/pbrisbin") "my projects on github" "github"
             aurPkgs     = Link (External "https://aur.archlinux.org/packages.php?K=brisbin33&SeB=m") "my aur packages" "aur packages"
             xmonadDocs  = Link (External "/xmonad/docs") "xmonad haddocks" "xmonad docs"

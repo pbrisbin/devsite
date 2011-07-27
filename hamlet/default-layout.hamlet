@@ -9,7 +9,6 @@
     ^{pageHead pc}
     <link rel="stylesheet" href="#{staticLink "css/style.css"}">
   <body>
-    ^{pageBody sb}
     ^{pageBody pc}
 
     <footer>
