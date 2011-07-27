@@ -29,7 +29,7 @@ import qualified Data.Text as T
 
 import Settings ( setTitle
                 , addKeywords
-                , staticRoot 
+                , staticLink
                 , hamletFile
                 , cassiusFile
                 , luciusFile
@@ -56,8 +56,6 @@ instance Yesod DevSite where
     authRoute _ = Just $ AuthR LoginR
 
     defaultLayout widget = do
-        let cssLink = staticRoot ++ "/css/style.css"
-
         sb <- widgetToPageContent sideBar
         pc <- widgetToPageContent $ do
             rssLink FeedR "rss feed"
@@ -70,8 +68,6 @@ instance Yesod DevSite where
                 muid   <- lift maybeAuth
                 mmesg  <- lift getMessage
                 (t, h) <- lift breadcrumbs
-
-                let feedIcon = staticRoot ++ "/images/feed.png"
 
                 addWidget $(widgetFile "sidebar")
 
@@ -135,14 +131,9 @@ instance YesodAuth DevSite where
 
     authPlugins = [ authOpenId ]
 
-    loginHandler = do
-        let googleImg = staticRoot ++ "/images/google_login.png"
-        let yahooImg  = staticRoot ++ "/images/yahoo_login.png"
-        let openIdImg = staticRoot ++ "/images/openid_login.png"
-
-        defaultLayout $ do
-            setTitle "Login"
-            addWidget $(widgetFile "login")
+    loginHandler = defaultLayout $ do
+        setTitle "Login"
+        addWidget $(widgetFile "login")
 
 instance YesodComments DevSite where
     getComment       = getCommentPersist

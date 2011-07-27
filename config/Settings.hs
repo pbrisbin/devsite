@@ -9,7 +9,7 @@ module Settings
     , luciusFile
     , widgetFile
     , approot
-    , staticRoot
+    , staticLink
     , setTitle
     , addKeywords
     , pandocFile
@@ -53,12 +53,12 @@ approot =
     "http://localhost:3000"
 #endif
 
-staticRoot :: String
-staticRoot =
+staticLink :: FilePath -> String
+staticLink x =
 #ifdef PRODUCTION
-    "/static"
+    "/static/" ++ x
 #else
-    "http://pbrisbin.com/static"
+    "http://pbrisbin.com/static/" ++ x
 #endif
 
 globFile :: String -> String -> FilePath

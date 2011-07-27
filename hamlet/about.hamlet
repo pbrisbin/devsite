@@ -102,8 +102,8 @@
     of some vendor-extensions) is valid CSS3. My RSS is valid level 2.0.
 
   <p .centered>
-    <img src=#{img1} alt="Valid HTML5" .validation>
+    <img src=#{staticLink "images/valid-html5.png"} alt="Valid HTML5" .validation>
     &nbsp;
-    <img src=#{img2} alt="Valid CSS" .validation>
+    <img src=#{staticLink "images/valid-css.png"} alt="Valid CSS" .validation>
     &nbsp;
-    <img src=#{img3} alt="Valid RSS" .validation>
+    <img src=#{staticLink "images/valid-rss.png"} alt="Valid RSS" .validation>

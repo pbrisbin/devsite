@@ -11,12 +11,12 @@
     <li #google>
       <form method="get" action="@{AuthR forwardUrl}">
         <input type="hidden" name="openid_identifier" value="https://www.google.com/accounts/o8/id">
-        <input type="image" src="#{googleImg}" title="Login via Google">
+        <input type="image" src="#{staticLink "images/google_login.png"}" title="Login via Google">
     <li #yahoo>
       <form method="get" action="@{AuthR forwardUrl}">
         <input type="hidden" name="openid_identifier" value="http://me.yahoo.com">
-        <input type="image" src="#{yahooImg}" title="Login via Yahoo!">
+        <input type="image" src="#{staticLink "images/yahoo_login.png"}" title="Login via Yahoo!">
     <li#openid>
       <form method="get" action="@{AuthR forwardUrl}">
-        <input type="image" src="#{openIdImg}" title="Login via OpenID">
+        <input type="image" src="#{staticLink "images/openid_login.png"}" title="Login via OpenID">
         <input id="openid_identifier" type="text" name="openid_identifier" value="http://">
