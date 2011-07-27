@@ -16,45 +16,49 @@ module Settings
     , withConnectionPool
     ) where
 
-import qualified Text.Hamlet as H
-import qualified Text.Cassius as H
-import qualified Text.Julius as H
-import qualified Text.Lucius as H
+import Data.Monoid (mempty)
+import System.Directory (doesFileExist)
 import Language.Haskell.TH.Syntax
 import Database.Persist.Postgresql
+
+import qualified Text.Hamlet  as H
+import qualified Text.Cassius as H
+import qualified Text.Julius  as H
+import qualified Text.Lucius  as H
+
+import Data.Text (Text)
 import qualified Data.Text as T
 
 import Yesod (MonadControlIO, hamlet, addWidget, addCassius, addJulius, addLucius)
 import qualified Yesod as Y
 
-import Data.Monoid (mempty)
-import System.Directory (doesFileExist)
-
-setTitle :: Y.Yesod m => T.Text -> Y.GWidget s m ()
+setTitle :: Y.Yesod m => Text -> Y.GWidget s m ()
 setTitle = Y.setTitle . Y.toHtml . T.append "pbrisbin - "
 
-addKeywords :: [T.Text] -> Y.GWidget s m ()
+addKeywords :: [Text] -> Y.GWidget s m ()
 addKeywords ws = Y.addHamletHead [hamlet|<meta name="keywords" content="#{format ws}">|]
     where 
         -- add some default keywords, and make the comma separated 
-        format :: [T.Text] -> T.Text
+        format :: [Text] -> Text
         format = T.append "patrick brisbin, pbrisbin, brisbin, " . T.intercalate ", "
 
-pandocFile :: T.Text -> FilePath
+pandocFile :: Text -> FilePath
 pandocFile x = T.unpack $ T.concat ["/srv/http/pandoc/", x, ".pdc"]
 
-approot :: T.Text
+approot :: Text
+approot =
 #ifdef PRODUCTION
-approot = "http://pbrisbin.com"
+    "http://pbrisbin.com"
 #else
-approot = "http://localhost:3000"
+    "http://localhost:3000"
 #endif
 
 staticRoot :: String
+staticRoot =
 #ifdef PRODUCTION
-staticRoot = "/static"
+    "/static"
 #else
-staticRoot = "http://pbrisbin.com/static"
+    "http://pbrisbin.com/static"
 #endif
 
 globFile :: String -> String -> FilePath
@@ -99,11 +103,12 @@ widgetFile x = do
         e <- qRunIO $ doesFileExist $ tofn x
         if e then f x else [|mempty|]
 
-connStr :: T.Text
+connStr :: Text
+connStr =
 #ifdef PRODUCTION
-connStr = "user=pbrisbin password=password host=localhost port=5432 dbname=pbrisbin"
+    "user=pbrisbin password=password host=localhost port=5432 dbname=pbrisbin"
 #else
-connStr = "user=pbrisbin password=password host=localhost port=5432 dbname=pbrisbin_dev"
+    "user=pbrisbin password=password host=localhost port=5432 dbname=pbrisbin_dev"
 #endif
 
 connCount :: Int
