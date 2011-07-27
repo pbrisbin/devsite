@@ -14,7 +14,6 @@ import Data.Ord              (comparing)
 import Data.Text (Text)
 import qualified Data.Text as T
 
--- | All tags
 getTagsR :: Handler RepHtml
 getTagsR = do
     docs <- siteDocs =<< getYesod
@@ -48,18 +47,17 @@ getTagsR = do
         sortByLength :: [Collection] -> [Collection]
         sortByLength = reverse . sortBy (comparing (length . documents))
 
-addCollection :: Collection -> Widget ()
-addCollection collection = do
-    let len = helper . length $ documents collection
-    [hamlet|
-        <h3>#{proper $ name collection} 
-            <span .post_count>- #{len}
-        <div .hidden>
-            $forall doc <- documents collection
-                ^{shortDocument doc}
-        |]
+        addCollection :: Collection -> Widget ()
+        addCollection collection = do
+            let len = helper . length $ documents collection
+            [hamlet|
+                <h3>#{proper $ name collection} 
+                    <span .post_count>- #{len}
+                <div .hidden>
+                    $forall doc <- documents collection
+                        ^{shortDocument doc}
+                |]
 
-    where
         -- tag name -> Tag Name
         proper :: Text -> Text
         proper = T.unwords . map capitalize . T.words
@@ -71,7 +69,6 @@ addCollection collection = do
         helper 1 = "1 post"
         helper n = show n ++ " posts"
 
--- | A tag
 getTagR :: Text -> Handler RepHtml
 getTagR tag' = do
     let tag = T.toLower tag'
