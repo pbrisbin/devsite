@@ -1,6 +1,5 @@
 {-# OPTIONS -fno-warn-orphans  #-}
 {-# LANGUAGE TypeFamilies      #-}
-{-# LANGUAGE QuasiQuotes       #-}
 {-# LANGUAGE TemplateHaskell   #-}
 {-# LANGUAGE OverloadedStrings #-}
 module DevSite
@@ -68,35 +67,13 @@ instance Yesod DevSite where
         where
             sideBar :: GWidget s DevSite ()
             sideBar = do
-                mmesg    <- lift getMessage
-                (t, h)   <- lift breadcrumbs
+                muid   <- lift maybeAuth
+                mmesg  <- lift getMessage
+                (t, h) <- lift breadcrumbs
 
                 let feedIcon = staticRoot ++ "/images/feed.png"
 
                 addWidget $(widgetFile "sidebar")
-
-            authLinks :: GWidget s DevSite ()
-            authLinks = do
-                muid <- lift maybeAuth
-                case muid of
-                    Just (_, u) -> do
-                        let uname = fromMaybe "anonymous" $ userName u
-
-                        if userAdmin u
-                            then [hamlet|
-                                <li>
-                                    <a href="@{ProfileR}" title="manage your profile">#{uname}
-                                <li .extra>^{link ManagePostsR}
-                                <li>^{link $ AuthR LogoutR}
-                                |]
-
-                            else [hamlet|
-                                <li>
-                                    <a href="@{ProfileR}" title="manage your profile">#{uname}
-                                <li>^{link $ AuthR LogoutR}
-                                |]
-
-                    _ -> [hamlet|<li>^{link $ AuthR LoginR}|]
 
             github      = Link (External "https://github.com/pbrisbin") "my projects on github" "github"
             aurPkgs     = Link (External "https://aur.archlinux.org/packages.php?K=brisbin33&SeB=m") "my aur packages" "aur packages"
@@ -124,13 +101,10 @@ instance YesodBreadcrumbs DevSite where
     -- be sure to fail noticably so i fix it when it happens
     breadcrumb _ = return ("404", Just RootR)
 
--- | Make my site an instance of Persist so that i can store post
---   metadata in a db
 instance YesodPersist DevSite where
     type YesodDB DevSite = SqlPersist
     runDB db = liftIOHandler $ fmap connPool getYesod >>= runSqlPool db
 
--- | Handle authentication with my custom HashDB plugin
 instance YesodAuth DevSite where
     type AuthId DevSite = UserId
 

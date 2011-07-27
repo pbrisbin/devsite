@@ -25,4 +25,15 @@
         <img src="#{feedIcon}" .icon alt="rss icon">
         \ ^{link FeedR}
 
-      ^{authLinks}
+      $maybe u <- muid
+          <li>
+            <a href="@{ProfileR}" title="manage your profile">
+              #{fromMaybe "anonymous" $ userName $ snd u}
+
+          $if userAdmin $ snd u
+            <li .extra>^{link ManagePostsR}
+
+        <li>^{link $ AuthR LogoutR}
+
+      $nothing
+        <li>^{link $ AuthR LoginR}
