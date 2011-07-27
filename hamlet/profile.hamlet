@@ -1,0 +1,16 @@
+<h1>You
+<article .fullpage .profile>
+  <div .gravatar>
+    <a title="change your profile picture at gravatar" href="http://gravatar.com/emails/">
+      <img src="#{pic}">
+
+  <table>
+    <tr>
+      <th>User name:
+      <td>#{username}
+    <tr>
+      <th>Email address:
+      <td>#{email}
+    <tr>
+      <td #edit-button colspan="2">
+        <a href="@{EditProfileR}">edit

@@ -6,6 +6,7 @@ module Helpers.Documents
     , shortDocument
     , longDocument
     , unpublishedDocument
+    , documentsList
     , humanReadableTime
     ) where
 
@@ -14,6 +15,7 @@ import DevSite
 import Yesod.Goodies.Links
 import Yesod.Goodies.Markdown
 import Yesod.Goodies.Time
+import Yesod.Goodies.Shorten (shorten)
 import Yesod.Comments
 
 import Control.Monad    (unless)
@@ -125,3 +127,27 @@ unpublishedDocument slug = do
             <h1>unpublished: #{slug}
         <article .fullpage>#{markdownToHtml $ documentContent}
         |]
+
+documentsList :: [Document] -> Widget ()
+documentsList []   = return ()
+documentsList docs = [hamlet|
+    <div .posts_existing>
+        <h3>Existing posts:
+
+        <table>
+            <tr>
+                <th>Title
+                <th>Description
+                <th>Edit
+                <th>Delete
+
+            $forall p <- map post docs
+                <tr>
+                    <td>
+                        <a href="@{PostR $ postSlug p}">#{shorten 20 $ postTitle p}
+                    <td>#{markdownToHtml $ shorten 60 $ postDescr p}
+                    <td>
+                        <a href="@{EditPostR $ postSlug p}">edit
+                    <td>
+                        <a href="@{DelPostR $ postSlug p}">delete
+    |]
