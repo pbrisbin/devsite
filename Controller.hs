@@ -5,7 +5,13 @@
 module Controller (withServer) where
 
 import DevSite
-import Handlers
+
+import Handlers.Root
+import Handlers.About
+import Handlers.Posts
+import Handlers.Tags
+import Handlers.Profile
+import Handlers.Feed
 
 import Yesod.Helpers.Auth
 import Yesod.Comments.Storage
@@ -14,6 +20,12 @@ import Database.Persist.GenericSql
 import qualified Settings
 
 mkYesodDispatch "DevSite" resourcesDevSite
+
+getFaviconR :: Handler ()
+getFaviconR = sendFile "image/x-icon" "config/favicon.ico"
+
+getRobotsR :: Handler RepPlain
+getRobotsR = return $ RepPlain $ toContent ("User-agent: *" :: String)
 
 withServer :: (Application -> IO a) -> IO a
 withServer f = Settings.withConnectionPool $ \p -> do
