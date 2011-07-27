@@ -15,7 +15,7 @@ import Handlers.Tags    as X
 import Handlers.Feed    as X
 
 getFaviconR :: Handler ()
-getFaviconR = sendFile "image/x-icon" "favicon.ico"
+getFaviconR = sendFile "image/x-icon" "config/favicon.ico"
 
 getRobotsR :: Handler RepPlain
 getRobotsR = return $ RepPlain $ toContent ("User-agent: *" :: String)
