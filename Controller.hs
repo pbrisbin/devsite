@@ -37,5 +37,7 @@ withServer f = Settings.withConnectionPool $ \p -> do
         loadDocuments :: Handler [Document]
         loadDocuments = do
             ps <- runDB $ selectList [] [PostDateDesc] 0 0
-            ts <- fmap (map snd) (runDB $ selectList [] [TagNameAsc] 0 0)
-            forM ps $ \(k,v) -> return $ Document v $ filter ((== k) . tagPost) ts
+            ts <- runDB $ selectList [] [TagNameAsc  ] 0 0
+            forM ps $ \(k,v) -> do
+                let ts' = filter ((== k) . tagPost) $ map snd ts
+                return $ Document v ts'
