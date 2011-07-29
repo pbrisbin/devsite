@@ -1,6 +1,6 @@
 {-# LANGUAGE QuasiQuotes       #-}
-{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell   #-}
+{-# LANGUAGE OverloadedStrings #-}
 module Handlers.Root (getRootR) where
 
 import DevSite
@@ -8,7 +8,6 @@ import Yesod.Goodies.Links
 import Helpers.Documents
 import Data.Text (Text)
 
--- | Home page
 getRootR :: Handler RepHtml
 getRootR = do
     docs <- siteDocs =<< getYesod

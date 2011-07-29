@@ -7,10 +7,8 @@ module Handlers.Feed
 import DevSite
 import Yesod.Helpers.RssFeed
 import Yesod.Goodies.Markdown
+import Data.Text (Text)
 
-import qualified Data.Text as T
-
--- | Rss feed
 getFeedR :: Handler RepRss
 getFeedR = do
     docs' <- siteDocs =<< getYesod
@@ -18,8 +16,8 @@ getFeedR = do
         []   -> notFound
         docs -> feedFromDocs $ take 10 docs
 
--- | Rss feed, limited to a tag
-getFeedTagR :: T.Text -> Handler RepRss
+-- | Limited to a tag
+getFeedTagR :: Text -> Handler RepRss
 getFeedTagR tag = do
     docs' <- siteDocs =<< getYesod
     case filter (hasTag tag) docs' of
@@ -33,7 +31,6 @@ feedFromDocs docs = rssFeed Feed
     , feedLanguage    = "en-us"
     , feedLinkSelf    = FeedR
     , feedLinkHome    = RootR
-    -- note: docs is known to be non-empty
     , feedUpdated     = postDate . post $ head docs
     , feedEntries     = map docToRssEntry docs
     }
