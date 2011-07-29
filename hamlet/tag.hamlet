@@ -1,0 +1,6 @@
+<header>
+  <h1>Tag: #{tag}
+
+<article .fullpage>
+  $forall d <- docs
+    ^{shortDocument d}

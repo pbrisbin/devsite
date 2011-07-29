@@ -1,4 +1,4 @@
-{-# LANGUAGE QuasiQuotes       #-}
+{-# LANGUAGE TemplateHaskell   #-}
 {-# LANGUAGE OverloadedStrings #-}
 module Handlers.Tags
     ( getTagsR
@@ -21,42 +21,11 @@ getTagsR = do
     defaultLayout $ do
         setTitle "All Tags"
         addKeywords $ map name collections
-        [hamlet|
-            <header>
-                <h1>All Tags
-
-            <article .fullpage>
-                <div id="accordion">
-                    $forall collection <- collections
-                        ^{addCollection collection}
-
-            <script src="//ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js">
-            <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.9/jquery-ui.min.js">
-            <script>
-                $(function() {
-                    $("#accordion").accordion({
-                        collapsible: true,
-                        autoHeight:  false,
-                        active:      false
-                    });
-                });
-
-            |]
+        addWidget $(widgetFile "tags")
 
     where
         sortByLength :: [Collection] -> [Collection]
         sortByLength = reverse . sortBy (comparing (length . documents))
-
-        addCollection :: Collection -> Widget ()
-        addCollection collection = do
-            let len = helper . length $ documents collection
-            [hamlet|
-                <h3>#{proper $ name collection} 
-                    <span .post_count>- #{len}
-                <div .hidden>
-                    $forall doc <- documents collection
-                        ^{shortDocument doc}
-                |]
 
         -- tag name -> Tag Name
         proper :: Text -> Text
@@ -76,14 +45,7 @@ getTagR tag' = do
     case filter (hasTag tag) docs' of
         []   -> notFound
         docs -> defaultLayout $ do
+            rssLink (FeedTagR tag) ("rss feed for tag " ++ T.unpack tag)
             setTitle $ "Tag: " `T.append` tag
             addKeywords [tag]
-            rssLink (FeedTagR tag) ("rss feed for tag " ++ T.unpack tag)
-            [hamlet|
-                <header>
-                    <h1>Tag: #{tag}
-
-                <article .fullpage>
-                    $forall doc <- docs
-                        ^{shortDocument doc}
-                |]
+            addWidget $(widgetFile "tag")
