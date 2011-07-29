@@ -1,0 +1,13 @@
+<footer>
+  <p>
+    <small>
+      published #{timeDiff}
+
+      $if not $ null ts
+        <span .tag_list>
+          tags: 
+
+          $forall tag <- init ts
+            ^{link tag}, 
+
+          ^{link $ last ts}

@@ -1,4 +1,3 @@
-{-# LANGUAGE QuasiQuotes     #-}
 {-# LANGUAGE TemplateHaskell #-}
 module Helpers.Documents
     ( lookupDocument
@@ -23,14 +22,7 @@ import Data.Text        (Text)
 import System.Directory (doesFileExist)
 
 shortDocument :: Document -> Widget ()
-shortDocument d@(Document p _) = [hamlet|
-    <article>
-        <p>^{link d}
-        #{markdownToHtml $ postDescr p}
-        ^{documentInfo d}
-    |]
-
--- todo: recombine these two?
+shortDocument d@(Document p _) = addWidget $(widgetFile "shortdocument")
 
 lookupDocument :: Text -> [Document] -> Maybe Document
 lookupDocument slug docs =
@@ -66,53 +58,12 @@ longDocument d@(Document p ts) (mprev, mnext) = do
 
     setTitle $ postTitle p
     addKeywords $ postTitle p : map tagName ts
-
-    [hamlet|
-        <header>
-            <h1>#{postTitle p}
-
-        <article .fullpage>
-            #{markdownToHtml $ documentContent}
-            ^{documentInfo d}
-
-        <h3>
-            <a href="#Comments" id="Comments">Comments
-
-        <div .post_comments>
-            ^{addCommentsAuth $ postSlug p}
-
-        <p .post_nav>
-            <span .left>
-                $maybe prev <- mprev
-                    &#9666&nbsp;&nbsp;&nbsp;
-                    ^{link prev}
-                $nothing
-                    <a href="@{RootR}">Home
-
-            <span .right>
-                $maybe next <- mnext
-                    ^{link next}
-                    &nbsp;&nbsp;&nbsp;&#9656
-        |]
+    addWidget $(widgetFile "longdocument")
 
 documentInfo :: Document -> Widget ()
 documentInfo (Document p ts) = do
     timeDiff <- lift $ humanReadableTime $ postDate p
-    [hamlet|
-        <footer>
-            <p>
-                <small>
-                    published #{timeDiff}
-
-                    $if not $ null ts
-                        <span .tag_list>
-                            tags: 
-
-                            $forall tag <- init ts
-                                ^{link tag}, 
-
-                            ^{link $ last ts}
-        |]
+    addWidget $(widgetFile "documentinfo")
 
 -- | if the post is not found in the db
 unpublishedDocument :: Text -> Widget ()
@@ -122,32 +73,8 @@ unpublishedDocument slug = do
     unless exists (lift notFound)
     documentContent <- lift . liftIO $ markdownFromFile file
     setTitle slug
-    [hamlet|
-        <header>
-            <h1>unpublished: #{slug}
-        <article .fullpage>#{markdownToHtml $ documentContent}
-        |]
+    addWidget $(widgetFile "unpublished")
 
 documentsList :: [Document] -> Widget ()
 documentsList []   = return ()
-documentsList docs = [hamlet|
-    <div .posts_existing>
-        <h3>Existing posts:
-
-        <table>
-            <tr>
-                <th>Title
-                <th>Description
-                <th>Edit
-                <th>Delete
-
-            $forall p <- map post docs
-                <tr>
-                    <td>
-                        <a href="@{PostR $ postSlug p}">#{shorten 20 $ postTitle p}
-                    <td>#{markdownToHtml $ shorten 60 $ postDescr p}
-                    <td>
-                        <a href="@{EditPostR $ postSlug p}">edit
-                    <td>
-                        <a href="@{DelPostR $ postSlug p}">delete
-    |]
+documentsList docs = addWidget $(widgetFile "documentslist")
