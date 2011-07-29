@@ -1,0 +1,6 @@
+<header>
+  <h1>Manage Posts
+
+<article .fullpage>
+  ^{runPostForm Nothing}
+  ^{documentsList docs}

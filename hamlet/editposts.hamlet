@@ -1,0 +1,6 @@
+<header>
+  <h1>Edit Post
+
+<article .fullpage>
+  ^{runPostForm mdoc}
+  ^{documentsList docs}

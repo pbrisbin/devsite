@@ -1,5 +1,5 @@
 {-# OPTIONS -fno-warn-incomplete-patterns #-}
-{-# LANGUAGE QuasiQuotes                  #-}
+{-# LANGUAGE TemplateHaskell              #-}
 {-# LANGUAGE OverloadedStrings            #-}
 module Handlers.Posts 
     ( getPostsR
@@ -24,13 +24,7 @@ getPostsR = do
     defaultLayout $ do
         setTitle "All Posts"
         addKeywords ["all posts"]
-        [hamlet|
-            <header>
-                <h1>All Posts
-
-            $forall doc <- docs
-                ^{shortDocument doc}
-            |]
+        addWidget $(widgetFile "posts")
 
 getPostR :: Text -> Handler RepHtml
 getPostR slug = do
@@ -48,13 +42,7 @@ getManagePostsR = do
     docs <- siteDocs =<< getYesod
     defaultLayout $ do
         setTitle "Manage posts"
-        [hamlet|
-            <header>
-                <h1>Manage Posts
-            <article .fullpage>
-                ^{runPostForm Nothing}
-                ^{documentsList docs}
-            |]
+        addWidget $(widgetFile "manage")
 
 postManagePostsR :: Handler RepHtml
 postManagePostsR = getManagePostsR
@@ -63,23 +51,10 @@ getEditPostR :: Text -> Handler RepHtml
 getEditPostR slug = do
     requireAdmin
     docs <- siteDocs =<< getYesod
-
-    let mdoc = safeHead $ filter ((==) slug . postSlug . post) docs
-
+    let mdoc = lookupDocument slug docs
     defaultLayout $ do
         setTitle "Edit post"
-        [hamlet|
-            <header>
-                <h1>Edit Post
-            <article .fullpage>
-                ^{runPostForm mdoc}
-                ^{documentsList docs}
-            |]
-
-    where
-        safeHead :: [a] -> Maybe a
-        safeHead []    = Nothing
-        safeHead (x:_) = Just x
+        addWidget $(widgetFile "editposts")
 
 postEditPostR :: Text -> Handler RepHtml
 postEditPostR = getEditPostR
