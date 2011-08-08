@@ -60,7 +60,7 @@ instance Yesod DevSite where
             rssLink FeedR "rss feed"
             addWidget $(widgetFile "sidebar")
             widget
-        hamletToRepHtml $(Settings.hamletFile "default-layout")
+        hamletToRepHtml $(hamletFile "default-layout")
 
         where
             -- external links used in sidebar
