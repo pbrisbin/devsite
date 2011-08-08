@@ -1,6 +1,2 @@
 dist
-*.s3db
 *.aes
-*.o
-*.hi
-*.cgi
