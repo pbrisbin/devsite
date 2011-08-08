@@ -37,4 +37,6 @@ getEditProfileR = defaultLayout $ do
     runProfileFormGet
 
 postEditProfileR :: Handler RepHtml
-postEditProfileR = runProfileFormPost >> getEditProfileR
+postEditProfileR = do
+    runProfileFormPost
+    getEditProfileR
