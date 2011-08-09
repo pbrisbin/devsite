@@ -30,8 +30,8 @@ getPostR :: Text -> Handler RepHtml
 getPostR slug = do
     docs <- siteDocs =<< getYesod
     case lookupDocument slug docs of
-        Just doc -> defaultLayout $ longDocument doc (documentNavigation doc docs)
-        Nothing  -> defaultLayout $ unpublishedDocument slug
+        Just doc -> longDocument doc docs
+        Nothing  -> unpublishedDocument slug
 
 postPostR :: Text -> Handler RepHtml
 postPostR = getPostR

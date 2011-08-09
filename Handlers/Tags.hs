@@ -8,26 +8,19 @@ module Handlers.Tags
 import DevSite
 import Helpers.Documents
 import Yesod.Helpers.RssFeed (rssLink)
-import Data.List             (sortBy)
-import Data.Ord              (comparing)
-
 import Data.Text (Text)
 import qualified Data.Text as T
 
 getTagsR :: Handler RepHtml
 getTagsR = do
     docs <- siteDocs =<< getYesod
-    let collections = sortByLength $ collectByTagName docs
+    let collections = collectByTagName docs
     defaultLayout $ do
         setTitle "All Tags"
         addKeywords $ map name collections
         addWidget $(widgetFile "tags")
 
     where
-        sortByLength :: [Collection] -> [Collection]
-        sortByLength = reverse . sortBy (comparing (length . documents))
-
-        -- tag name -> Tag Name
         proper :: Text -> Text
         proper = T.unwords . map capitalize . T.words
 

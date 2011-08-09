@@ -3,7 +3,7 @@
 
 <article .fullpage>
   #{markdownToHtml $ documentContent}
-  ^{documentInfo d}
+  ^{documentInfo doc}
 
 <h3>
   <a href="#Comments" id="Comments">Comments
