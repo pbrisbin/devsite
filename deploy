@@ -4,6 +4,8 @@ app="${1:-/srv/http/app.cgi}"
 
 sudo true
 
+deptag # tag this deployment
+
 touch config/Settings.hs
 cabal install --bindir=./
 
