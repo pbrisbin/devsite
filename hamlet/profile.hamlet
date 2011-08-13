@@ -11,6 +11,8 @@
     <tr>
       <th>Email address:
       <td>#{email}
-    <tr>
-      <td #edit-button colspan="2">
-        <a href="@{EditProfileR}">edit
+
+  <p .links>
+    <a href="@{EditProfileR}">edit your profile
+    \ | 
+    <a href="@{CommentsAdminR OverviewR}">manage your comments

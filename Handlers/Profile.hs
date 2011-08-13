@@ -8,6 +8,7 @@ module Handlers.Profile
 
 import DevSite
 import Helpers.Forms
+import Yesod.Comments.Management
 import Yesod.Helpers.Auth
 import Yesod.Goodies.Gravatar
 import Data.Maybe (fromMaybe)

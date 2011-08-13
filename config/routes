@@ -14,3 +14,4 @@
 /favicon.ico           FaviconR     GET
 /robots.txt            RobotsR      GET
 /auth                  AuthR Auth getAuth
+/comments              CommentsAdminR CommentsAdmin getCommentsAdmin
