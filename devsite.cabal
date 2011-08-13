@@ -41,7 +41,7 @@ executable         devsite
                  , yesod-form   >= 0.1     && < 0.2
                  , yesod-persistent >= 0.1 && < 0.2
                  , yesod-newsfeed   >= 0.1 && < 0.2
-                 , yesod-comments   >= 0.3 && < 0.4
+                 , yesod-comments   >= 0.4 && < 0.5
                  , yesod-goodies
                  , wai-extra
                  , wai-handler-fastcgi >= 0.4 && < 0.5

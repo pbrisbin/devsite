@@ -20,6 +20,7 @@ import Yesod.Helpers.RssFeed
 import Yesod.Helpers.Auth
 import Yesod.Helpers.Auth.OpenId
 import Yesod.Comments hiding (userName, userEmail)
+import Yesod.Comments.Management
 import Yesod.Comments.Storage
 import Data.Maybe (fromMaybe)
 import Database.Persist.GenericSql
@@ -88,6 +89,10 @@ instance YesodBreadcrumbs DevSite where
     breadcrumb (EditPostR _) = return ("edit post"   , Just ManagePostsR)
     breadcrumb (AuthR _)     = return ("login"       , Just RootR       )
 
+    breadcrumb (CommentsAdminR OverviewR)   = return ("your comments", Just RootR                     )
+    breadcrumb (CommentsAdminR (ViewR _ _)) = return ("view comment" , Just $ CommentsAdminR OverviewR)
+    breadcrumb (CommentsAdminR (EditR _ _)) = return ("edit comment" , Just $ CommentsAdminR OverviewR)
+
     -- be sure to fail noticably so i fix it when it happens
     breadcrumb _ = return ("404", Just RootR)
 
@@ -132,6 +137,7 @@ instance YesodAuth DevSite where
 instance YesodComments DevSite where
     getComment       = getCommentPersist
     storeComment     = storeCommentPersist
+    updateComment    = updateCommentPersist
     deleteComment    = deleteCommentPersist
     loadComments     = loadCommentsPersist
     displayUser  uid = return . maybe' "anonymous" userName  =<< runDB (get uid)

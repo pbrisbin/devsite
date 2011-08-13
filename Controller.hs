@@ -14,6 +14,7 @@ import Handlers.Profile
 import Handlers.Feed
 
 import Yesod.Helpers.Auth
+import Yesod.Comments.Management
 import Yesod.Comments.Storage
 import Control.Monad (forM)
 import Database.Persist.GenericSql
