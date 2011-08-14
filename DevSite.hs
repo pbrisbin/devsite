@@ -146,23 +146,24 @@ instance YesodComments DevSite where
 maybe' :: b -> (a -> Maybe b) -> Maybe a -> b
 maybe' c f = fromMaybe c . maybe Nothing f
 
+instance YesodLinked DevSite where
+    type Linked = DevSite
+
 -- | Make isLink instances for each route in the site
 instance IsLink DevSiteRoute where
-    toLink r@(RootR)         = Link (Internal r) "go home" "home"
-    toLink r@(AboutR)        = Link (Internal r) "about pbrisbin dot com" "about"
-    toLink r@(PostsR)        = Link (Internal r) "all posts" "all posts"
-    toLink r@(TagsR)         = Link (Internal r) "all posts grouped by tag" "all tags"
-    toLink r@(FeedR)         = Link (Internal r) "subscribe via rss" "subscribe"
-    toLink r@(ManagePostsR)  = Link (Internal r) "manage posts" "manage posts"
-    toLink r@(AuthR LoginR)  = Link (Internal r) "login" "login"
-    toLink r@(AuthR LogoutR) = Link (Internal r) "logout" "logout"
+    toLink r@(RootR)                    = Link (Internal r) "go home"                  "home"
+    toLink r@(AboutR)                   = Link (Internal r) "about pbrisbin dot com"   "about"
+    toLink r@(PostsR)                   = Link (Internal r) "all posts"                "all posts"
+    toLink r@(TagsR)                    = Link (Internal r) "all posts grouped by tag" "all tags"
+    toLink r@(FeedR)                    = Link (Internal r) "subscribe via rss"        "subscribe"
+    toLink r@(ManagePostsR)             = Link (Internal r) "manage posts"             "manage posts"
+    toLink r@(AuthR LoginR)             = Link (Internal r) "login"                    "login"
+    toLink r@(AuthR LogoutR)            = Link (Internal r) "logout"                   "logout"
+    toLink r@(CommentsAdminR OverviewR) = Link (Internal r) "manage your comments"     "comments"
 
     -- fail noticably
     toLink r = Link (Internal r) "invalid use of `link'" "FIXME"
     
-instance YesodLinked DevSite where
-    type Linked = DevSite
-
 -- | Link directly to a post
 instance IsLink Post where
     toLink p = Link (Internal $ PostR $ postSlug p) (postTitle p) (postTitle p)
