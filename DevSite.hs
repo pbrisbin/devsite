@@ -140,11 +140,11 @@ instance YesodComments DevSite where
     updateComment    = updateCommentPersist
     deleteComment    = deleteCommentPersist
     loadComments     = loadCommentsPersist
-    displayUser  uid = return . maybe' "anonymous" userName  =<< runDB (get uid)
-    displayEmail uid = return . maybe' ""          userEmail =<< runDB (get uid)
+    displayUser  uid = maybe' "anonymous" userName  =<< runDB (get uid)
+    displayEmail uid = maybe' ""          userEmail =<< runDB (get uid)
 
-maybe' :: b -> (a -> Maybe b) -> Maybe a -> b
-maybe' c f = fromMaybe c . maybe Nothing f
+maybe' :: Monad m => b -> (a -> Maybe b) -> Maybe a -> m b
+maybe' c f = return . fromMaybe c . maybe Nothing f
 
 instance YesodLinked DevSite where
     type Linked = DevSite
