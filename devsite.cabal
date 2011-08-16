@@ -18,7 +18,7 @@ Flag production
 
 library
     buildable:       False
-    exposed-modules: Controller
+    exposed-modules: Handler
     hs-source-dirs:  ., config
     other-modules:   DevSite
                      Model
