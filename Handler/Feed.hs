@@ -1,11 +1,11 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Handlers.Feed 
+module Handler.Feed 
     ( getFeedR
     , getFeedTagR
     ) where
 
-import DevSite
-import Yesod.Helpers.RssFeed
+import Foundation
+import Yesod.RssFeed
 import Yesod.Goodies.Markdown
 import Data.Text (Text)
 

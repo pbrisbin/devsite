@@ -1,9 +1,9 @@
 {-# LANGUAGE QuasiQuotes       #-}
 {-# LANGUAGE TemplateHaskell   #-}
 {-# LANGUAGE OverloadedStrings #-}
-module Handlers.Root (getRootR) where
+module Handler.Root (getRootR) where
 
-import DevSite
+import Foundation
 import Yesod.Goodies.Links
 import Helpers.Documents
 import Data.Text (Text)
@@ -22,4 +22,4 @@ getRootR = do
         link'' = link
 
         code :: Text -> GWidget s DevSite ()
-        code t = [hamlet|<code>#{t}|]
+        code t = [whamlet|<code>#{t}|]

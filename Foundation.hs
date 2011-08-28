@@ -1,29 +1,36 @@
-{-# OPTIONS -fno-warn-orphans  #-}
-{-# LANGUAGE TypeFamilies      #-}
-{-# LANGUAGE TemplateHaskell   #-}
-{-# LANGUAGE OverloadedStrings #-}
-module DevSite
+{-# OPTIONS -fno-warn-orphans      #-}
+{-# LANGUAGE TypeFamilies          #-}
+{-# LANGUAGE TemplateHaskell       #-}
+{-# LANGUAGE OverloadedStrings     #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE TypeSynonymInstances  #-}
+module Foundation
     ( DevSite(..)
     , DevSiteRoute(..)
     , resourcesDevSite
     , Handler
     , Widget
+    , maybeAuth
+    , requireAuth
     , module Yesod
     , module Settings
     , module Model
+    , AuthRoute(..)
     ) where
 
 import Model
 import Yesod hiding (setTitle)
+import Yesod.Auth
+import Yesod.Auth.OpenId
+import Yesod.Logger (Logger, logLazyText)
 import Yesod.Goodies.Links
-import Yesod.Helpers.RssFeed
-import Yesod.Helpers.Auth
-import Yesod.Helpers.Auth.OpenId
+import Yesod.RssFeed
 import Yesod.Comments hiding (userName, userEmail)
 import Yesod.Comments.Management
 import Yesod.Comments.Storage
 import Data.Maybe (fromMaybe)
 import Database.Persist.GenericSql
+import Web.ClientSession (getKey)
 import qualified Data.Text as T
 
 import Settings ( setTitle
@@ -40,18 +47,18 @@ import Settings ( setTitle
 import qualified Settings
 
 data DevSite = DevSite
-    { connPool :: ConnectionPool
-    , siteDocs :: Handler [Document]
+    { settings  :: Settings.AppConfig
+    , getLogger :: Logger
+    , connPool  :: ConnectionPool
+    , siteDocs  :: GHandler DevSite DevSite [Document]
     }
-
-type Handler = GHandler DevSite DevSite
-type Widget  = GWidget  DevSite DevSite
 
 mkYesodData "DevSite" $(parseRoutesFile "config/routes")
 
 instance Yesod DevSite where 
-    approot _   = Settings.approot
-    authRoute _ = Just $ AuthR LoginR
+    approot      = Settings.appRoot . settings
+    authRoute _  = Just $ AuthR LoginR
+    encryptKey _ = fmap Just $ getKey "client_session_key.aes"
 
     defaultLayout widget = do
         muid   <- maybeAuth
@@ -70,6 +77,9 @@ instance Yesod DevSite where
             aurPkgs     = Link (External "https://aur.archlinux.org/packages.php?K=brisbin33&SeB=m") "my aur packages" "aur packages"
             xmonadDocs  = Link (External "/xmonad/docs") "xmonad haddocks" "xmonad docs"
             haskellDocs = Link (External "/haskell/docs/html") "haskell haddocks" "haskell docs"
+
+    messageLogger y loc level msg =
+        formatLogMessage loc level msg >>= logLazyText (getLogger y)
 
 instance YesodBreadcrumbs DevSite where
     breadcrumb RootR        = return ("home"       , Nothing    ) 
@@ -97,8 +107,9 @@ instance YesodBreadcrumbs DevSite where
     breadcrumb _ = return ("404", Just RootR)
 
 instance YesodPersist DevSite where
-    type YesodDB DevSite = SqlPersist
-    runDB db = liftIOHandler $ fmap connPool getYesod >>= runSqlPool db
+    type YesodPersistBackend DevSite = SqlPersist
+    runDB f = liftIOHandler
+            $ fmap connPool getYesod >>= Settings.runConnectionPool f
 
 instance YesodAuth DevSite where
     type AuthId DevSite = UserId
@@ -106,16 +117,11 @@ instance YesodAuth DevSite where
     loginDest  _ = ProfileR
     logoutDest _ = RootR
 
-    getAuthId creds = do
-        muid <- maybeAuth
-        x    <- runDB $ getBy $ UniqueIdent $ credsIdent creds
-        case (x, muid) of
-            (Just (_, i), Nothing      ) -> return $ Just $ identUser i
-            (Nothing    , Just (uid, _)) -> do
-                _ <- runDB $ insert $ Ident (credsIdent creds) uid
-                return $ Just uid
-
-            (Nothing, Nothing) -> runDB $ do
+    getAuthId creds = runDB $ do
+        x <- getBy $ UniqueIdent $ credsIdent creds
+        case x of
+            Just (_, i) -> return $ Just $ identUser i
+            Nothing       -> do
                 uid <- insert $ User
                     { userName  = Nothing
                     , userEmail = Nothing
@@ -124,15 +130,35 @@ instance YesodAuth DevSite where
                 _ <- insert $ Ident (credsIdent creds) uid
                 return $ Just uid
 
-            (Just _, Just _) -> do -- this shouldn't happen
-                setMessage "That identifier is already attached to an account."
-                redirect RedirectTemporary ProfileR
+        {-muid <- maybeAuth-}
+        {-x    <- runDB $ getBy $ UniqueIdent $ credsIdent creds-}
+        {-case (x, muid) of-}
+            {-(Just (_, i), Nothing      ) -> return $ Just $ identUser i-}
+            {-(Nothing    , Just (uid, _)) -> do-}
+                {-_ <- runDB $ insert $ Ident (credsIdent creds) uid-}
+                {-return $ Just uid-}
+
+            {-(Nothing, Nothing) -> runDB $ do-}
+                {-uid <- insert $ User-}
+                    {-{ userName  = Nothing-}
+                    {-, userEmail = Nothing-}
+                    {-, userAdmin = False-}
+                    {-}-}
+                {-_ <- insert $ Ident (credsIdent creds) uid-}
+                {-return $ Just uid-}
+
+            {-(Just _, Just _) -> do -- this shouldn't happen-}
+                {-setMessage "That identifier is already attached to an account."-}
+                {-redirect RedirectTemporary ProfileR-}
 
     authPlugins = [ authOpenId ]
 
     loginHandler = defaultLayout $ do
         setTitle "Login"
         addWidget $(widgetFile "login")
+
+instance RenderMessage DevSite FormMessage where
+    renderMessage _ _ = defaultFormMessage
 
 instance YesodComments DevSite where
     getComment       = getCommentPersist

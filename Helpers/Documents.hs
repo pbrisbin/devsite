@@ -7,8 +7,7 @@ module Helpers.Documents
     , unpublishedDocument
     ) where
 
-import DevSite
-
+import Foundation
 import Yesod.Goodies.Links
 import Yesod.Goodies.Markdown
 import Yesod.Goodies.Time
@@ -25,7 +24,7 @@ lookupDocument slug docs =
         []    -> Nothing
         (x:_) -> Just x
 
-documentsList :: [Document] -> Widget ()
+documentsList :: [Document] -> Widget
 documentsList []   = return ()
 documentsList docs = addWidget $(widgetFile "documentslist")
 
@@ -63,7 +62,7 @@ longDocument doc@(Document p ts) docs = do
         -- 0 or 1 item
         documentNavigation _ _ = (Nothing, Nothing)
 
-shortDocument :: Document -> Widget ()
+shortDocument :: Document -> Widget
 shortDocument d@(Document p _) = addWidget $(widgetFile "shortdocument")
 
 -- | if the post is not found in the db
@@ -79,7 +78,7 @@ unpublishedDocument slug = do
         setTitle slug
         addWidget $(widgetFile "unpublished")
 
-documentInfo :: Document -> Widget ()
+documentInfo :: Document -> Widget
 documentInfo (Document p ts) = do
     timeDiff <- lift $ humanReadableTime $ postDate p
     addWidget $(widgetFile "documentinfo")

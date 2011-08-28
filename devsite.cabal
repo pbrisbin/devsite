@@ -14,34 +14,45 @@ homepage:          http://pbrisbin.com
 
 Flag production
     description:   Build the production executable.
-    default:       True
+    default:       False
+
+Flag devel
+    description:   Build for yesod devel
+    default:       False
 
 library
-    buildable:       False
-    exposed-modules: Handler
-    hs-source-dirs:  ., config
-    other-modules:   DevSite
+    if flag(devel)
+        buildable: True
+    else
+        buildable: False
+
+    hs-source-dirs:  .
+    exposed-modules: Application
+    other-modules:   Foundation
                      Model
                      Settings
 
 executable         devsite
+    if flag(devel)
+        buildable: False
+
     if flag(production)
         cpp-options: -DPRODUCTION
         ghc-options: -Wall -threaded -O2
     else
         ghc-options: -Wall -threaded
 
-    main-is:        config/devsite.hs
-    hs-source-dirs: ., config
+    main-is:        main.hs
+    hs-source-dirs: .
 
     build-depends: base         >= 4       && < 5
-                 , yesod        >= 0.8     && < 0.9
-                 , yesod-auth   >= 0.4     && < 0.5
-                 , yesod-static >= 0.1     && < 0.2
-                 , yesod-form   >= 0.1     && < 0.2
-                 , yesod-persistent >= 0.1 && < 0.2
-                 , yesod-newsfeed   >= 0.1 && < 0.2
-                 , yesod-comments   >= 0.4 && < 0.5
+                 , yesod        >= 0.9     && < 1.0
+                 , yesod-core
+                 , yesod-auth
+                 , yesod-form
+                 , yesod-persistent
+                 , yesod-newsfeed
+                 , yesod-comments   >= 0.5 && < 0.6
                  , yesod-goodies
                  , wai-extra
                  , wai-handler-fastcgi >= 0.4 && < 0.5
@@ -51,10 +62,18 @@ executable         devsite
                  , time
                  , persistent
                  , persistent-template
-                 , persistent-postgresql >= 0.5 && < 0.6
+                 , persistent-postgresql >= 0.6 && < 0.7
                  , template-haskell
-                 , hamlet
-                 , hjsmin
+                 , hamlet               >= 0.10     && < 0.11
+                 , shakespeare-css      >= 0.10     && < 0.11
+                 , shakespeare-js       >= 0.10     && < 0.11
+                 , shakespeare-text     >= 0.10     && < 0.11
                  , transformers
                  , warp
                  , blaze-builder
+                 , transformers
+                 , clientsession
+                 , data-object
+                 , data-object-yaml
+                 , cmdargs
+                 , unix

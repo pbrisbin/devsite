@@ -1,14 +1,14 @@
 #!/bin/bash -e
 
-app="${1:-/srv/http/app.cgi}"
+#app="${1:-/srv/http/app.cgi}"
 
-sudo true
+#sudo true
 
-deptag # tag this deployment
+#deptag # tag this deployment
 
-touch config/Settings.hs
-cabal install --bindir=./
+touch Settings.hs main.hs
+cabal install -fproduction --bindir=./
 
-sudo /etc/rc.d/lighttpd stop
-sudo mv devsite "$app"
-sudo /etc/rc.d/lighttpd start
+#sudo /etc/rc.d/lighttpd stop
+#sudo mv devsite "$app"
+#sudo /etc/rc.d/lighttpd start

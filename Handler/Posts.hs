@@ -1,7 +1,7 @@
 {-# OPTIONS -fno-warn-incomplete-patterns #-}
 {-# LANGUAGE TemplateHaskell              #-}
 {-# LANGUAGE OverloadedStrings            #-}
-module Handlers.Posts 
+module Handler.Posts 
     ( getPostsR
     , getPostR
     , postPostR
@@ -12,10 +12,9 @@ module Handlers.Posts
     , getDelPostR
     ) where
 
-import DevSite
+import Foundation
 import Helpers.Documents
 import Helpers.Forms
-import Yesod.Helpers.Auth
 import Data.Text (Text)
 
 getPostsR :: Handler RepHtml
@@ -67,7 +66,7 @@ getDelPostR slug = do
         Just (key, _) -> do
             -- delete the post and the tags
             runDB $ deleteBy $ UniquePost slug
-            runDB $ deleteWhere [TagPostEq key]
+            runDB $ deleteWhere [TagPost ==. key]
             setMessage "post deleted!"
         Nothing -> setMessage "post not found."
 

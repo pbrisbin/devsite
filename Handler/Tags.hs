@@ -1,13 +1,13 @@
 {-# LANGUAGE TemplateHaskell   #-}
 {-# LANGUAGE OverloadedStrings #-}
-module Handlers.Tags
+module Handler.Tags
     ( getTagsR
     , getTagR
     ) where
 
-import DevSite
+import Foundation
 import Helpers.Documents
-import Yesod.Helpers.RssFeed (rssLink)
+import Yesod.RssFeed (rssLink)
 import Data.Text (Text)
 import qualified Data.Text as T
 

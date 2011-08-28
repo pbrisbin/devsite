@@ -6,17 +6,13 @@ module Helpers.Forms
     , runPostForm
     ) where
 
-import DevSite
-import Yesod.Helpers.Auth
+import Foundation
 import Yesod.Goodies.Markdown
-import Yesod.Form.Core     (GFormMonad)
 import Control.Applicative ((<$>), (<*>))
 import Data.Time           (getCurrentTime)
 
 import Data.Text (Text)
 import qualified Data.Text as T
-
-type FormMonad a = GFormMonad DevSite DevSite a
 
 data ProfileEditForm = ProfileEditForm
     { eUsername :: Maybe Text
@@ -31,12 +27,12 @@ data PostEditForm = PostEditForm
     }
 
 -- | Display the form for user input
-runProfileFormGet :: Widget ()
+runProfileFormGet :: Widget
 runProfileFormGet = do
     (_, u)               <- lift requireAuth
-    ((_, form), enctype) <- lift . runFormMonadPost $ profileEditForm u
+    ((_, form), enctype) <- lift $ runFormPost (const $ profileEditForm u)
 
-    [hamlet|
+    [whamlet|
         <h1>Edit
         <article .fullpage .profile
             <form enctype="#{enctype}" method="post">
@@ -49,7 +45,7 @@ runProfileFormGet = do
 runProfileFormPost :: Handler ()
 runProfileFormPost = do
     (uid, u)          <- requireAuth
-    ((res, _   ), _ ) <- runFormMonadPost $ profileEditForm u
+    ((res, _   ), _ ) <- runFormPost (const $ profileEditForm u)
     case res of
         FormSuccess ef -> saveChanges uid ef
         _              -> return ()
@@ -58,19 +54,19 @@ runProfileFormPost = do
         saveChanges :: UserId -> ProfileEditForm -> Handler ()
         saveChanges uid ef = do
             runDB $ update uid 
-                [ UserName  $ eUsername ef
-                , UserEmail $ eEmail    ef
+                [ UserName  =. eUsername ef
+                , UserEmail =. eEmail    ef
                 ]
 
             tm <- getRouteToMaster
             redirect RedirectTemporary $ tm ProfileR
 
-profileEditForm :: User -> FormMonad (FormResult ProfileEditForm, Widget())
+profileEditForm :: User -> Form DevSite DevSite (FormResult ProfileEditForm, Widget)
 profileEditForm u = do
-    (fUsername, fiUsername) <- maybeStringField "User name:"     $ Just $ userName u
-    (fEmail   , fiEmail   ) <- maybeEmailField  "Email address:" $ Just $ userEmail u
+    (fUsername, fiUsername) <- mopt textField   "User name:"     $ Just $ userName u
+    (fEmail   , fiEmail   ) <- mopt emailField  "Email address:" $ Just $ userEmail u
 
-    return (ProfileEditForm <$> fUsername <*> fEmail, [hamlet|
+    return (ProfileEditForm <$> fUsername <*> fEmail, [whamlet|
             <table>
                 ^{fieldRow fiUsername "comments are attributed to this username"        }
                 ^{fieldRow fiEmail    "never displayed, only used to find your gravatar"}
@@ -81,30 +77,31 @@ profileEditForm u = do
             |])
 
     where
-        fieldRow :: FieldInfo sub y -> Text -> GWidget sub y ()
-        fieldRow fi txt = [hamlet|
-            <tr ##{fiIdent fi}>
+        fieldRow :: FieldView s m -> Text -> GWidget s m ()
+        fieldRow fv txt = [whamlet|
+            <tr ##{fvId fv}>
                 <th>
-                    <label for="#{fiIdent fi}">#{fiLabel fi}
-                    <div .tooltip>#{fiTooltip fi}
-                <td>^{fiInput fi}
+                    <label for="#{fvId fv}">#{fvLabel fv}
+                    $maybe tt <- fvTooltip fv
+                        <div .tooltip>#{tt}
+                <td>^{fvInput fv}
                 <td>#{txt}
                 <td>
-                    $maybe error <- fiErrors fi
+                    $maybe error <- fvErrors fv
                         #{error}
                     $nothing
                         &nbsp;
             |]
 
-runPostForm :: Maybe Document -> Widget ()
+runPostForm :: Maybe Document -> Widget
 runPostForm mdoc = do
-    ((res, form), enctype) <- lift . runFormMonadPost $ postForm mdoc
+    ((res, form), enctype) <- lift $ runFormPost (const $ postForm mdoc)
     case res of
         FormMissing    -> return ()
         FormFailure _  -> return ()
         FormSuccess pf -> lift $ processFormResult pf
 
-    [hamlet|
+    [whamlet|
         <div .post_input>
             <form enctype="#{enctype}" method="post">
                 ^{form}
@@ -142,13 +139,13 @@ runPostForm mdoc = do
 
         updatePost :: PostId -> Post -> Handler ()
         updatePost key new = runDB $ update key 
-            [ PostSlug  $ postSlug  new
-            , PostTitle $ postTitle new
-            , PostDescr $ postDescr new
+            [ PostSlug  =. postSlug  new
+            , PostTitle =. postTitle new
+            , PostDescr =. postDescr new
             ]
 
         removeTags :: PostId -> Handler ()
-        removeTags key = runDB $ deleteWhere [TagPostEq key]
+        removeTags key = runDB $ deleteWhere [TagPost ==. key]
 
         createTags :: PostId -> [Text] -> Handler ()
         createTags key = mapM_ (go key)
@@ -164,13 +161,13 @@ runPostForm mdoc = do
 
 -- | Display the new post form inself. If the first argument is Just,
 --   then use that to prepopulate the form
-postForm :: Maybe Document -> FormMonad (FormResult PostEditForm, Widget ())
+postForm :: Maybe Document -> Form DevSite DevSite (FormResult PostEditForm, Widget)
 postForm mdoc = do
-    (slug       , fiSlug       ) <- stringField   "post slug:"   $ fmap (postSlug   . post) mdoc
-    (t          , fiTitle      ) <- stringField   "title:"       $ fmap (postTitle  . post) mdoc
-    (ts         , fiTags       ) <- stringField   "tags:"        $ fmap (formatTags . tags) mdoc
-    (description, fiDescription) <- markdownField "description:" $ fmap (postDescr  . post) mdoc
-    return (PostEditForm <$> slug <*> t <*> ts <*> description, [hamlet|
+    (slug       , fiSlug       ) <- mreq textField     "post slug:"   $ fmap (postSlug   . post) mdoc
+    (t          , fiTitle      ) <- mreq textField     "title:"       $ fmap (postTitle  . post) mdoc
+    (ts         , fiTags       ) <- mreq textField     "tags:"        $ fmap (formatTags . tags) mdoc
+    (description, fiDescription) <- mreq markdownField "description:" $ fmap (postDescr  . post) mdoc
+    return (PostEditForm <$> slug <*> t <*> ts <*> description, [whamlet|
         <table>
             ^{fieldRow fiSlug}
             ^{fieldRow fiTitle}
@@ -182,15 +179,16 @@ postForm mdoc = do
         |])
 
     where
-        fieldRow fi = [hamlet|
+        fieldRow fv = [whamlet|
             <tr>
                 <th>
-                    <label for="#{fiIdent fi}">#{fiLabel fi}
-                    <div .tooltip>#{fiTooltip fi}
+                    <label for="#{fvId fv}">#{fvLabel fv}
+                    $maybe tt <- fvTooltip fv
+                        <div .tooltip>#{tt}
                 <td>
-                    ^{fiInput fi}
+                    ^{fvInput fv}
                 <td>
-                    $maybe error <- fiErrors fi
+                    $maybe error <- fvErrors fv
                         #{error}
                     $nothing
                         &nbsp;

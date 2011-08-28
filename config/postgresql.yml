@@ -1,0 +1,13 @@
+Default: &defaults
+  user: pbrisbin
+  password: password
+  host: localhost
+  port: 5432
+  database: pbrisbin_dev
+
+Development:
+  <<: *defaults
+
+Production:
+  database: pbrisbin
+  <<: *defaults

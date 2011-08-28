@@ -1,0 +1,12 @@
+Default: &defaults
+  host: "http://localhost"
+  port: 3000
+  connectionPoolSize: 10
+
+Development:
+  <<: *defaults
+
+Production:
+  host: "http://pbrisbin.com"
+  port: 80
+  connectionPoolSize: 100

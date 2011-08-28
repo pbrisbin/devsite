@@ -1,4 +1,4 @@
 #!/bin/bash -e
 
-touch config/Settings.hs
-runhaskell -Wall -iconfig config/simple-server.hs
+touch Settings.hs main.hs
+runhaskell -Wall main.hs

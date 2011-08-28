@@ -1,3 +1,4 @@
+{-# LANGUAGE GADTs                      #-}
 {-# LANGUAGE QuasiQuotes                #-}
 {-# LANGUAGE TemplateHaskell            #-}
 {-# LANGUAGE TypeFamilies               #-}
@@ -13,7 +14,7 @@ import Data.Ord  (comparing)
 import Data.Text (Text)
 import Data.Time (UTCTime)
 
-share [mkPersist, mkMigrate "migratePosts"] $(persistFile "config/models")
+share [mkPersist sqlSettings, mkMigrate "migratePosts"] $(persistFile "config/models")
 
 data Document = Document
     { post :: Post

@@ -1,15 +1,14 @@
 {-# LANGUAGE TemplateHaskell   #-}
 {-# LANGUAGE OverloadedStrings #-}
-module Handlers.Profile
+module Handler.Profile
     ( getProfileR
     , getEditProfileR
     , postEditProfileR
     ) where
 
-import DevSite
+import Foundation
 import Helpers.Forms
 import Yesod.Comments.Management
-import Yesod.Helpers.Auth
 import Yesod.Goodies.Gravatar
 import Data.Maybe (fromMaybe)
 
