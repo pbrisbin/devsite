@@ -1,14 +1,16 @@
 {-# LANGUAGE CPP #-}
 import Application (withDevSite)
-import Yesod.Logger (logString, logLazyText, flushLogger, makeLogger)
-import Settings (AppConfig(..), AppEnvironment(..))
 import qualified Settings
 
 #ifdef PRODUCTION
+import Yesod.Logger (makeLogger)
 import Network.Wai.Handler.FastCGI  (run)
+import Settings (AppEnvironment(..))
 #else
+import Yesod.Logger (logString, logLazyText, flushLogger, makeLogger)
 import Network.Wai.Handler.Warp     (run)
 import Network.Wai.Middleware.Debug (debugHandle)
+import Settings (AppConfig(..), AppEnvironment(..))
 #endif
 
 main :: IO ()
