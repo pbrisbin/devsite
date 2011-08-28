@@ -14,15 +14,6 @@
     ^{link'' "bash"} scripting (or just general command-line 
     adventures), and the great email client ^{link'' "mutt"}.
 
-  <p>
-    This site does use HTML5 and CSS3 fairly heavily.
-
-  <p>
-    No, it's nothing sexy like ^{code "<video>"} or ^{code "<canvas>"}, 
-    but I do use some of the newer semantic tags like ^{code "<aside>"} 
-    and ^{code "<nav>"}. For this reason, the site might not style 
-    properly in older browsers. I'm sorry.
-
   <h3>
     <a id="Recent_Posts" href="#Recent_Posts">Recent Posts
 
