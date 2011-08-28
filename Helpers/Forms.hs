@@ -143,20 +143,23 @@ runPostForm mdoc = do
             , PostDescr =. postDescr new
             ]
 
-        removeTags :: PostId -> Handler ()
-        removeTags key = runDB $ deleteWhere [TagPost ==. key]
+        updateTags :: PostId -> [Text] -> Handler ()
+        updateTags key ts = do
+            runDB $ deleteWhere [TagPost ==. key]
+            createTags key ts
+
 
         createTags :: PostId -> [Text] -> Handler ()
         createTags key = mapM_ (go key)
             where
                 go :: PostId -> Text -> Handler ()
-                go key' tag = runDB (insertBy $ Tag key' tag) >>= \_ -> return ()
-
-        updateTags :: PostId -> [Text] -> Handler ()
-        updateTags key ts = removeTags key >> createTags key ts
+                go key' tag = runDB $ do
+                    _ <- insertBy $ Tag key' tag
+                    return ()
 
         parseTags :: Text -> [Text]
-        parseTags = filter (not . T.null) . map (T.toLower . T.strip) . T.splitOn ","
+        parseTags = filter (not . T.null)
+                  . map (T.toLower . T.strip) . T.splitOn ","
 
 -- | Display the new post form inself. If the first argument is Just,
 --   then use that to prepopulate the form
