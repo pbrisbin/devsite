@@ -58,7 +58,7 @@ mkYesodData "DevSite" $(parseRoutesFile "config/routes")
 instance Yesod DevSite where 
     approot      = Settings.appRoot . settings
     authRoute _  = Just $ AuthR LoginR
-    encryptKey _ = fmap Just $ getKey "client_session_key.aes"
+    encryptKey _ = fmap Just $ getKey "config/client_session_key.aes"
 
     defaultLayout widget = do
         muid   <- maybeAuth
