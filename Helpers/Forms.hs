@@ -15,8 +15,8 @@ import Data.Text (Text)
 import qualified Data.Text as T
 
 data ProfileEditForm = ProfileEditForm
-    { eUsername :: Maybe Text
-    , eEmail    :: Maybe Text
+    { formUsername :: Maybe Text
+    , formEmail    :: Maybe Text
     }
 
 data PostEditForm = PostEditForm
@@ -35,7 +35,12 @@ runProfileFormGet = do
         <h1>Edit
         <article .fullpage .profile
             <form enctype="#{enctype}" method="post">
-                ^{form}
+                <table>
+                    ^{form}
+                    <tr>
+                        <td>&nbsp;
+                        <td .buttons>
+                            <input type="submit" value="Save">
         |]
 
 -- | Handle the POST request. This must be a separate call since all 
@@ -53,45 +58,22 @@ runProfileFormPost = do
         saveChanges :: UserId -> ProfileEditForm -> Handler ()
         saveChanges uid ef = do
             runDB $ update uid 
-                [ UserName  =. eUsername ef
-                , UserEmail =. eEmail    ef
+                [ UserName  =. formUsername ef
+                , UserEmail =. formEmail    ef
                 ]
 
             tm <- getRouteToMaster
             redirect RedirectTemporary $ tm ProfileR
 
 profileEditForm :: User -> Html -> Form DevSite DevSite (FormResult ProfileEditForm, Widget)
-profileEditForm u fragment = do
-    (fUsername, fiUsername) <- mopt textField   "User name:"     $ Just $ userName u
-    (fEmail   , fiEmail   ) <- mopt emailField  "Email address:" $ Just $ userEmail u
+profileEditForm u = renderTable $ ProfileEditForm
+    <$> aopt textField   "User name"
+        { fsTooltip = Just "comments are attributed to this username"
+        } (Just $ userName u)
 
-    return (ProfileEditForm <$> fUsername <*> fEmail, [whamlet|
-            #{fragment}
-            <table>
-                ^{fieldRow fiUsername "comments are attributed to this username"        }
-                ^{fieldRow fiEmail    "never displayed, only used to find your gravatar"}
-                <tr>
-                    <td>&nbsp;
-                    <td .buttons colspan="2">
-                        <input type="submit" value="Save">
-            |])
-
-    where
-        fieldRow :: FieldView s m -> Text -> GWidget s m ()
-        fieldRow fv txt = [whamlet|
-            <tr ##{fvId fv}>
-                <th>
-                    <label for="#{fvId fv}">#{fvLabel fv}
-                    $maybe tt <- fvTooltip fv
-                        <div .tooltip>#{tt}
-                <td>^{fvInput fv}
-                <td>#{txt}
-                <td>
-                    $maybe error <- fvErrors fv
-                        #{error}
-                    $nothing
-                        &nbsp;
-            |]
+    <*> aopt emailField  "Email address"
+        { fsTooltip = Just "never displayed, only used to find your gravatar"
+        } (Just $ userEmail u)
 
 runPostForm :: Maybe Document -> Widget
 runPostForm mdoc = do
@@ -103,7 +85,15 @@ runPostForm mdoc = do
     [whamlet|
         <div .post_input>
             <form enctype="#{enctype}" method="post">
-                ^{form}
+                <table>
+                    ^{form}
+                    <tr>
+                        <td>&nbsp;
+                        <td .buttons>
+                            $maybe _ <- mdoc
+                                <input type="submit" value="Update">
+                            $nothing
+                                <input type="submit" value="Create">
         |]
 
     where
@@ -164,39 +154,12 @@ runPostForm mdoc = do
 -- | Display the new post form inself. If the first argument is Just,
 --   then use that to prepopulate the form
 postForm :: Maybe Document -> Html -> Form DevSite DevSite (FormResult PostEditForm, Widget)
-postForm mdoc fragment = do
-    (slug       , fiSlug       ) <- mreq textField     "post slug:"   $ fmap (postSlug   . post) mdoc
-    (t          , fiTitle      ) <- mreq textField     "title:"       $ fmap (postTitle  . post) mdoc
-    (ts         , fiTags       ) <- mreq textField     "tags:"        $ fmap (formatTags . tags) mdoc
-    (description, fiDescription) <- mreq markdownField "description:" $ fmap (postDescr  . post) mdoc
-    return (PostEditForm <$> slug <*> t <*> ts <*> description, [whamlet|
-        #{fragment}
-        <table>
-            ^{fieldRow fiSlug}
-            ^{fieldRow fiTitle}
-            ^{fieldRow fiTags}
-            ^{fieldRow fiDescription}
-            <tr .buttons>
-                <td colspan="3">
-                    <input type="submit" value="Save">
-        |])
+postForm mdoc = renderTable $ PostEditForm
+    <$> areq textField     "post slug"   (fmap (postSlug   . post) mdoc)
+    <*> areq textField     "title"       (fmap (postTitle  . post) mdoc)
+    <*> areq textField     "tags"        (fmap (formatTags . tags) mdoc)
+    <*> areq markdownField "description" (fmap (postDescr  . post) mdoc)
 
     where
-        fieldRow fv = [whamlet|
-            <tr>
-                <th>
-                    <label for="#{fvId fv}">#{fvLabel fv}
-                    $maybe tt <- fvTooltip fv
-                        <div .tooltip>#{tt}
-                <td>
-                    ^{fvInput fv}
-                <td>
-                    $maybe error <- fvErrors fv
-                        #{error}
-                    $nothing
-                        &nbsp;
-
-            |]
-
         formatTags :: [Tag] -> Text
         formatTags = T.intercalate ", " . map tagName
