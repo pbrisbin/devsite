@@ -97,9 +97,8 @@ runPostForm :: Maybe Document -> Widget
 runPostForm mdoc = do
     ((res, form), enctype) <- lift $ runFormPost $ postForm mdoc
     case res of
-        FormMissing    -> return ()
-        FormFailure _  -> return ()
         FormSuccess pf -> lift $ processFormResult pf
+        _              -> return ()
 
     [whamlet|
         <div .post_input>
