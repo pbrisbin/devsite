@@ -30,8 +30,7 @@ data PostEditForm = PostEditForm
 runProfileFormGet :: Widget
 runProfileFormGet = do
     (_, u)               <- lift requireAuth
-    ((_, form), enctype) <- lift $ runFormPost (const $ profileEditForm u)
-
+    ((_, form), enctype) <- lift $ runFormPost (\fragment -> profileEditForm fragment u)
     [whamlet|
         <h1>Edit
         <article .fullpage .profile
@@ -45,7 +44,7 @@ runProfileFormGet = do
 runProfileFormPost :: Handler ()
 runProfileFormPost = do
     (uid, u)          <- requireAuth
-    ((res, _   ), _ ) <- runFormPost (const $ profileEditForm u)
+    ((res, _   ), _ ) <- runFormPost (\fragment -> profileEditForm fragment u)
     case res of
         FormSuccess ef -> saveChanges uid ef
         _              -> return ()
@@ -61,12 +60,13 @@ runProfileFormPost = do
             tm <- getRouteToMaster
             redirect RedirectTemporary $ tm ProfileR
 
-profileEditForm :: User -> Form DevSite DevSite (FormResult ProfileEditForm, Widget)
-profileEditForm u = do
+profileEditForm :: Html -> User -> Form DevSite DevSite (FormResult ProfileEditForm, Widget)
+profileEditForm fragment u = do
     (fUsername, fiUsername) <- mopt textField   "User name:"     $ Just $ userName u
     (fEmail   , fiEmail   ) <- mopt emailField  "Email address:" $ Just $ userEmail u
 
     return (ProfileEditForm <$> fUsername <*> fEmail, [whamlet|
+            #{fragment}
             <table>
                 ^{fieldRow fiUsername "comments are attributed to this username"        }
                 ^{fieldRow fiEmail    "never displayed, only used to find your gravatar"}
@@ -95,7 +95,7 @@ profileEditForm u = do
 
 runPostForm :: Maybe Document -> Widget
 runPostForm mdoc = do
-    ((res, form), enctype) <- lift $ runFormPost (const $ postForm mdoc)
+    ((res, form), enctype) <- lift $ runFormPost (\fragment -> postForm fragment mdoc)
     case res of
         FormMissing    -> return ()
         FormFailure _  -> return ()
@@ -161,13 +161,14 @@ runPostForm mdoc = do
 
 -- | Display the new post form inself. If the first argument is Just,
 --   then use that to prepopulate the form
-postForm :: Maybe Document -> Form DevSite DevSite (FormResult PostEditForm, Widget)
-postForm mdoc = do
+postForm :: Html -> Maybe Document -> Form DevSite DevSite (FormResult PostEditForm, Widget)
+postForm fragment mdoc = do
     (slug       , fiSlug       ) <- mreq textField     "post slug:"   $ fmap (postSlug   . post) mdoc
     (t          , fiTitle      ) <- mreq textField     "title:"       $ fmap (postTitle  . post) mdoc
     (ts         , fiTags       ) <- mreq textField     "tags:"        $ fmap (formatTags . tags) mdoc
     (description, fiDescription) <- mreq markdownField "description:" $ fmap (postDescr  . post) mdoc
     return (PostEditForm <$> slug <*> t <*> ts <*> description, [whamlet|
+        #{fragment}
         <table>
             ^{fieldRow fiSlug}
             ^{fieldRow fiTitle}
