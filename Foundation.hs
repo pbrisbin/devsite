@@ -130,27 +130,6 @@ instance YesodAuth DevSite where
                 _ <- insert $ Ident (credsIdent creds) uid
                 return $ Just uid
 
-        {-muid <- maybeAuth-}
-        {-x    <- runDB $ getBy $ UniqueIdent $ credsIdent creds-}
-        {-case (x, muid) of-}
-            {-(Just (_, i), Nothing      ) -> return $ Just $ identUser i-}
-            {-(Nothing    , Just (uid, _)) -> do-}
-                {-_ <- runDB $ insert $ Ident (credsIdent creds) uid-}
-                {-return $ Just uid-}
-
-            {-(Nothing, Nothing) -> runDB $ do-}
-                {-uid <- insert $ User-}
-                    {-{ userName  = Nothing-}
-                    {-, userEmail = Nothing-}
-                    {-, userAdmin = False-}
-                    {-}-}
-                {-_ <- insert $ Ident (credsIdent creds) uid-}
-                {-return $ Just uid-}
-
-            {-(Just _, Just _) -> do -- this shouldn't happen-}
-                {-setMessage "That identifier is already attached to an account."-}
-                {-redirect RedirectTemporary ProfileR-}
-
     authPlugins = [ authOpenId ]
 
     loginHandler = defaultLayout $ do
