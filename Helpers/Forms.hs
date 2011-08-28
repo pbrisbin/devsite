@@ -30,7 +30,7 @@ data PostEditForm = PostEditForm
 runProfileFormGet :: Widget
 runProfileFormGet = do
     (_, u)               <- lift requireAuth
-    ((_, form), enctype) <- lift $ runFormPost (\fragment -> profileEditForm fragment u)
+    ((_, form), enctype) <- lift $ runFormPost $ profileEditForm u
     [whamlet|
         <h1>Edit
         <article .fullpage .profile
@@ -44,7 +44,7 @@ runProfileFormGet = do
 runProfileFormPost :: Handler ()
 runProfileFormPost = do
     (uid, u)          <- requireAuth
-    ((res, _   ), _ ) <- runFormPost (\fragment -> profileEditForm fragment u)
+    ((res, _   ), _ ) <- runFormPost $ profileEditForm u
     case res of
         FormSuccess ef -> saveChanges uid ef
         _              -> return ()
@@ -60,8 +60,8 @@ runProfileFormPost = do
             tm <- getRouteToMaster
             redirect RedirectTemporary $ tm ProfileR
 
-profileEditForm :: Html -> User -> Form DevSite DevSite (FormResult ProfileEditForm, Widget)
-profileEditForm fragment u = do
+profileEditForm :: User -> Html -> Form DevSite DevSite (FormResult ProfileEditForm, Widget)
+profileEditForm u fragment = do
     (fUsername, fiUsername) <- mopt textField   "User name:"     $ Just $ userName u
     (fEmail   , fiEmail   ) <- mopt emailField  "Email address:" $ Just $ userEmail u
 
@@ -95,7 +95,7 @@ profileEditForm fragment u = do
 
 runPostForm :: Maybe Document -> Widget
 runPostForm mdoc = do
-    ((res, form), enctype) <- lift $ runFormPost (\fragment -> postForm fragment mdoc)
+    ((res, form), enctype) <- lift $ runFormPost $ postForm mdoc
     case res of
         FormMissing    -> return ()
         FormFailure _  -> return ()
@@ -161,8 +161,8 @@ runPostForm mdoc = do
 
 -- | Display the new post form inself. If the first argument is Just,
 --   then use that to prepopulate the form
-postForm :: Html -> Maybe Document -> Form DevSite DevSite (FormResult PostEditForm, Widget)
-postForm fragment mdoc = do
+postForm :: Maybe Document -> Html -> Form DevSite DevSite (FormResult PostEditForm, Widget)
+postForm mdoc fragment = do
     (slug       , fiSlug       ) <- mreq textField     "post slug:"   $ fmap (postSlug   . post) mdoc
     (t          , fiTitle      ) <- mreq textField     "title:"       $ fmap (postTitle  . post) mdoc
     (ts         , fiTags       ) <- mreq textField     "tags:"        $ fmap (formatTags . tags) mdoc
