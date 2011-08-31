@@ -61,9 +61,14 @@ loadConfig env = do
     return $ AppConfig
         { appEnv  = env
         , appPort = read portS
-        , appRoot = pack (hostS ++ ":" ++ portS)
+        , appRoot = maybeAddPort hostS portS
         , connectionPoolSize = read connectionPoolSizeS
         }
+
+    where
+        -- no need to add :80
+        maybeAddPort :: String -> String -> Text
+        maybeAddPort h p = pack $ if p == "80" then h else h ++ ":" ++ p
 
 setTitle :: Y.Yesod m => Text -> Y.GWidget s m ()
 setTitle = Y.setTitle . Y.toHtml . T.append "pbrisbin - "
