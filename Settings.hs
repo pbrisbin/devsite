@@ -55,20 +55,23 @@ loadConfig :: AppEnvironment -> IO AppConfig
 loadConfig env = do
     allSettings <- (join $ YAML.decodeFile ("config/settings.yml" :: String)) >>= fromMapping
     settings <- lookupMapping (show env) allSettings
-    portS <- lookupScalar "port" settings
     hostS <- lookupScalar "host" settings
+    port <- fmap read $ lookupScalar "port" settings
     connectionPoolSizeS <- lookupScalar "connectionPoolSize" settings
     return $ AppConfig
         { appEnv  = env
-        , appPort = read portS
-        , appRoot = maybeAddPort hostS portS
+        , appPort = port
+        , appRoot = pack $ hostS ++ addPort port
         , connectionPoolSize = read connectionPoolSizeS
         }
 
     where
-        -- no need to add :80
-        maybeAddPort :: String -> String -> Text
-        maybeAddPort h p = pack $ if p == "80" then h else h ++ ":" ++ p
+        addPort :: Int -> String
+#ifdef PRODUCTION
+        addPort _ = ""
+#else
+        addPort p = ":" ++ (show p)
+#endif
 
 setTitle :: Y.Yesod m => Text -> Y.GWidget s m ()
 setTitle = Y.setTitle . Y.toHtml . T.append "pbrisbin - "
