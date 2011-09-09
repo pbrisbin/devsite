@@ -9,6 +9,7 @@
     ^{pageHead pc}
     <link rel="stylesheet" href="#{staticLink "css/normalize.css"}">
     <link rel="stylesheet" href="#{staticLink "css/style.css"}">
+    <script async src="http://www.google-analytics.com/ga.js">
   <body>
     ^{pageBody pc}
 
