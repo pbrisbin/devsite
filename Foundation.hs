@@ -24,6 +24,7 @@ import Yesod.Auth
 import Yesod.Auth.OpenId
 import Yesod.Logger (Logger, logLazyText)
 import Yesod.Goodies.Links
+import Yesod.Goodies.Gravatar
 import Yesod.RssFeed
 import Yesod.Comments hiding (userName, userEmail)
 import Yesod.Comments.Management
@@ -64,6 +65,7 @@ instance Yesod DevSite where
         muid   <- maybeAuth
         mmesg  <- getMessage
         (t, h) <- breadcrumbs
+        let mgrav = fmap getGravatar muid
         pc <- widgetToPageContent $ do
             rssLink FeedR "rss feed"
             addWidget $(widgetFile "sidebar")
@@ -71,6 +73,16 @@ instance Yesod DevSite where
         hamletToRepHtml $(hamletFile "default-layout")
 
         where
+            getGravatar :: (UserId, User) -> String
+            getGravatar (_,u) = let email = fromMaybe "" $ userEmail u
+                                in  gravatarImg email gravatarOpts
+
+            gravatarOpts :: GravatarOptions
+            gravatarOpts = defaultOptions
+                { gSize    = Just $ Size 12
+                , gDefault = Just MM
+                }
+
             -- external links used in sidebar
             github, aurPkgs, xmonadDocs, haskellDocs :: Link DevSite
             github      = Link (External "https://github.com/pbrisbin") "my projects on github" "github"

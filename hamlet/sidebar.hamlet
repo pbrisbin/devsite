@@ -27,7 +27,10 @@
 
       $maybe u <- muid
           <li>
-            <a href="@{ProfileR}" title="manage your profile">
+            $maybe grav <- mgrav
+              <img src="#{grav}" .icon alt="gravatar">
+
+            \ <a href="@{ProfileR}" title="manage your profile">
               #{fromMaybe "anonymous" $ userName $ snd u}
 
           <li>^{link $ CommentsAdminR OverviewR}
