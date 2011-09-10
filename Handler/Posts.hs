@@ -65,8 +65,8 @@ getDelPostR slug = do
     case p of
         Just (key, _) -> do
             -- delete the post and the tags
-            runDB $ deleteBy $ UniquePost slug
             runDB $ deleteWhere [TagPost ==. key]
+            runDB $ deleteBy $ UniquePost slug
             setMessage "post deleted!"
         Nothing -> setMessage "post not found."
 
