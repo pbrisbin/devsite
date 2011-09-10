@@ -1,0 +1,30 @@
+This snippet, when added to one's `~/.vimrc`, allows the easy
+toggling of commonly used options (i.e. things like `hls` or
+`wrap`) with a single keypress.
+
+First, you'll have to define the actual function:
+
+    function! MapToggle(key, opt)
+      let cmd = ':set '.a:opt.'! \| set '.a:opt."?\<CR>"
+      exec 'nnoremap '.a:key.' '.cmd
+      exec 'inoremap '.a:key." \<C-O>".cmd
+    endfunction
+
+    command! -nargs=+ MapToggle call MapToggle(<f-args>)
+
+Then, just map keys to that function:
+
+    MapToggle <F4> foldenable
+    MapToggle <F5> number
+    MapToggle <F6> spell
+    MapToggle <F7> paste
+    MapToggle <F8> hlsearch
+    MapToggle <F9> wrap
+
+You'll even get a nice notification in your vim command prompt when
+you toggle the setting
+
+<div class="note">
+I believe I got this from [rson](http://rsontech.net)'s vimrc, but I'm 
+not sure; If I did, thanks rson.
+</div>

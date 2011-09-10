@@ -1,0 +1,51 @@
+#!/bin/bash -e
+
+instances='1 2 3 4 5'
+
+usage() { echo 'usage: devsite [ start | stop | deploy ]' >&2; exit 1; }
+
+deploy_devsite() { # {{{
+  deptag;
+  touch Settings.hs
+
+  cabal install -fproduction
+
+  stop_devsite
+  sleep 2
+  start_devsite
+}
+# }}}
+
+start_devsite() { # {{{
+  local n
+
+  echo 'Starting worker processes...'
+  for n in $instances; do
+    devsite --port 300$n &> tmp/log/$n.log &
+    echo $! > tmp/pid/$n.pid
+  done
+}
+# }}}
+
+stop_devsite() { # {{{
+  local pid n
+
+  echo 'Stopping worker processes...'
+  for n in $instances; do
+    if [[ -f tmp/pid/$n.pid ]]; then
+      read -r pid < tmp/pid/$n.pid
+      if [[ -n $pid ]]; then
+        kill $pid
+        rm tmp/pid/$n.pid
+      fi
+    fi
+  done
+}
+# }}}
+
+case "$1" in
+  start)  start_devsite  ;;
+  stop)   stop_devsite   ;;
+  deploy) deploy_devsite ;;
+  *)      usage          ;;
+esac

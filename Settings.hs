@@ -84,15 +84,10 @@ addKeywords ws = Y.addHamletHead [hamlet|<meta name="keywords" content="#{format
         format = T.append "patrick brisbin, pbrisbin, brisbin, " . T.intercalate ", "
 
 pandocFile :: Text -> FilePath
-pandocFile x = T.unpack $ T.concat ["/srv/http/pandoc/", x, ".pdc"]
+pandocFile x = "pandoc/" ++ T.unpack x ++ ".pdc"
 
 staticLink :: FilePath -> String
-staticLink x =
-#ifdef PRODUCTION
-    "/static/" ++ x
-#else
-    "http://pbrisbin.com/static/" ++ x
-#endif
+staticLink x = "http://pbrisbin.com/static/" ++ x
 
 runConnectionPool :: MonadControlIO m => SqlPersist m a -> ConnectionPool -> m a
 runConnectionPool = runSqlPool

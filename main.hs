@@ -1,13 +1,23 @@
--- compile to fastcgi
-import Application  (withDevSite)
+import Application (withDevSite)
 import Yesod.Logger (makeLogger)
-import Network.Wai.Handler.FastCGI (run)
+import Network.Wai.Handler.Warp (run)
+import System.Environment (getArgs)
 
-import Settings (AppEnvironment(..))
-import qualified Settings
+import Settings (AppConfig(..), AppEnvironment(..), loadConfig)
 
 main :: IO ()
 main = do
     l <- makeLogger
-    c <- Settings.loadConfig Production
-    withDevSite c l $ run
+    c <- loadConfig Production
+    p <- getArgsWithDefault $ appPort c
+    withDevSite c l $ run p
+
+    where
+        getArgsWithDefault :: Int -> IO Int
+        getArgsWithDefault def = return . go =<< getArgs
+
+            where
+                go :: [String] -> Int
+                go ("-p"    :portS:_) = read portS
+                go ("--port":portS:_) = read portS
+                go _                  = def

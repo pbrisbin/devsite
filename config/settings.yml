@@ -7,6 +7,6 @@ Development:
   <<: *defaults
 
 Production:
+  <<: *defaults
   host: "http://pbrisbin.com"
-  port: 80
   connectionPoolSize: 100

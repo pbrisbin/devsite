@@ -1,0 +1,157 @@
+### About
+
+A simple pacman-like interface to the AUR written in bash.
+
+Aurget is designed to make the AUR convenient and speed up tedious
+actions. The user can decide to search, download, build, and/or
+install packages consistently through a config file or dynamically by 
+passing arguments on the commandline.
+
+The user can also choose to edit all or no PKGBUILDs, and enable or
+disable auto-dependency-resolution through the same means.
+
+Checking dependencies comes with risks because PKGBUILDs need to be
+sourced. Please, if you're worried about this, be sure to view all
+PKGBUILDs before proceeding or use the config file or commandline
+options to disable this check from occurring and remove any
+associated risk.
+
+You have been warned.
+
+### Usage
+
+The screenshot:
+
+<div class="fixed">
+![Aurget Screenshot](/static/screenshots/aurget.png)
+</div>
+
+The help:
+
+    usage: aurget [ -v | -h | -S* [ --options ] [ -- ] <arguments> ]
+      options:
+
+            -S  <package>   process <package> using your default sync_mode
+
+            -Sd <package>   download <package>
+            -Sb <package>   download and build <package>
+            -Sy <package>   download, build, and install <package>
+
+            -Su             process available upgrades using your default sync_mode
+
+            -Sdu            download available upgrades
+            -Sbu            download and build available upgrades
+            -Syu            download, build, and install available upgrades
+
+            -Ss  <term>     search aur for <term>
+            -Ssq <term>     search aur for <term>, print only package names
+            -Sp  <package>  print the PKGBUILD for <package>
+            -Si  <package>  print extended info for <package>
+
+            --rebuild       always rebuild (ignore your cache)
+
+            --devel         only affects -Su, add all development packages
+
+            --deps          resolve dependencies
+            --nodeps        don't resolve dependencies
+
+            --edit          prompt to edit all pkgbuilds
+            --noedit        don't prompt to edit any pkgbuilds
+
+            --discard       discard source files after building
+            --nodiscard     don't discard source files after building
+
+            --nocolor       disable colorized output
+            --noconfirm     auto-answer y to all prompts
+
+            --ignore '<package> <package> <...>'
+                            add additional packages to be ignored
+
+            --mopt '-opt -opt ...'
+                            add additional options to the build command
+
+            --popt '-opt -opt ...'
+                            add additional options to the install command
+
+            -v, --version   display version info
+            -h, --help      display this
+
+            --option=value  set config <option> as <value> for this run only
+
+<div class="note">
+The `--option=value` flag is powerful in that it can greatly customize 
+an aurget command for specific packages that require it (like an 
+nvidia-beta / nvidia-utils-beta upgrade which requires <abbr 
+title="aurget -Sy --nodeps --popt '-d -f'  &quot;--makepkg_command='makepkg -f 
+-d --noconfirm'&quot; nvidia-beta nvidia-utils-beta">additional 
+`pacman` and `makepkg` options</abbr> to complete). Beware that this command 
+sets the variable it's passed even if that's not a "valid" variable, so 
+it may have unintended consequences (i.e. if you pass `--HOME=foo` or 
+something silly).
+</div>
+
+### Installation
+
+Install the AUR package [here][aur].
+
+Follow development via my git repo [here][git].
+
+### Bugs and Features
+
+If you've found a bug or want to request a feature, please let me know 
+via email. If you can implement what you're looking for, please fork my 
+git repo and send me a pull request.
+
+Aurget does not and will not search or install from official repos. This 
+is by design and will not be implemented even if you offer a patch.
+
+Use packer or clyde if this is what you're looking for.
+
+### Known Bugs
+
+If you pass an aur package before one of its dependencies as the targets 
+to aurget, it will not reorder the targets and the installation will 
+probably fail on the first package. Accounting for this would require a 
+lot of unneeded code. The `makepkg` error will tell you the dep is not 
+satisfied and it's easy enough to adjust your targets and run it again.
+
+In a somewhat related way, it is possible, depending on the structure of 
+multi-level dependencies, for aurget to miss a dependency. As an 
+example:
+
+    # coding specifically for this scenario:
+
+        pkg
+        `-- depends
+            |-- foo
+            |-- bar
+            |   `- depends
+            |      `- baz
+            `-- baz
+
+    # would break this one (and vice versa):
+
+        pkg
+        `-- depends
+            |-- foo
+            |-- baz
+            `-- bar
+                `- depends
+                   `- baz
+
+Aurget will filter out the duplicate dependency (baz), but in one of the 
+cases it will be placed behind the package that needs it and `makepkg` 
+will fail. I consider this improper packaging and have decided to not 
+try and code around it. If you encounter this scenario, I encourage you 
+to post a comment on the aur page of the parent package explaining that 
+baz is unneeded in his `depends` array because it's pulled in by bar.
+
+Some aur packages report a bad url to their tarball in the JSON 
+interface. Aurget checks the downloaded file, if it's not a valid 
+archive, it will try 
+`http://aur.archlinux.org/packages/$package/$package.tar.gz` as a 
+fallback. If neither the JSON url nor the fallback url provide a valid 
+archive, well, there's not much I can do.
+
+[aur]: http://aur.archlinux.org/packages.php?ID=31933 "aurget on the AUR"
+[git]: https://github.com/pbrisbin/aurget             "aurget on github"
