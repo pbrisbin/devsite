@@ -31,6 +31,14 @@ library
     other-modules:   Foundation
                      Model
                      Settings
+                     Helpers.Forms
+                     Helpers.Documents
+                     Handler.Feed
+                     Handler.Tags
+                     Handler.Posts
+                     Handler.About
+                     Handler.Root
+                     Handler.Profile
 
 executable         devsite
     if flag(devel)

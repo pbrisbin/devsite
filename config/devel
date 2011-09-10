@@ -1,4 +1,0 @@
-#!/bin/bash -e
-
-touch Settings.hs main.hs
-runhaskell -Wall main.hs
