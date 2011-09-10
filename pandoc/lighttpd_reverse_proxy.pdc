@@ -71,7 +71,7 @@ available in lighttpd-1.5+. If you're on Arch, you can install
 
 Import some modules:
 
-~~~ 
+~~~ { .bash }
 server.modules = ( "mod_rewrite"
                  , "mod_proxy_core"
                  , "mod_proxy_backend_http"
@@ -158,7 +158,7 @@ I like to script this process of starting and stopping the multiple Warp
 instances. To facilitate this, we need to create some support 
 directories alongside your source code:
 
-    mkdir tmp/{pid/log}
+    mkdir tmp/{pid,log}
 
 With those in place, feel free to take the following functions and 
 incorporate them into some server management script:
