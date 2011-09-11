@@ -10,10 +10,9 @@ module Application
 import Foundation
 import Settings
 import Yesod.Auth
-import Yesod.Logger (makeLogger, flushLogger, Logger, logString, logLazyText)
+import Yesod.Logger (Logger)
 import Database.Persist.GenericSql
 import Data.Dynamic (Dynamic, toDyn)
-import Network.Wai.Middleware.Debug (debugHandle)
 import qualified System.Posix.Signals as Signal
 import Control.Concurrent (forkIO, killThread)
 import Control.Concurrent.MVar (newEmptyMVar, putMVar, takeMVar)
@@ -62,17 +61,4 @@ withDevSite conf logger f = do
                 return $ Document v ts'
 
 withDevelAppPort :: Dynamic
-withDevelAppPort =
-    toDyn go
-  where
-    go :: ((Int, Application) -> IO ()) -> IO ()
-    go f = do
-        conf <- loadConfig Development
-        let port = appPort conf
-        logger <- makeLogger
-        logString logger $ "Devel application launched, listening on port " ++ show port
-        withDevSite conf logger $ \app -> f (port, debugHandle (logHandle logger) app)
-        flushLogger logger
-
-      where
-        logHandle logger msg = logLazyText logger msg >> flushLogger logger
+withDevelAppPort = toDyn $ defaultDevelApp withDevSite
