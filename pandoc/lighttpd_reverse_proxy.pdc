@@ -116,41 +116,9 @@ $HTTP["url"] =~ "^/proxy.*" {
 Now that we've got that going we need to spin up some Warp instances to 
 serve out anything lighttpd redirects from `/proxy`.
 
-If you're using the scaffold too, it already allows a slew of command 
-line arguments -- one of which is the port. I keep my code a bit 
-simpler, I use a simple `getArgs` call to allow *only* a port argument.
-
-Here's the haskell:
-
-~~~ { .haskell }
-import Application (withDevSite)
-import Yesod.Logger (makeLogger)
-import Network.Wai.Handler.Warp (run)
-import System.Environment (getArgs)
-
-import Settings (AppConfig(..), AppEnvironment(..), loadConfig)
-
-main :: IO ()
-main = do
-    l <- makeLogger
-    c <- loadConfig Production
-    p <- getArgsWithDefault $ appPort c
-    withDevSite c l $ run p
-
-    where
-        getArgsWithDefault :: Int -> IO Int
-        getArgsWithDefault def = return . go =<< getArgs
-
-            where
-                go :: [String] -> Int
-                go ("-p"    :portS:_) = read portS
-                go ("--port":portS:_) = read portS
-                go _                  = def
-~~~
-
-Now once we `cabal install` this binary, we can call it with `-p 3001`, 
-then again with `-p 3002`, and so on to get all our instances running. 
-If we don't provide a port, the default from `settings.yml` is used.
+Luckily the scaffolded `main.hs` allows us to pass a port on the command 
+line, so we'll just start up a bunch of instances of our app all 
+listening on a different port.
 
 ### Script It Out
 
@@ -171,7 +139,7 @@ start_devsite() {
 
   echo 'Starting worker processes...'
   for n in $instances; do
-    devsite --port 300$n > tmp/log/$n.log 2> tmp/log/${n}_errors.log &
+    devsite -p=300$n > tmp/log/$n.log 2> tmp/log/${n}_errors.log &
     echo $! > tmp/pid/$n.pid
   done
 }
