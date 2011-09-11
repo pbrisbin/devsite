@@ -40,7 +40,7 @@ addKeywords :: [Text] -> Y.GWidget s m ()
 addKeywords ws = Y.addHamletHead [hamlet|<meta name="keywords" content="#{format ws}">|]
 
     where 
-        -- add some default keywords, and make the comma separated 
+        -- add some default keywords, and make the comma separated list
         format :: [Text] -> Text
         format = T.append "patrick brisbin, pbrisbin, brisbin, " . T.intercalate ", "
 
@@ -67,25 +67,25 @@ hamletFile = S.hamletFile . globFile "hamlet"
 cassiusFile :: FilePath -> Q Exp
 cassiusFile = 
 #ifdef PRODUCTION
-  S.cassiusFile . globFile "cassius"
+    S.cassiusFile . globFile "cassius"
 #else
-  S.cassiusFileDebug . globFile "cassius"
+    S.cassiusFileDebug . globFile "cassius"
 #endif
 
 luciusFile :: FilePath -> Q Exp
 luciusFile = 
 #ifdef PRODUCTION
-  S.luciusFile . globFile "lucius"
+    S.luciusFile . globFile "lucius"
 #else
-  S.luciusFileDebug . globFile "lucius"
+    S.luciusFileDebug . globFile "lucius"
 #endif
 
 juliusFile :: FilePath -> Q Exp
 juliusFile =
 #ifdef PRODUCTION
-  S.juliusFile . globFile "julius"
+    S.juliusFile . globFile "julius"
 #else
-  S.juliusFileDebug . globFile "julius"
+    S.juliusFileDebug . globFile "julius"
 #endif
 
 textFile :: FilePath -> Q Exp
