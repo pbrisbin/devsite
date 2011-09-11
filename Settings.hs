@@ -12,9 +12,6 @@ module Settings
     , ConnectionPool
     , withConnectionPool
     , runConnectionPool
-    , loadConfig
-    , AppEnvironment(..)
-    , AppConfig(..)
     , staticLink
     , setTitle
     , addKeywords
@@ -29,49 +26,17 @@ import qualified Text.Shakespeare.Text as S
 import Text.Shakespeare.Text (st)
 import Language.Haskell.TH.Syntax
 import Database.Persist.Postgresql
-
 import Yesod (liftIO, MonadControlIO, addWidget, addCassius, addJulius, addLucius, whamletFile,hamlet)
+import Yesod.Settings
 import qualified Yesod as Y
 import Data.Monoid (mempty)
 import System.Directory (doesFileExist)
-import Data.Text (Text, pack, concat)
+import Data.Text (Text, concat)
 import qualified Data.Text as T
 import Prelude hiding (concat)
 import Data.Object
 import qualified Data.Object.Yaml as YAML
 import Control.Monad (join)
-
-data AppEnvironment = Development | Production
-                    deriving (Eq, Show, Read, Enum, Bounded)
-
-data AppConfig = AppConfig
-    { appEnv             :: AppEnvironment
-    , appPort            :: Int
-    , connectionPoolSize :: Int
-    , appRoot            :: Text
-    } deriving (Show)
-
-loadConfig :: AppEnvironment -> IO AppConfig
-loadConfig env = do
-    allSettings <- (join $ YAML.decodeFile ("config/settings.yml" :: String)) >>= fromMapping
-    settings <- lookupMapping (show env) allSettings
-    hostS <- lookupScalar "host" settings
-    port <- fmap read $ lookupScalar "port" settings
-    connectionPoolSizeS <- lookupScalar "connectionPoolSize" settings
-    return $ AppConfig
-        { appEnv  = env
-        , appPort = port
-        , appRoot = pack $ hostS ++ addPort port
-        , connectionPoolSize = read connectionPoolSizeS
-        }
-
-    where
-        addPort :: Int -> String
-#ifdef PRODUCTION
-        addPort _ = ""
-#else
-        addPort p = ":" ++ (show p)
-#endif
 
 setTitle :: Y.Yesod m => Text -> Y.GWidget s m ()
 setTitle = Y.setTitle . Y.toHtml . T.append "pbrisbin - "

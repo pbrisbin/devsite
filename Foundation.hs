@@ -45,10 +45,10 @@ import Settings ( setTitle
                 , pandocFile
                 )
 
-import qualified Settings
+import qualified Settings as Settings
 
 data DevSite = DevSite
-    { settings  :: Settings.AppConfig
+    { settings  :: AppConfig
     , getLogger :: Logger
     , connPool  :: ConnectionPool
     , siteDocs  :: GHandler DevSite DevSite [Document]
@@ -57,7 +57,7 @@ data DevSite = DevSite
 mkYesodData "DevSite" $(parseRoutesFile "config/routes")
 
 instance Yesod DevSite where 
-    approot      = Settings.appRoot . settings
+    approot      = appRoot . settings
     authRoute _  = Just $ AuthR LoginR
     encryptKey _ = fmap Just $ getKey "config/client_session_key.aes"
 

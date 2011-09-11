@@ -21,7 +21,7 @@ start_devsite() { # {{{
 
   echo 'Starting worker processes...'
   for n in $instances; do
-    devsite -p=300$n > tmp/log/$n.log 2> tmp/log/${n}_errors.log &
+    devsite -e production -p 300$n > tmp/log/$n.log 2> tmp/log/${n}_errors.log &
     echo $! > tmp/pid/$n.pid
   done
 }
