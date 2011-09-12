@@ -10,15 +10,16 @@ deploy_devsite() { # {{{
 
   cabal clean
 
-  if ! cabal configure --ghc-options='-Wall -Werror'; then
+  if ! cabal configure; then
+    # install missing deps and reconfigure
     cabal install --only-dependencies
-    cabal configure --ghc-options='-Wall -Werror'
+    cabal configure
   fi
 
   cabal build
   cabal check
 
-  ./Setup.hs install
+  runhaskell ./Setup.hs install
 
   stop_devsite
   sleep 2

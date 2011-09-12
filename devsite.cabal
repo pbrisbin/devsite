@@ -12,18 +12,14 @@ cabal-version:     >= 1.6
 build-type:        Simple
 homepage:          http://pbrisbin.com
 
-Flag production
-    description:   Build the production executable.
-    default:       False
-
 Flag devel
     description:   Build for yesod devel
     default:       False
 
 library
     if flag(devel)
-        cpp-options: -DDEVELOPMENT
         buildable: True
+        cpp-options: -DDEVELOPMENT
     else
         buildable: False
 
@@ -41,13 +37,12 @@ library
                      Handler.Root
                      Handler.Profile
 
-executable         devsite
+executable devsite
     if flag(devel)
-        cpp-options: -DDEVELOPMENT
         buildable: False
     else
-        ghc-options: -Wall -threaded -O2
         buildable: True
+        ghc-options: -Wall -threaded -O2
 
     main-is:        main.hs
     hs-source-dirs: .
