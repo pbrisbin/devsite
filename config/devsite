@@ -8,7 +8,17 @@ deploy_devsite() { # {{{
   deptag;
   touch Settings.hs
 
-  cabal install -fproduction
+  cabal clean
+
+  if ! cabal configure --ghc-options='-Wall -Werror'; then
+    cabal install --only-dependencies
+    cabal configure --ghc-options='-Wall -Werror'
+  fi
+
+  cabal build
+  cabal check
+
+  ./Setup.hs install
 
   stop_devsite
   sleep 2
