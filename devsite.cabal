@@ -22,6 +22,7 @@ Flag devel
 
 library
     if flag(devel)
+        cpp-options: -DDEVELOPMENT
         buildable: True
     else
         buildable: False
@@ -42,13 +43,11 @@ library
 
 executable         devsite
     if flag(devel)
+        cpp-options: -DDEVELOPMENT
         buildable: False
-
-    if flag(production)
-        cpp-options: -DPRODUCTION
-        ghc-options: -Wall -threaded -O2
     else
-        ghc-options: -Wall -threaded
+        ghc-options: -Wall -threaded -O2
+        buildable: True
 
     main-is:        main.hs
     hs-source-dirs: .
@@ -63,7 +62,6 @@ executable         devsite
                  , yesod-comments
                  , yesod-goodies
                  , wai-extra
-                 , wai-handler-fastcgi
                  , directory
                  , bytestring
                  , text
@@ -81,7 +79,8 @@ executable         devsite
                  , blaze-builder
                  , transformers
                  , clientsession
-                 , data-object
-                 , data-object-yaml
                  , unix
-                 , cmdargs
+  
+source-repository head
+  type:     git
+  location: git://github.com/pbrisbin/devsite.git

@@ -66,34 +66,34 @@ hamletFile = S.hamletFile . globFile "hamlet"
 
 cassiusFile :: FilePath -> Q Exp
 cassiusFile = 
-#ifdef PRODUCTION
-    S.cassiusFile . globFile "cassius"
-#else
+#ifdef DEVELOPMENT
     S.cassiusFileDebug . globFile "cassius"
+#else
+    S.cassiusFile . globFile "cassius"
 #endif
 
 luciusFile :: FilePath -> Q Exp
 luciusFile = 
-#ifdef PRODUCTION
-    S.luciusFile . globFile "lucius"
-#else
+#ifdef DEVELOPMENT
     S.luciusFileDebug . globFile "lucius"
+#else
+    S.luciusFile . globFile "lucius"
 #endif
 
 juliusFile :: FilePath -> Q Exp
 juliusFile =
-#ifdef PRODUCTION
-    S.juliusFile . globFile "julius"
-#else
+#ifdef DEVELOPMENT
     S.juliusFileDebug . globFile "julius"
+#else
+    S.juliusFile . globFile "julius"
 #endif
 
 textFile :: FilePath -> Q Exp
 textFile =
-#ifdef PRODUCTION
-    S.textFile . globFile "text"
-#else
+#ifdef DEVELOPMENT
     S.textFileDebug . globFile "text"
+#else
+    S.textFile . globFile "text"
 #endif
 
 widgetFile :: FilePath -> Q Exp
