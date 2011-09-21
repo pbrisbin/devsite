@@ -26,7 +26,7 @@ import qualified Text.Shakespeare.Text as S
 import Language.Haskell.TH.Syntax
 import Database.Persist.Postgresql
 import Yesod (liftIO, MonadControlIO, addWidget, addCassius, addJulius, addLucius, whamletFile,hamlet)
-import Yesod.Settings
+import Yesod.Default.Config
 import qualified Yesod as Y
 import Data.Monoid (mempty)
 import System.Directory (doesFileExist)
@@ -53,10 +53,10 @@ staticLink x = "http://pbrisbin.com/static/" ++ x
 runConnectionPool :: MonadControlIO m => SqlPersist m a -> ConnectionPool -> m a
 runConnectionPool = runSqlPool
 
-withConnectionPool :: MonadControlIO m => AppConfig -> (ConnectionPool -> m a) -> m a
+withConnectionPool :: MonadControlIO m => AppConfig DefaultEnv -> (ConnectionPool -> m a) -> m a
 withConnectionPool conf f = do
-    cs <- liftIO $ loadPostgresqlConnStr (appEnv conf)
-    withPostgresqlPool cs (connectionPoolSize conf) f
+    conf <- liftIO $ loadPostgresql (appEnv conf)
+    withPostgresqlPool (pgConnStr conf ) (pgPoolSize conf) f
 
 globFile :: String -> String -> FilePath
 globFile kind x = kind ++ "/" ++ x ++ "." ++ kind

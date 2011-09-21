@@ -53,6 +53,7 @@ executable devsite
                  , yesod-auth
                  , yesod-form
                  , yesod-persistent
+                 , yesod-default
                  , yesod-newsfeed
                  , yesod-comments
                  , yesod-goodies

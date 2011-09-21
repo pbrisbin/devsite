@@ -10,6 +10,8 @@ module Application
 import Foundation
 import Settings
 import Yesod.Auth
+import Yesod.Default.Config
+import Yesod.Default.Main
 import Yesod.Logger (Logger)
 import Database.Persist.GenericSql
 import Data.Dynamic (Dynamic, toDyn)
@@ -36,7 +38,7 @@ getFaviconR = sendFile "image/x-icon" "config/favicon.ico"
 getRobotsR :: Handler RepPlain
 getRobotsR = return $ RepPlain $ toContent ("User-agent: *" :: String)
 
-withDevSite :: AppConfig -> Logger -> (Application -> IO a) -> IO ()
+withDevSite :: AppConfig DefaultEnv -> Logger -> (Application -> IO a) -> IO ()
 withDevSite conf logger f = do
     Settings.withConnectionPool conf $ \p -> do
         runConnectionPool (runMigration migratePosts)    p

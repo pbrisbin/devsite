@@ -1,12 +1,10 @@
 Default: &defaults
-  host: "http://localhost"
+  host: "localhost"
   port: 3000
-  connectionPoolSize: 10
 
 Development:
   <<: *defaults
 
 Production:
   <<: *defaults
-  host: "http://pbrisbin.com"
-  connectionPoolSize: 100
+  approot: "http://pbrisbin.com"

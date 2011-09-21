@@ -3,11 +3,13 @@ Default: &defaults
   password: password
   host: localhost
   port: 5432
-  database: pbrisbin_dev
 
 Development:
   <<: *defaults
+  database: pbrisbin_dev
+  poolsize: 10
 
 Production:
-  database: pbrisbin
   <<: *defaults
+  database: pbrisbin
+  poolsize: 100

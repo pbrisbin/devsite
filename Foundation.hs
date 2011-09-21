@@ -22,6 +22,7 @@ import Model
 import Yesod hiding (setTitle)
 import Yesod.Auth
 import Yesod.Auth.OpenId
+import Yesod.Default.Config
 import Yesod.Logger (Logger, logLazyText)
 import Yesod.Goodies.Links
 import Yesod.Goodies.Gravatar
@@ -48,7 +49,7 @@ import Settings ( setTitle
 import qualified Settings as Settings
 
 data DevSite = DevSite
-    { settings  :: AppConfig
+    { settings  :: AppConfig DefaultEnv
     , getLogger :: Logger
     , connPool  :: ConnectionPool
     , siteDocs  :: GHandler DevSite DevSite [Document]
