@@ -26,24 +26,21 @@ import Yesod.Default.Config
 import Yesod.Logger (Logger, logLazyText)
 import Yesod.Goodies.Links
 import Yesod.Goodies.Gravatar
-import Yesod.RssFeed
+import Yesod.RssFeed (rssLink)
 import Yesod.Comments hiding (userName, userEmail)
 import Yesod.Comments.Management
 import Yesod.Comments.Storage
 import Data.Maybe (fromMaybe)
 import Database.Persist.GenericSql
 import Web.ClientSession (getKey)
+import Text.Hamlet (hamletFile)
 import qualified Data.Text as T
 
 import Settings ( setTitle
                 , addKeywords
                 , staticLink
-                , hamletFile
-                , cassiusFile
-                , luciusFile
-                , juliusFile
-                , widgetFile
                 , pandocFile
+                , widgetFile
                 )
 
 import qualified Settings as Settings
@@ -69,9 +66,8 @@ instance Yesod DevSite where
         let mgrav = fmap getGravatar muid
         pc <- widgetToPageContent $ do
             rssLink FeedR "rss feed"
-            addWidget $(widgetFile "sidebar")
-            widget
-        hamletToRepHtml $(hamletFile "default-layout")
+            $(widgetFile "default-layout")
+        hamletToRepHtml $(hamletFile "hamlet/default-layout-wrapper.hamlet")
 
         where
             getGravatar :: (UserId, User) -> String

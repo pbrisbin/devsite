@@ -1,35 +1,45 @@
-!!!
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>#{pageTitle pc}
-    <meta name="description" content="pbrisbin dot com">
-    <meta name="author" content="Patrick Brisbin">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    ^{pageHead pc}
-    <link rel="stylesheet" href="#{staticLink "css/normalize.css"}">
-    <link rel="stylesheet" href="#{staticLink "css/style.css"}">
-    <script async src="http://www.google-analytics.com/ga.js">
-  <body>
-    ^{pageBody pc}
+<aside>
+  $maybe mesg <- mmesg
+    <div .message>
+        <p>#{mesg}
 
-    <footer>
-      <p>
-        <small>
-          <a href="@{RootR}">pbrisbin
-          \ dot com 2010 
-          <span .float_right>
-            powered by 
-            <a href="http://docs.yesodweb.com/">yesod
-            \ - #{yesodVersion}
+  <div .breadcrumbs>
+    <p>
+      $forall node <- h
+        <a href="@{fst node}">#{snd node} 
+        \ / 
+      \ #{t}
 
-    <script>
-      var _gaq = _gaq || [];
-      _gaq.push(['_setAccount', 'UA-22304237-1']);
-      _gaq.push(['_trackPageview']);
+  <nav>
+    <ul>
+      <li>^{link RootR}
+      <li>^{link AboutR}
+      <li>^{link PostsR}
+      <li>^{link TagsR}
 
-      (function() {
-        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-      })();
+      <li .extra>^{link' github}
+      <li .extra>^{link' aurPkgs}
+      <li .extra>^{link' xmonadDocs}
+      <li .extra>^{link' haskellDocs}
+      <li .extra>
+        <img src="#{staticLink "images/feed.png"}" .icon alt="rss icon">
+        \ ^{link FeedR}
+
+      $maybe u <- muid
+          <li>
+            $maybe grav <- mgrav
+              <img src="#{grav}" .icon alt="gravatar">
+
+            \ <a href="@{ProfileR}" title="manage your profile">
+              #{fromMaybe "anonymous" $ userName $ snd u}
+
+          <li>^{link $ CommentsAdminR OverviewR}
+
+          $if userAdmin $ snd u
+            <li .extra>^{link ManagePostsR}
+
+        <li>^{link $ AuthR LogoutR}
+
+      $nothing
+        <li>^{link $ AuthR LoginR}
+^{widget}

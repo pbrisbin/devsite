@@ -12,13 +12,10 @@ import Settings
 import Yesod.Auth
 import Yesod.Default.Config
 import Yesod.Default.Main
+import Yesod.Default.Util
 import Yesod.Logger (Logger)
 import Database.Persist.GenericSql
 import Data.Dynamic (Dynamic, toDyn)
-import qualified System.Posix.Signals as Signal
-import Control.Concurrent (forkIO, killThread)
-import Control.Concurrent.MVar (newEmptyMVar, putMVar, takeMVar)
-
 import Control.Monad (forM)
 import Yesod.Comments.Management
 import Yesod.Comments.Storage
@@ -43,15 +40,7 @@ withDevSite conf logger f = do
     Settings.withConnectionPool conf $ \p -> do
         runConnectionPool (runMigration migratePosts)    p
         runConnectionPool (runMigration migrateComments) p
-        let h = DevSite conf logger p loadDocuments
-
-        tid  <- forkIO $ toWaiApp h >>= f >> return ()
-        flag <- newEmptyMVar
-        _    <- Signal.installHandler Signal.sigINT (Signal.CatchOnce $ do
-            putStrLn "Caught an interrupt"
-            killThread tid
-            putMVar flag ()) Nothing
-        takeMVar flag
+        defaultRunner f $ DevSite conf logger p loadDocuments
 
     where
         loadDocuments :: Handler [Document]
