@@ -4,9 +4,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Settings
     ( widgetFile
-    , ConnectionPool
-    , withConnectionPool
-    , runConnectionPool
+    , PersistConfig
     , staticLink
     , setTitle
     , addKeywords
@@ -14,16 +12,16 @@ module Settings
     ) where
 
 import Language.Haskell.TH.Syntax
-import Database.Persist.Postgresql
-
-import Yesod (liftIO, MonadControlIO, hamlet)
+import Database.Persist.Postgresql (PostgresConf)
 import Yesod.Default.Config
-
-import qualified Yesod as Y
 import qualified Yesod.Default.Util
-
 import Data.Text (Text)
 import qualified Data.Text as T
+
+import Yesod (liftIO, MonadControlIO, hamlet)
+import qualified Yesod as Y
+
+type PersistConfig = PostgresConf
 
 setTitle :: Y.Yesod m => Text -> Y.GWidget s m ()
 setTitle = Y.setTitle . Y.toHtml . T.append "pbrisbin - "
@@ -41,14 +39,6 @@ pandocFile x = "pandoc/" ++ T.unpack x ++ ".pdc"
 
 staticLink :: FilePath -> String
 staticLink x = "http://pbrisbin.com/static/" ++ x
-
-runConnectionPool :: MonadControlIO m => SqlPersist m a -> ConnectionPool -> m a
-runConnectionPool = runSqlPool
-
-withConnectionPool :: MonadControlIO m => AppConfig DefaultEnv -> (ConnectionPool -> m a) -> m a
-withConnectionPool conf f = do
-    conf <- liftIO $ loadPostgresql (appEnv conf)
-    withPostgresqlPool (pgConnStr conf ) (pgPoolSize conf) f
 
 widgetFile :: FilePath -> Q Exp
 widgetFile =

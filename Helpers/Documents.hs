@@ -8,10 +8,6 @@ module Helpers.Documents
     ) where
 
 import Foundation
-import Yesod.Goodies.Links
-import Yesod.Goodies.Markdown
-import Yesod.Goodies.Time
-import Yesod.Goodies.Shorten (shorten)
 import Yesod.Comments
 
 import Control.Monad    (unless)
@@ -80,5 +76,5 @@ unpublishedDocument slug = do
 
 documentInfo :: Document -> Widget
 documentInfo (Document p ts) = do
-    timeDiff <- lift $ humanReadableTime $ postDate p
+    timeDiff <- lift . liftIO . humanReadableTime $ postDate p
     addWidget $(widgetFile "documentinfo")

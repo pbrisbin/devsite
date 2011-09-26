@@ -7,7 +7,6 @@ module Helpers.Forms
     ) where
 
 import Foundation
-import Yesod.Goodies.Markdown
 import Control.Applicative ((<$>), (<*>))
 import Data.Time           (getCurrentTime)
 

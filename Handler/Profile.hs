@@ -9,7 +9,6 @@ module Handler.Profile
 import Foundation
 import Helpers.Forms
 import Yesod.Comments.Management
-import Yesod.Goodies.Gravatar
 import Data.Maybe (fromMaybe)
 
 getProfileR :: Handler RepHtml

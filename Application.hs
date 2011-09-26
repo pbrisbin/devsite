@@ -14,11 +14,12 @@ import Yesod.Default.Config
 import Yesod.Default.Main
 import Yesod.Default.Util
 import Yesod.Logger (Logger)
-import Database.Persist.GenericSql
 import Data.Dynamic (Dynamic, toDyn)
 import Control.Monad (forM)
 import Yesod.Comments.Management
 import Yesod.Comments.Storage
+import Database.Persist.GenericSql (runMigration)
+import qualified Database.Persist.Base as Base
 
 import Handler.About
 import Handler.Feed
@@ -37,9 +38,12 @@ getRobotsR = return $ RepPlain $ toContent ("User-agent: *" :: String)
 
 withDevSite :: AppConfig DefaultEnv -> Logger -> (Application -> IO a) -> IO ()
 withDevSite conf logger f = do
-    Settings.withConnectionPool conf $ \p -> do
-        runConnectionPool (runMigration migratePosts)    p
-        runConnectionPool (runMigration migrateComments) p
+    dbconf <- withYamlEnvironment "config/postgresql.yml" (appEnv conf)
+            $ either error return . Base.loadConfig
+
+    Base.withPool (dbconf :: Settings.PersistConfig) $ \p -> do
+        Base.runPool dbconf (runMigration migratePosts)    p
+        Base.runPool dbconf (runMigration migrateComments) p
         defaultRunner f $ DevSite conf logger p loadDocuments
 
     where

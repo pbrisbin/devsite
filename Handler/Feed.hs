@@ -6,7 +6,6 @@ module Handler.Feed
 
 import Foundation
 import Yesod.RssFeed
-import Yesod.Goodies.Markdown
 import Data.Text (Text)
 
 getFeedR :: Handler RepRss

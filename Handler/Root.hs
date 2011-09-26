@@ -4,7 +4,6 @@
 module Handler.Root (getRootR) where
 
 import Foundation
-import Yesod.Goodies.Links
 import Helpers.Documents
 import Data.Text (Text)
 

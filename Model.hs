@@ -6,7 +6,7 @@
 {-# LANGUAGE FlexibleContexts           #-}
 module Model where
 
-import Yesod.Goodies.Markdown
+import Yesod.Goodies
 import Yesod.Persist
 
 import Data.List (nub, sortBy)

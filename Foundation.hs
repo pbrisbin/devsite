@@ -13,6 +13,7 @@ module Foundation
     , maybeAuth
     , requireAuth
     , module Yesod
+    , module Yesod.Goodies
     , module Settings
     , module Model
     , AuthRoute(..)
@@ -24,8 +25,7 @@ import Yesod.Auth
 import Yesod.Auth.OpenId
 import Yesod.Default.Config
 import Yesod.Logger (Logger, logLazyText)
-import Yesod.Goodies.Links
-import Yesod.Goodies.Gravatar
+import Yesod.Goodies hiding (NotFound)
 import Yesod.RssFeed (rssLink)
 import Yesod.Comments hiding (userName, userEmail)
 import Yesod.Comments.Management
@@ -35,6 +35,7 @@ import Database.Persist.GenericSql
 import Web.ClientSession (getKey)
 import Text.Hamlet (hamletFile)
 import qualified Data.Text as T
+import qualified Database.Persist.Base as Base
 
 import Settings ( setTitle
                 , addKeywords
@@ -48,7 +49,7 @@ import qualified Settings as Settings
 data DevSite = DevSite
     { settings  :: AppConfig DefaultEnv
     , getLogger :: Logger
-    , connPool  :: ConnectionPool
+    , connPool  :: Base.PersistConfigPool Settings.PersistConfig
     , siteDocs  :: GHandler DevSite DevSite [Document]
     }
 
@@ -118,7 +119,7 @@ instance YesodBreadcrumbs DevSite where
 instance YesodPersist DevSite where
     type YesodPersistBackend DevSite = SqlPersist
     runDB f = liftIOHandler
-            $ fmap connPool getYesod >>= Settings.runConnectionPool f
+            $ fmap connPool getYesod >>= Base.runPool (undefined :: Settings.PersistConfig) f
 
 instance YesodAuth DevSite where
     type AuthId DevSite = UserId
