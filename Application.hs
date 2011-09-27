@@ -1,6 +1,5 @@
 {-# LANGUAGE TemplateHaskell       #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE OverloadedStrings     #-}
 {-# OPTIONS -fno-warn-orphans      #-}
 module Application
     ( withDevSite
@@ -13,6 +12,7 @@ import Yesod.Auth
 import Yesod.Default.Config
 import Yesod.Default.Main
 import Yesod.Default.Util
+import Yesod.Default.Handlers
 import Yesod.Logger (Logger)
 import Data.Dynamic (Dynamic, toDyn)
 import Control.Monad (forM)
@@ -29,12 +29,6 @@ import Handler.Root
 import Handler.Tags
 
 mkYesodDispatch "DevSite" resourcesDevSite
-
-getFaviconR :: Handler ()
-getFaviconR = sendFile "image/x-icon" "config/favicon.ico"
-
-getRobotsR :: Handler RepPlain
-getRobotsR = return $ RepPlain $ toContent ("User-agent: *" :: String)
 
 withDevSite :: AppConfig DefaultEnv -> Logger -> (Application -> IO a) -> IO ()
 withDevSite conf logger f = do
