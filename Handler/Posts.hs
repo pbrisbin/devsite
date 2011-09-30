@@ -32,7 +32,7 @@ getManagePostsR = do
     docs <- siteDocs =<< getYesod
     defaultLayout $ do
         setTitle "Manage posts"
-        addWidget $(widgetFile "manage")
+        addWidget $(widgetFile "posts_admin/index")
 
 postManagePostsR :: Handler RepHtml
 postManagePostsR = getManagePostsR
@@ -44,7 +44,7 @@ getEditPostR slug = do
     let mdoc = lookupDocument slug docs
     defaultLayout $ do
         setTitle "Edit post"
-        addWidget $(widgetFile "editposts")
+        addWidget $(widgetFile "posts_admin/edit")
 
 postEditPostR :: Text -> Handler RepHtml
 postEditPostR = getEditPostR
