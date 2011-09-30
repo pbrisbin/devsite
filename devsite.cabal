@@ -64,7 +64,6 @@ executable devsite
                  , bytestring
                  , text
                  , time
-                 , old-locale
                  , persistent
                  , persistent-template
                  , persistent-postgresql >= 0.6  && < 0.7

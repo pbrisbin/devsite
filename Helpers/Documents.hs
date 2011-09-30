@@ -24,7 +24,7 @@ pageDocument :: Document -> [Document] -> Handler RepHtml
 pageDocument doc@(Document p ts) docs = do
     let (mprev, mnext) = documentNavigation doc docs
 
-    content <- documentContent doc
+    dContent <- documentContent doc
 
     defaultLayout $ do
         setTitle $ postTitle p
@@ -51,7 +51,7 @@ pageDocument doc@(Document p ts) docs = do
 
 inlineDocument :: Document -> Widget
 inlineDocument doc@(Document p _) = do
-    content <- lift $ documentContent doc
+    dContent <- lift $ documentContent doc
     addWidget $(widgetFile "inline-document")
 
 -- | if the post is not found in the db
@@ -61,14 +61,14 @@ unpublishedDocument slug = do
     exists <- liftIO $ doesFileExist file
     unless exists notFound
 
-    documentContent <- liftIO $ markdownFromFile file
+    dContent <- liftIO $ markdownFromFile file
 
     defaultLayout $ do
         setTitle slug
         addWidget $(widgetFile "unpublished")
 
 documentContent :: Document -> Handler Html
-documentContent d@(Document p _) = do
+documentContent (Document p _) = do
     let file = pandocFile $ postSlug p
 
     mkd <- liftIO $ do

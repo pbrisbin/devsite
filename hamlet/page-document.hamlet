@@ -2,7 +2,7 @@
   <h1>#{postTitle p}
 
 <article .fullpage>
-  #{content}
+  #{dContent}
   ^{documentInfo doc}
 
 <h3>

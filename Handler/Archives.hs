@@ -5,7 +5,6 @@ module Handler.Archives
     ) where
 
 import Foundation
-import Helpers.Documents
 import Data.Text (Text)
 import qualified Data.Text as T
 

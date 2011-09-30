@@ -11,7 +11,6 @@ import Settings
 import Yesod.Auth
 import Yesod.Default.Config
 import Yesod.Default.Main
-import Yesod.Default.Util
 import Yesod.Default.Handlers
 import Yesod.Logger (Logger)
 import Data.Dynamic (Dynamic, toDyn)

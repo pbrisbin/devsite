@@ -13,8 +13,7 @@ import Yesod.Persist
 import Data.List (nub, sortBy)
 import Data.Ord  (comparing)
 import Data.Text (Text)
-import Data.Time (getCurrentTime, UTCTime, NominalDiffTime, addUTCTime)
-import System.Locale (defaultTimeLocale)
+import Data.Time (getCurrentTime, UTCTime, addUTCTime)
 
 share [mkPersist sqlSettings, mkMigrate "migratePosts"] $(persistFile "config/models")
 

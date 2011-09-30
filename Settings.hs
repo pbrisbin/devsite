@@ -13,12 +13,11 @@ module Settings
 
 import Language.Haskell.TH.Syntax
 import Database.Persist.Postgresql (PostgresConf)
-import Yesod.Default.Config
 import qualified Yesod.Default.Util
 import Data.Text (Text)
 import qualified Data.Text as T
 
-import Yesod (liftIO, MonadControlIO, hamlet)
+import Yesod (hamlet)
 import qualified Yesod as Y
 
 type PersistConfig = PostgresConf
