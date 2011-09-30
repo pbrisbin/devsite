@@ -1,22 +1,32 @@
 <header>
-  <h1>All Tags
+  <h1>Archives
+  <p>...by tag or by date
 
 <article .fullpage>
-  <div id="accordion">
-
-    $forall c <- collections
+  <div #archive-left .accordion>
+    $forall c <- tagCollections
       <h3>#{proper $ name c} 
         <span .post_count>- #{helper $ length $ documents c}
 
       <div .hidden>
         $forall d <- documents c
-          ^{shortDocument d}
+          <div>^{link d}
+
+  <div #archive-right .accordion>
+    $forall c <- dateCollections
+      <h3>#{proper $ name c} 
+        <span .post_count>- #{helper $ length $ documents c}
+
+      <div .hidden>
+        $forall d <- documents c
+          <div>^{link d}
+
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js">
 <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.9/jquery-ui.min.js">
 <script>
   $(function() {
-    $("#accordion").accordion({
+    $(".accordion").accordion({
       collapsible: true,
       autoHeight:  false,
       active:      false

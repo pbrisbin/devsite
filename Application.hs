@@ -22,6 +22,7 @@ import Database.Persist.GenericSql (runMigration)
 import qualified Database.Persist.Base as Base
 
 import Handler.About
+import Handler.Archives
 import Handler.Feed
 import Handler.Posts
 import Handler.Profile

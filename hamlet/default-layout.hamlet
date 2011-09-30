@@ -14,8 +14,7 @@
     <ul>
       <li>^{link RootR}
       <li>^{link AboutR}
-      <li>^{link PostsR}
-      <li>^{link TagsR}
+      <li>^{link ArchivesR}
 
       <li .extra>^{link' github}
       <li .extra>^{link' aurPkgs}
@@ -30,8 +29,7 @@
             $maybe grav <- mgrav
               <img src="#{grav}" .icon alt="gravatar">
 
-            \ <a href="@{ProfileR}" title="manage your profile">
-              #{fromMaybe "anonymous" $ userName $ snd u}
+            \ ^{link ProfileR}
 
           <li>^{link $ CommentsAdminR OverviewR}
 

@@ -1,0 +1,4 @@
+<article .inline-document>
+  <h2>^{link doc}
+  #{content}
+  ^{documentInfo doc}

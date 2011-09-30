@@ -2,8 +2,7 @@
 {-# LANGUAGE TemplateHaskell              #-}
 {-# LANGUAGE OverloadedStrings            #-}
 module Handler.Posts 
-    ( getPostsR
-    , getPostR
+    ( getPostR
     , postPostR
     , getManagePostsR
     , postManagePostsR
@@ -17,19 +16,11 @@ import Helpers.Documents
 import Helpers.Forms
 import Data.Text (Text)
 
-getPostsR :: Handler RepHtml
-getPostsR = do
-    docs <- siteDocs =<< getYesod
-    defaultLayout $ do
-        setTitle "All Posts"
-        addKeywords ["all posts"]
-        addWidget $(widgetFile "posts")
-
 getPostR :: Text -> Handler RepHtml
 getPostR slug = do
     docs <- siteDocs =<< getYesod
     case lookupDocument slug docs of
-        Just doc -> longDocument doc docs
+        Just doc -> pageDocument doc docs
         Nothing  -> unpublishedDocument slug
 
 postPostR :: Text -> Handler RepHtml

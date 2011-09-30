@@ -1,8 +1,7 @@
 {-# LANGUAGE TemplateHaskell   #-}
 {-# LANGUAGE OverloadedStrings #-}
 module Handler.Tags
-    ( getTagsR
-    , getTagR
+    ( getTagR
     ) where
 
 import Foundation
@@ -10,26 +9,6 @@ import Helpers.Documents
 import Yesod.RssFeed (rssLink)
 import Data.Text (Text)
 import qualified Data.Text as T
-
-getTagsR :: Handler RepHtml
-getTagsR = do
-    docs <- siteDocs =<< getYesod
-    let collections = collectByTagName docs
-    defaultLayout $ do
-        setTitle "All Tags"
-        addKeywords $ map name collections
-        addWidget $(widgetFile "tags")
-
-    where
-        proper :: Text -> Text
-        proper = T.unwords . map capitalize . T.words
-
-        capitalize :: Text -> Text
-        capitalize w = let (x,xs) = T.splitAt 1 w
-            in (T.toUpper x) `T.append` xs
-
-        helper 1 = "1 post"
-        helper n = show n ++ " posts"
 
 getTagR :: Text -> Handler RepHtml
 getTagR tag' = do

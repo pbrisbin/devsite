@@ -1,4 +1,0 @@
-<article>
-  <p>^{link d}
-  #{markdownToHtml $ postDescr p}
-  ^{documentInfo d}

@@ -1,6 +1,0 @@
-<header>
-  <h1>All Posts
-
-<article .fullpage>
-  $forall doc <- docs
-    ^{shortDocument doc}

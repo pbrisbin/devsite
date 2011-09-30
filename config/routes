@@ -1,8 +1,7 @@
 /                      RootR        GET
 /about                 AboutR       GET
-/posts                 PostsR       GET
+/archives              ArchivesR    GET
 /posts/#T.Text         PostR        GET POST
-/tags                  TagsR        GET
 /tags/#T.Text          TagR         GET
 /manage                ManagePostsR GET POST
 /manage/edit/#T.Text   EditPostR    GET POST

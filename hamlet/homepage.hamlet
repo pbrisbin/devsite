@@ -5,20 +5,8 @@
     <span .title_three>com
 
 <article .fullpage>
-  <p>
-    Welcome to pbrisbin dot com. You'll find it's mostly [GNU/]
-    ^{link'' "Linux"}-related geekery here and some of the information 
-    presented is specific to the [amazing] distribution known as 
-    ^{link'' "Arch"} Linux. Some of my favorite topics are the 
-    ^{link'' "XMonad"} window manager, ^{link'' "haskell"} in general, 
-    ^{link'' "bash"} scripting (or just general command-line 
-    adventures), and the great email client ^{link'' "mutt"}.
-
-  <h3>
-    <a id="Recent_Posts" href="#Recent_Posts">Recent Posts
-
-  $forall doc <- take 10 docs
-    ^{shortDocument doc}
+  $forall doc <- take 5 docs
+    ^{inlineDocument doc}
 
   <p>
-    <small>^{link PostsR}...
+    <small>^{link ArchivesR}...

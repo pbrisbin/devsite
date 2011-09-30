@@ -2,8 +2,8 @@
 module Helpers.Documents
     ( lookupDocument
     , documentsList
-    , longDocument
-    , shortDocument
+    , pageDocument
+    , inlineDocument
     , unpublishedDocument
     ) where
 
@@ -20,25 +20,16 @@ lookupDocument slug docs =
         []    -> Nothing
         (x:_) -> Just x
 
-documentsList :: [Document] -> Widget
-documentsList []   = return ()
-documentsList docs = addWidget $(widgetFile "documentslist")
-
-longDocument :: Document -> [Document] -> Handler RepHtml
-longDocument doc@(Document p ts) docs = do
+pageDocument :: Document -> [Document] -> Handler RepHtml
+pageDocument doc@(Document p ts) docs = do
     let (mprev, mnext) = documentNavigation doc docs
-    let file = pandocFile $ postSlug p
 
-    documentContent <- liftIO $ do
-        exists <- doesFileExist file
-        if exists
-            then markdownFromFile file
-            else return $ postDescr p
+    content <- documentContent doc
 
     defaultLayout $ do
         setTitle $ postTitle p
         addKeywords $ postTitle p : map tagName ts
-        addWidget $(widgetFile "longdocument")
+        addWidget $(widgetFile "page-document")
 
     where
         -- find next/previous in a list of documents
@@ -58,8 +49,10 @@ longDocument doc@(Document p ts) docs = do
         -- 0 or 1 item
         documentNavigation _ _ = (Nothing, Nothing)
 
-shortDocument :: Document -> Widget
-shortDocument d@(Document p _) = addWidget $(widgetFile "shortdocument")
+inlineDocument :: Document -> Widget
+inlineDocument doc@(Document p _) = do
+    content <- lift $ documentContent doc
+    addWidget $(widgetFile "inline-document")
 
 -- | if the post is not found in the db
 unpublishedDocument :: Text -> Handler RepHtml
@@ -74,7 +67,24 @@ unpublishedDocument slug = do
         setTitle slug
         addWidget $(widgetFile "unpublished")
 
+documentContent :: Document -> Handler Html
+documentContent d@(Document p _) = do
+    let file = pandocFile $ postSlug p
+
+    mkd <- liftIO $ do
+        exists <- doesFileExist file
+        if exists
+            then markdownFromFile file
+            else return $ postDescr p
+
+    return $ markdownToHtml mkd
+
 documentInfo :: Document -> Widget
 documentInfo (Document p ts) = do
     timeDiff <- lift . liftIO . humanReadableTime $ postDate p
     addWidget $(widgetFile "documentinfo")
+
+-- | Used in admin page
+documentsList :: [Document] -> Widget
+documentsList []   = return ()
+documentsList docs = addWidget $(widgetFile "documentslist")

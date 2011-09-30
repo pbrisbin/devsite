@@ -5,7 +5,7 @@
 
       $if not $ null ts
         <span .tag_list>
-          tags: 
+          tagged with: 
 
           $forall tag <- init ts
             ^{link tag}, 

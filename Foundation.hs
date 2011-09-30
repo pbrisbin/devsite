@@ -92,17 +92,16 @@ instance Yesod DevSite where
         formatLogMessage loc level msg >>= logLazyText (getLogger y)
 
 instance YesodBreadcrumbs DevSite where
-    breadcrumb RootR        = return ("home"       , Nothing    ) 
-    breadcrumb AboutR       = return ("about"      , Just RootR )
-    breadcrumb PostsR       = return ("all posts"  , Just RootR )
-    breadcrumb (PostR slug) = return (T.map go slug, Just PostsR)
+    breadcrumb RootR        = return ("home"       , Nothing       ) 
+    breadcrumb AboutR       = return ("about"      , Just RootR    )
+    breadcrumb ArchivesR    = return ("archives"   , Just RootR    )
+    breadcrumb (PostR slug) = return (T.map go slug, Just ArchivesR)
         -- switch underscores with spaces
         where go :: Char -> Char
               go '_' = ' '
               go  x  =  x
 
-    breadcrumb TagsR         = return ("all tags"    , Just RootR       )
-    breadcrumb (TagR tag)    = return (T.toLower tag , Just TagsR       )
+    breadcrumb (TagR tag)    = return (T.toLower tag , Just ArchivesR   )
     breadcrumb ProfileR      = return ("profile"     , Just RootR       )
     breadcrumb EditProfileR  = return ("edit"        , Just ProfileR    )
     breadcrumb ManagePostsR  = return ("manage posts", Just RootR       )
@@ -166,15 +165,15 @@ instance YesodLinked DevSite where
 
 -- | Make isLink instances for each route in the site
 instance IsLink DevSiteRoute where
-    toLink r@(RootR)                    = Link (Internal r) "go home"                  "home"
-    toLink r@(AboutR)                   = Link (Internal r) "about pbrisbin dot com"   "about"
-    toLink r@(PostsR)                   = Link (Internal r) "all posts"                "all posts"
-    toLink r@(TagsR)                    = Link (Internal r) "all posts grouped by tag" "all tags"
-    toLink r@(FeedR)                    = Link (Internal r) "subscribe via rss"        "subscribe"
-    toLink r@(ManagePostsR)             = Link (Internal r) "manage posts"             "manage posts"
-    toLink r@(AuthR LoginR)             = Link (Internal r) "login"                    "login"
-    toLink r@(AuthR LogoutR)            = Link (Internal r) "logout"                   "logout"
-    toLink r@(CommentsAdminR OverviewR) = Link (Internal r) "manage your comments"     "comments"
+    toLink r@(RootR)                    = Link (Internal r) "go home"                "home"
+    toLink r@(AboutR)                   = Link (Internal r) "about pbrisbin dot com" "about"
+    toLink r@(ArchivesR)                = Link (Internal r) "archives of all posts"  "archives"
+    toLink r@(FeedR)                    = Link (Internal r) "subscribe via rss"      "subscribe"
+    toLink r@(ManagePostsR)             = Link (Internal r) "manage posts"           "manage posts"
+    toLink r@(AuthR LoginR)             = Link (Internal r) "login"                  "login"
+    toLink r@(AuthR LogoutR)            = Link (Internal r) "logout"                 "logout"
+    toLink r@ProfileR                   = Link (Internal r) "manage your profile"    "your profile"
+    toLink r@(CommentsAdminR OverviewR) = Link (Internal r) "manage your comments"   "your comments"
 
     -- fail noticably
     toLink r = Link (Internal r) "invalid use of `link'" "FIXME"

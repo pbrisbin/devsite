@@ -3,4 +3,4 @@
 
 <article .fullpage>
   $forall d <- docs
-    ^{shortDocument d}
+    ^{inlineDocument d}
