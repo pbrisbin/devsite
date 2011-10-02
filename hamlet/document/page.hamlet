@@ -3,7 +3,9 @@
 
 <article .fullpage>
   #{dContent}
-  ^{documentInfo doc}
+
+  <span .extra>
+    ^{published doc} ^{taggedWith doc}
 
 <h3>
   <a href="#Comments" id="Comments">Comments

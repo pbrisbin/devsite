@@ -1,4 +1,7 @@
 <article .inline-document>
-  <h2>^{link doc}
+  <h2>
+    ^{link doc}
+    <span .extra>
+      ^{published doc}, ^{taggedWith doc}
+
   #{dContent}
-  ^{documentInfo doc}

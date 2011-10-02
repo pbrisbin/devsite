@@ -1,0 +1,7 @@
+<span .tagged_with>
+  tagged with 
+
+  $forall tag <- init tags
+    ^{link tag}, 
+
+  ^{link $ last tags}

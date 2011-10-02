@@ -1,4 +1,5 @@
 {-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE QuasiQuotes #-}
 module Helpers.Documents
     ( lookupDocument
     , documentsList
@@ -79,10 +80,14 @@ documentContent (Document p _) = do
 
     return $ markdownToHtml mkd
 
-documentInfo :: Document -> Widget
-documentInfo (Document p ts) = do
+published :: Document -> Widget
+published (Document p _) = do
     timeDiff <- lift . liftIO . humanReadableTime $ postDate p
-    addWidget $(widgetFile "document/_info")
+    addWidget $(widgetFile "document/_published")
+
+taggedWith :: Document -> Widget
+taggedWith (Document _ []) = [whamlet|empty|]
+taggedWith (Document _ tags) = addWidget $(widgetFile "document/_tagged_with")
 
 -- | Used in admin page
 documentsList :: [Document] -> Widget

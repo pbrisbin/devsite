@@ -1,0 +1,2 @@
+<span .published>
+  published #{timeDiff}
