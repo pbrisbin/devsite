@@ -7,6 +7,7 @@ module Handler.Feed
 import Foundation
 import Yesod.RssFeed
 import Data.Text (Text)
+import System.Directory (doesFileExist)
 
 getFeedR :: Handler RepRss
 getFeedR = do
@@ -24,24 +25,35 @@ getFeedTagR tag = do
         docs -> feedFromDocs docs
 
 feedFromDocs :: [Document] -> Handler RepRss
-feedFromDocs docs = rssFeed Feed
-    { feedTitle       = "pbrisbin dot com"
-    , feedDescription = "New posts on pbrisbin dot com"
-    , feedLanguage    = "en-us"
-    , feedLinkSelf    = FeedR
-    , feedLinkHome    = RootR
-    , feedUpdated     = postDate . post $ head docs
-    , feedEntries     = map docToRssEntry docs
-    }
+feedFromDocs docs = do
+    entries <- mapM docToRssEntry docs
+    rssFeed Feed
+        { feedTitle       = "pbrisbin dot com"
+        , feedDescription = "New posts on pbrisbin dot com"
+        , feedLanguage    = "en-us"
+        , feedLinkSelf    = FeedR
+        , feedLinkHome    = RootR
+        , feedUpdated     = postDate . post $ head docs
+        , feedEntries     = entries
+        }
 
-docToRssEntry :: Document -> FeedEntry DevSiteRoute
-docToRssEntry (Document p _) = FeedEntry
-    { feedEntryLink    = PostR $ postSlug p
-    , feedEntryUpdated = postDate  p
-    , feedEntryTitle   = postTitle p
-    , feedEntryContent = plainText $ postDescr p
-    }
+docToRssEntry :: Document -> Handler (FeedEntry DevSiteRoute)
+docToRssEntry (Document p _) = do
+    let file = pandocFile $ postSlug p
 
-    where
-        plainText :: Markdown -> Html
-        plainText (Markdown s) = toHtml s
+    mkd <- liftIO $ do
+        exists <- doesFileExist file
+        if exists
+            then markdownFromFile file
+            else return $ postDescr p
+
+    return FeedEntry
+        { feedEntryLink    = PostR $ postSlug p
+        , feedEntryUpdated = postDate  p
+        , feedEntryTitle   = postTitle p
+        , feedEntryContent = plainText $ mkd
+        }
+
+        where
+            plainText :: Markdown -> Html
+            plainText (Markdown s) = toHtml s
