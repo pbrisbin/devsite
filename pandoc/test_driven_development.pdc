@@ -28,22 +28,26 @@ The prerequisite for doing anything in TDD is a good test framework.
 Luckily, ruby is pretty strong in this area. The way it works is the 
 following:
 
-You subclass Test::Unit. You define methods that start with `test_`. 
-Within those methods you execute logic and make assertions about certain 
-results. You run your class.
+You subclass `Test::Unit` and define methods that start with `test_` 
+where you execute system logic and make assertions about certain 
+results; and then you run that class.
 
-Ruby looks for any methods named as `test_whatever` and runs them "as 
+Ruby looks for those methods named as `test_whatever` and runs them "as 
 tests". Running a method as a test means that errors and failures (any 
 of your `assert` methods returning false) will be logged and displayed 
 at the end as part of the "test report".
+
+All of these test classes can be run automatically by a build-bot and 
+(depending on your test coverage) you get good visibility into what's 
+working and what's not.
 
 This is super convenient and empowering in its own right. In a dynamic 
 language like ruby, tests are the only way you have any level of 
 confidence that your most recent code change doesn't blow up in 
 production.
 
-So now you've got this ability to write and run tests against your code 
-base. Here's a wacky idea, write the tests *first*.
+So now that you've got this ability to write and run tests against your 
+code base, here's a wacky idea, write the tests *first*.
 
 ### Test Driven
 
@@ -51,7 +55,7 @@ It's amazing what this approach does to the design process.
 
 I've always been the type that just starts coding. I'm completely 
 comfortable throwing out 6 hours worth of code and starting over. I know 
-my "first draft" isn't going to be right (but it will be useful). I 
+my "first draft" isn't going to be right (though it will be useful). I 
 whole-heartedly believe in refactorings, etc. But most importantly, I 
 need to code to sketch things out. It's how I've always worked.
 
@@ -75,7 +79,9 @@ these are the easiest kind of methods to test.
 So, out of sheer laziness, you design a cohesive, easy to use, and 
 completely simple *interface*, an API.
 
-Now you can plumb it up.
+Now you just have to "plumb it up". Hack until the tests pass, and 
+you're done. That might be an over-simplification, but it's not off by 
+much...
 
 Come to think of it, this is exactly the type of design Haskell favors. 
 With gratuitous use of `undefined`, the super-high-level logic of a 
