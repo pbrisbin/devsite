@@ -3,24 +3,17 @@
 
   <table>
     <tr>
-      <th>Title
-      <th>Description
-      <th>Edit
-      <th>Delete
+      <th .title>Title
+      <th .edit>Edit
+      <th .delete>Delete
 
     $forall p <- map post docs
       <tr>
-        <td>
-          <a href="@{PostR $ postSlug p}">#{shorten 20 $ postTitle p}
+        <td .title>
+          <a href="@{PostR $ postSlug p}">#{postTitle p}
 
-        <td>
-          $maybe descr <- postDescr p
-            #{markdownToHtml $ shorten 60 $ descr}
-          $nothing
-            from file
-
-        <td>
+        <td .edit>
           <a href="@{EditPostR $ postSlug p}">edit
 
-        <td>
+        <td .delete>
           <a href="@{DelPostR $ postSlug p}">delete
