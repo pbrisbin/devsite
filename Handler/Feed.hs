@@ -37,15 +37,18 @@ feedFromDocs docs = do
         , feedEntries     = entries
         }
 
+-- | Note: does not gracefully handle a post with no pandoc or in-db
+--   content
 docToRssEntry :: Document -> Handler (FeedEntry DevSiteRoute)
 docToRssEntry (Document p _) = do
     let file = pandocFile $ postSlug p
 
     mkd <- liftIO $ do
         exists <- doesFileExist file
-        if exists
-            then markdownFromFile file
-            else return $ postDescr p
+        case (exists, postDescr p) of
+            (True, _         ) -> markdownFromFile file
+            (_   , Just descr) -> return descr
+            _                  -> return $ Markdown ""
 
     return FeedEntry
         { feedEntryLink    = PostR $ postSlug p

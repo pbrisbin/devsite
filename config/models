@@ -2,7 +2,7 @@ Post
     slug  Text     Eq Update
     date  UTCTime  Desc
     title Text     Update
-    descr Markdown Update
+    descr Markdown Maybe Update
     UniquePost slug
 
 Tag

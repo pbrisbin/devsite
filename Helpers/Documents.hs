@@ -74,9 +74,10 @@ documentContent (Document p _) = do
 
     mkd <- liftIO $ do
         exists <- doesFileExist file
-        if exists
-            then markdownFromFile file
-            else return $ postDescr p
+        case (exists, postDescr p) of
+            (True, _         ) -> markdownFromFile file
+            (_   , Just descr) -> return descr
+            _                  -> notFound
 
     return $ markdownToHtml mkd
 

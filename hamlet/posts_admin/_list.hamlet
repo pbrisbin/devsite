@@ -14,7 +14,10 @@
           <a href="@{PostR $ postSlug p}">#{shorten 20 $ postTitle p}
 
         <td>
-          #{markdownToHtml $ shorten 60 $ postDescr p}
+          $maybe descr <- postDescr p
+            #{markdownToHtml $ shorten 60 $ descr}
+          $nothing
+            from file
 
         <td>
           <a href="@{EditPostR $ postSlug p}">edit

@@ -22,7 +22,7 @@ data PostEditForm = PostEditForm
     { formSlug  :: Text
     , formTitle :: Text
     , formTags  :: Text
-    , formDescr :: Markdown
+    , formDescr :: Maybe Markdown
     }
 
 -- | Display the form for user input
@@ -157,7 +157,7 @@ postForm mdoc = renderTable $ PostEditForm
     <$> areq textField     "post slug"   (fmap (postSlug   . post) mdoc)
     <*> areq textField     "title"       (fmap (postTitle  . post) mdoc)
     <*> areq textField     "tags"        (fmap (formatTags . tags) mdoc)
-    <*> areq markdownField "description" (fmap (postDescr  . post) mdoc)
+    <*> aopt markdownField "description" (fmap (postDescr  . post) mdoc)
 
     where
         formatTags :: [Tag] -> Text
