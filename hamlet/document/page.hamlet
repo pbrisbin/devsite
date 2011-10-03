@@ -1,10 +1,10 @@
 <header>
   <h1>#{postTitle p}
 
-<article .fullpage>
+<article>
   #{dContent}
 
-  <span .extra>
+  <footer>
     ^{published doc} ^{taggedWith doc}
 
 <h3>
