@@ -54,48 +54,44 @@ collectByTimeBucket docs = do
         inBucket (TimeBucket from to _) t = t <= from && t >= to
 
 timeBuckets :: IO [TimeBucket]
-timeBuckets = mapM toBucket $ 
-    [ ((secondAgo 0 ),(hourAgo  1 ),"Just now"         )
-    , ((hourAgo   1 ),(dayAgo   1 ),"Today"            )
-    , ((dayAgo    1 ),(weekAgo  1 ),"This week"        )
-    , ((weekAgo   1 ),(weekAgo  2 ),"Last week"        )
-    , ((weekAgo   2 ),(weekAgo  3 ),"Two weeks ago"    )
-    , ((weekAgo   3 ),(weekAgo  4 ),"Three weeks ago"  )
-    , ((monthAgo  1 ),(monthAgo 2 ),"Last month"       )
-    , ((monthAgo  2 ),(monthAgo 3 ),"Two months ago"   )
-    , ((monthAgo  3 ),(monthAgo 4 ),"Three months ago" )
-    , ((monthAgo  4 ),(monthAgo 5 ),"Four months ago"  )
-    , ((monthAgo  5 ),(monthAgo 6 ),"Five months ago"  )
-    , ((monthAgo  6 ),(monthAgo 7 ),"Six months ago"   )
-    , ((monthAgo  7 ),(monthAgo 8 ),"Seven months ago" )
-    , ((monthAgo  8 ),(monthAgo 9 ),"Eight months ago" )
-    , ((monthAgo  9 ),(monthAgo 10),"Nine months ago"  )
-    , ((monthAgo  10),(monthAgo 11),"Ten months ago"   )
-    , ((monthAgo  11),(monthAgo 12),"Eleven months ago")
-    , ((yearAgo   1 ),(yearAgo  2 ),"Last year"        )
-    , ((yearAgo   2 ),(yearAgo  3 ),"Two years ago"    )
-    , ((yearAgo   3 ),(yearAgo  4 ),"Three years ago"  )
-    , ((yearAgo   4 ),(yearAgo  5 ),"Four years ago"   )
-    , ((yearAgo   5 ),(yearAgo  6 ),"Five years ago"   )
-    ]
+timeBuckets = do
+    now <- getCurrentTime
+    return $ [ TimeBucket                    now  (  1 `hoursBefore`  now) "Just now"
+             , TimeBucket ( 1 `hoursBefore`  now) (  1 `daysBefore`   now) "Today"
+             , TimeBucket ( 1 `daysBefore`   now) (  1 `weeksBefore`  now) "This week"
+             , TimeBucket ( 1 `weeksBefore`  now) (  2 `weeksBefore`  now) "Last week"
+             , TimeBucket ( 2 `weeksBefore`  now) (  3 `weeksBefore`  now) "Two weeks ago"
+             , TimeBucket ( 3 `weeksBefore`  now) (  4 `weeksBefore`  now) "Three weeks ago"
+             , TimeBucket ( 1 `monthsBefore` now) (  2 `monthsBefore` now) "Last month"
+             , TimeBucket ( 2 `monthsBefore` now) (  3 `monthsBefore` now) "Two months ago"
+             , TimeBucket ( 3 `monthsBefore` now) (  4 `monthsBefore` now) "Three months ago"
+             , TimeBucket ( 4 `monthsBefore` now) (  5 `monthsBefore` now) "Four months ago"
+             , TimeBucket ( 5 `monthsBefore` now) (  6 `monthsBefore` now) "Five months ago"
+             , TimeBucket ( 6 `monthsBefore` now) (  7 `monthsBefore` now) "Six months ago"
+             , TimeBucket ( 7 `monthsBefore` now) (  8 `monthsBefore` now) "Seven months ago"
+             , TimeBucket ( 8 `monthsBefore` now) (  9 `monthsBefore` now) "Eight months ago"
+             , TimeBucket ( 9 `monthsBefore` now) ( 10 `monthsBefore` now) "Nine months ago"
+             , TimeBucket (10 `monthsBefore` now) ( 11 `monthsBefore` now) "Ten months ago"
+             , TimeBucket (11 `monthsBefore` now) ( 12 `monthsBefore` now) "Eleven months ago"
+             , TimeBucket ( 1 `yearsBefore`  now) (  2 `yearsBefore`  now) "Last year"
+             , TimeBucket ( 2 `yearsBefore`  now) (  3 `yearsBefore`  now) "Two years ago"
+             , TimeBucket ( 3 `yearsBefore`  now) (  4 `yearsBefore`  now) "Three years ago"
+             , TimeBucket ( 4 `yearsBefore`  now) (  5 `yearsBefore`  now) "Four years ago"
+             , TimeBucket ( 5 `yearsBefore`  now) (  6 `yearsBefore`  now) "Five years ago"
+             , TimeBucket ( 6 `yearsBefore`  now) (999 `yearsBefore`  now) "Older"
+             ]
 
-    where
-        toBucket :: (IO UTCTime,IO UTCTime,Text) -> IO TimeBucket
-        toBucket (fnFrom,fnTo,label) = do
-            from <- fnFrom
-            to   <- fnTo
-            return $ TimeBucket from to label
+-- | Calculate time differences
+secondsBefore, minutesBefore, hoursBefore, daysBefore,
+    weeksBefore, monthsBefore, yearsBefore :: Integer -> UTCTime -> UTCTime
+secondsBefore n = addUTCTime (fromInteger $ -1 * n)
 
-secondAgo, minuteAgo, hourAgo, dayAgo,
-    weekAgo, monthAgo, yearAgo :: Integer -> IO UTCTime
-secondAgo n = return . addUTCTime (fromInteger $ -1 * n) =<< getCurrentTime
-
-minuteAgo = secondAgo . (*60)
-hourAgo   = minuteAgo . (*60)
-dayAgo    = hourAgo   . (*24)
-weekAgo   = dayAgo    . (*7)
-monthAgo  = weekAgo   . (*4)
-yearAgo   = monthAgo  . (*12)
+minutesBefore n t = secondsBefore (n*60) t
+hoursBefore   n t = minutesBefore (n*60) t
+daysBefore    n t = hoursBefore   (n*24) t
+weeksBefore   n t = daysBefore    (n*7)  t
+monthsBefore  n t = weeksBefore   (n*4)  t
+yearsBefore   n t = monthsBefore  (n*12) t
 
 collect :: [Document] -> Text -> (Document -> Bool) -> Collection
 collect docs n p = Collection n (filter p docs)
