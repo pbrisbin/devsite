@@ -13,20 +13,20 @@ module Settings
 
 import Language.Haskell.TH.Syntax
 import Database.Persist.Postgresql (PostgresConf)
-import qualified Yesod.Default.Util
 import Data.Text (Text)
 import qualified Data.Text as T
 
-import Yesod (hamlet)
-import qualified Yesod as Y
+import Yesod hiding (setTitle)
+import qualified Yesod
+import qualified Yesod.Default.Util
 
 type PersistConfig = PostgresConf
 
-setTitle :: Y.Yesod m => Text -> Y.GWidget s m ()
-setTitle = Y.setTitle . Y.toHtml . T.append "pbrisbin - "
+setTitle :: Yesod m => Text -> GWidget s m ()
+setTitle = Yesod.setTitle . toHtml . T.append "pbrisbin - "
 
-addKeywords :: [Text] -> Y.GWidget s m ()
-addKeywords ws = Y.addHamletHead [hamlet|<meta name="keywords" content="#{format ws}">|]
+addKeywords :: [Text] -> GWidget s m ()
+addKeywords ws = addHamletHead [hamlet|<meta name="keywords" content="#{format ws}">|]
 
     where 
         -- add some default keywords, and make the comma separated list
