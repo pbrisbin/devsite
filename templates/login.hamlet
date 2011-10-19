@@ -1,6 +1,6 @@
 <h1>Log in
 
-<article .fullpage .login>
+<article .login>
 
   <p #open-id-help>
     Learn more about using 

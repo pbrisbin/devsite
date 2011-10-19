@@ -1,6 +1,0 @@
-<header>
-  <h1>Tag: #{tag}
-
-<article .fullpage>
-  $forall d <- docs
-    ^{inlineDocument d}

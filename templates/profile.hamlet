@@ -1,5 +1,6 @@
 <h1>You
-<article .fullpage .profile>
+
+<article .profile>
   <div .gravatar>
     <a title="change your profile picture at gravatar" href="http://gravatar.com/emails/">
       <img src="#{pic}">

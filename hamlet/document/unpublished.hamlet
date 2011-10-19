@@ -1,5 +1,0 @@
-<header>
-  <h1>unpublished: #{slug}
-
-<article .fullpage>
-  #{markdownToHtml $ dContent}

@@ -68,7 +68,7 @@ instance Yesod DevSite where
         pc <- widgetToPageContent $ do
             rssLink FeedR "rss feed"
             $(widgetFile "default-layout")
-        hamletToRepHtml $(hamletFile "hamlet/default-layout-wrapper.hamlet")
+        hamletToRepHtml $(hamletFile "templates/default-layout-wrapper.hamlet")
 
         where
             getGravatar :: (UserId, User) -> String
