@@ -89,7 +89,7 @@ url.rewrite-once = ( "^/static.*" => "$0"
                    )
 ~~~
 
-Finally, setup the actually proxying:
+Finally, setup the actual proxying:
 
 ~~~ { .bash }
 $HTTP["url"] =~ "^/proxy.*" {
