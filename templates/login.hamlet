@@ -19,4 +19,4 @@
     <li#openid>
       <form method="get" action="@{AuthR forwardUrl}">
         <input type="image" src="#{staticLink "images/openid_login.png"}" title="Login via OpenID">
-        <input id="openid_identifier" type="text" name="openid_identifier" value="http://">
+        <input id="openid_identifier" type="text" name="openid_identifier" placeholder="http://">
