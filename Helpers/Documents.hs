@@ -88,7 +88,7 @@ published (Document p _) = do
 
 taggedWith :: Document -> Widget
 taggedWith (Document _ []) = [whamlet|empty|]
-taggedWith (Document _ tags) = addWidget $(widgetFile "document/_tagged_with")
+taggedWith (Document _ ts) = addWidget $(widgetFile "document/_tagged_with")
 
 -- | Used in admin page
 documentsList :: [Document] -> Widget
