@@ -1,5 +1,6 @@
 {-# OPTIONS -fno-warn-orphans      #-}
 {-# LANGUAGE TypeFamilies          #-}
+{-# LANGUAGE FlexibleContexts      #-}
 {-# LANGUAGE TemplateHaskell       #-}
 {-# LANGUAGE OverloadedStrings     #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -34,6 +35,7 @@ import Data.Maybe (fromMaybe)
 import Database.Persist.GenericSql
 import Web.ClientSession (getKey)
 import Text.Hamlet (hamletFile)
+import Data.Text (Text)
 import qualified Data.Text as T
 import qualified Database.Persist.Base as Base
 
@@ -129,17 +131,46 @@ instance YesodAuth DevSite where
     getAuthId creds = runDB $ do
         x <- getBy $ UniqueIdent $ credsIdent creds
         case x of
-            Just (_, i) -> return $ Just $ identUser i
-            Nothing       -> do
-                uid <- insert $ User
-                    { userName  = Nothing
-                    , userEmail = Nothing
-                    , userAdmin = False
-                    }
-                _ <- insert $ Ident (credsIdent creds) uid
+            Just (_, i) -> do
+                updateFromSreg (credsExtra creds) $ identUser i
+                return $ Just $ identUser i
+
+            Nothing -> do
+                uid <- insert $ User Nothing Nothing False
+                _   <- insert $ Ident (credsIdent creds) uid
+                updateFromSreg (credsExtra creds) uid 
                 return $ Just uid
 
-    authPlugins = [ authOpenId ]
+        where
+            -- updates username/email with values return by openid
+            -- unless values exist there already
+            updateFromSreg :: PersistBackend SqlPersist m
+                           => [(Text,Text)] -- ^ the @credsExtra@ returned from open id
+                           -> UserId        -- ^ the user to update
+                           -> SqlPersist m ()
+            updateFromSreg keys uid = do
+                x <- get uid
+                case x of
+                    Just u -> do
+                        case (userName u, lookupValue "openid.sreg.nickname" keys) of
+                            (Nothing, val@(Just _)) -> update uid [UserName =. val]
+                            _                       -> return ()
+
+                        case (userEmail u, lookupValue "openid.sreg.email" keys) of
+                            (Nothing, val@(Just _)) -> update uid [UserEmail =. val]
+                            _                       -> return ()
+
+                    Nothing -> return ()
+
+            -- TODO: a Map?
+            lookupValue :: Text -> [(Text,Text)] -> Maybe Text
+            lookupValue key keys =
+                case filter ((== key) . fst) keys of
+                    (x:_) -> Just $ snd x
+                    _     -> Nothing
+
+    authPlugins = [ authOpenIdExtended 
+                        [("openid.sreg.optional","nickname,email")] ]
 
     loginHandler = defaultLayout $ do
         setTitle "Login"
@@ -192,5 +223,5 @@ instance IsLink Document where
 
 -- | This is dangerous but useful, it assumes a link to raw text is
 --   meant as a tag. There is no guarantee the tag exists
-instance IsLink T.Text where
+instance IsLink Text where
     toLink t = Link (Internal $ TagR $ T.toLower t) t t
