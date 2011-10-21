@@ -194,7 +194,6 @@ maybe' c f = return . fromMaybe c . maybe Nothing f
 instance YesodLinked DevSite where
     type Linked = DevSite
 
--- | Make isLink instances for each route in the site
 instance IsLink DevSiteRoute where
     toLink r@(RootR)                    = Link (Internal r) "go home"                "home"
     toLink r@(AboutR)                   = Link (Internal r) "about pbrisbin dot com" "about"
@@ -209,19 +208,11 @@ instance IsLink DevSiteRoute where
     -- fail noticably
     toLink r = Link (Internal r) "invalid use of `link'" "FIXME"
     
--- | Link directly to a post
 instance IsLink Post where
     toLink p = Link (Internal $ PostR $ postSlug p) (postTitle p) (postTitle p)
 
--- | Link directly to a tag
 instance IsLink Tag where
     toLink t = Link (Internal $ TagR $ tagName t) (tagName t) (tagName t)
 
--- | Link directly to a document (goes to its post)
 instance IsLink Document where
     toLink = toLink . post
-
--- | This is dangerous but useful, it assumes a link to raw text is
---   meant as a tag. There is no guarantee the tag exists
-instance IsLink Text where
-    toLink t = Link (Internal $ TagR $ T.toLower t) t t
