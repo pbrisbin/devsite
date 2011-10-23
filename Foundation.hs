@@ -142,32 +142,24 @@ instance YesodAuth DevSite where
                 return $ Just uid
 
         where
-            -- updates username/email with values return by openid
+            -- updates username/email with values returned by openid
             -- unless values exist there already
             updateFromSreg :: PersistBackend SqlPersist m
                            => [(Text,Text)] -- ^ the @credsExtra@ returned from open id
-                           -> UserId        -- ^ the user to update
+                           -> UserId        -- ^ the user id to update
                            -> SqlPersist m ()
-            updateFromSreg keys uid = do
-                x <- get uid
-                case x of
-                    Just u -> do
-                        case (userName u, lookupValue "openid.sreg.nickname" keys) of
+            updateFromSreg keys uid = maybe (return ()) go =<< get uid
+
+                where
+                    go :: PersistBackend SqlPersist m => User -> SqlPersist m ()
+                    go u = do
+                        case (userName u, lookup "openid.sreg.nickname" keys) of
                             (Nothing, val@(Just _)) -> update uid [UserName =. val]
                             _                       -> return ()
 
-                        case (userEmail u, lookupValue "openid.sreg.email" keys) of
+                        case (userEmail u, lookup "openid.sreg.email" keys) of
                             (Nothing, val@(Just _)) -> update uid [UserEmail =. val]
                             _                       -> return ()
-
-                    Nothing -> return ()
-
-            -- TODO: a Map?
-            lookupValue :: Text -> [(Text,Text)] -> Maybe Text
-            lookupValue key keys =
-                case filter ((== key) . fst) keys of
-                    (x:_) -> Just $ snd x
-                    _     -> Nothing
 
     authPlugins = [ authOpenIdExtended 
                         [("openid.sreg.optional","nickname,email")] ]
