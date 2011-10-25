@@ -27,13 +27,15 @@ Well that's clear as mud...
 
 Here's how I think about it:
 
-> Any code you write inside of `instance_eval` will be as if you had 
-> written it *on* an instance.
+> Any code you `def` inside of `x.instance_eval` will be as if you had 
+> `def`ed it **on** the instance `x`.
 >
-> Any code you write inside of `class_eval` will be as if you had 
-> written it *in* a Class.
+> Any code you `def` inside of `x.class_eval` will be as if you had 
+> written it **in** the Class `x`.
 
-### `class_eval`
+Examples should help...
+
+### class_eval
 
 Here's an example of `class_eval`
 
@@ -97,7 +99,7 @@ MyClass.foo
 So I think that whole mindset is incorrect. It's about the context your 
 code is evaluated in, not what you're intending that matters.
 
-### `instance_eval`
+### instance_eval
 
 Similarly, here's how I think when I'm writing something with 
 `instance_eval`:
