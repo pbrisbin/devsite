@@ -1,0 +1,120 @@
+Recently, a drive failure left me rebuilding my HTPC. I took the 
+opportunity to do a few things:
+
+1. Install an SSD (holy crap xbmc loads quick!)
+2. Setup a backup routine, which required I...
+3. Rethink my ssh public/private keys situation
+
+I had generated one key pair, a long time ago, and whenever I needed to 
+setup server-client access I'd just copy the pub to server and the 
+private to the client.
+
+This meant every server-client setup I had was using the same key pair 
+for access: this machine, my slicehost, my github, my laptops, and soon 
+my HTPC.
+
+That can't be good.
+
+### SSH Keys
+
+I realized pretty quickly that I was looking at the idea of 
+public/private key pairs all wrong. Here's how I *should've* been 
+thinking about things:
+
+* One key-pair should represent one server-client relationship
+
+Clients should generate a key-pair and send the `.pub` to the server(s) 
+they want to access with that key.
+
+* Many public keys are held by a server; these represent the many 
+  clients that will connect
+
+All of them are just `cat`ed into its `authorized_keys` file. That file 
+represents the clients it will let in.
+
+Since my setup has multiple clients accessing multiple servers and I 
+wanted some relationships to be password-less while others are not, this 
+required that I setup more than one key-pair on a given client and find 
+some way to use a specific key when connecting to a specific host.
+
+Not surprisingly, this is a fairly common use-case for ssh...
+
+### .ssh/config
+
+`.ssh/config` is a wonderful thing. Did you know you can put all kinds 
+of useful crap in there?
+
+Let's say your `ssh`ed somewhere in some terminal, and you need to do a 
+quick `scp` or even an additional `ssh` to the same host in another 
+terminal -- why should you open a whole 'nother connection (and possibly 
+re-authenticate)?
+
+~~~ 
+ControlMaster auto
+ControlPath /tmp/ssh-%r@%h:%p
+~~~
+
+Now a little "control file" will be placed in `/tmp` when you open up 
+that first connection and it'll be used by any subsequent connections 
+while it's still there.
+
+Anyway, now what about keys?
+
+Well, here's an example:
+
+I wanted a key-pair just for github. Obviously this will be separate 
+from the client's normal `id_rsa` since that one's likely 
+password-protected.
+
+To create another key, I just run `ssh-keygen` and tell it to create 
+`.ssh/id_rsa.github`. Paste the contents of `id_rsa.github.pub` into the 
+github webclient and add the following to `.ssh/config`:
+
+~~~ 
+Host github.com
+  IdentityFile ~/.ssh/id_rsa.github
+~~~
+
+Simple as that.
+
+I've taken to the habit of creating `id_rsa.host` for each place I want 
+to access then distributing the `.pub`s and adding to `.ssh/confg` 
+accordingly.
+
+Another example:
+
+Have you ever setup a single-use machine (like an HTPC) such that 
+there's only one domain-specific user on the box and it's not your 
+normal user?
+
+In this case you don't have to create shell aliases for `ssh xbmc@htpc`, 
+you can again just use `.ssh/config`:
+
+~~~ 
+Host htpc
+  User xbmc
+  IdentityFile ~/.ssh/id_rsa.htpc
+~~~
+
+Here we use a different private key (this one password-less) and a 
+specific user. Now `ssh htpc` works just as I want it without touching 
+`.bashrc`. Also, `ssh` is a command that commonly requires options both 
+before and after the `user@host` bit so a shell alias or function would 
+be pretty limiting here.
+
+### Proxies!
+
+You can get pretty crazy; for instance, for some new servers at work we 
+need to ssh into a "gateway" server first, only then can we ssh into the 
+real servers from there.
+
+This can all be automated:
+
+~~~ 
+Host *.where.you.want.com
+    ProxyCommand ssh that.gateway.server.com nc %h %p
+    StrictHostKeyChecking no
+~~~
+
+Now you just `ssh something.where.you.want.com` and ssh automatically 
+proxies through the gateway server. Pretty nifty.

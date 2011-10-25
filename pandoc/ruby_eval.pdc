@@ -33,7 +33,7 @@ Here's how I think about it:
 > Any code you write inside of `class_eval` will be as if you had 
 > written it *in* a Class.
 
-### Class eval
+### `class_eval`
 
 Here's an example of `class_eval`
 
@@ -74,7 +74,7 @@ c.my_other_method
 => "bar"
 ~~~
 
-So we used `*class*_eval` to define an *instance* method. Just like the 
+So we used `class_eval` to define an *instance* method. Just like the 
 book said.
 
 Funny thing is, you can easily use `class_eval` to define class methods 
@@ -97,7 +97,7 @@ MyClass.foo
 So I think that whole mindset is incorrect. It's about the context your 
 code is evaluated in, not what you're intending that matters.
 
-### Instance eval
+### `instance_eval`
 
 Similarly, here's how I think when I'm writing something with 
 `instance_eval`:
@@ -145,6 +145,7 @@ One other way to look at it is this:
 > of that *class* (making them instance methods).
 >
 > Methods defined with `instance_eval` will only be available to that 
-> specific *instance*, why they're called "class methods" I do not know.
+> specific *instance*; why they're called "class methods", I do not 
+> know.
 
 Anyway, hope this helps...
