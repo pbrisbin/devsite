@@ -75,6 +75,7 @@ executable devsite
                  , transformers
                  , warp
                  , blaze-builder
+                 , blaze-html
                  , transformers
                  , clientsession
                  , unix
