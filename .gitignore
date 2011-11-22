@@ -1,5 +1,6 @@
 pandoc
 dist
 tmp
+static
 .static-cache
 *.aes
