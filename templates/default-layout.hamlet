@@ -18,10 +18,10 @@
 
       <li .extra>^{link' github}
       <li .extra>^{link' aurPkgs}
-      <li .extra>^{link' xmonadDocs}
       <li .extra>^{link' haskellDocs}
+      <li .extra>^{link' rubyDocs}
       <li .extra>
-        <img src="#{staticLink "images/feed.png"}" .icon alt="rss icon">
+        <img src=@{StaticR img_feed_png}" .icon alt="rss icon">
         \ ^{link FeedR}
 
       $maybe u <- muid

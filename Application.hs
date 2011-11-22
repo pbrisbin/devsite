@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP                   #-}
 {-# LANGUAGE TemplateHaskell       #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# OPTIONS -fno-warn-orphans      #-}
@@ -8,6 +9,7 @@ module Application
 
 import Foundation
 import Settings
+import Yesod.Static
 import Yesod.Auth
 import Yesod.Default.Config
 import Yesod.Default.Main
@@ -32,13 +34,18 @@ mkYesodDispatch "DevSite" resourcesDevSite
 
 withDevSite :: AppConfig DefaultEnv -> Logger -> (Application -> IO a) -> IO ()
 withDevSite conf logger f = do
+#ifndef DEVELOPMENT
+    s <- static Settings.staticDir
+#else
+    s <- staticDevel Settings.staticDir
+#endif
     dbconf <- withYamlEnvironment "config/postgresql.yml" (appEnv conf)
             $ either error return . Base.loadConfig
 
     Base.withPool (dbconf :: Settings.PersistConfig) $ \p -> do
         Base.runPool dbconf (runMigration migratePosts)    p
         Base.runPool dbconf (runMigration migrateComments) p
-        defaultRunner f $ DevSite conf logger p loadDocuments
+        defaultRunner f $ DevSite conf logger s p loadDocuments
 
     where
         loadDocuments :: Handler [Document]

@@ -5,18 +5,21 @@
 module Settings
     ( widgetFile
     , PersistConfig
-    , staticLink
+    , staticRoot
+    , staticDir
     , setTitle
     , addKeywords
     , pandocFile
     ) where
 
+import Text.Shakespeare.Text (st)
 import Language.Haskell.TH.Syntax
 import Database.Persist.Postgresql (PostgresConf)
 import Data.Text (Text)
 import qualified Data.Text as T
 
 import Yesod hiding (setTitle)
+import Yesod.Default.Config
 import qualified Yesod
 import qualified Yesod.Default.Util
 
@@ -36,8 +39,11 @@ addKeywords ws = addHamletHead [hamlet|<meta name="keywords" content="#{format w
 pandocFile :: Text -> FilePath
 pandocFile x = "pandoc/" ++ T.unpack x ++ ".pdc"
 
-staticLink :: FilePath -> String
-staticLink x = "http://pbrisbin.com/static/" ++ x
+staticDir :: FilePath
+staticDir = "static"
+
+staticRoot :: AppConfig DefaultEnv -> Text
+staticRoot conf = [st|#{appRoot conf}/static|]
 
 widgetFile :: FilePath -> Q Exp
 widgetFile =

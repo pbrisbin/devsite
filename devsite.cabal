@@ -28,6 +28,7 @@ library
     other-modules:   Foundation
                      Model
                      Settings
+                     Settings.StaticFiles
                      Helpers.Forms
                      Helpers.Documents
                      Handler.Feed
@@ -51,6 +52,7 @@ executable devsite
     build-depends: base  >= 4   && < 5
                  , yesod >= 0.9 && < 1.0
                  , yesod-core
+                 , yesod-static
                  , yesod-auth
                  , yesod-form
                  , yesod-persistent
@@ -66,11 +68,12 @@ executable devsite
                  , time
                  , persistent
                  , persistent-template
-                 , persistent-postgresql >= 0.6  && < 0.7
-                 , hamlet                >= 0.10 && < 0.11
-                 , shakespeare-css       >= 0.10 && < 0.11
-                 , shakespeare-js        >= 0.10 && < 0.11
-                 , shakespeare-text      >= 0.10 && < 0.11
+                 , persistent-postgresql >= 0.6    && < 0.7
+                 , hamlet                >= 0.10   && < 0.11
+                 , shakespeare-css       >= 0.10   && < 0.11
+                 , shakespeare-js        >= 0.10   && < 0.11
+                 , shakespeare-text      >= 0.10   && < 0.11
+                 , hjsmin                >= 0.0.14 && < 0.1
                  , template-haskell
                  , transformers
                  , warp

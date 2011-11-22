@@ -16,15 +16,20 @@ module Foundation
     , module Yesod
     , module Yesod.Goodies
     , module Settings
+    , module Settings.StaticFiles
     , module Model
+    , StaticRoute(..)
     , AuthRoute(..)
     ) where
 
 import Model
 import Yesod hiding (setTitle)
+import Yesod.Static (Static, base64md5, StaticRoute(..))
+import Settings.StaticFiles
 import Yesod.Auth
 import Yesod.Auth.OpenId
 import Yesod.Default.Config
+import Yesod.Default.Util (addStaticContentExternal)
 import Yesod.Logger (Logger, logLazyText)
 import Yesod.Goodies hiding (NotFound)
 import Yesod.RssFeed (rssLink)
@@ -32,6 +37,7 @@ import Yesod.Comments hiding (userName, userEmail)
 import Yesod.Comments.Management
 import Yesod.Comments.Storage
 import Data.Maybe (fromMaybe)
+import Text.Jasmine (minifym)
 import Database.Persist.GenericSql
 import Web.ClientSession (getKey)
 import Text.Hamlet (hamletFile)
@@ -41,7 +47,6 @@ import qualified Database.Persist.Base as Base
 
 import Settings ( setTitle
                 , addKeywords
-                , staticLink
                 , pandocFile
                 , widgetFile
                 )
@@ -51,6 +56,7 @@ import qualified Settings as Settings
 data DevSite = DevSite
     { settings  :: AppConfig DefaultEnv
     , getLogger :: Logger
+    , getStatic :: Static
     , connPool  :: Base.PersistConfigPool Settings.PersistConfig
     , siteDocs  :: GHandler DevSite DevSite [Document]
     }
@@ -84,14 +90,18 @@ instance Yesod DevSite where
                 }
 
             -- external links used in sidebar
-            github, aurPkgs, xmonadDocs, haskellDocs :: Link DevSite
-            github      = Link (External "https://github.com/pbrisbin") "my projects on github" "github"
-            aurPkgs     = Link (External "https://aur.archlinux.org/packages.php?K=brisbin33&SeB=m") "my aur packages" "aur packages"
-            xmonadDocs  = Link (External "/xmonad/docs") "xmonad haddocks" "xmonad docs"
-            haskellDocs = Link (External "/haskell/docs/html") "haskell haddocks" "haskell docs"
+            github, aurPkgs, haskellDocs, rubyDocs :: Link DevSite
+            github       = Link (External "https://github.com/pbrisbin") "my projects on github" "github"
+            aurPkgs      = Link (External "https://aur.archlinux.org/packages.php?K=brisbin33&SeB=m") "my aur packages" "aur packages"
+            haskellDocs  = Link (External "/static/docs/haskell") "haskell haddocks" "haskell docs"
+            rubyDocs     = Link (External "/static/docs/ruby")    "ruby rdocs"       "ruby rdocs"
 
     messageLogger y loc level msg =
         formatLogMessage loc level msg >>= logLazyText (getLogger y)
+
+    addStaticContent = addStaticContentExternal minifym base64md5 Settings.staticDir (StaticR . flip StaticRoute [])
+
+    yepnopeJs _ = Just $ Right $ StaticR js_modernizr_js
 
 instance YesodBreadcrumbs DevSite where
     breadcrumb RootR        = return ("home"       , Nothing       ) 
