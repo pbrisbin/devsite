@@ -3,4 +3,5 @@ dist
 tmp
 static
 .static-cache
+.virthualenv
 *.aes
