@@ -2,7 +2,26 @@
 
 instances='1 2 3 4 5'
 
+#binary='/home/patrick/.cabal/bin/devsite'
+binary='dist/build/devsite/devsite'
+
 usage() { echo 'usage: devsite [ start | stop | deploy ]' >&2; exit 1; }
+
+get_pid() { # {{{
+  local n=$1
+
+  if [[ -f tmp/pid/$n.pid ]]; then
+    if read -r pid < tmp/pid/$n.pid; then
+      if [[ -n $pid ]]; then
+        echo $pid
+        return 0
+      fi
+    fi
+  fi
+
+  return 1
+}
+# }}}
 
 deploy_devsite() { # {{{
   deptag;
@@ -32,7 +51,15 @@ start_devsite() { # {{{
 
   echo 'Starting worker processes...'
   for n in $instances; do
-    /home/patrick/.cabal/bin/devsite -e production -p 300$n > tmp/log/$n.log 2> tmp/log/${n}_errors.log &
+    if pid=$(get_pid $n); then
+      if ! ps $pid &>/dev/null; then
+        rm -f tmp/pid/$n.pid
+      else
+        continue
+      fi
+    fi
+
+    $binary -e production -p 300$n > tmp/log/$n.log 2> tmp/log/$n.errors.log &
     echo $! > tmp/pid/$n.pid
   done
 }
@@ -43,13 +70,13 @@ stop_devsite() { # {{{
 
   echo 'Stopping worker processes...'
   for n in $instances; do
-    if [[ -f tmp/pid/$n.pid ]]; then
-      read -r pid < tmp/pid/$n.pid
-      if [[ -n $pid ]]; then
-        kill $pid
-        rm tmp/pid/$n.pid
+    if pid=$(get_pid $n); then
+      if ps $pid &>/dev/null; then
+        ( kill $pid || kill -9 $pid ) &>/dev/null
       fi
     fi
+
+    rm -f tmp/pid/$n.pid
   done
 }
 # }}}
