@@ -5,6 +5,7 @@
 {-# LANGUAGE OverloadedStrings          #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE FlexibleContexts           #-}
+{-# LANGUAGE EmptyDataDecls             #-}
 module Model where
 
 import Yesod.Goodies
