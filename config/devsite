@@ -21,7 +21,10 @@ get_pid() { # {{{
 
 deploy_devsite() { # {{{
   deptag;
-  touch Settings.hs
+
+  # any files with CPP declarations should be touched in case they are
+  # out of date.
+  touch Settings.hs Application.hs
 
   cabal clean
 
