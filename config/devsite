@@ -1,9 +1,5 @@
 #!/bin/bash -e
 
-instances='1 2 3 4 5'
-
-#binary='/home/patrick/.cabal/bin/devsite'
-binary='dist/build/devsite/devsite'
 
 usage() { echo 'usage: devsite [ start | stop | deploy ]' >&2; exit 1; }
 
@@ -30,15 +26,12 @@ deploy_devsite() { # {{{
   cabal clean
 
   if ! cabal configure; then
-    # install missing deps and reconfigure
     cabal install --only-dependencies
     cabal configure
   fi
 
   cabal build
   cabal check
-
-  runhaskell ./Setup.hs install
 
   stop_devsite
   sleep 2
@@ -80,6 +73,15 @@ stop_devsite() { # {{{
   done
 }
 # }}}
+
+# experiencing very high memory usage with 7.2, only run one two
+# instances for now
+#instances='1 2 3 4 5'
+instances='1 2'
+
+binary='dist/build/devsite/devsite'
+
+[[ -x "$binary" ]] || { echo 'no binary found!' >&2; exit 1; }
 
 case "$1" in
   start)  start_devsite  ;;
