@@ -8,4 +8,4 @@ getAboutR :: Handler RepHtml
 getAboutR = defaultLayout $ do
     setTitle "About"
     addKeywords ["about"]
-    addWidget $(widgetFile "about")
+    $(widgetFile "about")

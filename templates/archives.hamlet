@@ -1,6 +1,6 @@
 <header>
   <h1>Archives
-  <p>...by tag or by date
+  <p>by tag or by date
 
 <div #archive-left .accordion>
   $forall c <- tagCollections
@@ -23,10 +23,10 @@
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js">
 <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.9/jquery-ui.min.js">
 <script>
-  $(function() {
-    $(".accordion").accordion({
-      collapsible: true,
-      autoHeight:  false,
-      active:      false
-    });
-  });
+  \ $(function() {
+  \   $(".accordion").accordion({
+  \     collapsible: true,
+  \     autoHeight:  false,
+  \     active:      false
+  \   });
+  \ });

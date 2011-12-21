@@ -11,4 +11,4 @@ getRootR = do
     defaultLayout $ do
         setTitle "Home"
         addKeywords ["home", "haskell", "bash", "mutt", "xmonad", "arch linux"]
-        addWidget $(widgetFile "homepage")
+        $(widgetFile "homepage")

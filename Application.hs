@@ -32,7 +32,7 @@ import Handler.Tags
 
 mkYesodDispatch "DevSite" resourcesDevSite
 
-withDevSite :: AppConfig DefaultEnv -> Logger -> (Application -> IO a) -> IO ()
+withDevSite :: AppConfig DefaultEnv () -> Logger -> (Application -> IO a) -> IO ()
 withDevSite conf logger f = do
 #ifndef DEVELOPMENT
     s <- static Settings.staticDir

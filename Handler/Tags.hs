@@ -20,4 +20,4 @@ getTagR tag' = do
             rssLink (FeedTagR tag) ("rss feed for tag " ++ T.unpack tag)
             setTitle $ "Tag: " `T.append` tag
             addKeywords [tag]
-            addWidget $(widgetFile "tag")
+            $(widgetFile "tag")

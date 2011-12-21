@@ -30,7 +30,7 @@ pageDocument doc@(Document p ts) docs = do
     defaultLayout $ do
         setTitle $ postTitle p
         addKeywords $ postTitle p : map tagName ts
-        addWidget $(widgetFile "document/page")
+        $(widgetFile "document/page")
 
     where
         -- find next/previous in a list of documents
@@ -53,7 +53,7 @@ pageDocument doc@(Document p ts) docs = do
 inlineDocument :: Document -> Widget
 inlineDocument doc@(Document p _) = do
     dContent <- lift $ documentContent doc
-    addWidget $(widgetFile "document/inline")
+    $(widgetFile "document/inline")
 
 -- | if the post is not found in the db
 unpublishedDocument :: Text -> Handler RepHtml
@@ -66,7 +66,7 @@ unpublishedDocument slug = do
 
     defaultLayout $ do
         setTitle slug
-        addWidget $(widgetFile "document/unpublished")
+        $(widgetFile "document/unpublished")
 
 documentContent :: Document -> Handler Html
 documentContent (Document p _) = do
@@ -84,13 +84,13 @@ documentContent (Document p _) = do
 published :: Document -> Widget
 published (Document p _) = do
     timeDiff <- lift . liftIO . humanReadableTime $ postDate p
-    addWidget $(widgetFile "document/_published")
+    $(widgetFile "document/_published")
 
 taggedWith :: Document -> Widget
 taggedWith (Document _ []) = [whamlet|empty|]
-taggedWith (Document _ ts) = addWidget $(widgetFile "document/_tagged_with")
+taggedWith (Document _ ts) = $(widgetFile "document/_tagged_with")
 
 -- | Used in admin page
 documentsList :: [Document] -> Widget
 documentsList []   = return ()
-documentsList docs = addWidget $(widgetFile "posts_admin/_list")
+documentsList docs = $(widgetFile "posts_admin/_list")

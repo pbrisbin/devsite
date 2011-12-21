@@ -24,7 +24,7 @@ module Foundation
     ) where
 
 import Model
-import Yesod hiding (setTitle)
+import Yesod hiding (setTitle, AppConfig(..), withYamlEnvironment)
 import Yesod.Static (Static, base64md5, StaticRoute(..))
 import Settings.StaticFiles
 import Yesod.Auth
@@ -55,7 +55,7 @@ import Settings ( setTitle
 import qualified Settings as Settings
 
 data DevSite = DevSite
-    { settings  :: AppConfig DefaultEnv
+    { settings  :: AppConfig DefaultEnv ()
     , getLogger :: Logger
     , getStatic :: Static
     , connPool  :: Base.PersistConfigPool Settings.PersistConfig

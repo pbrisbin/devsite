@@ -45,6 +45,8 @@ deploy_devsite() { # {{{
 start_devsite() { # {{{
   local n
 
+  [[ -x "$binary" ]] || { echo 'no binary found!' >&2; exit 1; }
+
   echo 'Starting worker processes...'
   for n in $instances; do
     if pid=$(get_pid $n); then
@@ -55,7 +57,7 @@ start_devsite() { # {{{
       fi
     fi
 
-    $binary -e production -p 300$n > tmp/log/$n.log 2> tmp/log/$n.errors.log &
+    $binary -p 300$n production > tmp/log/$n.log 2> tmp/log/$n.errors.log &
     echo $! > tmp/pid/$n.pid
   done
 }
@@ -77,14 +79,8 @@ stop_devsite() { # {{{
 }
 # }}}
 
-# experiencing very high memory usage with 7.2, only run one two
-# instances for now
-#instances='1 2 3 4 5'
-instances='1 2'
-
 binary='dist/build/devsite/devsite'
-
-[[ -x "$binary" ]] || { echo 'no binary found!' >&2; exit 1; }
+instances='1 2 3 4 5'
 
 case "$1" in
   start)  start_devsite  ;;

@@ -21,7 +21,7 @@ getProfileR = do
 
     defaultLayout $ do
         setTitle "View profile"
-        addWidget $(widgetFile "profile")
+        $(widgetFile "profile")
 
     where
         gravatarOpts :: GravatarOptions

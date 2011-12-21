@@ -15,13 +15,13 @@ module Settings
 import Text.Shakespeare.Text (st)
 import Language.Haskell.TH.Syntax
 import Database.Persist.Postgresql (PostgresConf)
+import Yesod.Default.Config
+import qualified Yesod.Default.Util
 import Data.Text (Text)
 import qualified Data.Text as T
 
-import Yesod hiding (setTitle)
-import Yesod.Default.Config
+import Yesod (Yesod, GWidget, toHtml, addHamletHead, hamlet)
 import qualified Yesod
-import qualified Yesod.Default.Util
 
 type PersistConfig = PostgresConf
 
@@ -42,13 +42,13 @@ pandocFile x = "pandoc/" ++ T.unpack x ++ ".pdc"
 staticDir :: FilePath
 staticDir = "static"
 
-staticRoot :: AppConfig DefaultEnv -> Text
+staticRoot :: AppConfig DefaultEnv x -> Text
 staticRoot conf = [st|#{appRoot conf}/static|]
 
 widgetFile :: FilePath -> Q Exp
 widgetFile =
 #ifdef DEVELOPMENT
-    Yesod.Default.Util.widgetFileDebug
+    Yesod.Default.Util.widgetFileReload
 #else
-    Yesod.Default.Util.widgetFileProduction
+    Yesod.Default.Util.widgetFileNoReload
 #endif

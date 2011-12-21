@@ -64,7 +64,7 @@ runProfileFormPost = do
             tm <- getRouteToMaster
             redirect RedirectTemporary $ tm ProfileR
 
-profileEditForm :: User -> Html -> Form DevSite DevSite (FormResult ProfileEditForm, Widget)
+profileEditForm :: User -> Html -> MForm DevSite DevSite (FormResult ProfileEditForm, Widget)
 profileEditForm u = renderTable $ ProfileEditForm
     <$> aopt textField   "User name"
         { fsTooltip = Just "comments are attributed to this username"
@@ -152,7 +152,7 @@ runPostForm mdoc = do
 
 -- | Display the new post form inself. If the first argument is Just,
 --   then use that to prepopulate the form
-postForm :: Maybe Document -> Html -> Form DevSite DevSite (FormResult PostEditForm, Widget)
+postForm :: Maybe Document -> Html -> MForm DevSite DevSite (FormResult PostEditForm, Widget)
 postForm mdoc = renderTable $ PostEditForm
     <$> areq textField     "post slug"   (fmap (postSlug   . post) mdoc)
     <*> areq textField     "title"       (fmap (postTitle  . post) mdoc)

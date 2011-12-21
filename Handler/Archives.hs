@@ -18,7 +18,7 @@ getArchivesR = do
     defaultLayout $ do
         setTitle "Archives"
         addKeywords $ map name $ tagCollections ++ dateCollections
-        addWidget $(widgetFile "archives")
+        $(widgetFile "archives")
 
     where
         proper :: Text -> Text
@@ -30,5 +30,3 @@ getArchivesR = do
 
         helper 1 = "1 post"
         helper n = show n ++ " posts"
-
-
