@@ -80,7 +80,7 @@ stop_devsite() { # {{{
 # }}}
 
 binary='dist/build/devsite/devsite'
-instances='1 2 3 4 5'
+instances='1 2 3'
 
 case "$1" in
   start)  start_devsite  ;;
