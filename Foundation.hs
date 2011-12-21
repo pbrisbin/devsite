@@ -64,7 +64,7 @@ data DevSite = DevSite
 
 mkYesodData "DevSite" $(parseRoutesFile "config/routes")
 
-instance Yesod DevSite where 
+instance Yesod DevSite where
     approot      = appRoot . settings
     authRoute _  = Just $ AuthR LoginR
     encryptKey _ = fmap Just $ getKey "config/client_session_key.aes"
@@ -105,7 +105,7 @@ instance Yesod DevSite where
     yepnopeJs _ = Just $ Right $ StaticR js_modernizr_js
 
 instance YesodBreadcrumbs DevSite where
-    breadcrumb RootR        = return ("home"       , Nothing       ) 
+    breadcrumb RootR        = return ("home"       , Nothing       )
     breadcrumb AboutR       = return ("about"      , Just RootR    )
     breadcrumb ArchivesR    = return ("archives"   , Just RootR    )
     breadcrumb (PostR slug) = return (T.map go slug, Just ArchivesR)
@@ -143,37 +143,49 @@ instance YesodAuth DevSite where
         x <- getBy $ UniqueIdent $ credsIdent creds
         case x of
             Just (_, i) -> do
-                updateFromSreg (credsExtra creds) $ identUser i
+                updateFromAx (credsExtra creds) $ identUser i
                 return $ Just $ identUser i
 
             Nothing -> do
                 uid <- insert $ User Nothing Nothing False
                 _   <- insert $ Ident (credsIdent creds) uid
-                updateFromSreg (credsExtra creds) uid 
+                updateFromAx (credsExtra creds) uid
                 return $ Just uid
 
         where
             -- updates username/email with values returned by openid
             -- unless values exist there already
-            updateFromSreg :: PersistBackend SqlPersist m
-                           => [(Text,Text)] -- ^ the @credsExtra@ returned from open id
-                           -> UserId        -- ^ the user id to update
-                           -> SqlPersist m ()
-            updateFromSreg keys uid = maybe (return ()) go =<< get uid
+            updateFromAx :: PersistBackend SqlPersist m
+                         => [(Text,Text)] -- ^ the @credsExtra@ returned from open id
+                         -> UserId        -- ^ the user id to update
+                         -> SqlPersist m ()
+            updateFromAx keys uid = maybe (return ()) go =<< get uid
 
                 where
                     go :: PersistBackend SqlPersist m => User -> SqlPersist m ()
                     go u = do
-                        case (userName u, lookup "openid.sreg.nickname" keys) of
-                            (Nothing, val@(Just _)) -> update uid [UserName =. val]
+                        case (userName u, lookup "openid.ext1.value.email" keys) of
+                            (Nothing, val@(Just _)) -> update uid [UserName =. (parseNick val)]
                             _                       -> return ()
 
-                        case (userEmail u, lookup "openid.sreg.email" keys) of
+                        case (userEmail u, lookup "openid.ext1.value.email" keys) of
                             (Nothing, val@(Just _)) -> update uid [UserEmail =. val]
                             _                       -> return ()
 
-    authPlugins = [ authOpenIdExtended 
-                        [("openid.sreg.optional","nickname,email")] ]
+                    -- we'll request only email and parse the first
+                    -- portion as our username.
+                    parseNick :: Maybe Text -> Maybe Text
+                    parseNick = fmap (T.takeWhile (/= '@'))
+
+    authPlugins = [ authOpenIdExtended
+                        -- tested to work with at least google
+                        [ ("openid.ax.mode"       , "fetch_request"                         )
+                        , ("openid.ax.required"   , "email"                                 )
+                        , ("openid.ax.type.email" , "http://schema.openid.net/contact/email")
+                        , ("openid.ns.ax"         , "http://openid.net/srv/ax/1.0"          )
+                        , ("openid.ns.ax.required", "email"                                 )
+                        , ("openid.ui.icon"       , "true"                                  )
+                        ] ]
 
     loginHandler = defaultLayout $ do
         setTitle "Login"
@@ -210,7 +222,7 @@ instance IsLink DevSiteRoute where
 
     -- fail noticably
     toLink r = Link (Internal r) "invalid use of `link'" "FIXME"
-    
+
 instance IsLink Post where
     toLink p = Link (Internal $ PostR $ postSlug p) (postTitle p) (postTitle p)
 
