@@ -1,30 +1,9 @@
 #!/bin/bash -e
 
-
-usage() { echo 'usage: devsite [ start | stop | deploy ]' >&2; exit 1; }
-
-get_pid() { # {{{
-  local n=$1
-
-  if [[ -f tmp/pid/$n.pid ]]; then
-    if read -r pid < tmp/pid/$n.pid; then
-      if [[ -n $pid ]]; then
-        echo $pid
-        return 0
-      fi
-    fi
-  fi
-
-  return 1
-}
-# }}}
-
-deploy_devsite() { # {{{
+deploy() {
   deptag;
 
-  # any files with CPP declarations should be touched in case they are
-  # out of date.
-  touch Settings.hs Application.hs
+  touch ./**/*
 
   cabal clean
 
@@ -40,47 +19,30 @@ deploy_devsite() { # {{{
   sleep 2
   start_devsite
 }
-# }}}
 
-start_devsite() { # {{{
+start_devsite() {
   local n
 
-  [[ -x "$binary" ]] || { echo 'no binary found!' >&2; exit 1; }
-
-  echo 'Starting worker processes...'
   for n in $instances; do
-    if pid=$(get_pid $n); then
-      if ! ps $pid &>/dev/null; then
-        rm -f tmp/pid/$n.pid
-      else
-        continue
-      fi
-    fi
-
-    $binary -p 300$n production > tmp/log/$n.log 2> tmp/log/$n.errors.log &
-    echo $! > tmp/pid/$n.pid
+    echo "Staring worker #$n..."
+    ./$bin -p 300$n production &> tmp/$n.log &
   done
 }
-# }}}
 
-stop_devsite() { # {{{
-  local pid n
+stop_devsite() {
+  local pid
 
-  echo 'Stopping worker processes...'
-  for n in $instances; do
-    if pid=$(get_pid $n); then
-      if ps $pid &>/dev/null; then
-        ( kill $pid || kill -9 $pid ) &>/dev/null
-      fi
+  while read r pid; do
+    echo "Stopping worker with pid $pid..."
+    if ! kill $pid; then
+      kill -9 $pid
     fi
-
-    rm -f tmp/pid/$n.pid
-  done
+  done <(pgrep -f "$bin")
 }
-# }}}
 
-binary='dist/build/devsite/devsite'
-instances='1'
+bin='dist/build/devsite/devsite'
+
+instances='1 2 3'
 
 case "$1" in
   start)  start_devsite  ;;
