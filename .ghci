@@ -1,0 +1,13 @@
+:set -XCPP
+:set -XTemplateHaskell
+:set -XQuasiQuotes
+:set -XOverloadedStrings
+:set -XNoImplicitPrelude
+:set -XOverloadedStrings
+:set -XMultiParamTypeClasses
+:set -XTypeFamilies
+:set -XGADTs
+:set -XGeneralizedNewtypeDeriving
+:set -XFlexibleContexts
+:set -XFlexibleInstances
+:set -XTypeSynonymInstances

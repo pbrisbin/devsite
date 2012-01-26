@@ -4,8 +4,8 @@
     <span .title_two>dot
     <span .title_three>com
 
-$forall doc <- take 5 docs
-  ^{inlineDocument doc}
+$forall (post,tags) <- records
+  ^{postWidget post tags}
 
 <p>
   <small>^{link ArchivesR}...

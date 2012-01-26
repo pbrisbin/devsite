@@ -1,0 +1,17 @@
+<div .post .inline>
+  <h2>
+    ^{link post}
+
+  <div .meta>
+    <span .published>
+      published #{published}
+    <span .tags>
+      tagged with 
+
+      $forall tag <- init tags
+        ^{link tag}, 
+
+      ^{link $ last tags}
+
+  <div .content>
+    #{content}

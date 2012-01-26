@@ -1,15 +1,15 @@
 /                      RootR        GET
 /about                 AboutR       GET
 /archives              ArchivesR    GET
-/posts/#T.Text         PostR        GET POST
-/tags/#T.Text          TagR         GET
+/posts/#Text           PostR        GET POST
+/tags/#Text            TagR         GET
 /manage                ManagePostsR GET POST
-/manage/edit/#T.Text   EditPostR    GET POST
-/manage/delete/#T.Text DelPostR     GET
+/manage/edit/#Text     EditPostR    GET POST
+/manage/delete/#Text   DelPostR     GET
 /profile               ProfileR     GET
 /profile/edit          EditProfileR GET POST
 /feed                  FeedR        GET
-/feed/#T.Text          FeedTagR     GET
+/feed/#Text            FeedTagR     GET
 /favicon.ico           FaviconR     GET
 /robots.txt            RobotsR      GET
 

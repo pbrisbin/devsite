@@ -6,11 +6,10 @@ module Helpers.Forms
     , runPostForm
     ) where
 
-import Foundation
-import Control.Applicative ((<$>), (<*>))
-import Data.Time           (getCurrentTime)
-
-import Data.Text (Text)
+import Import
+import Control.Monad (forM_)
+import Yesod.Markdown
+import Data.Time (getCurrentTime)
 import qualified Data.Text as T
 
 data ProfileEditForm = ProfileEditForm
@@ -62,10 +61,10 @@ runProfileFormPost = do
                 ]
 
             tm <- getRouteToMaster
-            redirect RedirectTemporary $ tm ProfileR
+            redirect $ tm ProfileR
 
-profileEditForm :: User -> Html -> MForm DevSite DevSite (FormResult ProfileEditForm, Widget)
-profileEditForm u = renderTable $ ProfileEditForm
+profileEditForm :: User -> Form ProfileEditForm
+profileEditForm u = renderBootstrap $ ProfileEditForm
     <$> aopt textField   "User name"
         { fsTooltip = Just "comments are attributed to this username"
         } (Just $ userName u)
@@ -74,46 +73,60 @@ profileEditForm u = renderTable $ ProfileEditForm
         { fsTooltip = Just "never displayed, only used to find your gravatar"
         } (Just $ userEmail u)
 
-runPostForm :: Maybe Document -> Widget
-runPostForm mdoc = do
-    ((res, form), enctype) <- lift $ runFormPost $ postForm mdoc
+runPostForm :: Maybe (Post,[Tag]) -> Widget
+runPostForm mpost = do
+    ((res, form), enctype) <- lift $ runFormPost $ postForm mpost
     case res of
         FormSuccess pf -> lift $ processFormResult pf
         _              -> return ()
 
     [whamlet|
-        <div .post_input>
-            <form enctype="#{enctype}" method="post">
-                <table>
-                    ^{form}
-                    <tr>
-                        <td>&nbsp;
-                        <td .buttons>
-                            $maybe _ <- mdoc
-                                <input type="submit" value="Update">
-                            $nothing
-                                <input type="submit" value="Create">
+        <div .post-input>
+            <form enctype="#{enctype}" method="post" .form-stacked>
+                ^{form}
+                <div .actions>
+                    <button .btn type="submit">
+                        $maybe _ <- mpost
+                            Update
+                        $nothing
+                            Create
         |]
 
     where
         processFormResult :: PostEditForm -> Handler ()
         processFormResult pf = do
-            p      <- postFromForm pf
-            result <- runDB $ insertBy p
+            p   <- postFromForm pf
+            msg <- runDB $ do
+                result <- insertBy p
 
-            case result of
-                Right k -> do
-                    -- post was inserted, add the tags
-                    createTags k (parseTags $ formTags pf)
-                    setMessage "post created!"
+                case result of
+                    Right k -> do
+                        -- post was inserted, add the tags
+                        forM_ (parseTags $ formTags pf) $ \tag -> do
+                            insertBy $ Tag k tag
 
-                Left (k, _) -> do
-                    -- post exists, update
-                    updatePost k p
-                    updateTags k (parseTags $ formTags pf)
-                    setMessage "post updated!"
+                        return "post created!"
 
-            redirect RedirectTemporary ManagePostsR
+                    Left (Entity k _) -> do
+                        -- post exists, update it
+                        update k 
+                            [ PostSlug  =. postSlug  p
+                            , PostTitle =. postTitle p
+                            , PostDescr =. postDescr p
+                            ]
+
+                        -- remove existing tags
+                        deleteWhere [TagPost ==. k]
+
+                        -- add new ones
+                        forM_ (parseTags $ formTags pf) $ \tag -> do
+                            insertBy $ Tag k tag
+
+                        return "post updated!"
+
+            setMessage msg
+
+            redirect ManagePostsR
 
         postFromForm :: PostEditForm -> Handler Post
         postFromForm pf = do
@@ -125,40 +138,21 @@ runPostForm mdoc = do
                 , postDate  = now
                 }
 
-        updatePost :: PostId -> Post -> Handler ()
-        updatePost key new = runDB $ update key 
-            [ PostSlug  =. postSlug  new
-            , PostTitle =. postTitle new
-            , PostDescr =. postDescr new
-            ]
-
-        updateTags :: PostId -> [Text] -> Handler ()
-        updateTags key ts = do
-            runDB $ deleteWhere [TagPost ==. key]
-            createTags key ts
-
-
-        createTags :: PostId -> [Text] -> Handler ()
-        createTags key = mapM_ (go key)
-            where
-                go :: PostId -> Text -> Handler ()
-                go key' tag = runDB $ do
-                    _ <- insertBy $ Tag key' tag
-                    return ()
-
         parseTags :: Text -> [Text]
         parseTags = filter (not . T.null)
                   . map (T.toLower . T.strip) . T.splitOn ","
 
 -- | Display the new post form inself. If the first argument is Just,
 --   then use that to prepopulate the form
-postForm :: Maybe Document -> Html -> MForm DevSite DevSite (FormResult PostEditForm, Widget)
-postForm mdoc = renderTable $ PostEditForm
-    <$> areq textField     "post slug"   (fmap (postSlug   . post) mdoc)
-    <*> areq textField     "title"       (fmap (postTitle  . post) mdoc)
-    <*> areq textField     "tags"        (fmap (formatTags . tags) mdoc)
-    <*> aopt markdownField "description" (fmap (postDescr  . post) mdoc)
-
-    where
-        formatTags :: [Tag] -> Text
-        formatTags = T.intercalate ", " . map tagName
+postForm :: Maybe (Post,[Tag]) -> Form PostEditForm
+postForm = undefined
+-- FIXME:
+--postForm mpost = renderBootstrap $ PostEditForm
+--    <$> areq textField     "Slug"        (fmap (postSlug   . fst) mpost)
+--    <*> areq textField     "Title"       (fmap (postTitle  . fst) mpost)
+--    <*> areq textField     "Tags"        (fmap (formatTags . snd) mpost)
+--    <*> aopt markdownField "Description" (fmap (postDescr  . snd) mpost)
+--
+--    where
+--        formatTags :: [Tag] -> Text
+--        formatTags = T.intercalate ", " . map tagName

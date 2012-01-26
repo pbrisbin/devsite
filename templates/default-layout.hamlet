@@ -1,5 +1,5 @@
 <aside>
-  $maybe mesg <- mmesg
+  $maybe mesg <- mmsg
     <div .message>
         <p>#{mesg}
 
