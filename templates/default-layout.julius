@@ -1,0 +1,8 @@
+$(function() {
+  // table rows as links
+  $('tbody.link tr').click(function() {
+    window.location = $(this).find('a').attr('href');
+  }).hover( function() {
+    $(this).toggleClass('hover')
+  });
+});

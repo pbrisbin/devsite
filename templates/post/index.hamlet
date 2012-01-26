@@ -1,5 +1,30 @@
 <header>
-  <h1>Manage Posts
+  <h1>Manage posts
 
-^{runPostForm Nothing}
-^{documentsList docs}
+<div .post-input>
+  <form enctype="#{enctype}" method="post">
+    ^{form}
+
+    <div .actions>
+      <button type="submit" .btn>Create post
+
+<div .post-listing>
+  <table .bordered-table .condensed-table>
+    <thead>
+      <tr>
+        <th>Slug
+        <th>Posted
+        <th>&nbsp;
+        <th>&nbsp;
+
+    <tbody .link>
+      $forall post <- posts
+        <tr>
+          <td>
+            <a href="@{PostR $ postSlug $ entityVal post}">
+            #{postTitle $ entityVal post}
+          <td>#{show $ postDate $ entityVal post}
+          <td>
+            <a href="@{EditPostR $ postSlug $ entityVal post}">Edit
+          <td>
+            <a href="@{DelPostR $ postSlug $ entityVal post}">Delete

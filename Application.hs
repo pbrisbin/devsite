@@ -13,10 +13,10 @@ import Yesod.Default.Main
 import Yesod.Default.Handlers
 #if DEVELOPMENT
 import Yesod.Logger (Logger, logBS)
-import Network.Wai.Middleware.RequestLogger (logHandleDev)
+import Network.Wai.Middleware.RequestLogger (logCallbackDev)
 #else
 import Yesod.Logger (Logger, logBS, toProduction)
-import Network.Wai.Middleware.RequestLogger (logHandle)
+import Network.Wai.Middleware.RequestLogger (logCallback)
 #endif
 import qualified Database.Persist.Store
 import Database.Persist.GenericSql (runMigration)
@@ -58,11 +58,11 @@ getApplication conf logger = do
     return $ logWare app
   where
 #ifdef DEVELOPMENT
-    logWare = logHandleDev (logBS setLogger)
+    logWare = logCallbackDev (logBS setLogger)
     setLogger = logger
 #else
     setLogger = toProduction logger -- by default the logger is set for development
-    logWare = logHandle (logBS setLogger)
+    logWare = logCallback (logBS setLogger)
 #endif
 
 -- for yesod devel

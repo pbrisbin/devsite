@@ -1,5 +1,9 @@
 <header>
-  <h1>Edit Post
+  <h1>Edit post
 
-^{runPostForm mdoc}
-^{documentsList docs}
+<div .post-input>
+  <form enctype="#{enctype}" method="post">
+    ^{form}
+
+    <div .actions>
+      <button type="submit" .btn>Update post

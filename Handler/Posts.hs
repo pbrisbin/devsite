@@ -9,13 +9,12 @@ module Handler.Posts
     ) where
 
 import Import
-import Control.Monad (forM)
 import Data.Time.Format.Human
+import Helpers.Post
 import System.Directory (doesFileExist)
-import Yesod.Markdown
-import Yesod.Links
-import Helpers.Forms
 import Yesod.Comments (addCommentsAuth)
+import Yesod.Links
+import Yesod.Markdown
 
 getPostR :: Text -> Handler RepHtml
 getPostR slug = do
@@ -52,21 +51,17 @@ getManagePostsR :: Handler RepHtml
 getManagePostsR = do
     requireAdmin
 
-    -- select all (Post, [Tag])
-    records <- runDB $ do
-        posts <- selectList [] [Desc PostDate]
-        tags  <- selectList [] [Asc TagName]
+    posts <- runDB $ selectList [] [Desc PostDate]
 
-        forM posts $ \post -> do
-            let pid   = entityKey post
-            let post' = entityVal post
-            let tags' = filter ((== pid) . tagPost) $ map entityVal tags
+    ((res,form), enctype) <- runFormPost $ postForm Nothing
 
-            return (post', tags')
+    case res of
+        FormSuccess pf -> upsertPost pf
+        _              -> return ()
 
     defaultLayout $ do
         setTitle "Manage posts"
-        $(widgetFile "posts/index")
+        $(widgetFile "post/index")
 
 postManagePostsR :: Handler RepHtml
 postManagePostsR = getManagePostsR
@@ -75,13 +70,17 @@ getEditPostR :: Text -> Handler RepHtml
 getEditPostR slug = do
     requireAdmin
 
-    (post,tags) <- runDB $ do
+    record <- runDB $ do
         (Entity key val) <- getBy404 $ UniquePost slug
         tags' <- selectList [TagPost ==. key] [Asc TagName]
 
         return (val, map entityVal tags')
 
-    published <- liftIO $ humanReadableTime $ postDate post
+    ((res,form), enctype) <- runFormPost $ postForm $ Just record
+
+    case res of
+        FormSuccess pf -> upsertPost pf
+        _              -> return ()
 
     defaultLayout $ do
         setTitle "Edit post"
@@ -99,8 +98,8 @@ getDelPostR slug = do
 
         case mentity of
             Just (Entity key _) -> do
-                delete key
                 deleteWhere [TagPost ==. key]
+                delete key
                 return "post deleted!"
 
             _ -> return "post not found!"
