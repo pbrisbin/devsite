@@ -1,0 +1,34 @@
+<header>
+  <h1>#{postTitle post}
+  <div .meta>
+    <p>
+      <span .published>
+        published #{published}, 
+
+      <span .tags>
+        tagged with 
+
+        $forall tag <- init tags
+          ^{link tag}, 
+
+        ^{link $ last tags}
+
+<article .content>
+  #{content}
+
+  <h3>
+    <a href="#Comments" id="Comments">Comments
+
+  <div .post-comments>
+    ^{addCommentsAuth slug}
+
+  <p .post-nav>
+    <span .left>
+      $maybe prev <- mprev
+        &larr; ^{link prev}
+      $nothing
+        <a href="@{RootR}">&larr; Home
+
+    <span .right>
+      $maybe next <- mnext
+        ^{link next} &rarr;

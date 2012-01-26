@@ -11,7 +11,11 @@ module Handler.Posts
 import Import
 import Control.Monad (forM)
 import Data.Time.Format.Human
+import System.Directory (doesFileExist)
+import Yesod.Markdown
+import Yesod.Links
 import Helpers.Forms
+import Yesod.Comments (addCommentsAuth)
 
 getPostR :: Text -> Handler RepHtml
 getPostR slug = do
@@ -22,6 +26,19 @@ getPostR slug = do
         return (val, map entityVal tags')
 
     published <- liftIO $ humanReadableTime $ postDate post
+
+    let file = pandocFile $ postSlug post
+
+    content <- liftIO $ do
+        exists <- doesFileExist file
+        mkd    <- case (exists, postDescr post) of
+            (True, _         ) -> markdownFromFile file
+            (_   , Just descr) -> return descr
+            _                  -> return "nothing?"
+
+        return $ markdownToHtml mkd
+
+    let (mprev,mnext) = (Nothing,Nothing) :: (Maybe Post, Maybe Post)
 
     defaultLayout $ do
         setTitle slug

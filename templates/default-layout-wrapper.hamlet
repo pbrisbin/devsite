@@ -6,10 +6,13 @@
     <meta name="description" content="pbrisbin dot com">
     <meta name="author" content="Patrick Brisbin">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    ^{pageHead pc}
-    <link rel="stylesheet" href=@{StaticR css_normalize_css}">
+    <link rel="stylesheet" href="@{StaticR css_bootstrap_min_css}">
     <link rel="stylesheet" href=@{StaticR css_style_css}">
+
+    <script src="@{StaticR js_bootstrap_alerts_js}">
     <script async src="http://www.google-analytics.com/ga.js">
+
+    ^{pageHead pc}
   <body>
     ^{pageBody pc}
 
