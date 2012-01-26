@@ -2,11 +2,15 @@ module Helpers.Post
     ( postForm
     , upsertPost
     , postContent
+    , postPublished
     , getPost404
+    , getPreviousPost
+    , getNextPost
     ) where
 
 import Import
 import Control.Monad (forM_)
+import Data.Time.Format.Human
 import System.Directory (doesFileExist)
 import Yesod.Markdown
 import Data.Time (getCurrentTime)
@@ -90,9 +94,26 @@ postContent post = do
 
     return $ markdownToHtml mkd
 
-getPost404 :: Text -> Handler (Post,[Tag])
-getPost404 slug = runDB $ do
+postPublished :: Post -> IO String
+postPublished = humanReadableTime . postDate
+
+getPost404 :: Text -> YesodDB DevSite DevSite (Post,[Tag])
+getPost404 slug = do
     (Entity key val) <- getBy404 $ UniquePost slug
     tags' <- selectList [TagPost ==. key] [Asc TagName]
 
     return (val, map entityVal tags')
+
+getNextPost :: Post -> YesodDB DevSite DevSite (Maybe Post)
+getNextPost post = do
+    posts <- selectList [PostDate <. postDate post] [Desc PostDate, LimitTo 1]
+    return $ case posts of
+        ((Entity _ p):_) -> Just p
+        _                -> Nothing
+
+getPreviousPost :: Post -> YesodDB DevSite DevSite (Maybe Post)
+getPreviousPost post = do
+    posts <- selectList [PostDate >. postDate post] [Asc PostDate, LimitTo 1]
+    return $ case posts of
+        ((Entity _ p):_) -> Just p
+        _                -> Nothing

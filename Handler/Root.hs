@@ -4,9 +4,7 @@ import Import
 import Control.Monad (forM)
 import Data.Time.Format.Human
 import Helpers.Post
-import System.Directory (doesFileExist)
 import Yesod.Links
-import Yesod.Markdown
 
 getRootR :: Handler RepHtml
 getRootR = do
@@ -31,7 +29,7 @@ getRootR = do
 
 postWidget :: Post -> [Tag] -> Widget
 postWidget post tags = do
-    published <- lift $ liftIO $ humanReadableTime $ postDate post
+    published <- liftIO $ postPublished post
     content   <- liftIO $ postContent post
 
     $(widgetFile "post/_inline")

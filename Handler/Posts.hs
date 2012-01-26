@@ -17,12 +17,15 @@ import Yesod.Links
 
 getPostR :: Text -> Handler RepHtml
 getPostR slug = do
-    (post,tags) <- getPost404 slug
+    (post,tags,mprev,mnext) <- runDB $ do
+        (post',tags') <- getPost404 slug
+        mprev'        <- getPreviousPost post'
+        mnext'        <- getNextPost     post'
+
+        return $ (post',tags',mprev',mnext')
+
     published   <- liftIO $ humanReadableTime $ postDate post
     content     <- liftIO $ postContent post
-
-    -- TODO: how to do this while being nice to my database?
-    let (mprev,mnext) = (Nothing,Nothing) :: (Maybe Post, Maybe Post)
 
     defaultLayout $ do
         setTitle slug
@@ -48,6 +51,12 @@ getManagePostsR = do
         setTitle "Manage posts"
         $(widgetFile "post/index")
 
+    where
+        postWidget :: Post -> Widget
+        postWidget post = do
+            published <- liftIO $ postPublished post
+            $(widgetFile "post/_row_item")
+
 postManagePostsR :: Handler RepHtml
 postManagePostsR = getManagePostsR
 
@@ -55,7 +64,7 @@ getEditPostR :: Text -> Handler RepHtml
 getEditPostR slug = do
     requireAdmin
 
-    record <- getPost404 slug
+    record <- runDB $ getPost404 slug
 
     ((res,form), enctype) <- runFormPost $ postForm $ Just record
 

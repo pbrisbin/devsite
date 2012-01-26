@@ -2,10 +2,8 @@ module Handler.Tags (getTagR) where
 
 import Import
 import Control.Monad (forM)
-import Data.Time.Format.Human
-import System.Directory (doesFileExist)
+import Helpers.Post
 import Yesod.Links
-import Yesod.Markdown
 import Yesod.RssFeed (rssLink)
 import qualified Data.Text as T
 
@@ -33,17 +31,7 @@ getTagR tag = do
 
 postWidget :: Post -> [Tag] -> Widget
 postWidget post tags = do
-    published <- lift $ liftIO $ humanReadableTime $ postDate post
-
-    let file = pandocFile $ postSlug post
-
-    content <- liftIO $ do
-        exists <- doesFileExist file
-        mkd    <- case (exists, postDescr post) of
-            (True, _         ) -> markdownFromFile file
-            (_   , Just descr) -> return descr
-            _                  -> return ""
-
-        return $ markdownToHtml mkd
+    published <- liftIO $ postPublished post
+    content   <- liftIO $ postContent   post
 
     $(widgetFile "post/_inline")
