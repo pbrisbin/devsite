@@ -36,7 +36,7 @@ getEditProfileR = do
 
     defaultLayout $ do
         setTitle "Edit profile"
-        addWidget $(widgetFile "profile/edit")
+        $(widgetFile "profile/edit")
 
 postEditProfileR :: Handler RepHtml
 postEditProfileR = do

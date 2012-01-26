@@ -251,7 +251,7 @@ instance YesodAuth DevSite where
 
     loginHandler = defaultLayout $ do
         setTitle "Login"
-        addWidget $(widgetFile "login")
+        $(widgetFile "login")
 
 -- Sends off your mail. Requires sendmail in production!
 deliver :: DevSite -> L.ByteString -> IO ()

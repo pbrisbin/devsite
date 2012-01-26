@@ -9,34 +9,19 @@ module Handler.Posts
     ) where
 
 import Import
+import Control.Monad (unless)
 import Data.Time.Format.Human
 import Helpers.Post
-import System.Directory (doesFileExist)
 import Yesod.Comments (addCommentsAuth)
 import Yesod.Links
-import Yesod.Markdown
 
 getPostR :: Text -> Handler RepHtml
 getPostR slug = do
-    (post,tags) <- runDB $ do
-        (Entity key val) <- getBy404 $ UniquePost slug
-        tags' <- selectList [TagPost ==. key] [Asc TagName]
+    (post,tags) <- getPost404 slug
+    published   <- liftIO $ humanReadableTime $ postDate post
+    content     <- liftIO $ postContent post
 
-        return (val, map entityVal tags')
-
-    published <- liftIO $ humanReadableTime $ postDate post
-
-    let file = pandocFile $ postSlug post
-
-    content <- liftIO $ do
-        exists <- doesFileExist file
-        mkd    <- case (exists, postDescr post) of
-            (True, _         ) -> markdownFromFile file
-            (_   , Just descr) -> return descr
-            _                  -> return "nothing?"
-
-        return $ markdownToHtml mkd
-
+    -- TODO: how to do this while being nice to my database?
     let (mprev,mnext) = (Nothing,Nothing) :: (Maybe Post, Maybe Post)
 
     defaultLayout $ do
@@ -70,11 +55,7 @@ getEditPostR :: Text -> Handler RepHtml
 getEditPostR slug = do
     requireAdmin
 
-    record <- runDB $ do
-        (Entity key val) <- getBy404 $ UniquePost slug
-        tags' <- selectList [TagPost ==. key] [Asc TagName]
-
-        return (val, map entityVal tags')
+    record <- getPost404 slug
 
     ((res,form), enctype) <- runFormPost $ postForm $ Just record
 
@@ -110,6 +91,4 @@ getDelPostR slug = do
 requireAdmin :: Handler ()
 requireAdmin = do
     (_, u) <- requireAuth
-    if userAdmin u
-        then return ()
-        else permissionDenied "User is not an admin"
+    unless (userAdmin u) $ permissionDenied "User is not an admin"
