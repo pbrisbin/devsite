@@ -1,7 +1,0 @@
-<span .tagged_with>
-  tagged with 
-
-  $forall tag <- init ts
-    ^{link tag}, 
-
-  ^{link $ last ts}

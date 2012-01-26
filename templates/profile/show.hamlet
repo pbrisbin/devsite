@@ -1,0 +1,17 @@
+<h1>You
+
+<div .pull-right>
+  <a href="@{EditProfileR}" .btn>Edit
+
+<div .profile>
+  <div .profile-gravatar>
+    <a title="change your profile picture at gravatar" target="_blank" href="http://gravatar.com/emails/">
+      <img src="#{pic}">
+
+  <div .profile-details>
+    <h2>#{username}
+    <h4>#{email}
+
+  <div .profile-links>
+    <p>
+      <a href="@{CommentsAdminR OverviewR}">your comments

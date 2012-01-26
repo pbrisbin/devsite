@@ -6,7 +6,7 @@ module Handler.Profile
 
 import Import
 import Data.Maybe (fromMaybe)
-import Helpers.Forms
+import Helpers.Profile
 import Network.Gravatar
 import Yesod.Comments.Management
 
@@ -20,21 +20,30 @@ getProfileR = do
 
     defaultLayout $ do
         setTitle "View profile"
-        $(widgetFile "profile")
+        $(widgetFile "profile/show")
 
     where
         gravatarOpts :: GravatarOptions
         gravatarOpts = defaultOptions
-            { gSize    = Just $ Size 48
+            { gSize    = Just $ Size 128
             , gDefault = Just MM
             }
 
 getEditProfileR :: Handler RepHtml 
-getEditProfileR = defaultLayout $ do
-    setTitle "Edit profile"
-    runProfileFormGet
+getEditProfileR = do
+    (_, u)               <- requireAuth
+    ((_, form), enctype) <- runFormPost $ profileForm u
+
+    defaultLayout $ do
+        setTitle "Edit profile"
+        addWidget $(widgetFile "profile/edit")
 
 postEditProfileR :: Handler RepHtml
 postEditProfileR = do
-    runProfileFormPost
+    (uid, u)          <- requireAuth
+    ((res, _   ), _ ) <- runFormPost $ profileForm u
+    case res of
+        FormSuccess ef -> saveProfile uid ef
+        _              -> return ()
+
     getEditProfileR

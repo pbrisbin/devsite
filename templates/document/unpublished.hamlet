@@ -1,4 +1,0 @@
-<header>
-  <h1>unpublished: #{slug}
-
-#{markdownToHtml $ dContent}
