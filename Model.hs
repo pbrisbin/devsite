@@ -3,7 +3,6 @@ module Model where
 import Prelude
 import Yesod
 import Data.Text (Text)
-import Database.Persist.Quasi
 
 import Data.Time
 import Yesod.Markdown
@@ -13,4 +12,4 @@ import Yesod.Markdown
 -- at:
 -- http://www.yesodweb.com/book/persistent/
 share [mkPersist sqlSettings, mkMigrate "migrateAll"]
-    $(persistFileWith upperCaseSettings "config/models")
+    $(persistFile "config/models")
