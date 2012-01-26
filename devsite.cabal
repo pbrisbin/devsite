@@ -12,77 +12,109 @@ cabal-version:     >= 1.6
 build-type:        Simple
 homepage:          http://pbrisbin.com
 
-Flag devel
-    description:   Build for yesod devel
-    default:       False
+Flag dev
+    Description:   Turn on development settings, like auto-reload templates.
+    Default:       False
+
+Flag library-only
+    Description:   Build for use with "yesod devel"
+    Default:       False
 
 library
-    if flag(devel)
-        buildable: True
-        cpp-options: -DDEVELOPMENT
+    if flag(library-only)
+        Buildable: True
     else
-        buildable: False
+        Buildable: False
 
-    hs-source-dirs:  .
     exposed-modules: Application
     other-modules:   Foundation
+                     Import
                      Model
                      Settings
                      Settings.StaticFiles
-                     Helpers.Forms
-                     Helpers.Documents
-                     Handler.Feed
-                     Handler.Archives
-                     Handler.Posts
-                     Handler.Tags
+
                      Handler.About
-                     Handler.Root
+                     Handler.Archives
+                     Handler.Feed
+                     Handler.Posts
                      Handler.Profile
+                     Handler.Root
+                     Handler.Tags
+                     Helpers.Forms
 
-executable devsite
-    if flag(devel)
-        buildable: False
+    ghc-options:   -Wall -threaded -O0
+    cpp-options:   -DDEVELOPMENT
+
+    extensions: TemplateHaskell
+                QuasiQuotes
+                OverloadedStrings
+                NoImplicitPrelude
+                CPP
+                OverloadedStrings
+                MultiParamTypeClasses
+                TypeFamilies
+                GADTs
+                GeneralizedNewtypeDeriving
+                FlexibleContexts
+                FlexibleInstances
+                TypeSynonymInstances
+
+executable         devsite
+    if flag(library-only)
+        Buildable: False
+
+    if flag(dev)
+        cpp-options:   -DDEVELOPMENT
+        ghc-options:   -Wall -threaded -O0
     else
-        buildable: True
-        ghc-options: -Wall -threaded -O2
+        ghc-options:   -Wall -threaded -O2
 
-    main-is:        main.hs
-    hs-source-dirs: .
+    main-is:       main.hs
 
-    build-depends: base  >= 4   && < 5
-                 , yesod >= 0.9 && < 1.0
-                 , yesod-core
-                 , yesod-static
-                 , yesod-auth
-                 , yesod-form
-                 , yesod-persistent
-                 , yesod-default
-                 , yesod-newsfeed
-                 , yesod-comments
-                 , yesod-goodies
-                 , wai-extra
-                 , containers
-                 , directory
-                 , bytestring
-                 , text
-                 , time
-                 , persistent
-                 , persistent-template
-                 , persistent-postgresql >= 0.6    && < 0.7
-                 , hamlet                >= 0.10   && < 0.11
-                 , shakespeare-css       >= 0.10   && < 0.11
-                 , shakespeare-js        >= 0.10   && < 0.11
-                 , shakespeare-text      >= 0.10   && < 0.11
-                 , hjsmin                >= 0.0.14 && < 0.1
+    extensions: TemplateHaskell
+                QuasiQuotes
+                OverloadedStrings
+                NoImplicitPrelude
+                CPP
+                OverloadedStrings
+                MultiParamTypeClasses
+                TypeFamilies
+                GADTs
+                GeneralizedNewtypeDeriving
+                FlexibleContexts
+                FlexibleInstances
+                TypeSynonymInstances
+
+    build-depends: base                          >= 4          && < 5
+                 , yesod                         >= 0.10       && < 0.11
+                 , yesod-core                    >= 0.10       && < 0.11
+                 , yesod-auth                    >= 0.8        && < 0.9
+                 , yesod-static                  >= 0.10       && < 0.11
+                 , yesod-default                 >= 0.6        && < 0.7
+                 , yesod-form                    >= 0.4        && < 0.5
+                 , mime-mail                     >= 0.3.0.3    && < 0.5
+                 , clientsession                 >= 0.7.3      && < 0.8
+                 , bytestring                    >= 0.9        && < 0.10
+                 , text                          >= 0.11       && < 0.12
+                 , persistent                    >= 0.7        && < 0.8
+                 , persistent-postgresql     >= 0.7        && < 0.8
                  , template-haskell
-                 , transformers
-                 , warp
-                 , blaze-builder
+                 , hamlet                        >= 0.10       && < 0.11
+                 , shakespeare-css               >= 0.10       && < 0.11
+                 , shakespeare-js                >= 0.10       && < 0.11
+                 , shakespeare-text              >= 0.10       && < 0.11
+                 , hjsmin                        >= 0.0.14     && < 0.1
+                 , monad-control                 >= 0.3        && < 0.4
+                 , wai-extra                     >= 1.1        && < 1.2
+                 , yaml                          >= 0.5        && < 0.6
+                 , http-conduit                  >= 1.2        && < 1.3
+
                  , blaze-html
-                 , transformers
-                 , clientsession
-                 , unix
-  
-source-repository head
-  type:     git
-  location: git://github.com/pbrisbin/devsite.git
+                 , directory
+                 , friendly-time
+                 , gravatar
+                 , time
+                 , yesod-comments
+                 , yesod-links
+                 , yesod-markdown
+                 , yesod-newsfeed

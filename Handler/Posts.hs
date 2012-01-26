@@ -1,6 +1,3 @@
-{-# OPTIONS -fno-warn-incomplete-patterns #-}
-{-# LANGUAGE TemplateHaskell              #-}
-{-# LANGUAGE OverloadedStrings            #-}
 module Handler.Posts 
     ( getPostR
     , postPostR
@@ -11,17 +8,25 @@ module Handler.Posts
     , getDelPostR
     ) where
 
-import Foundation
-import Helpers.Documents
+import Import
+import Control.Monad (forM)
+import Data.Time.Format.Human
 import Helpers.Forms
-import Data.Text (Text)
 
 getPostR :: Text -> Handler RepHtml
 getPostR slug = do
-    docs <- siteDocs =<< getYesod
-    case lookupDocument slug docs of
-        Just doc -> pageDocument doc docs
-        Nothing  -> unpublishedDocument slug
+    (post,tags) <- runDB $ do
+        (Entity key val) <- getBy404 $ UniquePost slug
+        tags' <- selectList [TagPost ==. key] [Asc TagName]
+
+        return (val, map entityVal tags')
+
+    published <- liftIO $ humanReadableTime $ postDate post
+
+    defaultLayout $ do
+        setTitle slug
+        addKeywords $ map tagName tags
+        $(widgetFile "post/show")
 
 postPostR :: Text -> Handler RepHtml
 postPostR = getPostR
@@ -29,10 +34,22 @@ postPostR = getPostR
 getManagePostsR :: Handler RepHtml
 getManagePostsR = do
     requireAdmin
-    docs <- siteDocs =<< getYesod
+
+    -- select all (Post, [Tag])
+    records <- runDB $ do
+        posts <- selectList [] [Desc PostDate]
+        tags  <- selectList [] [Asc TagName]
+
+        forM posts $ \post -> do
+            let pid   = entityKey post
+            let post' = entityVal post
+            let tags' = filter ((== pid) . tagPost) $ map entityVal tags
+
+            return (post', tags')
+
     defaultLayout $ do
         setTitle "Manage posts"
-        $(widgetFile "posts_admin/index")
+        $(widgetFile "posts/index")
 
 postManagePostsR :: Handler RepHtml
 postManagePostsR = getManagePostsR
@@ -40,11 +57,18 @@ postManagePostsR = getManagePostsR
 getEditPostR :: Text -> Handler RepHtml
 getEditPostR slug = do
     requireAdmin
-    docs <- siteDocs =<< getYesod
-    let mdoc = lookupDocument slug docs
+
+    (post,tags) <- runDB $ do
+        (Entity key val) <- getBy404 $ UniquePost slug
+        tags' <- selectList [TagPost ==. key] [Asc TagName]
+
+        return (val, map entityVal tags')
+
+    published <- liftIO $ humanReadableTime $ postDate post
+
     defaultLayout $ do
         setTitle "Edit post"
-        $(widgetFile "posts_admin/edit")
+        $(widgetFile "post/edit")
 
 postEditPostR :: Text -> Handler RepHtml
 postEditPostR = getEditPostR
@@ -52,16 +76,20 @@ postEditPostR = getEditPostR
 getDelPostR :: Text -> Handler RepHtml
 getDelPostR slug = do
     requireAdmin
-    p <- runDB $ getBy $ UniquePost slug
-    case p of
-        Just (key, _) -> do
-            -- delete the post and the tags
-            runDB $ deleteWhere [TagPost ==. key]
-            runDB $ deleteBy $ UniquePost slug
-            setMessage "post deleted!"
-        Nothing -> setMessage "post not found."
 
-    redirect RedirectTemporary ManagePostsR
+    msg <- runDB $ do
+        mentity <- getBy $ UniquePost slug
+
+        case mentity of
+            Just (Entity key _) -> do
+                delete key
+                deleteWhere [TagPost ==. key]
+                return "post deleted!"
+
+            _ -> return "post not found!"
+
+    setMessage msg
+    redirect ManagePostsR
 
 requireAdmin :: Handler ()
 requireAdmin = do

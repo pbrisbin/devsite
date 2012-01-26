@@ -1,5 +1,5 @@
 <header>
   <h1>Tag: #{tag}
 
-$forall d <- docs
-  ^{inlineDocument d}
+$forall (post,tags) <- records
+  ^{postWidget post tags}

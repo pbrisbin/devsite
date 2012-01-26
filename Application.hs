@@ -1,60 +1,73 @@
-{-# LANGUAGE CPP                   #-}
-{-# LANGUAGE TemplateHaskell       #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# OPTIONS -fno-warn-orphans      #-}
+{-# OPTIONS_GHC -fno-warn-orphans #-}
 module Application
-    ( withDevSite
-    , withDevelAppPort
+    ( getApplication
+    , getApplicationDev
     ) where
 
-import Foundation
+import Import
 import Settings
-import Yesod.Static
+import Settings.StaticFiles (staticSite)
 import Yesod.Auth
 import Yesod.Default.Config
 import Yesod.Default.Main
 import Yesod.Default.Handlers
-import Yesod.Logger (Logger)
-import Data.Dynamic (Dynamic, toDyn)
-import Control.Monad (forM)
-import Yesod.Comments.Management
-import Yesod.Comments.Storage
+#if DEVELOPMENT
+import Yesod.Logger (Logger, logBS)
+import Network.Wai.Middleware.RequestLogger (logHandleDev)
+#else
+import Yesod.Logger (Logger, logBS, toProduction)
+import Network.Wai.Middleware.RequestLogger (logHandle)
+#endif
+import qualified Database.Persist.Store
 import Database.Persist.GenericSql (runMigration)
-import qualified Database.Persist.Base as Base
+import Network.HTTP.Conduit (newManager, def)
 
+import Yesod.Comments.Management
+import Yesod.Comments.Storage (migrateComments)
+
+-- Import all relevant handler modules here.
+import Handler.Root
 import Handler.About
 import Handler.Archives
 import Handler.Feed
 import Handler.Posts
 import Handler.Profile
-import Handler.Root
 import Handler.Tags
 
+-- This line actually creates our YesodSite instance. It is the second half
+-- of the call to mkYesodData which occurs in Foundation.hs. Please see
+-- the comments there for more details.
 mkYesodDispatch "DevSite" resourcesDevSite
 
-withDevSite :: AppConfig DefaultEnv () -> Logger -> (Application -> IO a) -> IO ()
-withDevSite conf logger f = do
-#ifndef DEVELOPMENT
-    s <- static Settings.staticDir
-#else
-    s <- staticDevel Settings.staticDir
-#endif
+-- This function allocates resources (such as a database connection pool),
+-- performs initialization and creates a WAI application. This is also the
+-- place to put your migrate statements to have automatic database
+-- migrations handled by Yesod.
+getApplication :: AppConfig DefaultEnv () -> Logger -> IO Application
+getApplication conf logger = do
+    manager <- newManager def
+    s <- staticSite
     dbconf <- withYamlEnvironment "config/postgresql.yml" (appEnv conf)
-            $ either error return . Base.loadConfig
+              Database.Persist.Store.loadConfig >>=
+              Database.Persist.Store.applyEnv
+    p <- Database.Persist.Store.createPoolConfig (dbconf :: Settings.PersistConfig)
+    Database.Persist.Store.runPool dbconf (runMigration migrateAll) p
+    Database.Persist.Store.runPool dbconf (runMigration migrateComments) p
+    let foundation = DevSite conf setLogger s p manager dbconf
+    app <- toWaiAppPlain foundation
+    return $ logWare app
+  where
+#ifdef DEVELOPMENT
+    logWare = logHandleDev (logBS setLogger)
+    setLogger = logger
+#else
+    setLogger = toProduction logger -- by default the logger is set for development
+    logWare = logHandle (logBS setLogger)
+#endif
 
-    Base.withPool (dbconf :: Settings.PersistConfig) $ \p -> do
-        Base.runPool dbconf (runMigration migratePosts)    p
-        Base.runPool dbconf (runMigration migrateComments) p
-        defaultRunner f $ DevSite conf logger s p loadDocuments
-
-    where
-        loadDocuments :: Handler [Document]
-        loadDocuments = do
-            ps <- runDB $ selectList [] [Desc PostDate]
-            ts <- runDB $ selectList [] [Asc  TagName ]
-            forM ps $ \(k,v) -> do
-                let ts' = filter ((== k) . tagPost) $ map snd ts
-                return $ Document v ts'
-
-withDevelAppPort :: Dynamic
-withDevelAppPort = toDyn $ defaultDevelApp withDevSite
+-- for yesod devel
+getApplicationDev :: IO (Int, Application)
+getApplicationDev =
+    defaultDevelApp loader getApplication
+  where
+    loader = loadConfig (configSettings Development)

@@ -1,8 +1,7 @@
-{-# LANGUAGE TemplateHaskell   #-}
-{-# LANGUAGE OverloadedStrings #-}
 module Handler.About (getAboutR) where
 
-import Foundation
+import Import
+import Settings.StaticFiles
 
 getAboutR :: Handler RepHtml
 getAboutR = defaultLayout $ do
