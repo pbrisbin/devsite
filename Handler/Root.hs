@@ -13,6 +13,7 @@ getRootR = do
     records <- runDB $ do
         posts <- selectList [] [Desc PostDate, LimitTo 5]
         
+
         let pids = map entityKey posts
         tags <- selectList [TagPost <-. pids] []
 
@@ -39,8 +40,8 @@ postWidget post tags = do
         mkd    <- case (exists, postDescr post) of
             (True, _         ) -> markdownFromFile file
             (_   , Just descr) -> return descr
-            _                  -> return ""
+            _                  -> return "nothing?"
 
         return $ markdownToHtml mkd
 
-    $(widgetFile "post/_inline.hamlet")
+    $(widgetFile "post/_inline")

@@ -4,7 +4,8 @@
 
   <div .meta>
     <span .published>
-      published #{published}
+      published #{published}, 
+
     <span .tags>
       tagged with 
 
