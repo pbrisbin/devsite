@@ -1,29 +1,34 @@
 module Handler.Search (getSearchXmlR) where
 
 import Import
-import Control.Monad (liftM,forM)
-import Helpers.Post
+import Control.Monad (forM)
 import System.Directory (doesFileExist)
 import Yesod.Markdown
 import Text.Hamlet (xshamlet)
 import qualified Data.Text as T
 
+-- | This does not scale.
+--
+--   I could not get the streaming approach outlined on the yesod site
+--   now that we've moved away from enumerators, etc. This is a naive
+--   approach, selecting all documents out of the database and building
+--   xml via hamlet. It's plenty fast enough for a small site like this.
+--
 getSearchXmlR :: Handler RepXml
 getSearchXmlR = do
     posts <- runDB $ selectList [] []
 
-    xml <- liftIO $ do
-        nodes <- forM posts $ \post -> do
-            xmlNode (entityKey post) (entityVal post)
+    blocks <- liftIO $ forM posts $ \post -> do
+        docBlock (entityKey post) (entityVal post)
 
-        return $ mconcat nodes 
+    fmap RepXml $ htmlToContent $ mconcat blocks
 
-    liftM RepXml . htmlToContent $ [xshamlet|#{xml}|]
+    where
+        htmlToContent :: Html -> Handler Content
+        htmlToContent = hamletToContent . const
 
-htmlToContent = hamletToContent . const
-
-xmlNode :: PostId -> Post -> IO Html
-xmlNode pid post = do
+docBlock :: PostId -> Post -> IO Html
+docBlock pid post = do
     let file = pandocFile $ postSlug post
 
     exists <- doesFileExist file
@@ -32,14 +37,12 @@ xmlNode pid post = do
         (_   , Just descr) -> return descr
         _                  -> return $ Markdown "nothing?"
 
-    let content = markdownToText mkd
-
     return $
         [xshamlet|
             <document>
                 <id>#{toPathPiece pid}
                 <title>#{postTitle post}
-                <body>#{content}
+                <body>#{markdownToText mkd}
             |]
 
     where
