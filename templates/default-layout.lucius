@@ -1,6 +1,7 @@
 @import url(http://fonts.googleapis.com/css?family=Questrial);
 
 body, select, input, textarea {
+  margin-top: 10px;
   text-align: justify;
   font-family: 'Lucida Sans Unicode', 'Lucida Grande', sans-serif;
 }
@@ -21,7 +22,7 @@ code, kbd, samp {
   background-color: inherit;
 }
 footer {
-  height: 400px;
+  height: 250px;
 }
 footer p,
 footer ul {
