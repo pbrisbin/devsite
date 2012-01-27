@@ -1,11 +1,12 @@
-<header>
+<div .page-header>
   <h1>
     <span .title_one>pbrisbin
     <span .title_two>dot
     <span .title_three>com
 
-$forall (post,tags) <- records
-  ^{postWidget post tags}
+<div .inline-posts>
+  $forall (post,tags) <- records
+    ^{postWidget post tags}
 
 <p>
-  <small>^{link ArchivesR}...
+  ^{link ArchivesR}...

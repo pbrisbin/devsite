@@ -1,4 +1,4 @@
-<header>
+<div .page-header>
   <h1>About
 
 <p>
@@ -103,9 +103,10 @@
   All of my pages are valid HTML5. My stylesheet (with the exception of 
   some vendor-extensions) is valid CSS3. My RSS is valid level 2.0.
 
-<p .centered>
-  <img src=@{StaticR img_valid_html5_png} alt="Valid HTML5" .validation>
-  &nbsp;
-  <img src=@{StaticR img_valid_css_png} alt="Valid CSS" .validation>
-  &nbsp;
-  <img src=@{StaticR img_valid_rss_png} alt="Valid RSS" .validation>
+<div .validations>
+  <p>
+    <img src=@{StaticR img_valid_html5_png} alt="Valid HTML5">
+    \ 
+    <img src=@{StaticR img_valid_css_png}   alt="Valid CSS">
+    \ 
+    <img src=@{StaticR img_valid_rss_png}   alt="Valid RSS">

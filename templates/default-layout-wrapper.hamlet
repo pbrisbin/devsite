@@ -7,12 +7,16 @@
     <meta name="author" content="Patrick Brisbin">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    \<!-- bootstrap -->
-    <link rel="stylesheet" href="@{StaticR css_bootstrap_min_css}">
-    <script src="@{StaticR js_bootstrap_alerts_js}">
-
     \<!-- jquery -->
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js">
+    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js">
+
+    \<!-- bootstrap -->
+    <link rel="stylesheet" href="@{StaticR css_bootstrap_min_css}">
+    <script src="@{StaticR js_bootstrap_dropdown_js}">
+    <script src="@{StaticR js_bootstrap_modal_js}">
+    <script src="@{StaticR js_bootstrap_tabs_js}">
+    <script src="@{StaticR js_bootstrap_alerts_js}">
 
     \<!-- google analytics -->
     <script async src="http://www.google-analytics.com/ga.js">

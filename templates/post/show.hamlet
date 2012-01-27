@@ -1,5 +1,6 @@
-<header>
+<div .page-header>
   <h1>#{postTitle post}
+
   <div .meta>
     <p>
       <span .published>
@@ -13,7 +14,7 @@
 
         ^{link $ last tags}
 
-<article .content>
+<div .post-content>
   #{content}
 
   <h3>

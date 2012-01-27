@@ -2,7 +2,9 @@
     $forall node <- h
       <li>
         <a href="@{fst node}">#{snd node}
-        \ <span .divider>/
+        \ 
+        <span .divider>/
+        \ 
 
     <li .active>#{t}
 
@@ -10,5 +12,33 @@ $maybe msg <- mmsg
   <div .alert-message.info .fade .in data-alert="alert">
     <a .close href="#">×
     <p>#{msg}
+
+<div #login>
+  <ul>
+    $maybe u <-muid
+      <li .dropdown data-dropdown="dropdown">
+        <a href="#" .dropdown-toggle>
+          $maybe grav <- mgrav
+            <img src="#{grav}" .icon alt="gravatar">
+
+          #{fromMaybe "anonymous" $ userName $ snd u}
+
+        <ul .dropdown-menu>
+          <li>
+            ^{link ProfileR}
+
+          $if userAdmin $ snd u
+            <li>
+              ^{link ManagePostsR}
+
+          <li>
+            ^{link $ CommentsAdminR OverviewR}
+
+          <li .divider>
+          <li>
+            ^{link $ AuthR LogoutR}
+
+    $nothing
+      <li .dropdown>^{link $ AuthR LoginR}
 
 ^{widget}

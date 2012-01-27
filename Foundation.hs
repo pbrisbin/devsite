@@ -124,7 +124,7 @@ instance Yesod DevSite where
 
             gravatarOpts :: GravatarOptions
             gravatarOpts = defaultOptions
-                { gSize    = Just $ Size 12
+                { gSize    = Just $ Size 20
                 , gDefault = Just MM
                 }
 

@@ -1,0 +1,251 @@
+@import url(http://fonts.googleapis.com/css?family=Questrial);
+
+body, select, input, textarea {
+  text-align: justify;
+  font-family: 'Lucida Sans Unicode', 'Lucida Grande', sans-serif;
+}
+h1, h2, h3,
+h4, h5, h6 { 
+  font-family: "Questrial";
+}
+pre, code, kbd, samp { 
+  font-family: 'Droid Sans Mono', 'Lucida Console', Monaco, monospace, sans-serif;
+}
+pre {
+  color: #909090;
+  background-color: #303030;
+}
+code, kbd, samp {
+  padding: 0px;
+  color :inherit;
+  background-color: inherit;
+}
+footer > p {
+  text-align: center;
+}
+.hover {
+  cursor: pointer;
+}
+h1 > a, h2 > a, h3 > a,
+h4 > a, h5 > a, h6 > a {
+  color: inherit
+}
+h1 > a:hover, h2 > a:hover, h3 > a:hover,
+h4 > a:hover, h5 > a:hover, h6 > a:hover {
+  text-decoration: none;
+}
+
+.note,
+.update {
+  border:  1px solid #b2b2fe;
+  margin:  2em 0px;
+  padding: 2ex 3ex;
+
+  -webkit-border-radius: 3px;
+     -moz-border-radius: 3px;
+          border-radius: 3px;
+}
+
+.note:before,
+.update:before { color: #000; }
+.note:before   { content: "Note: "  ; }
+.update:before { content: "Update: "; }
+
+.validations > p {
+  text-align: center;
+}
+.validations img {
+  height: 31px;
+  width:  88px;
+}
+
+/* login box */
+#login {
+  float: right;
+}
+#login > ul {
+  margin: 0;
+  list-style: none;
+}
+#login img {
+  height: 20px;
+  width:  20px;
+  padding-right: 3px;
+  vertical-align: middle;
+}
+.dropdown > a {
+  color: #000;
+  font-size: 115%;
+  padding: 7px 10px 10px;
+  margin: 0;
+  width: 220px;
+  text-align: center;
+  vertical-align: middle;
+  text-decoration: none;
+  border: 1px solid #ccc;
+
+  -webkit-border-radius: 3px;
+     -moz-border-radius: 3px;
+          border-radius: 3px;
+}
+.dropdown > a:hover {
+  background-color: #ddd;
+}
+.dropdown ul.dropdown-menu {
+  border: 1px solid #ccc;
+}
+
+.page-header .title_two { color: #aaa; }
+
+/* posts */
+.page-header .meta,
+.post-header .meta {
+  position:     relative;
+  top:          -5px;
+}
+.meta p, .meta a {
+  color: #aaa;
+  font-size:    90%;
+  font-style:   italic;
+}
+.post-nav            { font-size: 90%; }
+.post-nav span.left  {                 }
+.post-nav span.right { float: right;   }
+
+/* login page */
+.login p#open-id-help {
+  font-size:  90%;
+  font-style: italic;
+  text-align: right;
+}
+.login ul {
+  margin: 25px;
+  list-style-type: none;
+}
+.login form {
+  display: inline;
+}
+.login input[type="image"] {
+  border: none;
+  box-shadow: none;
+  height: 35px;
+  width:  35px;
+  margin: 0px 5px;
+  vertical-align: middle;
+}
+.login li#google input[type="image"] {
+  height:      32px;
+  width:       32px;
+  margin:      2px 7px; /* +2px */
+
+  -webkit-border-radius: 4px;
+     -moz-border-radius: 4px;
+          border-radius: 4px;
+}
+
+/* profile page */
+.profile {
+  height: 150px;
+}
+.profile-gravatar {
+  float: left;
+  padding-right: 20px;
+  height: 128px;
+  width:  128px;
+}
+
+/* comments  */
+.actions {
+  border:           none;
+  background-color: inherit;
+}
+.yesod_comments {
+  width: 550px;
+  margin-left: 20px;
+  margin-bottom: 20px;
+}
+.yesod_comments .avatar {
+  float:        left;
+  padding:      10px;
+  height:       48px;
+  width:        48px;
+  margin-right: 12px;
+}
+.yesod_comments .attribution {
+  vertical-align: middle;
+}
+.yesod_comments .attribution .avatar {
+  float:   none;
+  margin:  0px;
+  padding: 0px;
+  height:  20px;
+  width:   20px;
+  vertical-align: middle;
+}
+.yesod_comments .attribution a,
+.yesod_comments .attribution p {
+  font-size: 90%;
+}
+.yesod_comments .comment {
+  padding: 5px 10px;
+  margin:  10px 0px;
+  border:  solid 1px;
+}
+.yesod_comments .comment blockquote {
+  margin: 20px 15px;
+}
+.yesod_comments .input {
+  padding: 5px;
+  border:  solid 1px;
+}
+.yesod_comments form .input {
+  border: none;
+}
+.yesod_comments form {
+  margin-left: 60px;
+}
+.yesod_comments.edit form {
+  margin-left: 0px;
+}
+.yesod_comments .input textarea {
+  height: 100px;
+  width:  400px;
+}
+.yesod_comments .input p {
+  padding: 0px;
+  margin:  0px;
+}
+
+/* syntax highlighting {{{ */
+/* inspired by zenburn vim colorscheme */
+pre.sourceCode span.kw { color: #f0dfaf; }
+pre.sourceCode span.dt { color: #dfdfbf; }
+pre.sourceCode span.dv { color: #dcdccc; }
+pre.sourceCode span.bn { color: #dca3a3; }
+pre.sourceCode span.fl { color: #c0bed1; }
+pre.sourceCode span.ch { color: #dca3a3; }
+pre.sourceCode span.st { color: #cc9393; }
+pre.sourceCode span.co { color: #7f9f7f; }
+pre.sourceCode span.ot { color: #efef8f; }
+pre.sourceCode span.al { color: #ffcfaf; }
+pre.sourceCode span.fu { color: #efef8f; }
+pre.sourceCode span.re { color: #ffd7a7; }
+pre.sourceCode span.er { color: #c3bf9f; }
+
+/* }}} */
+
+/* print  {{{ */
+@media print {
+  body {
+    color:            #bbb;
+    background-color: #ffffff;
+  }
+  h1, h2, h3, 
+  h4, h5, h6,
+  pre, strong { color:       #000; }
+  strong      { font-weight: bold; }
+  h1          { page-break-before: always; }
+  h1, h2, h3,
+  h4, h5, h6  { page-break-after:  avoid;  }
+  ul, ol, dl  { page-break-before: avoid;  }
+}

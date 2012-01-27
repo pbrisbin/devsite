@@ -9,7 +9,7 @@
       <button type="submit" .btn>Create post
 
 <div .post-listing>
-  <table .bordered-table .condensed-table>
+  <table .bordered-table .condensed-table .zebra-striped>
     <thead>
       <tr>
         <th>Title

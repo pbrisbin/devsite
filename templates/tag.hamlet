@@ -1,5 +1,6 @@
-<header>
-  <h1>Tag: #{tag}
+<div .page-header>
+  <h1>#{tag}
 
-$forall (post,tags) <- records
-  ^{postWidget post tags}
+<div .post-list>
+  $forall (post,tags) <- records
+    ^{postWidget post tags}

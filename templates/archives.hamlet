@@ -1,4 +1,4 @@
-<header>
+<div .page-header>
   <h1>Archives
 
 <h2>What?
@@ -16,7 +16,7 @@
   In the meantime here's a straight, boring post list.
 
 <div .post-listing>
-  <table .bordered-table .condensed-table>
+  <table .bordered-table .condensed-table .zebra-striped>
     <thead>
       <tr>
         <th>Title
