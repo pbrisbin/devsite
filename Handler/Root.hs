@@ -2,7 +2,6 @@ module Handler.Root (getRootR) where
 
 import Import
 import Control.Monad (forM)
-import Data.Time.Format.Human
 import Helpers.Post
 import Yesod.Links
 
