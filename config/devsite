@@ -15,9 +15,7 @@ deploy() {
   cabal build
   cabal check
 
-  stop_devsite
-  sleep 2
-  start_devsite
+  $0 restart
 }
 
 start_devsite() {
@@ -32,12 +30,12 @@ start_devsite() {
 stop_devsite() {
   local pid
 
-  while read r pid; do
+  while read -r pid; do
     echo "Stopping worker with pid $pid..."
     if ! kill $pid; then
       kill -9 $pid
     fi
-  done <(pgrep -f "$bin")
+  done < <(pgrep -f "$bin")
 }
 
 bin='dist/build/devsite/devsite'
@@ -45,8 +43,11 @@ bin='dist/build/devsite/devsite'
 instances='1 2 3'
 
 case "$1" in
-  start)  start_devsite  ;;
-  stop)   stop_devsite   ;;
-  deploy) deploy_devsite ;;
-  *)      usage          ;;
+  start)   start_devsite  ;;
+  stop)    stop_devsite   ;;
+  restart) stop_devsite
+           sleep 2
+           start_devsite ;;
+  deploy)  deploy         ;;
+  *)       exit 1         ;;
 esac

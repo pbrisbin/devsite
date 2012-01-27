@@ -120,3 +120,7 @@ executable         devsite
                  , yesod-links
                  , yesod-markdown
                  , yesod-newsfeed
+
+source-repository head
+  type:         git
+  location:     git://github.com/pbrisbin/devsite.git
