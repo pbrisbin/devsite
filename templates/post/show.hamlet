@@ -25,10 +25,11 @@
 
   <p .post-nav>
     <span .left>
+      &larr; 
       $maybe prev <- mprev
-        &larr; ^{link prev}
+        ^{link prev}
       $nothing
-        <a href="@{RootR}">&larr; Home
+        <a href="@{RootR}">Home
 
     <span .right>
       $maybe next <- mnext
