@@ -6,26 +6,31 @@
     <meta name="description" content="pbrisbin dot com">
     <meta name="author" content="Patrick Brisbin">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="@{StaticR css_bootstrap_min_css}">
-    <link rel="stylesheet" href=@{StaticR css_style_css}">
 
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js">
+    \<!-- bootstrap -->
+    <link rel="stylesheet" href="@{StaticR css_bootstrap_min_css}">
     <script src="@{StaticR js_bootstrap_alerts_js}">
+
+    \<!-- jquery -->
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js">
+
+    \<!-- google analytics -->
     <script async src="http://www.google-analytics.com/ga.js">
 
     ^{pageHead pc}
   <body>
-    ^{pageBody pc}
+    <div .container>
+      ^{pageBody pc}
 
-    <footer>
-      <p>
-        <small>
-          <a href="@{RootR}">pbrisbin
-          \ dot com 2010 
-          <span .float_right>
-            powered by 
-            <a href="http://docs.yesodweb.com/">yesod
+      <footer>
+        <p>
+          <small>
+            &copy; pbrisbin dot com 2012. powered by 
+            <a href="http://yesodweb.com">yesod 
             \ - #{yesodVersion}
+            and now 
+            <a href="http://twitter.github.com/bootstrap/">bootstrap
+            \.
 
     <script>
       var _gaq = _gaq || [];
