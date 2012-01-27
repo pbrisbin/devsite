@@ -205,14 +205,14 @@ h4 > a:hover, h5 > a:hover, h6 > a:hover {
 .yesod_comments .comment {
   padding: 5px 10px;
   margin:  10px 0px;
-  border:  solid 1px;
+  border:  solid 1px #ccc;
 }
 .yesod_comments .comment blockquote {
   margin: 20px 15px;
 }
 .yesod_comments .input {
   padding: 5px;
-  border:  solid 1px;
+  border:  solid 1px #ccc;
 }
 .yesod_comments form .input {
   border: none;
