@@ -40,6 +40,7 @@ library
                      Handler.Profile
                      Handler.Root
                      Handler.Tags
+                     Handler.Search
                      Helpers.Profile
                      Helpers.Post
 

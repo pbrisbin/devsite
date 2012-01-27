@@ -33,6 +33,7 @@ import Handler.Feed
 import Handler.Posts
 import Handler.Profile
 import Handler.Tags
+import Handler.Search
 
 -- This line actually creates our YesodSite instance. It is the second half
 -- of the call to mkYesodData which occurs in Foundation.hs. Please see
