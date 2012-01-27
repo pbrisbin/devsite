@@ -26,13 +26,13 @@ $maybe msg <- mmsg
         <ul .dropdown-menu>
           <li>
             ^{link ProfileR}
-
-          $if userAdmin $ snd u
-            <li>
-              ^{link ManagePostsR}
-
           <li>
             ^{link $ CommentsAdminR OverviewR}
+
+          $if userAdmin $ snd u
+            <li .divider>
+            <li>
+              ^{link ManagePostsR}
 
           <li .divider>
           <li>
