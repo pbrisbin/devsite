@@ -129,34 +129,39 @@ h4 > a:hover, h5 > a:hover, h6 > a:hover {
 .post-nav span.right { float: right;   }
 
 /* login page */
-.login p#open-id-help {
-  font-size:  90%;
+.open-id-help p,
+.open-id-help a {
   font-style: italic;
-  text-align: right;
+}
+.open-id-help > p {
+  text-align: center;
 }
 .login ul {
-  margin: 25px;
+  margin: 50px;
+  text-align: center;
   list-style-type: none;
+}
+.login ul li { 
+  display: inline;
 }
 .login form {
   display: inline;
 }
 .login input[type="image"] {
-  border: none;
+  border:     none;
   box-shadow: none;
-  height: 35px;
-  width:  35px;
-  margin: 0px 5px;
-  vertical-align: middle;
-}
-.login li#google input[type="image"] {
-  height:      32px;
-  width:       32px;
-  margin:      2px 7px; /* +2px */
+  margin:  2px;
+  padding: 0px;
 
-  -webkit-border-radius: 4px;
-     -moz-border-radius: 4px;
-          border-radius: 4px;
+  height: 64px;
+  width:  64px;
+}
+.login li#openid {
+  padding-left: 25px;
+}
+.login li#openid input[type="text"] {
+  position: relative;
+  top: -27px;
 }
 
 /* profile page */

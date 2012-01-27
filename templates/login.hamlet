@@ -1,12 +1,7 @@
-<h1>Log in
+<div .page-header>
+  <h1>Log in
 
-<article .login>
-
-  <p #open-id-help>
-    Learn more about using 
-    <a href="http://openid.net">Open Id
-    \ authentication.
-
+<div .login>
   <ul>
     <li #google>
       <form method="get" action="@{AuthR forwardUrl}">
@@ -20,3 +15,9 @@
       <form method="get" action="@{AuthR forwardUrl}">
         <input type="image" src=@{StaticR img_openid_login_png}" title="Login via OpenID">
         <input id="openid_identifier" type="text" name="openid_identifier" placeholder="http://">
+
+  <div .open-id-help>
+    <p>
+      Learn more about using 
+      <a href="http://openid.net">Open Id
+      \ authentication.
