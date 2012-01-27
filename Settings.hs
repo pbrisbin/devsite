@@ -20,8 +20,6 @@ import Database.Persist.Postgresql (PostgresConf)
 import Yesod.Default.Config
 import qualified Yesod.Default.Util
 import Data.Text (Text)
-import Data.Yaml
-import Control.Applicative
 
 import Yesod hiding (setTitle)
 import qualified Yesod as Y
