@@ -7,6 +7,3 @@
 <div .inline-posts>
   $forall (post,tags) <- records
     ^{postWidget post tags}
-
-<p>
-  ^{link ArchivesR}...

@@ -27,14 +27,43 @@
       ^{pageBody pc}
 
       <footer>
+        <div .row>
+          <div .span4>
+            <ul>
+              <li>
+                <a href="@{AboutR}">about
+                \ the site
+
+              <li>
+                <a href="@{ArchivesR}">archives
+                \ of all posts
+
+              <li>
+                <a href="@{FeedR}">subscribe
+                \ to the feed
+
+          <div .span4>
+            <ul>
+              <li>
+                <a href="https://github.com/pbrisbin">github
+                \ projects
+
+              <li>
+                <a href="https://aur.archlinux.org/packages.php?K=brisbin33&SeB=m">aur
+                \ packages
+
+              <li>
+                <a href="/static/docs/haskell">haddocks
+                \ for my haskell projects
+
+              <li>
+                <a href="/static/docs/ruby">rdocs
+                \ for my ruby projects
+
         <p>
-          <small>
-            &copy; pbrisbin dot com 2012. powered by 
-            <a href="http://yesodweb.com">yesod 
-            \ - #{yesodVersion}
-            and now 
-            <a href="http://twitter.github.com/bootstrap/">bootstrap
-            \.
+          &copy; 
+          <a href="@{RootR}">pbrisbin
+          \ dot com 2012.
 
     <script>
       var _gaq = _gaq || [];

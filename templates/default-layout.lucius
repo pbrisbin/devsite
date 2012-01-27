@@ -20,8 +20,22 @@ code, kbd, samp {
   color :inherit;
   background-color: inherit;
 }
-footer > p {
+footer {
+  height: 400px;
+}
+footer p,
+footer ul {
+  color: #aaa;
+  font-size: 80%;
+}
+footer p {
   text-align: center;
+}
+footer ul {
+  margin-top: -10px;
+  margin-left: 0px;
+  margin-bottom: 20px;
+  list-style: none;
 }
 .hover {
   cursor: pointer;

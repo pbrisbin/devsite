@@ -128,13 +128,6 @@ instance Yesod DevSite where
                 , gDefault = Just MM
                 }
 
-            -- external links used in sidebar
-            github, aurPkgs, haskellDocs, rubyDocs :: Link DevSite
-            github       = Link (External "https://github.com/pbrisbin") "my projects on github" "github"
-            aurPkgs      = Link (External "https://aur.archlinux.org/packages.php?K=brisbin33&SeB=m") "my aur packages" "aur packages"
-            haskellDocs  = Link (External "/static/docs/haskell") "haskell haddocks" "haskell haddocks"
-            rubyDocs     = Link (External "/static/docs/ruby")    "ruby rdocs"       "ruby rdocs"
-
     -- This is done to provide an optimization for serving static files from
     -- a separate domain. Please see the staticRoot setting in Settings.hs
     urlRenderOverride y (StaticR s) =
