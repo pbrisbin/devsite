@@ -1,7 +1,11 @@
 #!/bin/bash -e
 
 build() {
-  touch ./**/*
+  # ensure cpp code-by-macro is up to date
+  touch ./Settings.hs             \
+        ./Settings/StaticFiles.hs \
+        ./Foundation.hs           \
+        ./Application.hs
 
   cabal clean
 
@@ -15,7 +19,7 @@ build() {
 }
 
 deploy() {
-  deptag;
+  deptag
 
   build
 
@@ -26,7 +30,7 @@ start_devsite() {
   local n
 
   for n in $instances; do
-    echo "Staring worker #$n..."
+    echo "Starting worker #$n..."
     ./$bin -p 300$n production &> tmp/$n.log &
   done
 }
