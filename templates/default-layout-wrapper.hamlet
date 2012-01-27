@@ -60,6 +60,18 @@
                 <a href="/static/docs/ruby">rdocs
                 \ for my ruby projects
 
+          <div .span4>
+            <ul>
+              <li>
+                <a href="http://yesodweb.com">yesod
+                \ #{yesodVersion}
+
+              <li>
+                <a href="http://twitter.github.com/bootstrap/">bootstrap
+                \ by twitter
+
+              <li>search powered by sphinx
+
         <p>
           &copy; 
           <a href="@{RootR}">pbrisbin
