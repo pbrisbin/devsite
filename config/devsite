@@ -1,8 +1,6 @@
 #!/bin/bash -e
 
-deploy() {
-  deptag;
-
+build() {
   touch ./**/*
 
   cabal clean
@@ -14,6 +12,12 @@ deploy() {
 
   cabal build
   cabal check
+}
+
+deploy() {
+  deptag;
+
+  build
 
   $0 restart
 }
@@ -47,7 +51,8 @@ case "$1" in
   stop)    stop_devsite   ;;
   restart) stop_devsite
            sleep 2
-           start_devsite ;;
+           start_devsite  ;;
+  build)   build          ;;
   deploy)  deploy         ;;
   *)       exit 1         ;;
 esac
