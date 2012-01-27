@@ -13,7 +13,7 @@ pre, code, kbd, samp {
   font-family: 'Droid Sans Mono', 'Lucida Console', Monaco, monospace, sans-serif;
 }
 pre {
-  color: #909090;
+  color:            #ccc;
   background-color: #303030;
 }
 code, kbd, samp {
@@ -61,9 +61,11 @@ h4 > a:hover, h5 > a:hover, h6 > a:hover {
      -moz-border-radius: 3px;
           border-radius: 3px;
 }
-
 .note:before,
-.update:before { color: #000; }
+.update:before {
+  font-weight: bold;
+  color: #000;
+ }
 .note:before   { content: "Note: "  ; }
 .update:before { content: "Update: "; }
 
@@ -90,23 +92,54 @@ h4 > a:hover, h5 > a:hover, h6 > a:hover {
   vertical-align: middle;
 }
 .dropdown > a {
-  color: #000;
-  font-size: 115%;
-  padding: 7px 10px 10px;
   margin: 0;
-  width: 220px;
+  padding: 7px 10px 10px;
+
+  color: inherit;
+  font-size: 115%;
   text-align: center;
   vertical-align: middle;
   text-decoration: none;
+
   border: 1px solid #ccc;
 
   -webkit-border-radius: 3px;
      -moz-border-radius: 3px;
           border-radius: 3px;
+
+  background-color:#eeeeee;
+
+  background-repeat: repeat-x;
+  background-image:-webkit-linear-gradient(top, #ffffff, #eeeeee);
+  background-image:   -moz-linear-gradient(top, #ffffff, #eeeeee);
+  background-image:    -ms-linear-gradient(top, #ffffff, #eeeeee);
+  background-image:     -o-linear-gradient(top, #ffffff, #eeeeee);
+  background-image:       -webkit-gradient(linear, left top, left bottom, color-stop(0%, #ffffff), color-stop(100%, #eeeeee));
+  background-image:        -khtml-gradient(linear, left top, left bottom, from(#ffffff), to(#eeeeee));
+  background-image:        linear-gradient(top, #ffffff, #eeeeee);
+
+  -webkit-box-shadow:inset 0 1px 0 rgba(0, 0, 0, 0.025),inset 0 -1px rgba(0, 0, 0, 0.025);
+     -moz-box-shadow:inset 0 1px 0 rgba(0, 0, 0, 0.025),inset 0 -1px rgba(0, 0, 0, 0.025);
+          box-shadow:inset 0 1px 0 rgba(0, 0, 0, 0.025),inset 0 -1px rgba(0, 0, 0, 0.025);
 }
 .dropdown > a:hover {
-  background-color: #ddd;
+  color:#404040;
+  background-color:#dddddd;
+
+  background-repeat: repeat-x;
+  background-image:-webkit-linear-gradient(top, #eeeeee, #dddddd);
+  background-image:   -moz-linear-gradient(top, #eeeeee, #dddddd);
+  background-image:    -ms-linear-gradient(top, #eeeeee, #dddddd);
+  background-image:     -o-linear-gradient(top, #eeeeee, #dddddd);
+  background-image:       -webkit-gradient(linear, left top, left bottom, color-stop(0%, #eeeeee), color-stop(100%, #dddddd));
+  background-image:        -khtml-gradient(linear, left top, left bottom, from(#eeeeee), to(#dddddd));
+  background-image:        linear-gradient(top, #eeeeee, #dddddd);
+
+  -webkit-box-shadow:inset 0 1px 0 rgba(0, 0, 0, 0.025),inset 0 -1px rgba(0, 0, 0, 0.025);
+     -moz-box-shadow:inset 0 1px 0 rgba(0, 0, 0, 0.025),inset 0 -1px rgba(0, 0, 0, 0.025);
+          box-shadow:inset 0 1px 0 rgba(0, 0, 0, 0.025),inset 0 -1px rgba(0, 0, 0, 0.025);
 }
+
 .dropdown ul.dropdown-menu {
   border: 1px solid #ccc;
 }
@@ -116,14 +149,14 @@ h4 > a:hover, h5 > a:hover, h6 > a:hover {
 /* posts */
 .page-header .meta,
 .post-header .meta {
-  position:     relative;
-  top:          -5px;
+  position: relative;
+  top:      -5px;
 }
 .meta p, .meta a {
-  color: #aaa;
-  font-size:    11px;
-  line-height:  18px;
-  font-style:   italic;
+  color:       #aaa;
+  font-size:   11px;
+  line-height: 18px;
+  font-style:  italic;
 }
 .post-nav            { font-size: 90%; }
 .post-nav span.left  {                 }
