@@ -6,9 +6,8 @@ module Handler.Feed
 import Import
 import Yesod.RssFeed
 import Yesod.Markdown
-import System.Directory    (doesFileExist)
-import Text.Blaze          (preEscapedText)
-import Text.Blaze.Internal (HtmlM (Append))
+import System.Directory (doesFileExist)
+import Text.Blaze       (preEscapedText)
 
 getFeedR :: Handler RepRss
 getFeedR = do
@@ -67,18 +66,12 @@ postToRssEntry post = do
         }
 
         where
-            -- Rss validation warnings on "relative links" that I have
-            -- in the markdown. Shows as one big blob (no line-breaks)
-            -- in Google reader. Looks great in snownews.
-            plainText :: Markdown -> Html
-            plainText (Markdown s) = toHtml s
-
             -- Should appear as formatted HTML in readers that support
-            -- that.Rss validation errors on script tage used by
+            -- that. Rss validation errors on script tag used by
             -- markdown conversion to obfuscate an email. Looks pretty
-            -- bad in snownews (but readable) -- not sure about Google
-            -- yet.
+            -- bad in cli clients (but readable).
             cdata :: Markdown -> Html
-            cdata mkd = let prefix  = preEscapedText "<![CDATA["
-                            content = markdownToHtml mkd
-                            suffix  = preEscapedText "]]>" in Append prefix $ Append content suffix
+            cdata mkd = mconcat [ preEscapedText "<![CDATA["
+                                , markdownToHtml mkd
+                                , preEscapedText "]]>"
+                                ]
