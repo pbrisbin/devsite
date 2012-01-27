@@ -120,7 +120,8 @@ h4 > a:hover, h5 > a:hover, h6 > a:hover {
 }
 .meta p, .meta a {
   color: #aaa;
-  font-size:    90%;
+  font-size:    11px;
+  line-height:  18px;
   font-style:   italic;
 }
 .post-nav            { font-size: 90%; }
