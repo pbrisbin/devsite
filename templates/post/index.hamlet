@@ -16,7 +16,6 @@
         <th>Posted
         <th>&nbsp;
         <th>&nbsp;
-        <th>&nbsp;
 
     <tbody .link>
       $forall post <- posts
