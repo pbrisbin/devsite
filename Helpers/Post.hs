@@ -123,14 +123,14 @@ getPost404 slug = do
 
 getNextPost :: Post -> YesodDB DevSite DevSite (Maybe Post)
 getNextPost post = do
-    posts <- selectList [PostDate <. postDate post] [Desc PostDate, LimitTo 1]
+    posts <- selectList [PostDraft !=. True, PostDate <. postDate post] [Desc PostDate, LimitTo 1]
     return $ case posts of
         ((Entity _ p):_) -> Just p
         _                -> Nothing
 
 getPreviousPost :: Post -> YesodDB DevSite DevSite (Maybe Post)
 getPreviousPost post = do
-    posts <- selectList [PostDate >. postDate post] [Asc PostDate, LimitTo 1]
+    posts <- selectList [PostDraft !=. True, PostDate >. postDate post] [Asc PostDate, LimitTo 1]
     return $ case posts of
         ((Entity _ p):_) -> Just p
         _                -> Nothing
