@@ -122,15 +122,21 @@ getPost404 slug = do
     return (val, map entityVal tags')
 
 getNextPost :: Post -> YesodDB DevSite DevSite (Maybe Post)
-getNextPost post = do
-    posts <- selectList [PostDraft !=. True, PostDate <. postDate post] [Desc PostDate, LimitTo 1]
-    return $ case posts of
-        ((Entity _ p):_) -> Just p
-        _                -> Nothing
+getNextPost post = getPostBy [ PostDraft !=. True
+                             , PostSlug  !=. postSlug post
+                             , PostDate  <=. postDate post
+                             ] [Desc PostDate, Desc PostId]
 
 getPreviousPost :: Post -> YesodDB DevSite DevSite (Maybe Post)
-getPreviousPost post = do
-    posts <- selectList [PostDraft !=. True, PostDate >. postDate post] [Asc PostDate, LimitTo 1]
+getPreviousPost post = getPostBy [ PostDraft !=. True
+                                 , PostSlug  !=. postSlug post
+                                 , PostDate  >=. postDate post
+                                 ] [Asc PostDate, Asc PostId]
+
+getPostBy :: [Filter Post] -> [SelectOpt Post]
+          -> YesodDB DevSite DevSite (Maybe Post)
+getPostBy filters sorts = do
+    posts <- selectList filters $ sorts ++ [LimitTo 1]
     return $ case posts of
         ((Entity _ p):_) -> Just p
         _                -> Nothing
