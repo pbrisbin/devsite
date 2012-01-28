@@ -1,4 +1,4 @@
-<header>
+<div .page-header>
   <h1>Manage posts
 
 <div .post-input>
