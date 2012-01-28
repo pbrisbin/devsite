@@ -78,7 +78,17 @@ h4 > a:hover, h5 > a:hover, h6 > a:hover {
 }
 
 #search {
-  margin-bottom: 20px;
+  margin-top:    0px;
+  margin-bottom: 15px;
+}
+.result-excerpt {
+  text-align: left;
+  margin-right:  200px;
+  margin-bottom: 50px;
+}
+.result-excerpt .match {
+  color: blue;
+  font-weight: bold;
 }
 
 /* login box */

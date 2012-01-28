@@ -18,6 +18,9 @@
     <script src="@{StaticR js_bootstrap_tabs_js}">
     <script src="@{StaticR js_bootstrap_alerts_js}">
 
+    \<!-- search -->
+    <script src="@{StaticR js_search_js}">
+
     \<!-- google analytics -->
     <script async src="http://www.google-analytics.com/ga.js">
 
