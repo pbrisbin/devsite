@@ -37,7 +37,7 @@ executeSearch text = do
         Ok sres -> do
             let pids = map (Key . PersistInt64 . documentId) $ matches sres
 
-            posts <- runDB $ selectList [PostId <-. pids] [Desc PostDate]
+            posts <- runDB $ selectList [PostId <-. pids] []
 
             forM posts $ \(Entity _ post) -> do
                 excerpt <- liftIO $ do
