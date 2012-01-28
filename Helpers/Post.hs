@@ -9,6 +9,7 @@ module Helpers.Post
     ) where
 
 import Import
+import Helpers.Fields
 import Control.Monad (forM_)
 import Data.Time.Format.Human
 import System.Directory (doesFileExist)
@@ -31,12 +32,16 @@ postForm mpost = renderBootstrap $ PostForm
     <*> areq textField     "Title"       (fmap (postTitle  . fst) mpost)
     <*> areq textField     "Tags"        (fmap (formatTags . snd) mpost)
     <*> aopt markdownField "Description" (fmap (postDescr  . fst) mpost)
-    <*> areq boolField     "Draft?"      (fmap (postDraft  . fst) mpost)
-    <*> pure (maybe True (postDraft . fst) mpost) -- store prev value
+    <*> areq checkBoxField "Draft?"      (Just $ isDraft mpost)
+    <*> pure (isDraft mpost) -- store prev value
 
     where
         formatTags :: [Tag] -> Text
         formatTags = T.intercalate ", " . map tagName
+
+        -- use draft value when present, defult True on Nothing
+        isDraft :: Maybe (Post,[Tag]) -> Bool
+        isDraft = maybe True (postDraft . fst)
 
 upsertPost :: PostForm -> Handler ()
 upsertPost pf = do
@@ -91,7 +96,6 @@ upsertPost pf = do
         parseTags = filter (not . T.null)
                   . map (T.toLower . T.strip) . T.splitOn ","
 
-        -- FIXME: type sig
         dateUpd True False date = [PostDate =. date]
         dateUpd _    _     _    = []
 
