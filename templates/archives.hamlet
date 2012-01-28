@@ -1,27 +1,17 @@
 <div .page-header>
   <h1>Archives
 
-<h2>What?
+<div .row>
+  <input .offset11 .span5 #search type="search" placeholder="full text search">
 
-<p>
-  So as part of the upgrade to the latest yesod, I've decided to strip 
-  out all the spaghetti code that has accumulated over the years here.
+<div #results>
+  <div .post-listing>
+    <table .bordered-table .condensed-table .zebra-striped>
+      <thead>
+        <tr>
+          <th>Title
+          <th>Posted
 
-<p>
-  One of the largest offenders was this page, and the code required to 
-  build the by-tag and by-time-bucket lists of posts.
-
-<p>
-  I've got something fun planned for this page, but it's not ready yet. 
-  In the meantime here's a straight, boring post list.
-
-<div .post-listing>
-  <table .bordered-table .condensed-table .zebra-striped>
-    <thead>
-      <tr>
-        <th>Title
-        <th>Posted
-
-    <tbody .link>
-      $forall post <- posts
-        ^{postWidget $ entityVal post}
+      <tbody .link>
+        $forall post <- posts
+          ^{postWidget $ entityVal post}
