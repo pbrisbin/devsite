@@ -7,3 +7,6 @@
     <a href="@{EditPostR $ postSlug post}">Edit
   <td>
     <a href="@{DelPostR $ postSlug post}">Delete
+  <td>
+    $if postDraft post
+      <span .label .warning>DRAFT

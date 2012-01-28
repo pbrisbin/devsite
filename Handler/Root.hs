@@ -9,7 +9,7 @@ getRootR :: Handler RepHtml
 getRootR = do
     -- select 5 recent (Post, [Tag]) records
     records <- runDB $ do
-        posts <- selectList [] [Desc PostDate, LimitTo 5]
+        posts <- selectList [PostDraft !=. True] [Desc PostDate, LimitTo 5]
 
         let pids = map entityKey posts
         tags <- selectList [TagPost <-. pids] []

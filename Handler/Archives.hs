@@ -5,7 +5,7 @@ import Helpers.Post
 
 getArchivesR :: Handler RepHtml
 getArchivesR = do
-    posts <- runDB $ selectList [] [Desc PostDate]
+    posts <- runDB $ selectList [PostDraft !=. True] [Desc PostDate]
 
     defaultLayout $ do
         setTitle "Archives"

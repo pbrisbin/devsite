@@ -14,6 +14,10 @@
 
         ^{link $ last tags}
 
+        $if postDraft post
+          \ 
+          <span .label .warning>draft
+
 <div .post-content>
   #{content}
 

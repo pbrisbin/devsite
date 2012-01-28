@@ -17,10 +17,12 @@ import Data.Time (getCurrentTime)
 import qualified Data.Text as T
 
 data PostForm = PostForm
-    { pfSlug  :: Text
-    , pfTitle :: Text
-    , pfTags  :: Text
-    , pfDescr :: Maybe Markdown
+    { pfSlug     :: Text
+    , pfTitle    :: Text
+    , pfTags     :: Text
+    , pfDescr    :: Maybe Markdown
+    , pfDraft    :: Bool
+    , pfWasDraft :: Bool
     }
 
 postForm :: Maybe (Post,[Tag]) -> Form PostForm
@@ -29,6 +31,8 @@ postForm mpost = renderBootstrap $ PostForm
     <*> areq textField     "Title"       (fmap (postTitle  . fst) mpost)
     <*> areq textField     "Tags"        (fmap (formatTags . snd) mpost)
     <*> aopt markdownField "Description" (fmap (postDescr  . fst) mpost)
+    <*> areq boolField     "Draft?"      (fmap (postDraft  . fst) mpost)
+    <*> pure (maybe True (postDraft . fst) mpost) -- store prev value
 
     where
         formatTags :: [Tag] -> Text
@@ -43,6 +47,7 @@ upsertPost pf = do
                 , postTitle = pfTitle pf
                 , postDescr = pfDescr pf
                 , postDate  = now
+                , postDraft = pfDraft pf
                 }
 
     msg <- runDB $ do
@@ -58,11 +63,15 @@ upsertPost pf = do
 
             Left (Entity k _) -> do
                 -- post exists, update it
-                update k 
+                update k $
                     [ PostSlug  =. pfSlug  pf
                     , PostTitle =. pfTitle pf
                     , PostDescr =. pfDescr pf
-                    ]
+                    , PostDraft =. pfDraft pf
+
+                    -- update post date if were changing a post from
+                    -- draft to not draft.
+                    ] ++ dateUpd (pfWasDraft pf) (pfDraft pf) now
 
                 -- remove existing tags
                 deleteWhere [TagPost ==. k]
@@ -81,6 +90,10 @@ upsertPost pf = do
         parseTags :: Text -> [Text]
         parseTags = filter (not . T.null)
                   . map (T.toLower . T.strip) . T.splitOn ","
+
+        -- FIXME: type sig
+        dateUpd True False date = [PostDate =. date]
+        dateUpd _    _     _    = []
 
 postContent :: Post -> IO Html
 postContent post = do

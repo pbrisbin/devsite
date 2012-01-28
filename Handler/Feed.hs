@@ -11,7 +11,7 @@ import Text.Blaze       (preEscapedText)
 
 getFeedR :: Handler RepRss
 getFeedR = do
-    posts' <- runDB $ selectList [] [Desc PostDate, LimitTo 10]
+    posts' <- runDB $ selectList [PostDraft !=. True] [Desc PostDate, LimitTo 10]
     case posts' of
         []    -> notFound
         posts -> feedFromPosts $ map entityVal posts
@@ -23,7 +23,7 @@ getFeedTagR tag = do
         tags <- selectList [TagName ==. tag] []
 
         let pids = map (tagPost . entityVal) tags
-        posts <- selectList [PostId <-. pids] [Desc PostDate]
+        posts <- selectList [PostDraft !=. True, PostId <-. pids] [Desc PostDate]
 
         return $ map entityVal posts
 
