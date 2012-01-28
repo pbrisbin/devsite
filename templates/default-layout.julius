@@ -5,6 +5,7 @@ $(function() {
   }).hover( function() {
     $(this).toggleClass('hover')
   });
-
-  Search.init().attach();
+  
+  // https://gist.github.com/1696180
+  Search.attach();
 });
