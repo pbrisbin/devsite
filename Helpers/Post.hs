@@ -124,14 +124,14 @@ getPost404 slug = do
 getNextPost :: Post -> YesodDB DevSite DevSite (Maybe Post)
 getNextPost post = getPostBy [ PostDraft !=. True
                              , PostSlug  !=. postSlug post
-                             , PostDate  <=. postDate post
-                             ] [Desc PostDate, Desc PostId]
+                             , PostDate  <.  postDate post
+                             ] [Desc PostDate]
 
 getPreviousPost :: Post -> YesodDB DevSite DevSite (Maybe Post)
 getPreviousPost post = getPostBy [ PostDraft !=. True
                                  , PostSlug  !=. postSlug post
-                                 , PostDate  >=. postDate post
-                                 ] [Asc PostDate, Asc PostId]
+                                 , PostDate  >.  postDate post
+                                 ] [Asc PostDate]
 
 getPostBy :: [Filter Post] -> [SelectOpt Post]
           -> YesodDB DevSite DevSite (Maybe Post)
