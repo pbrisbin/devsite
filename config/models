@@ -3,7 +3,7 @@ Post
     date  UTCTime  Desc
     title Text     Update
     descr Markdown Maybe Update
-    draft Bool default=False Eq Update
+    draft Bool default=false Eq Update
     UniquePost slug
 
 Tag
