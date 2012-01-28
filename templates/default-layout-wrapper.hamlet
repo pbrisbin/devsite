@@ -64,7 +64,7 @@
             <ul>
               <li>
                 <a href="http://yesodweb.com">yesod
-                \ #{yesodVersion}
+                \ version #{yesodVersion}
 
               <li>
                 <a href="http://twitter.github.com/bootstrap/">bootstrap
@@ -75,7 +75,10 @@
         <p>
           &copy; 
           <a href="@{RootR}">pbrisbin
-          \ dot com 2012.
+          \ dot com 2012. 
+          <a href="https://github.com/pbrisbin/devsite">source
+          \.
+
 
     <script>
       var _gaq = _gaq || [];
