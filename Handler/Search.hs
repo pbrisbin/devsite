@@ -1,6 +1,10 @@
-module Handler.Search (getSearchXmlR) where
+module Handler.Search
+    ( getSearchXmlR
+    , getSearchR
+    ) where
 
 import Import
+import Helpers.Search
 import Control.Monad (forM)
 import System.Directory (doesFileExist)
 import Yesod.Markdown
@@ -26,6 +30,18 @@ getSearchXmlR = do
     where
         htmlToContent :: Html -> Handler Content
         htmlToContent = hamletToContent . const
+
+getSearchR :: Text -> Handler RepJson
+getSearchR qstring = do
+    results <- executeSearch qstring
+
+    objects <- forM results $ \result -> do
+        return $ object [ ("slug"   , resultSlug    result)
+                        , ("title"  , resultTitle   result)
+                        , ("excerpt", resultExcerpt result)
+                        ]
+
+    jsonToRepJson $ array objects
 
 docBlock :: PostId -> Post -> IO Html
 docBlock pid post = do

@@ -44,6 +44,7 @@ library
                      Helpers.Fields
                      Helpers.Profile
                      Helpers.Post
+                     Helpers.Search
 
     ghc-options:   -Wall -O0
     cpp-options:   -DDEVELOPMENT
@@ -116,6 +117,7 @@ executable         devsite
                  , directory
                  , friendly-time
                  , gravatar
+                 , sphinx
                  , time
                  , yesod-comments
                  , yesod-links
