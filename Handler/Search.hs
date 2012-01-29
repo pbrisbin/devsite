@@ -5,11 +5,9 @@ module Handler.Search
 
 import Import
 import Helpers.Search
+import Helpers.Post
 import Control.Monad (forM)
-import System.Directory (doesFileExist)
-import Yesod.Markdown
 import Text.Hamlet (xshamlet)
-import qualified Data.Text as T
 
 -- | This does not scale.
 --
@@ -45,22 +43,11 @@ getSearchR qstring = do
 
 docBlock :: PostId -> Post -> IO Html
 docBlock pid post = do
-    let file = pandocFile $ postSlug post
-
-    exists <- doesFileExist file
-    mkd    <- case (exists, postDescr post) of
-        (True, _         ) -> markdownFromFile file
-        (_   , Just descr) -> return descr
-        _                  -> return $ Markdown "nothing?"
-
+    markdown <- postMarkdown post
     return $
         [xshamlet|
             <document>
                 <id>#{toPathPiece pid}
                 <title>#{postTitle post}
-                <body>#{markdownToText mkd}
+                <body>#{markdownToText markdown}
             |]
-
-    where
-        markdownToText :: Markdown -> Text
-        markdownToText (Markdown s) = T.pack s

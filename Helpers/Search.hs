@@ -4,10 +4,9 @@ module Helpers.Search
     ) where
 
 import Import
-import Yesod.Markdown
+import Helpers.Post
 import Control.Monad          (forM)
 import Database.Persist.Store (PersistValue(PersistInt64))
-import System.Directory       (doesFileExist)
 
 import qualified Data.ByteString.Lazy       as L
 import qualified Data.ByteString.Lazy.Char8 as C8
@@ -42,15 +41,8 @@ executeSearch text = do
             forM posts $ \(Entity _ post) -> do
                 excerpt <- liftIO $ do
                     context <- do
-                        let file = pandocFile $ postSlug post
-
-                        exists <- doesFileExist file
-                        mkd    <- case (exists, postDescr post) of
-                            (True, _         ) -> markdownFromFile file
-                            (_   , Just descr) -> return descr
-                            _                  -> return $ Markdown "nothing?"
-
-                        return $ markdownToString mkd
+                        markdown <- postMarkdown post
+                        return $ markdownToString markdown
 
                     buildExcerpt context (T.unpack text)
 
@@ -63,9 +55,6 @@ executeSearch text = do
         _ -> return []
 
     where
-        markdownToString :: Markdown -> String
-        markdownToString (Markdown s) = s
-
         config :: Configuration
         config = defaultConfig
             { port   = sport

@@ -7,6 +7,10 @@ module Helpers.Post
     , getPost404
     , getPreviousPost
     , getNextPost
+
+    -- some markdown helpers
+    , Markdown(..)
+    , markdownToHtml
     , markdownToString
     , markdownToText
     ) where

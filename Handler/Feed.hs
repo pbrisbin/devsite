@@ -4,10 +4,9 @@ module Handler.Feed
     ) where
 
 import Import
+import Helpers.Post
 import Yesod.RssFeed
-import Yesod.Markdown
-import System.Directory (doesFileExist)
-import Text.Blaze       (preEscapedText)
+import Text.Blaze (preEscapedText)
 
 getFeedR :: Handler RepRss
 getFeedR = do
@@ -49,20 +48,13 @@ feedFromPosts posts = do
 --   content
 postToRssEntry :: Post -> Handler (FeedEntry (Route DevSite))
 postToRssEntry post = do
-    let file = pandocFile $ postSlug post
-
-    mkd <- liftIO $ do
-        exists <- doesFileExist file
-        case (exists, postDescr post) of
-            (True, _         ) -> markdownFromFile file
-            (_   , Just descr) -> return descr
-            _                  -> return $ Markdown ""
+    markdown <- liftIO $ postMarkdown post
 
     return FeedEntry
         { feedEntryLink    = PostR $ postSlug post
         , feedEntryUpdated = postDate  post
         , feedEntryTitle   = postTitle post
-        , feedEntryContent = cdata mkd
+        , feedEntryContent = cdata markdown
         }
 
         where
