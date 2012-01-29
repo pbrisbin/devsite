@@ -2,7 +2,7 @@
   <h1>Archives
 
 <div .row>
-  <input .offset11 .span5 #search type="search" placeholder="search for content..." autofocus="autofocus">
+  <input .offset11 .span5 #search type="search" placeholder="search content">
 
 <div #results>
   <div .post-listing>
