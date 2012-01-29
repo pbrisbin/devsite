@@ -1,11 +1,14 @@
 module Helpers.Post
     ( postForm
     , upsertPost
+    , postMarkdown
     , postContent
     , postPublished
     , getPost404
     , getPreviousPost
     , getNextPost
+    , markdownToString
+    , markdownToText
     ) where
 
 import Import
@@ -99,17 +102,24 @@ upsertPost pf = do
         dateUpd True False date = [PostDate =. date]
         dateUpd _    _     _    = []
 
+-- | Content as Html, use postMarkdown to get at the raw Markdown for
+--   conversion to String or Text
 postContent :: Post -> IO Html
 postContent post = do
+    markdown <- postMarkdown post
+
+    return $ markdownToHtml markdown
+
+postMarkdown :: Post -> IO Markdown
+postMarkdown post = do
     let file = pandocFile $ postSlug post
 
     exists <- doesFileExist file
-    mkd    <- case (exists, postDescr post) of
+
+    case (exists, postDescr post) of
         (True, _         ) -> markdownFromFile file
         (_   , Just descr) -> return descr
         _                  -> return $ Markdown "nothing?"
-
-    return $ markdownToHtml mkd
 
 postPublished :: Post -> IO String
 postPublished = humanReadableTime . postDate
@@ -140,3 +150,9 @@ getPostBy filters sorts = do
     return $ case posts of
         ((Entity _ p):_) -> Just p
         _                -> Nothing
+
+markdownToString :: Markdown -> String
+markdownToString (Markdown s) = s
+
+markdownToText :: Markdown -> Text
+markdownToText = T.pack . markdownToString
