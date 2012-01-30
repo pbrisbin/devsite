@@ -2,12 +2,4 @@
   <td>
     <a href="@{PostR $ postSlug post}">
     #{postTitle post}
-    $if postDraft post
-      \ 
-      <span .label .warning>DRAFT
-
   <td>#{published}
-  <td>
-    <a href="@{EditPostR $ postSlug post}">Edit
-  <td>
-    <a href="@{DelPostR $ postSlug post}">Delete

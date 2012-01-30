@@ -10,9 +10,3 @@ getArchivesR = do
     defaultLayout $ do
         setTitle "Archives"
         $(widgetFile "archives")
-
-    where
-        postWidget :: Post -> Widget
-        postWidget post = do
-            published <- liftIO $ postPublished post
-            $(widgetFile "post/_archive_row_item")

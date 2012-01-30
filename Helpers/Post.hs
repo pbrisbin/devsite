@@ -8,6 +8,8 @@ module Helpers.Post
     , getPreviousPost
     , getNextPost
     , inlinePost
+    , rowItemPost
+    , adminRowItemPost
 
     -- some markdown helpers
     , Markdown(..)
@@ -169,3 +171,14 @@ inlinePost post tags = do
     content   <- liftIO $ postContent   post
 
     $(widgetFile "post/_inline")
+
+
+rowItemPost :: Post -> Widget
+rowItemPost post = do
+    published <- liftIO $ postPublished post
+    $(widgetFile "post/_row_item")
+
+adminRowItemPost :: Post -> Widget
+adminRowItemPost post = do
+    published <- liftIO $ postPublished post
+    $(widgetFile "post/_admin_row_item")

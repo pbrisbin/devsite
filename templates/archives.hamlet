@@ -14,4 +14,4 @@
 
       <tbody .link>
         $forall post <- posts
-          ^{postWidget $ entityVal post}
+          ^{rowItemPost $ entityVal post}

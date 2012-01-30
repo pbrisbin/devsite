@@ -51,12 +51,6 @@ getManagePostsR = do
         setTitle "Manage posts"
         $(widgetFile "post/index")
 
-    where
-        postWidget :: Post -> Widget
-        postWidget post = do
-            published <- liftIO $ postPublished post
-            $(widgetFile "post/_row_item")
-
 postManagePostsR :: Handler RepHtml
 postManagePostsR = getManagePostsR
 
