@@ -3,4 +3,4 @@
 
 <div .post-list>
   $forall (post,tags) <- records
-    ^{postWidget post tags}
+    ^{inlinePost post tags}

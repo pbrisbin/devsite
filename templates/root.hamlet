@@ -6,4 +6,4 @@
 
 <div .inline-posts>
   $forall (post,tags) <- records
-    ^{postWidget post tags}
+    ^{inlinePost post tags}

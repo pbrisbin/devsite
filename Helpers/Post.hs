@@ -7,6 +7,7 @@ module Helpers.Post
     , getPost404
     , getPreviousPost
     , getNextPost
+    , inlinePost
 
     -- some markdown helpers
     , Markdown(..)
@@ -21,6 +22,7 @@ import Control.Monad (forM_)
 import Data.Time.Format.Human
 import System.Directory (doesFileExist)
 import Yesod.Markdown
+import Yesod.Links
 import Data.Time (getCurrentTime)
 import qualified Data.Text as T
 
@@ -160,3 +162,10 @@ markdownToString (Markdown s) = s
 
 markdownToText :: Markdown -> Text
 markdownToText = T.pack . markdownToString
+
+inlinePost :: Post -> [Tag] -> Widget
+inlinePost post tags = do
+    published <- liftIO $ postPublished post
+    content   <- liftIO $ postContent   post
+
+    $(widgetFile "post/_inline")

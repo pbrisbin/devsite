@@ -3,7 +3,6 @@ module Handler.Root (getRootR) where
 import Import
 import Control.Monad (forM)
 import Helpers.Post
-import Yesod.Links
 
 getRootR :: Handler RepHtml
 getRootR = do
@@ -25,10 +24,3 @@ getRootR = do
         setTitle "Home"
         addKeywords ["home", "haskell", "yesod", "bash", "mutt", "xmonad", "arch linux"]
         $(widgetFile "root")
-
-postWidget :: Post -> [Tag] -> Widget
-postWidget post tags = do
-    published <- liftIO $ postPublished post
-    content   <- liftIO $ postContent post
-
-    $(widgetFile "post/_inline")
