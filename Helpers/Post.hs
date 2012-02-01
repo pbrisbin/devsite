@@ -113,10 +113,7 @@ upsertPost pf = do
 -- | Content as Html, use postMarkdown to get at the raw Markdown for
 --   conversion to String or Text
 postContent :: Post -> IO Html
-postContent post = do
-    markdown <- postMarkdown post
-
-    return $ markdownToHtml markdown
+postContent = fmap markdownToHtml . postMarkdown
 
 postMarkdown :: Post -> IO Markdown
 postMarkdown post = do
