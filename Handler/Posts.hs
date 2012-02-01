@@ -9,8 +9,8 @@ module Handler.Posts
     ) where
 
 import Import
-import Control.Monad (unless)
 import Data.Time.Format.Human
+import Helpers.Admin
 import Helpers.Post
 import Yesod.Comments (addCommentsAuth)
 import Yesod.Links
@@ -90,8 +90,3 @@ getDelPostR slug = do
 
     setMessage msg
     redirect ManagePostsR
-
-requireAdmin :: Handler ()
-requireAdmin = do
-    (_, u) <- requireAuth
-    unless (userAdmin u) $ permissionDenied "User is not an admin"

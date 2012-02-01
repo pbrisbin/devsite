@@ -19,4 +19,4 @@
 
     <tbody .link>
       $forall post <- posts
-        ^{adminRowItemPost $ entityVal post}
+        ^{rowItemPost $ entityVal post}

@@ -3,3 +3,9 @@
     <a href="@{PostR $ postSlug post}">
     #{postTitle post}
   <td>#{published}
+
+  $if isAdmin
+    <td>
+      <a href="@{EditPostR $ postSlug post}">Edit
+    <td>
+      <a href="@{DelPostR $ postSlug post}">Delete

@@ -41,6 +41,7 @@ library
                      Handler.Root
                      Handler.Tags
                      Handler.Search
+                     Helpers.Admin
                      Helpers.Fields
                      Helpers.Profile
                      Helpers.Post
