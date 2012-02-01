@@ -1,0 +1,9 @@
+<div .page-header>
+  <h1>New post
+
+<div .post-input>
+  <form enctype="#{enctype}" method="post">
+    ^{form}
+
+    <div .actions>
+      <button type="submit" .btn>Create post

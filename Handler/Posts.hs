@@ -3,6 +3,8 @@ module Handler.Posts
     , postPostR
     , getManagePostsR
     , postManagePostsR
+    , getNewPostR
+    , postNewPostR
     , getEditPostR
     , postEditPostR
     , getDelPostR
@@ -41,6 +43,17 @@ getManagePostsR = do
 
     posts <- runDB $ selectList [] [Desc PostDate]
 
+    defaultLayout $ do
+        setTitle "Manage posts"
+        $(widgetFile "post/index")
+
+postManagePostsR :: Handler RepHtml
+postManagePostsR = getManagePostsR
+
+getNewPostR :: Handler RepHtml
+getNewPostR = do
+    requireAdmin
+
     ((res,form), enctype) <- runFormPost $ postForm Nothing
 
     case res of
@@ -48,11 +61,11 @@ getManagePostsR = do
         _              -> return ()
 
     defaultLayout $ do
-        setTitle "Manage posts"
-        $(widgetFile "post/index")
+        setTitle "New post"
+        $(widgetFile "post/new")
 
-postManagePostsR :: Handler RepHtml
-postManagePostsR = getManagePostsR
+postNewPostR :: Handler RepHtml
+postNewPostR = getNewPostR
 
 getEditPostR :: Text -> Handler RepHtml
 getEditPostR slug = do

@@ -1,13 +1,6 @@
 <div .page-header>
   <h1>Manage posts
 
-<div .post-input>
-  <form enctype="#{enctype}" method="post">
-    ^{form}
-
-    <div .actions>
-      <button type="submit" .btn>Create post
-
 <div .post-listing>
   <table .bordered-table .condensed-table .zebra-striped>
     <thead>

@@ -4,6 +4,7 @@
 /posts/#Text           PostR        GET POST
 /tags/#Text            TagR         GET
 /manage                ManagePostsR GET POST
+/manage/new            NewPostR     GET POST
 /manage/edit/#Text     EditPostR    GET POST
 /manage/delete/#Text   DelPostR     GET
 /profile               ProfileR     GET
