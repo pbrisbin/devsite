@@ -39,12 +39,13 @@ library
                      Handler.Posts
                      Handler.Profile
                      Handler.Root
-                     Handler.Tags
                      Handler.Search
+                     Handler.Tags
+                     Handler.Users
                      Helpers.Admin
                      Helpers.Fields
-                     Helpers.Profile
                      Helpers.Post
+                     Helpers.Profile
                      Helpers.Search
 
     ghc-options:   -Wall -O0

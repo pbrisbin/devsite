@@ -7,6 +7,7 @@
 /manage/new            NewPostR     GET POST
 /manage/edit/#Text     EditPostR    GET POST
 /manage/delete/#Text   DelPostR     GET
+/users                 UsersR       GET
 /profile               ProfileR     GET
 /profile/edit          EditProfileR GET POST
 /feed                  FeedR        GET

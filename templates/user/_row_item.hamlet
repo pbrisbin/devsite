@@ -1,0 +1,11 @@
+<tr>
+  <td>#{toPathPiece uid}
+  <td>
+    #{fromMaybe "none" $ userName u}
+
+    $if userAdmin u
+      \ 
+      <span .label .warning>ADMIN
+
+  <td>#{fromMaybe "none" $ userEmail u}
+  <td>#{identIdent i}

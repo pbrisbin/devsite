@@ -26,14 +26,15 @@ import Yesod.Comments.Management
 import Yesod.Comments.Storage (migrateComments)
 
 -- Import all relevant handler modules here.
-import Handler.Root
 import Handler.About
 import Handler.Archives
 import Handler.Feed
 import Handler.Posts
 import Handler.Profile
-import Handler.Tags
+import Handler.Root
 import Handler.Search
+import Handler.Tags
+import Handler.Users
 
 -- This line actually creates our YesodSite instance. It is the second half
 -- of the call to mkYesodData which occurs in Foundation.hs. Please see
