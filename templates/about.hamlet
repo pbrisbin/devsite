@@ -6,102 +6,70 @@
   keep crap, link people to my crap, and practice making more better 
   crap.
 
-<h3>Framework
+<h3>About the Tech
 
 <p>
-  This new version of the site is powered by the 
-
-  <a href="http://docs.yesodweb.com/">Yesod
-
-  \ framework. It's an extremely powerful framework written in 
-  Haskell.
+  On the front-end side, I'm using twitter's awesome 
+  <a href="http://twitter.github.com/bootstrap/">boostrap
+  \ css and javascript framework to provide damn-near all the styling 
+  without a line of it written or maintained by me.
 
 <p>
-  The source for the site is available in my 
-
-  <a href="http://github.com/pbrisbin/devsite">git repo
-
-  \ if anyone's interested.
-
-<p>
-  There are also a 
-
-  <a href="http://github.com/pbrisbin/yesod-comments">number
-
-  \ 
-
-  <a href="http://github.com/pbrisbin/yesod-mpc">of
-
-  \ 
-
-  <a href="http://github.com/pbrisbin/yesod-statistics">extensions
-
-  \ which I've written for the framework. Some I use here, some I 
-  don't.
-
-<h3>About Arch
+  At the front-edge of the back-end side, I have a single nginx worker 
+  serving static files and forwarding non-static requests to 
+  localhost:3001-3003. Those requests are then handled by 3 instances of 
+  my compiled 
+  <a href="http://docs.yesodweb.com/">yesod
+  \ application.
 
 <p>
-  If you haven't noticed, my desktop runs on Arch linux. 
-
-  <a href="http://www.archlinux.org/">Arch
-
-  \ is an amazing DIY distro that gives the user the barest of bare 
-  installs; from there, you can build your system, piece by piece.  
-  There is no hand-holding, and the user is expected to install, 
-  maintain, and configure his entire system on his own. Through 
-  appropriate use of the amazing Arch wiki, forums, and IRC, this isn't 
-  so bad - it simply takes reading, and time. The benefit being not only 
-  can you make it exactly what you want, but you'll learn more than you 
-  could imagine about the inner workings of your system. This 
-  transparency and required effort can lead to both fulfillment and 
-  frustration; this is a feature, not a bug.
+  Yesod is a rapidly growing web framework written from the ground up in 
+  haskell. I've been using it since converting this site at version 0.1 
+  and am proud to be both an early adopter and official contributer.
 
 <p>
-  If you want to try a distro that expects a lot from its users while 
-  still offering a great package manager and simple transparent tools 
-  for maintaining 
+  We're currently at version 0.10 gearing up for the 1.0 launch and 
+  there's even a real-life O'Reilly 
+  <a href="http://shop.oreilly.com/product/0636920023142.do">book
+  \ coming out in March!
 
-  <em>your
+<p>
+  Meta-data for the site is stored in a postgresql database and the post 
+  content itself is kept in markdown files and converted on-the-fly by 
+  pandoc via my yesod-markdown package.
 
-  \ system, please try Arch. Be sure to read the Beginners guide before 
-  installing, and do some research (manpage, wiki, forum, google, and 
-  IRC) before asking questions - Though most Archers are extremely 
-  friendly, showing that you've done some research before asking the 
-  same often repeated questions will go a long way in earning the 
-  respect of the group; and, at least in the beginning, I'll bet you 
-  find your question's already been asked and answered somewhere.
+<p>
+  The source for it is, of course, on my 
+  <a href="https://github.com/pbrisbin/devsite">github
+  \ and it all runs forever smoothly on my personal desktop thanks to 
+  <a href="https://www.archlinux.org">Arch linux
+  \.
 
 <h3>About Me
 
 <p>
-  I hold a degree in Aerospace Engineering from BU. I spent some time as 
-  an 
+  <em>I guess I matter too, huh?
 
+<p>
+  I hold a degree in Aerospace Engineering from BU (that means I could 
+  totally be a "rocket scientist"). I spent some time as an 
   <a href="http://en.wikipedia.org/wiki/Enterprise_resource_planning">
     ERP
-
   \ Consultant writing 
-
   <a href="http://en.wikipedia.org/wiki/X++">X++ 
-
   \ code for 
-
   <a href="http://en.wikipedia.org/wiki/Microsoft_Dynamics_AX"> 
     Microsoft Dynamics AX
-
-  \, but I've recently taken a job as a Rails developer for 
-
+  \. Thankfully I've since taken a job as a Rails developer for 
   <a href="http://ideeli.com">ideeli.com
-
-  \. I've been using Arch Linux for a few years now and do pretty much 
-  everything you see around the site as my main hobby.
+  \. I pride myself on elegant code and try every day to merge haskell's 
+  functional approach with well-established Object-oriented Design 
+  Patterns.
 
 <h3>Site Validations
 
 <p>
-  All of my pages are valid HTML5. My stylesheet (with the exception of 
-  some vendor-extensions) is valid CSS3. My RSS is valid level 2.0.
+  The obligatory badges:
 
 <div .validations>
   <p>
