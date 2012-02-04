@@ -111,6 +111,13 @@ h4 > a:hover, h5 > a:hover, h6 > a:hover {
 .post-nav        { font-size: 90%; }
 .post-nav .right { float: right;   }
 
+.post-new {
+  margin-bottom: 15px;
+}
+.post-listing {
+  clear: both;
+}
+
 form label {
   font-weight: bold;
   margin: 0px;
