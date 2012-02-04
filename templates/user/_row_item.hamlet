@@ -5,7 +5,7 @@
 
     $if userAdmin u
       \ 
-      <span .label .warning>ADMIN
+      <span .label .label-warning>ADMIN
 
   <td>#{fromMaybe "none" $ userEmail u}
   <td>#{identIdent i}

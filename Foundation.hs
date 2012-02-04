@@ -165,6 +165,7 @@ instance YesodBreadcrumbs DevSite where
     breadcrumb ManagePostsR  = return ("manage posts", Just RootR       )
     breadcrumb NewPostR      = return ("new post"    , Just ManagePostsR)
     breadcrumb (EditPostR _) = return ("edit post"   , Just ManagePostsR)
+    breadcrumb UsersR        = return ("users"       , Just RootR       )
     breadcrumb (AuthR _)     = return ("login"       , Just RootR       )
 
     breadcrumb (CommentsAdminR OverviewR)   = return ("your comments", Just RootR                     )

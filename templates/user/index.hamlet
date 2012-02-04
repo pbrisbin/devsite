@@ -2,7 +2,7 @@
   <h1>Users
 
 <div .users-listing>
-  <table .bordered-table .condensed-table .zebra-striped>
+  <table .table .table-bordered .table-condensed .table-striped>
     <thead>
       <tr>
         <th>Id
