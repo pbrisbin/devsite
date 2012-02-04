@@ -6,20 +6,29 @@
     <meta name="description" content="pbrisbin dot com">
     <meta name="author" content="Patrick Brisbin">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <link rel="stylesheet" href="@{StaticR css_bootstrap_min_css}">
     <link rel="stylesheet" href="@{StaticR css_bootstrap_responsive_min_css}">
-
     <script src="@{StaticR js_jquery_min_js}">
     <script src="@{StaticR js_bootstrap_js}">
     <script src="@{StaticR js_bootstrap_alert_js}">
     <script src="@{StaticR js_bootstrap_dropdown_js}">
     <script src="@{StaticR js_search_js}">
 
-    \<!-- google analytics -->
-    <script async src="http://www.google-analytics.com/ga.js">
-
+    \<!-- page-specific head -->
     ^{pageHead pc}
+
+    \<!-- ga integration -->
+    <script>
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-22304237-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+
   <body>
     <div .container>
       ^{pageBody pc}
@@ -76,15 +85,3 @@
           \ dot com 2012. 
           <a href="https://github.com/pbrisbin/devsite">source
           \.
-
-
-    <script>
-      var _gaq = _gaq || [];
-      _gaq.push(['_setAccount', 'UA-22304237-1']);
-      _gaq.push(['_trackPageview']);
-
-      (function() {
-        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-      })();
