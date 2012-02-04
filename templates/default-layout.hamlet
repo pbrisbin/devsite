@@ -9,36 +9,35 @@
     <li .active>#{t}
 
 $maybe msg <- mmsg
-  <div .alert-message.info .fade .in data-alert="alert">
-    <a .close href="#">×
-    <p>#{msg}
+  <div .alert .fade .in>
+    <a .close data-dismiss="alert" href="#">&times;
+    #{msg}
 
-<div #login>
-  <ul>
-    $maybe u <-muid
-      <li .dropdown data-dropdown="dropdown">
-        <a href="#" .dropdown-toggle>
-          $maybe grav <- mgrav
-            <img src="#{grav}" .icon alt="gravatar">
+<div .login-controls>
+  $maybe u <-muid
+    <div .dropdown>
+      <a href="#" .btn .dropdown-toggle data-toggle="dropdown">
+        $maybe grav <- mgrav
+          <img src="#{grav}" .icon alt="gravatar">
 
-          #{fromMaybe "anonymous" $ userName $ snd u}
+        #{fromMaybe "anonymous" $ userName $ snd u}
 
-        <ul .dropdown-menu>
-          <li>
-            ^{link ProfileR}
-          <li>
-            ^{link $ CommentsAdminR OverviewR}
+      <ul .dropdown-menu>
+        <li>
+          ^{link ProfileR}
+        <li>
+          ^{link $ CommentsAdminR OverviewR}
 
-          $if userAdmin $ snd u
-            <li .divider>
-            <li>
-              ^{link ManagePostsR}
-
+        $if userAdmin $ snd u
           <li .divider>
           <li>
-            ^{link $ AuthR LogoutR}
+            ^{link ManagePostsR}
 
-    $nothing
-      <li .dropdown>^{link $ AuthR LoginR}
+        <li .divider>
+        <li>
+          ^{link $ AuthR LogoutR}
+
+  $nothing
+    <a href="@{AuthR LoginR}" .btn>login
 
 ^{widget}

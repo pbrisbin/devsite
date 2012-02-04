@@ -1,7 +1,7 @@
-<h1>Edit profile
+<div .page-header>
+  <h1>Edit profile
 
-<form enctype="#{enctype}" method="post" .form-stacked>
-  ^{form}
-
-  <div .actions>
+<form enctype="#{enctype}" method="post" .profile-form>
+  <fieldset>
+    ^{form}
     <button type="submit" .btn>Save

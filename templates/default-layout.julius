@@ -1,4 +1,8 @@
 $(function() {
+  $('.alert').alert();
+
+  $('.dropdown-toggle').dropdown();
+
   // table rows as links
   $('tbody.link tr').click(function() {
     window.location = $(this).find('a').attr('href');

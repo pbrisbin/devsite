@@ -8,15 +8,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     \<!-- jquery -->
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js">
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js">
     <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js">
 
     \<!-- bootstrap -->
-    <link rel="stylesheet" href="@{StaticR css_bootstrap_min_css}">
-    <script src="@{StaticR js_bootstrap_dropdown_js}">
-    <script src="@{StaticR js_bootstrap_modal_js}">
-    <script src="@{StaticR js_bootstrap_tabs_js}">
-    <script src="@{StaticR js_bootstrap_alerts_js}">
+    <link rel="stylesheet" href="@{StaticR css_bootstrap_2_min_css}">
+    <link rel="stylesheet" href="@{StaticR css_bootstrap_responsive_min_css}">
+    <script src="@{StaticR js_bootstrap_js}">
+    <script src="@{StaticR js_bootstrap_alert_js}">
+    <script src="@{StaticR js_bootstrap_dropdown_2_js}">
 
     \<!-- search -->
     <script src="@{StaticR js_search_js}">
@@ -31,7 +31,7 @@
 
       <footer>
         <div .row>
-          <div .span4>
+          <div .span3>
             <ul>
               <li>
                 <a href="@{AboutR}">about
@@ -45,7 +45,7 @@
                 <a href="@{FeedR}">subscribe
                 \ to the feed
 
-          <div .span4>
+          <div .span3>
             <ul>
               <li>
                 <a href="https://github.com/pbrisbin">github
@@ -63,7 +63,7 @@
                 <a href="/static/docs/ruby">rdocs
                 \ for my ruby projects
 
-          <div .span4>
+          <div .span3>
             <ul>
               <li>
                 <a href="http://yesodweb.com">yesod
