@@ -7,18 +7,13 @@
     <meta name="author" content="Patrick Brisbin">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    \<!-- jquery -->
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js">
-    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js">
-
-    \<!-- bootstrap -->
-    <link rel="stylesheet" href="@{StaticR css_bootstrap_2_min_css}">
+    <link rel="stylesheet" href="@{StaticR css_bootstrap_min_css}">
     <link rel="stylesheet" href="@{StaticR css_bootstrap_responsive_min_css}">
+
+    <script src="@{StaticR js_jquery_min_js}">
     <script src="@{StaticR js_bootstrap_js}">
     <script src="@{StaticR js_bootstrap_alert_js}">
-    <script src="@{StaticR js_bootstrap_dropdown_2_js}">
-
-    \<!-- search -->
+    <script src="@{StaticR js_bootstrap_dropdown_js}">
     <script src="@{StaticR js_search_js}">
 
     \<!-- google analytics -->

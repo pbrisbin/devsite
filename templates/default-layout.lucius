@@ -1,8 +1,8 @@
 @import url(http://fonts.googleapis.com/css?family=Questrial);
 
 body, select, input, textarea {
-  margin-top: 10px;
-  text-align: justify;
+  margin-top:  10px;
+  text-align:  justify;
   font-family: 'Lucida Sans Unicode', 'Lucida Grande', sans-serif;
 }
 h1, h2, h3,
@@ -17,20 +17,21 @@ pre {
   background-color: #303030;
 }
 code, kbd, samp {
-  padding: 0px;
-  color :inherit;
+  padding:          0px;
+  border:           none;
+  color:            inherit;
   background-color: inherit;
-  border: none;
 }
 footer {
-  clear: both;
-  height: 250px;
-  margin-top: 25px;
-  border-top: 1px solid #e5e5e5;
+  clear:       both;
+  height:      250px;
+  margin-top:  10;
+  padding-top: 5px;
+  border-top:  1px solid #e5e5e5;
 }
 footer p,
 footer ul {
-  color: #aaa;
+  color:     #aaa;
   font-size: 80%;
 }
 footer p {
@@ -38,9 +39,9 @@ footer p {
   text-align: center;
 }
 footer ul {
-  text-align: left;
+  list-style:  none;
+  text-align:  left;
   margin-left: 0px;
-  list-style: none;
 }
 .hover {
   cursor: pointer;
@@ -70,27 +71,19 @@ h4 > a:hover, h5 > a:hover, h6 > a:hover {
           border-radius: 3px;
 }
 .note:before,
-.update:before {
-  color: #000;
-  font-weight: bold;
- }
-.note:before   { content: "Note: "  ; }
-.update:before { content: "Update: "; }
-
-.validations > p {
-  text-align: center;
-}
-.validations img {
-  height: 31px;
-  width:  88px;
-}
+.update:before { font-weight: bold      ; }
+.note:before   { content:     "Note: "  ; }
+.update:before { content:     "Update: "; }
 
 #search {
   margin-top:    0px;
   margin-bottom: 15px;
 }
+#results {
+  clear: both;
+}
 .result-excerpt {
-  text-align: left;
+  text-align:    left;
   margin-right:  200px;
   margin-bottom: 50px;
 }
@@ -98,22 +91,6 @@ h4 > a:hover, h5 > a:hover, h6 > a:hover {
   color: blue;
   font-weight: bold;
 }
-
-/* login box */
-.login-controls {
-  float: right
-}
-.login-controls img {
-  height: 20px;
-  width:  20px;
-  padding-right: 3px;
-  vertical-align: middle;
-}
-.login-controls > .dropdown > a {
-  text-align: center;
-  vertical-align: middle;
-}
-
 
 /* posts */
 .page-header .meta,
@@ -131,9 +108,35 @@ h4 > a:hover, h5 > a:hover, h6 > a:hover {
   margin-left: 5px;
   font-style:  normal;
 }
-.post-nav            { font-size: 90%; }
-.post-nav span.left  {                 }
-.post-nav span.right { float: right;   }
+.post-nav        { font-size: 90%; }
+.post-nav .right { float: right;   }
+
+form label {
+  font-weight: bold;
+  margin: 0px;
+  padding: 0px;
+}
+form .help-block {
+  display: block;
+  clear: both;
+  margin-top: -5px;
+  margin-bottom: 15px;
+}
+
+/* login controls */
+.login-controls {
+  float: right
+}
+.login-controls img {
+  height: 20px;
+  width:  20px;
+  padding-right: 3px;
+  vertical-align: middle;
+}
+.login-controls > .dropdown > a {
+  text-align: center;
+  vertical-align: middle;
+}
 
 /* login page */
 .open-id-help p,
@@ -177,19 +180,8 @@ h4 > a:hover, h5 > a:hover, h6 > a:hover {
   height: 128px;
   width:  128px;
 }
-.profile-form label {
-  font-weight: bold;
-  margin: 0px;
-  padding: 0px;
-}
-.profile-form .help-block {
-  display: block;
-  clear: both;
-  margin-top: -5px;
-  margin-bottom: 15px;
-}
 
-/* comments  */
+/* comments  {{{ */
 .yesod_comments {
   width: 550px;
   margin-left: 20px;
@@ -232,17 +224,7 @@ h4 > a:hover, h5 > a:hover, h6 > a:hover {
   height: 100px;
   width:  400px;
 }
-.yesod_comments form label {
-  font-weight: bold;
-  margin: 0px;
-  padding: 0px;
-}
-.yesod_comments form .help-block {
-  display: block;
-  clear: both;
-  margin-top: -5px;
-  margin-bottom: 15px;
-}
+/* }}} */
 
 /* syntax highlighting {{{ */
 /* inspired by zenburn vim colorscheme */
