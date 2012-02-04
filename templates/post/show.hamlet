@@ -1,22 +1,17 @@
 <div .page-header>
-  <h1>#{postTitle post}
+  <h1>
+    #{postTitle post} 
+    <small>
+      published #{published}, tagged with 
 
-  <div .meta>
-    <p>
-      <span .published>
-        published #{published}, 
+      $forall tag <- init tags
+        ^{link tag}, 
 
-      <span .tags>
-        tagged with 
+      ^{link $ last tags}
 
-        $forall tag <- init tags
-          ^{link tag}, 
-
-        ^{link $ last tags}
-
-        $if postDraft post
-          \ 
-          <span .label .warning>draft
+      $if postDraft post
+        \ 
+        <span .label .label-warning>draft
 
 <div .post-content>
   #{content}

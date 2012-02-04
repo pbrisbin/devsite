@@ -55,10 +55,11 @@ h4 > a:hover, h5 > a:hover, h6 > a:hover {
   text-decoration: none;
 }
 
+.page-header { padding-top: 17px; }
 .page-header .title_one,
 .page-header .title_two,
 .page-header .title_three { font-size: 120%; }
-.page-header .title_two { color: #aaa; }
+.page-header .title_two   { color:     #999; }
 
 .note,
 .update {
@@ -93,24 +94,16 @@ h4 > a:hover, h5 > a:hover, h6 > a:hover {
 }
 
 /* posts */
-.page-header .meta,
-.post-header .meta {
-  position: relative;
-  top:      -5px;
+.page-header h1 small,
+.post-header h2 small {
+  font-size: 50%;
 }
-.meta p, .meta a {
-  color:       #aaa;
-  font-size:   11px;
-  line-height: 18px;
-  font-style:  italic;
-}
-.meta p .label {
-  margin-left: 5px;
-  font-style:  normal;
+.page-header h1 .label {
+  padding: 2px 3px;
+  vertical-align: middle;
 }
 .post-nav        { font-size: 90%; }
 .post-nav .right { float: right;   }
-
 .post-new {
   margin-bottom: 15px;
 }

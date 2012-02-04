@@ -2,6 +2,11 @@
   <td>
     <a href="@{PostR $ postSlug post}">
     #{postTitle post}
+
+    $if postDraft post
+      \ 
+      <span .label .label-warning>draft
+
   <td>#{published}
 
   $if isAdmin

@@ -1,19 +1,14 @@
 <div .inline-post>
   <div .post-header>
-    <h2>^{link post}
+    <h2>
+      ^{link post} 
+      <small>
+        published #{published}, tagged with 
 
-    <div .meta>
-      <p>
-        <span .published>
-          published #{published}, 
+        $forall tag <- init tags
+          ^{link tag}, 
 
-        <span .tags>
-          tagged with 
-
-          $forall tag <- init tags
-            ^{link tag}, 
-
-          ^{link $ last tags}
+        ^{link $ last tags}
 
   <div .post-content>
     #{content}
