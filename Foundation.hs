@@ -163,6 +163,7 @@ instance YesodBreadcrumbs DevSite where
     breadcrumb ProfileR      = return ("profile"     , Just RootR       )
     breadcrumb EditProfileR  = return ("edit"        , Just ProfileR    )
     breadcrumb ManagePostsR  = return ("manage posts", Just RootR       )
+    breadcrumb NewPostR      = return ("new post"    , Just ManagePostsR)
     breadcrumb (EditPostR _) = return ("edit post"   , Just ManagePostsR)
     breadcrumb (AuthR _)     = return ("login"       , Just RootR       )
 
