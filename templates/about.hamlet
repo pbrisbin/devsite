@@ -48,9 +48,6 @@
 <h3>About Me
 
 <p>
-  <em>I guess I matter too, huh?
-
-<p>
   I hold a degree in Aerospace Engineering from BU (that means I could 
   totally be a "rocket scientist"). I spent some time as an 
   <a href="http://en.wikipedia.org/wiki/Enterprise_resource_planning">
@@ -60,21 +57,8 @@
   \ code for 
   <a href="http://en.wikipedia.org/wiki/Microsoft_Dynamics_AX"> 
     Microsoft Dynamics AX
-  \. Thankfully I've since taken a job as a Rails developer for 
+  \. Thankfully, I've since taken a job as a Rails developer for 
   <a href="http://ideeli.com">ideeli.com
   \. I pride myself on elegant code and try every day to merge haskell's 
   functional approach with well-established Object-oriented Design 
   Patterns.
-
-<h3>Site Validations
-
-<p>
-  The obligatory badges:
-
-<div .validations>
-  <p>
-    <img src=@{StaticR img_valid_html5_png} alt="Valid HTML5">
-    \ 
-    <img src=@{StaticR img_valid_css_png}   alt="Valid CSS">
-    \ 
-    <img src=@{StaticR img_valid_rss_png}   alt="Valid RSS">
