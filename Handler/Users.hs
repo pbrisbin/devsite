@@ -15,7 +15,7 @@ getUsersR = do
 
         forM users $ \user -> do
             let uid  = entityKey user
-            let cred = head $ filter ((/= uid) . identUser . entityVal) creds
+            let cred = head $ filter ((== uid) . identUser . entityVal) creds
 
             return (user,cred)
 
