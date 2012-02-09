@@ -9,18 +9,14 @@ import qualified Data.Text as T
 getTagR :: Text -> Handler RepHtml
 getTagR tag = do
     records <- runDB $ do
-        tags <- selectList [TagName ==. T.toLower tag] []
+        tags <- fmap (map entityVal) $ selectList [] []
 
-        let pids = map (tagPost . entityVal) tags
+        let pids = map tagPost $ filter ((== T.toLower tag) . tagName) tags
 
         posts <- selectList [PostDraft !=. True, PostId <-. pids] [Desc PostDate]
 
-        forM posts $ \post -> do
-            let pid   = entityKey post
-            let post' = entityVal post
-            let tags' = filter ((== pid) . tagPost) $ map entityVal tags
-
-            return (post', tags')
+        forM posts $ \(Entity pid post) ->
+            return (post, filter ((== pid) . tagPost) $ tags)
 
     defaultLayout $ do
         rssLink (FeedTagR tag) ("rss feed for tag " ++ T.unpack tag)
