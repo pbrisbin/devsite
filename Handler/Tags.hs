@@ -1,13 +1,15 @@
 module Handler.Tags (getTagR) where
 
 import Import
-import Control.Monad (forM)
 import Helpers.Post
 import Yesod.RssFeed (rssLink)
+import Control.Monad (forM)
 import qualified Data.Text as T
 
 getTagR :: Text -> Handler RepHtml
 getTagR tag = do
+    now <- liftIO $ getCurrentTime
+
     records <- runDB $ do
         tags <- fmap (map entityVal) $ selectList [] []
 

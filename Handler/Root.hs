@@ -1,11 +1,13 @@
 module Handler.Root (getRootR) where
 
 import Import
-import Control.Monad (forM)
 import Helpers.Post
+import Control.Monad (forM)
 
 getRootR :: Handler RepHtml
 getRootR = do
+    now <- liftIO $ getCurrentTime
+
     -- select 5 recent (Post, [Tag]) records
     records <- runDB $ do
         posts <- selectList [PostDraft !=. True] [Desc PostDate, LimitTo 5]

@@ -6,4 +6,4 @@
 
 <div .inline-posts>
   $forall (post,tags) <- records
-    ^{inlinePost post tags}
+    ^{inlinePost now post tags}

@@ -11,8 +11,6 @@ module Handler.Posts
     ) where
 
 import Import
-import Data.Time (getCurrentTime)
-import Data.Time.Format.Human
 import Helpers.Admin
 import Helpers.Post
 import Yesod.Comments (addCommentsAuth)

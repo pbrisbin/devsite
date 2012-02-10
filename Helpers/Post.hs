@@ -3,13 +3,18 @@ module Helpers.Post
     , upsertPost
     , postMarkdown
     , postContent
-    , postPublished
     , getPost404
     , getPreviousPost
     , getNextPost
     , inlinePost
 
-    -- some markdown helpers
+    -- * Time helpers
+    , UTCTime(..)
+    , getCurrentTime
+    , humanReadableTime
+    , humanReadableTime'
+
+    -- * Markdown helpers
     , Markdown(..)
     , markdownToHtml
     , markdownToString
@@ -17,12 +22,12 @@ module Helpers.Post
     ) where
 
 import Import
-import Control.Monad (forM_)
-import Data.Time.Format.Human
-import System.Directory (doesFileExist)
 import Yesod.Markdown
 import Yesod.Links
-import Data.Time (getCurrentTime)
+import Data.Time (UTCTime(..), getCurrentTime)
+import Data.Time.Format.Human
+import Control.Monad (forM_)
+import System.Directory (doesFileExist)
 import qualified Data.Text as T
 
 data PostForm = PostForm
@@ -123,9 +128,6 @@ postMarkdown post = do
         (_   , Just descr) -> return descr
         _                  -> return $ Markdown "nothing?"
 
-postPublished :: Post -> IO String
-postPublished = humanReadableTime . postDate
-
 getPost404 :: Text -> YesodDB DevSite DevSite (Post,[Tag])
 getPost404 slug = do
     (Entity key val) <- getBy404 $ UniquePost slug
@@ -159,9 +161,10 @@ markdownToString (Markdown s) = s
 markdownToText :: Markdown -> Text
 markdownToText = T.pack . markdownToString
 
-inlinePost :: Post -> [Tag] -> Widget
-inlinePost post tags = do
-    published <- liftIO $ postPublished post
-    content   <- liftIO $ postContent   post
+inlinePost :: UTCTime -> Post -> [Tag] -> Widget
+inlinePost now post tags = do
+    content <- liftIO $ postContent   post
+
+    let published = humanReadableTime' now $ postDate post
 
     $(widgetFile "post/_inline")
