@@ -22,6 +22,3 @@ getUsersR = do
     defaultLayout $ do
         setTitle "All users"
         $(widgetFile "user/index")
-
-userWidget :: UserId -> User -> Ident -> Widget
-userWidget uid u i = $(widgetFile "user/_row_item")

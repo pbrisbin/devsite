@@ -11,6 +11,7 @@ module Handler.Posts
     ) where
 
 import Import
+import Data.Time (getCurrentTime)
 import Data.Time.Format.Human
 import Helpers.Admin
 import Helpers.Post
@@ -41,7 +42,8 @@ getManagePostsR :: Handler RepHtml
 getManagePostsR = do
     requireAdmin
 
-    posts <- runDB $ selectList [] [Desc PostDate]
+    now   <- liftIO $ getCurrentTime
+    posts <- runDB  $ selectList [] [Desc PostDate]
 
     defaultLayout $ do
         setTitle "Manage posts"

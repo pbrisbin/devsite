@@ -8,7 +8,6 @@ module Helpers.Post
     , getPreviousPost
     , getNextPost
     , inlinePost
-    , rowItemPost
 
     -- some markdown helpers
     , Markdown(..)
@@ -18,7 +17,6 @@ module Helpers.Post
     ) where
 
 import Import
-import Helpers.Admin
 import Control.Monad (forM_)
 import Data.Time.Format.Human
 import System.Directory (doesFileExist)
@@ -167,9 +165,3 @@ inlinePost post tags = do
     content   <- liftIO $ postContent   post
 
     $(widgetFile "post/_inline")
-
-rowItemPost :: Post -> Widget
-rowItemPost post = do
-    isAdmin   <- lift maybeAdmin
-    published <- liftIO $ postPublished post
-    $(widgetFile "post/_row_item")

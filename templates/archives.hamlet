@@ -13,5 +13,20 @@
           <th>Posted
 
       <tbody .link>
-        $forall post <- posts
-          ^{rowItemPost $ entityVal post}
+        $forall Entity _ post <- posts
+          <tr>
+            <td>
+              <a href="@{PostR $ postSlug post}">
+              #{postTitle post}
+
+              $if postDraft post
+                \ 
+                <span .label .label-warning>draft
+
+            <td>#{humanReadableTime' now $ postDate post}
+
+            $if isAdmin
+              <td>
+                <a href="@{EditPostR $ postSlug post}">Edit
+              <td>
+                <a href="@{DelPostR $ postSlug post}">Delete

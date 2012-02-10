@@ -12,4 +12,14 @@
 
     <tbody>
       $forall (user,cred) <- records
-        ^{userWidget (entityKey user) (entityVal user) (entityVal cred)}
+        <tr>
+          <td>#{toPathPiece $ entityKey user}
+          <td>
+            #{fromMaybe "none" $ userName $ entityVal user}
+
+            $if userAdmin $ entityVal user
+              \ 
+              <span .label .label-warning>ADMIN
+
+          <td>#{fromMaybe "none" $ userEmail $ entityVal user}
+          <td>#{identIdent $ entityVal cred}
