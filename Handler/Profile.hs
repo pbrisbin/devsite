@@ -12,7 +12,7 @@ import Yesod.Comments.Management
 
 getProfileR :: Handler RepHtml
 getProfileR = do
-    (_, u) <- requireAuth
+    (Entity _ u) <- requireAuth
 
     let username = fromMaybe "" $ userName u
     let email    = fromMaybe "" $ userEmail u
@@ -31,7 +31,7 @@ getProfileR = do
 
 getEditProfileR :: Handler RepHtml 
 getEditProfileR = do
-    (_, u)               <- requireAuth
+    (Entity _ u)         <- requireAuth
     ((_, form), enctype) <- runFormPost $ profileForm u
 
     defaultLayout $ do
@@ -40,7 +40,7 @@ getEditProfileR = do
 
 postEditProfileR :: Handler RepHtml
 postEditProfileR = do
-    (uid, u)          <- requireAuth
+    (Entity uid u)    <- requireAuth
     ((res, _   ), _ ) <- runFormPost $ profileForm u
     case res of
         FormSuccess ef -> saveProfile uid ef

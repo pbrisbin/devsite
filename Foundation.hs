@@ -93,7 +93,7 @@ type Form x = Html -> MForm DevSite DevSite (FormResult x, Widget)
 -- Please see the documentation for the Yesod typeclass. There are a number
 -- of settings which can be configured by overriding methods here.
 instance Yesod DevSite where
-    approot = appRoot . settings
+    approot = ApprootMaster $ appRoot . settings
 
     -- Place the session key file in the config folder
     encryptKey _ = fmap Just $ getKey "config/client_session_key.aes"
@@ -118,9 +118,9 @@ instance Yesod DevSite where
         hamletToRepHtml $(hamletFile "templates/default-layout-wrapper.hamlet")
 
         where
-            getGravatar :: (UserId, User) -> String
-            getGravatar (_,u) = let email = fromMaybe "" $ userEmail u
-                                in  gravatarImg email gravatarOpts
+            getGravatar :: Entity User -> String
+            getGravatar (Entity _ u) = let email = fromMaybe "" $ userEmail u
+                                       in  gravatarImg email gravatarOpts
 
             gravatarOpts :: GravatarOptions
             gravatarOpts = defaultOptions

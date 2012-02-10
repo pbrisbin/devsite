@@ -20,7 +20,7 @@ $maybe msg <- mmsg
         $maybe grav <- mgrav
           <img src="#{grav}" .icon alt="gravatar">
 
-        #{fromMaybe "anonymous" $ userName $ snd u}
+        #{fromMaybe "anonymous" $ userName $ entityVal u}
 
       <ul .dropdown-menu>
         <li>
@@ -28,7 +28,7 @@ $maybe msg <- mmsg
         <li>
           ^{link $ CommentsAdminR OverviewR}
 
-        $if userAdmin $ snd u
+        $if userAdmin $ entityVal u
           <li .divider>
           <li>
             ^{link ManagePostsR}

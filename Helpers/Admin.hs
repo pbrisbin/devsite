@@ -8,12 +8,12 @@ import Control.Monad (unless)
 
 requireAdmin :: Handler ()
 requireAdmin = do
-    (_, u) <- requireAuth
+    (Entity _ u) <- requireAuth
     unless (userAdmin u) $ permissionDenied "User is not an admin"
 
 maybeAdmin :: Handler Bool
 maybeAdmin = do
     mu <- maybeAuth
     return $ case mu of
-        Just (_,u) -> userAdmin u
-        _          -> False
+        Just (Entity _ u) -> userAdmin u
+        _                 -> False
