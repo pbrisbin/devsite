@@ -282,6 +282,7 @@ instance IsLink (Route DevSite) where
     toLink r@(ArchivesR)                = Link (Internal r) "archives of all posts"  "archives"
     toLink r@(FeedR)                    = Link (Internal r) "subscribe via rss"      "subscribe"
     toLink r@(ManagePostsR)             = Link (Internal r) "manage posts"           "manage posts"
+    toLink r@(UsersR)                   = Link (Internal r) "known users"            "known users"
     toLink r@(AuthR LoginR)             = Link (Internal r) "login"                  "login"
     toLink r@(AuthR LogoutR)            = Link (Internal r) "logout"                 "logout"
     toLink r@ProfileR                   = Link (Internal r) "manage your profile"    "your profile"

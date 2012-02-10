@@ -32,6 +32,8 @@ $maybe msg <- mmsg
           <li .divider>
           <li>
             ^{link ManagePostsR}
+          <li>
+            ^{link UsersR}
 
         <li .divider>
         <li>
