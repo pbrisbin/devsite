@@ -1,19 +1,8 @@
 #!/bin/bash -e
 
 build() {
-  # ensure cpp code-by-macro is up to date
-  touch ./Settings.hs             \
-        ./Settings/StaticFiles.hs \
-        ./Foundation.hs           \
-        ./Application.hs
-
   cabal clean
-
-  if ! cabal configure; then
-    cabal install --only-dependencies
-    cabal configure
-  fi
-
+  cabal configure
   cabal build
   cabal check
 }
