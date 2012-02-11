@@ -124,6 +124,7 @@ executable         devsite
                  , yesod-links
                  , yesod-markdown
                  , yesod-newsfeed
+                 , yesod-paginator
 
 source-repository head
   type:         git

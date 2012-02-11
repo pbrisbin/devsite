@@ -25,8 +25,11 @@ getPostR slug = do
 
         return $ (post',tags',mprev',mnext')
 
-    published   <- liftIO $ humanReadableTime $ postDate post
-    content     <- liftIO $ postContent post
+    (published,content) <- liftIO $ do
+        published' <- humanReadableTime $ postDate post
+        content'   <- postContent post
+
+        return (published',content')
 
     defaultLayout $ do
         setTitle slug

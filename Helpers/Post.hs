@@ -6,6 +6,7 @@ module Helpers.Post
     , getPost404
     , getPreviousPost
     , getNextPost
+    , postListing
     , inlinePost
 
     -- * Time helpers
@@ -161,10 +162,15 @@ markdownToString (Markdown s) = s
 markdownToText :: Markdown -> Text
 markdownToText = T.pack . markdownToString
 
-inlinePost :: UTCTime -> Post -> [Tag] -> Widget
-inlinePost now post tags = do
-    content <- liftIO $ postContent   post
+postListing :: [(Post,[Tag])] -> Widget
+postListing records = $(widgetFile "post/_listing")
 
-    let published = humanReadableTime' now $ postDate post
+inlinePost :: Post -> [Tag] -> Widget
+inlinePost post tags = do
+    (published,content) <- liftIO $ do
+        published' <- humanReadableTime $ postDate post
+        content'   <- postContent post
+
+        return (published',content')
 
     $(widgetFile "post/_inline")

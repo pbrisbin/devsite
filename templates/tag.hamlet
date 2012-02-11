@@ -1,6 +1,7 @@
 <div .page-header>
   <h1>#{tag}
 
-<div .post-list>
-  $forall (post,tags) <- records
-    ^{inlinePost now post tags}
+^{postListing records}
+
+<div .pagination .pagination-centered>
+  ^{widget}

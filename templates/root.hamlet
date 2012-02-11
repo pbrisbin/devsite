@@ -4,6 +4,7 @@
     <span .title_two>dot
     <span .title_three>com
 
-<div .inline-posts>
-  $forall (post,tags) <- records
-    ^{inlinePost now post tags}
+^{postListing records}
+
+<div .pagination .pagination-centered>
+  ^{widget}
