@@ -6,9 +6,7 @@ import Helpers.Post
 
 getArchivesR :: Handler RepHtml
 getArchivesR = do
-    now     <- liftIO $ getCurrentTime
-    isAdmin <- maybeAdmin
-
+    now   <- liftIO $ getCurrentTime
     posts <- runDB $ selectList [PostDraft !=. True] [Desc PostDate]
 
     defaultLayout $ do
