@@ -55,6 +55,18 @@ h4 > a:hover, h5 > a:hover, h6 > a:hover {
   text-decoration: none;
 }
 
+/* it's easier to wrap images in divs in markdown */
+.image img {
+  margin: 5px;
+  margin-bottom: 25px;
+
+  max-width: 800px;
+
+  -webkit-box-shadow: 2px 12px 20px #888;
+     -moz-box-shadow: 2px 12px 20px #888;
+          box-shadow: 2px 12px 20px #888;
+}
+
 .page-header { padding-top: 17px; }
 .page-header .title_one,
 .page-header .title_two,
