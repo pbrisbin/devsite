@@ -1,4 +1,4 @@
-!!!
+$doctype 5
 <html lang="en">
   <head>
     <meta charset="utf-8">
@@ -14,10 +14,10 @@
     <script src="@{StaticR js_bootstrap_dropdown_js}">
     <script src="@{StaticR js_search_js}">
 
-    \<!-- page-specific head -->
+    <!-- page-specific head -->
     ^{pageHead pc}
 
-    \<!-- ga integration -->
+    <!-- ga integration -->
     <script>
       var _gaq = _gaq || [];
       _gaq.push(['_setAccount', 'UA-22304237-1']);
@@ -35,7 +35,7 @@
 
       <footer>
         <div .row>
-          <div .span3>
+          <div .span4>
             <ul>
               <li>
                 <a href="@{AboutR}">about
@@ -49,7 +49,7 @@
                 <a href="@{FeedR}">subscribe
                 \ to the feed
 
-          <div .span3>
+          <div .span4>
             <ul>
               <li>
                 <a href="https://github.com/pbrisbin">github
@@ -67,7 +67,7 @@
                 <a href="/static/docs/ruby">rdocs
                 \ for my ruby projects
 
-          <div .span3>
+          <div .span4>
             <ul>
               <li>
                 <a href="http://yesodweb.com">yesod
