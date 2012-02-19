@@ -116,6 +116,7 @@ executable         devsite
 
                  , blaze-html
                  , directory
+                 , filepath
                  , friendly-time
                  , gravatar
                  , sphinx

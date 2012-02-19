@@ -15,6 +15,9 @@ import Helpers.Admin
 import Helpers.Post
 import Yesod.Comments (addCommentsAuth)
 import Yesod.Links
+import System.Directory (getDirectoryContents)
+import System.FilePath.Posix (takeBaseName)
+import qualified Data.Text as T
 
 getPostR :: Text -> Handler RepHtml
 getPostR slug = do
@@ -43,12 +46,29 @@ getManagePostsR :: Handler RepHtml
 getManagePostsR = do
     requireAdmin
 
-    now   <- liftIO $ getCurrentTime
     posts <- runDB  $ selectList [] [Desc PostDate]
+
+    (now,unknowns) <- liftIO $ do
+        now'      <- getCurrentTime
+        unknowns' <- getUnknowns $ map entityVal posts
+
+        return (now',unknowns')
 
     defaultLayout $ do
         setTitle "Manage posts"
         $(widgetFile "post/index")
+
+    where
+        -- look for pandoc files with no associated post and present
+        -- them for easy creation
+        getUnknowns :: [Post] -> IO [Text]
+        getUnknowns knowns = do
+            files' <- getDirectoryContents "./pandoc"
+
+            let files = filter (`notElem` [".", ".."]) files'
+            let slugs = map (T.pack . takeBaseName) files
+
+            return $ filter (`notElem` map postSlug knowns) slugs
 
 postManagePostsR :: Handler RepHtml
 postManagePostsR = getManagePostsR
@@ -57,7 +77,11 @@ getNewPostR :: Handler RepHtml
 getNewPostR = do
     requireAdmin
 
-    ((res,form), enctype) <- runFormPost $ postForm Nothing
+    -- we can pass a slug via GET param to prepopulate the form when
+    -- we've got something on the filesystem to start from
+    mslug <- runInputGet $ iopt textField "slug"
+
+    ((res,form), enctype) <- runFormPost $ postForm (fmap mkStub mslug)
 
     case res of
         FormSuccess pf -> upsertPost pf
@@ -66,6 +90,26 @@ getNewPostR = do
     defaultLayout $ do
         setTitle "New post"
         $(widgetFile "post/new")
+
+    where
+        mkStub :: Text -> (Post,[Tag])
+        mkStub slug = (Post
+            { postSlug  = slug
+            , postDate  = undefined -- won't be called
+            , postTitle = titleize slug
+            , postDescr = Nothing
+            , postDraft = True
+            }, [])
+
+        titleize :: Text -> Text
+        titleize = T.unwords . map capitalize . T.words . T.map score
+
+        capitalize :: Text -> Text
+        capitalize = (\(x,xs) -> T.toUpper x `T.append` xs) . T.splitAt 1
+
+        score :: Char -> Char
+        score '_' = ' '
+        score  x  =  x
 
 postNewPostR :: Handler RepHtml
 postNewPostR = getNewPostR

@@ -4,6 +4,21 @@
 <div .post-new>
   <a .btn href="@{NewPostR}">New post
 
+$if not (null unknowns)
+  <div .post-listing .files>
+    <table .table .table-bordered .table-condensed .table-striped>
+      <thead>
+        <tr>
+          <th>Filename
+          <th>&nbsp;
+
+      <tbody>
+        $forall slug <- unknowns
+          <tr>
+            <td>#{slug}
+            <td>
+              <a href="@{NewPostR}?slug=#{slug}">Create
+
 <div .post-listing>
   <table .table .table-bordered .table-condensed .table-striped>
     <thead>
