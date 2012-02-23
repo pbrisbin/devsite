@@ -46,11 +46,11 @@ getManagePostsR :: Handler RepHtml
 getManagePostsR = do
     requireAdmin
 
-    posts <- runDB  $ selectList [] [Desc PostDate]
+    posts <- runDB $ selectList [] [Desc PostDate]
 
     (now,unknowns) <- liftIO $ do
         now'      <- getCurrentTime
-        unknowns' <- getUnknowns $ map entityVal posts
+        unknowns' <- getUnknowns $ map (postSlug . entityVal) posts
 
         return (now',unknowns')
 
@@ -61,14 +61,18 @@ getManagePostsR = do
     where
         -- look for pandoc files with no associated post and present
         -- them for easy creation
-        getUnknowns :: [Post] -> IO [Text]
+        getUnknowns :: [Text] -> IO [Text]
         getUnknowns knowns = do
-            files' <- getDirectoryContents "./pandoc"
+            files <- getDirectoryContents "./pandoc"
 
-            let files = filter (`notElem` [".", ".."]) files'
-            let slugs = map (T.pack . takeBaseName) files
+            return . filter (`notElem` knowns)
+                   . map (T.pack . takeBaseName)
+                   $ filter (not . hidden) files
 
-            return $ filter (`notElem` map postSlug knowns) slugs
+            where
+                hidden :: FilePath -> Bool
+                hidden ('.':_) = True
+                hidden _       = False
 
 postManagePostsR :: Handler RepHtml
 postManagePostsR = getManagePostsR
