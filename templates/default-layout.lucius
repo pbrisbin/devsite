@@ -170,13 +170,16 @@ form .help-block {
   display: inline;
 }
 .login input[type="image"] {
-  border:     none;
-  box-shadow: none;
+  border:  none;
   margin:  2px;
   padding: 0px;
 
   height: 64px;
   width:  64px;
+
+  -webkit-box-shadow: none;
+     -moz-box-shadow: none;
+          box-shadow: none;
 }
 .login li#openid {
   padding-left: 25px;
