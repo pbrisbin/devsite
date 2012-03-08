@@ -63,6 +63,7 @@ library
                 FlexibleContexts
                 FlexibleInstances
                 TypeSynonymInstances
+                EmptyDataDecls
 
 executable         devsite
     if flag(library-only)
