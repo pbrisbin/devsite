@@ -1,7 +1,6 @@
 module Handler.Archives (getArchivesR) where
 
 import Import
-import Helpers.Admin
 import Helpers.Post
 
 getArchivesR :: Handler RepHtml

@@ -1,22 +1,22 @@
 Post
-    slug  Text     Eq Update
-    date  UTCTime  Desc
-    title Text     Update
-    descr Markdown Maybe Update
-    draft Bool default=false Eq Update
+    slug  Text
+    date  UTCTime
+    title Text
+    descr Markdown Maybe
+    draft Bool default=false
     UniquePost slug
 
 Tag
-    post PostId Eq
-    name Text   Asc
+    post PostId
+    name Text
     UniqueTag post name
 
 User
-    name  Text Maybe Update
-    email Text Maybe Update
-    admin Bool default=false Eq Update
+    name  Text Maybe
+    email Text Maybe
+    admin Bool default=false
 
 Ident
-    ident Text   Asc
-    user  UserId Eq
+    ident Text
+    user  UserId
     UniqueIdent ident

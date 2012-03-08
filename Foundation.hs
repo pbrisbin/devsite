@@ -120,10 +120,10 @@ instance Yesod DevSite where
         where
             getGravatar :: Entity User -> String
             getGravatar (Entity _ u) = let email = fromMaybe "" $ userEmail u
-                                       in  gravatarImg email gravatarOpts
+                                       in  gravatar gravatarOpts email
 
             gravatarOpts :: GravatarOptions
-            gravatarOpts = defaultOptions
+            gravatarOpts = def
                 { gSize    = Just $ Size 20
                 , gDefault = Just MM
                 }

@@ -11,3 +11,4 @@
 :set -XFlexibleContexts
 :set -XFlexibleInstances
 :set -XTypeSynonymInstances
+:set -XEmptyDataDecls

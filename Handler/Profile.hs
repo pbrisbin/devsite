@@ -8,15 +8,14 @@ import Import
 import Data.Maybe (fromMaybe)
 import Helpers.Profile
 import Network.Gravatar
-import Yesod.Comments.Management
 
 getProfileR :: Handler RepHtml
 getProfileR = do
-    (Entity _ u) <- requireAuth
+    (Entity _ user) <- requireAuth
 
-    let username = fromMaybe "" $ userName u
-    let email    = fromMaybe "" $ userEmail u
-    let pic      = gravatarImg email gravatarOpts
+    let username = fromMaybe "" $ userName user
+    let email    = fromMaybe "" $ userEmail user
+    let pic      = gravatar gravatarOpts email
 
     defaultLayout $ do
         setTitle "View profile"
@@ -24,7 +23,7 @@ getProfileR = do
 
     where
         gravatarOpts :: GravatarOptions
-        gravatarOpts = defaultOptions
+        gravatarOpts = def
             { gSize    = Just $ Size 128
             , gDefault = Just MM
             }
