@@ -11,7 +11,6 @@ module Handler.Posts
     ) where
 
 import Import
-import Helpers.Admin
 import Helpers.Post
 import Yesod.Comments (addCommentsAuth)
 import Yesod.Links
@@ -44,8 +43,6 @@ postPostR = getPostR
 
 getManagePostsR :: Handler RepHtml
 getManagePostsR = do
-    requireAdmin
-
     posts <- runDB $ selectList [] [Desc PostDate]
 
     (now,unknowns) <- liftIO $ do
@@ -79,8 +76,6 @@ postManagePostsR = getManagePostsR
 
 getNewPostR :: Handler RepHtml
 getNewPostR = do
-    requireAdmin
-
     -- we can pass a slug via GET param to prepopulate the form when
     -- we've got something on the filesystem to start from
     mslug <- runInputGet $ iopt textField "slug"
@@ -120,8 +115,6 @@ postNewPostR = getNewPostR
 
 getEditPostR :: Text -> Handler RepHtml
 getEditPostR slug = do
-    requireAdmin
-
     record <- runDB $ getPost404 slug
 
     ((res,form), enctype) <- runFormPost $ postForm $ Just record
@@ -139,8 +132,6 @@ postEditPostR = getEditPostR
 
 getDelPostR :: Text -> Handler RepHtml
 getDelPostR slug = do
-    requireAdmin
-
     msg <- runDB $ do
         mentity <- getBy $ UniquePost slug
 

@@ -42,7 +42,6 @@ library
                      Handler.Search
                      Handler.Tags
                      Handler.Users
-                     Helpers.Admin
                      Helpers.Post
                      Helpers.Profile
                      Helpers.Search

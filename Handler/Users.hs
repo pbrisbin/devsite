@@ -1,14 +1,11 @@
 module Handler.Users (getUsersR) where
 
 import Import
-import Helpers.Admin
 import Control.Monad (forM)
 import Data.Maybe (fromMaybe)
 
 getUsersR :: Handler RepHtml
 getUsersR = do
-    requireAdmin
-
     records <- runDB $ do
         users <- selectList [] [Asc UserId]
         creds <- selectList [] []

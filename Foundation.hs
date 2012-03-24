@@ -149,6 +149,27 @@ instance Yesod DevSite where
     -- Enable Javascript async loading
     yepnopeJs _ = Just $ Right $ StaticR js_modernizr_js
 
+    -- Authorization
+    isAuthorized ManagePostsR  _ = authorizeAdmin
+    isAuthorized NewPostR      _ = authorizeAdmin
+    isAuthorized (EditPostR _) _ = authorizeAdmin
+    isAuthorized (DelPostR  _) _ = authorizeAdmin
+    isAuthorized UsersR        _ = authorizeAdmin
+
+    isAuthorized _ _ = return Authorized
+
+authorizeAdmin :: GHandler s DevSite AuthResult
+authorizeAdmin = do
+    mu <- maybeAuth
+
+    return $ case mu of
+        Just (Entity _ u) ->
+            if userAdmin u
+                then Authorized
+                else Unauthorized "Administrative rights required"
+
+        _ -> AuthenticationRequired
+
 instance YesodBreadcrumbs DevSite where
     breadcrumb RootR        = return ("home"       , Nothing       )
     breadcrumb AboutR       = return ("about"      , Just RootR    )
