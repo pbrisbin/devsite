@@ -1,6 +1,6 @@
 @import url(http://fonts.googleapis.com/css?family=Questrial);
 
-body, select, input, textarea {
+body, p, select, input, textarea {
   margin-top:  10px;
   text-align:  justify;
   font-family: 'Lucida Sans Unicode', 'Lucida Grande', sans-serif;
@@ -67,7 +67,12 @@ h4 > a:hover, h5 > a:hover, h6 > a:hover {
           box-shadow: 2px 12px 20px #888;
 }
 
-.page-header { padding-top: 17px; }
+.page-header {
+  margin-top:     0px;
+  margin-bottom:  7px;
+  padding-top:    0px;
+  padding-bottom: 7px;
+ }
 .page-header .title_one,
 .page-header .title_two,
 .page-header .title_three { font-size: 120%; }
@@ -75,18 +80,15 @@ h4 > a:hover, h5 > a:hover, h6 > a:hover {
 
 .note,
 .update {
-  border:  1px solid #b2b2fe;
-  margin:  2em 0px;
-  padding: 2ex 3ex;
+  background: #f1f1f1;
+  border:  1px solid #e5e5e5;
+  margin:  2em 1em;
+  padding: 1ex 2ex;
 
   -webkit-border-radius: 3px;
      -moz-border-radius: 3px;
           border-radius: 3px;
 }
-.note:before,
-.update:before { font-weight: bold      ; }
-.note:before   { content:     "Note: "  ; }
-.update:before { content:     "Update: "; }
 
 #search {
   margin-top:    0px;
@@ -106,9 +108,11 @@ h4 > a:hover, h5 > a:hover, h6 > a:hover {
 }
 
 /* posts */
-.page-header h1 small,
-.post-header h2 small {
-  font-size: 50%;
+.post-header h2 small { font-size: 50%; }
+.page-header h1 small {
+  display: block;
+  margin-top: 2px;
+  font-size: 38%;
 }
 .page-header h1 .label {
   padding: 2px 3px;
@@ -122,6 +126,7 @@ h4 > a:hover, h5 > a:hover, h6 > a:hover {
 .post-listing {
   clear: both;
 }
+.inline-post { margin-bottom: 25px; }
 
 form label {
   font-weight: bold;
