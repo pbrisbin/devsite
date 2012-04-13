@@ -48,7 +48,7 @@ staticDir = "static"
 -- have to make a corresponding change here.
 --
 -- To see how this value is used, see urlRenderOverride in Foundation.hs
-staticRoot :: AppConfig DefaultEnv x ->  Text
+staticRoot :: AppConfig DefaultEnv x -> Text
 staticRoot conf = [st|#{appRoot conf}/static|]
 
 
@@ -66,7 +66,7 @@ setTitle :: Yesod m => Text -> GWidget s m ()
 setTitle = Y.setTitle . toHtml . T.append "pbrisbin - "
 
 addKeywords :: [Text] -> GWidget s m ()
-addKeywords ws = addHamletHead [hamlet|<meta name="keywords" content="#{format ws}">|]
+addKeywords ws = toWidgetHead [hamlet|<meta name="keywords" content="#{format ws}">|]
 
     where 
         -- add some default keywords, and make the comma separated list

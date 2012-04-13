@@ -16,30 +16,21 @@ module Foundation
 import Prelude
 import Yesod hiding (setTitle)
 import Yesod.Static
-import Settings.StaticFiles
 import Yesod.Auth
 import Yesod.Auth.OpenId
 import Yesod.Default.Config
 import Yesod.Default.Util (addStaticContentExternal)
 import Yesod.Logger (Logger, logMsg, formatLogText)
 import Network.HTTP.Conduit (Manager)
-#ifdef DEVELOPMENT
-import Yesod.Logger (logLazyText)
-#endif
 import qualified Settings
-import qualified Data.ByteString.Lazy as L
 import qualified Database.Persist.Store
+import Settings.StaticFiles
 import Database.Persist.GenericSql
 import Settings (widgetFile, setTitle, addKeywords, pandocFile)
 import Model
 import Text.Jasmine (minifym)
 import Web.ClientSession (getKey)
 import Text.Hamlet (hamletFile)
-#if DEVELOPMENT
-import qualified Data.Text.Lazy.Encoding
-#else
-import Network.Mail.Mime (sendmail)
-#endif
 
 import Data.Text (Text)
 import Data.Maybe (fromMaybe)
@@ -95,8 +86,11 @@ type Form x = Html -> MForm DevSite DevSite (FormResult x, Widget)
 instance Yesod DevSite where
     approot = ApprootMaster $ appRoot . settings
 
-    -- Place the session key file in the config folder
-    encryptKey _ = fmap Just $ getKey "config/client_session_key.aes"
+    -- Store session data on the client in encrypted cookies,
+    -- default session idle timeout is 120 minutes
+    makeSessionBackend _ = do
+        key <- getKey "config/client_session_key.aes"
+        return . Just $ clientSessionBackend key 120
 
     defaultLayout widget = do
         master <- getYesod
@@ -146,8 +140,8 @@ instance Yesod DevSite where
     -- users receiving stale content.
     addStaticContent = addStaticContentExternal minifym base64md5 Settings.staticDir (StaticR . flip StaticRoute [])
 
-    -- Enable Javascript async loading
-    yepnopeJs _ = Just $ Right $ StaticR js_modernizr_js
+    -- Place Javascript at bottom of the body tag so the rest of the page loads first
+    jsLoader _ = BottomOfHeadAsync $ loadJsYepnope $ Right $ StaticR js_modernizr_js
 
     -- Authorization
     isAuthorized ManagePostsR  _ = authorizeAdmin
@@ -230,14 +224,11 @@ instance YesodAuth DevSite where
         where
             -- updates username/email with values returned by openid
             -- unless values exist there already
-            updateFromAx :: PersistStore SqlPersist m
-                         => [(Text,Text)] -- ^ the @credsExtra@ returned from open id
-                         -> UserId        -- ^ the user id to update
-                         -> SqlPersist m ()
+            updateFromAx :: PersistQuery SqlPersist m => [(Text, Text)] -> UserId -> SqlPersist m ()
             updateFromAx keys uid = maybe (return ()) go =<< get uid
 
                 where
-                    go :: PersistStore SqlPersist m => User -> SqlPersist m ()
+                    go :: PersistQuery SqlPersist m => User -> SqlPersist m ()
                     go u = do
                         case (userName u, lookup "openid.ext1.value.email" keys) of
                             (Nothing, val@(Just _)) -> update uid [UserName =. (parseNick val)]
@@ -268,14 +259,6 @@ instance YesodAuth DevSite where
     loginHandler = defaultLayout $ do
         setTitle "Login"
         $(widgetFile "login")
-
--- Sends off your mail. Requires sendmail in production!
-deliver :: DevSite -> L.ByteString -> IO ()
-#ifdef DEVELOPMENT
-deliver y = logLazyText (getLogger y) . Data.Text.Lazy.Encoding.decodeUtf8
-#else
-deliver _ = sendmail
-#endif
 
 -- This instance is required to use forms. You can modify renderMessage to
 -- achieve customized and internationalized form validation messages.

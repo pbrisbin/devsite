@@ -1,12 +1,11 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 module Application
-    ( getApplication
+    ( makeApplication
     , getApplicationDev
     ) where
 
 import Import
 import Settings
-import Settings.StaticFiles (staticSite)
 import Yesod.Auth
 import Yesod.Default.Config
 import Yesod.Default.Main
@@ -45,17 +44,9 @@ mkYesodDispatch "DevSite" resourcesDevSite
 -- performs initialization and creates a WAI application. This is also the
 -- place to put your migrate statements to have automatic database
 -- migrations handled by Yesod.
-getApplication :: AppConfig DefaultEnv () -> Logger -> IO Application
-getApplication conf logger = do
-    manager <- newManager def
-    s <- staticSite
-    dbconf <- withYamlEnvironment "config/postgresql.yml" (appEnv conf)
-              Database.Persist.Store.loadConfig >>=
-              Database.Persist.Store.applyEnv
-    p <- Database.Persist.Store.createPoolConfig (dbconf :: Settings.PersistConfig)
-    Database.Persist.Store.runPool dbconf (runMigration migrateAll) p
-    Database.Persist.Store.runPool dbconf (runMigration migrateComments) p
-    let foundation = DevSite conf setLogger s p manager dbconf
+makeApplication :: AppConfig DefaultEnv () -> Logger -> IO Application
+makeApplication conf logger = do
+    foundation <- makeFoundation conf setLogger
     app <- toWaiAppPlain foundation
     return $ logWare app
   where
@@ -67,9 +58,21 @@ getApplication conf logger = do
     logWare = logCallback (logBS setLogger)
 #endif
 
+makeFoundation :: AppConfig DefaultEnv () -> Logger -> IO DevSite
+makeFoundation conf setLogger = do
+    manager <- newManager def
+    s <- staticSite
+    dbconf <- withYamlEnvironment "config/postgresql.yml" (appEnv conf)
+              Database.Persist.Store.loadConfig >>=
+              Database.Persist.Store.applyEnv
+    p <- Database.Persist.Store.createPoolConfig (dbconf :: Settings.PersistConfig)
+    Database.Persist.Store.runPool dbconf (runMigration migrateAll) p
+    Database.Persist.Store.runPool dbconf (runMigration migrateComments) p
+    return $ DevSite conf setLogger s p manager dbconf
+
 -- for yesod devel
 getApplicationDev :: IO (Int, Application)
 getApplicationDev =
-    defaultDevelApp loader getApplication
+    defaultDevelApp loader makeApplication
   where
     loader = loadConfig (configSettings Development)

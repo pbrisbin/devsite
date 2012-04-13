@@ -11,6 +11,7 @@ module Handler.Posts
     ) where
 
 import Import
+import Prelude (init, last)
 import Helpers.Post
 import Yesod.Comments (addCommentsAuth)
 import Yesod.Links

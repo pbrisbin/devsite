@@ -1,6 +1,7 @@
 module Handler.Users (getUsersR) where
 
 import Import
+import Prelude (head)
 import Control.Monad (forM)
 import Data.Maybe (fromMaybe)
 

@@ -4,6 +4,7 @@ module Handler.Feed
     ) where
 
 import Import
+import Prelude (head)
 import Helpers.Post
 import Yesod.RssFeed
 import Text.Blaze (preEscapedText)

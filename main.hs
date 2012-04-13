@@ -1,10 +1,10 @@
 import Prelude
 import Yesod.Default.Config (fromArgs)
 import Yesod.Default.Main   (defaultMain)
-import Application          (getApplication)
+import Application          (makeApplication)
 
 main :: IO ()
-main = defaultMain (fromArgs parseNothing) getApplication
+main = defaultMain (fromArgs parseNothing) makeApplication
 
 -- I don't need the stupid Extra
 parseNothing :: Monad m => a -> b -> m ()

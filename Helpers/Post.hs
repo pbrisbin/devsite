@@ -23,6 +23,7 @@ module Helpers.Post
     ) where
 
 import Import
+import Prelude (init, last)
 import Yesod.Markdown
 import Yesod.Links
 import Data.Time (UTCTime(..), getCurrentTime)

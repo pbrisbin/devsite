@@ -22,7 +22,7 @@ getTagR tag = do
         return (records',widget')
 
     defaultLayout $ do
-        rssLink (FeedTagR tag) ("rss feed for tag " ++ T.unpack tag)
+        rssLink (FeedTagR tag) ("rss feed for tag " `T.append` tag)
         setTitle $ "Tag: " `T.append` tag
         addKeywords [tag]
         $(widgetFile "tag")
