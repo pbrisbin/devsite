@@ -1,0 +1,35 @@
+#!/bin/bash -e
+
+binary='devsite'
+  port="${2:-3001}"
+
+pidfile="./tmp/$binary.$port.pid"
+logfile="./tmp/$binary.$port.log"
+
+case $1 in
+  build)
+    cabal clean
+    cabal configure
+    cabal build
+    ;;
+
+  run)
+    echo $$ > "$pidfile"
+    exec ./dist/build/$binary/$binary -p $port production &>"$logfile"
+    ;;
+
+  kill)
+    read -r pid < $pidfile
+    kill $pid || kill -9 $pid
+    ;;
+
+  deploy)
+    deptag # git tag
+
+    $0 build
+    for port in 3001 3002; do
+      $0 kill $port
+      $0 run $port &
+    done
+    ;;
+esac
