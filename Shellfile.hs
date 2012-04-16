@@ -3,7 +3,7 @@ module Shellfile where
 
 import Shelly
 
-import Control.Monad (when)
+import Control.Monad (forM_, when)
 import Prelude hiding (FilePath)
 import System.Environment (getArgs)
 import qualified Data.Text.Lazy as T
@@ -16,17 +16,23 @@ main = do
     args <- getArgs
 
     shelly $ silently $ do
-        when ("build" `elem` args || "deploy" `elem` args) $ do
-            run_ "cabal" ["clean"]
-            run_ "cabal" ["configure"]
-            run_ "cabal" ["build"]
+        onArgs args ["build", "deploy"] $ do
+            mapM_ (run_ "cabal") [ ["clean"]
+                                 , ["configure"]
+                                 , ["build"]
+                                 ]
             
-        when ("stop" `elem` args || "deploy" `elem` args) $ do
-            pids <- fmap T.lines $ run "pgrep" ["-f", binary]
-            run_ "kill" pids
+        onArgs args ["stop", "deploy"] $ do
+            run_ "kill" . T.lines =<< run "pgrep" ["-f", binary]
 
-        when ("start" `elem` args || "deploy" `elem` args) $ do
-            -- bg only available in my fork FYI
-            bg $ run_ binary_f ["-p", "3001", "production"]
-            bg $ run_ binary_f ["-p", "3002", "production"]
-            bg $ run_ binary_f ["-p", "3003", "production"]
+        onArgs args ["start", "deploy"] $ do
+            forM_ ["3001", "3002", "3003"] $ \p ->
+                -- bg only available in my fork
+                bg $ run_ binary_f ["-p", p, "production"]
+
+    where
+        -- | When any of the ons are present in the list of args, the
+        --   action is run.
+        onArgs :: (Eq a, Monad m) => [a] -> [a] -> m () -> m ()
+        onArgs args ons =
+            when (any id $ map (`elem` args) ons)
