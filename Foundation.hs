@@ -7,6 +7,7 @@ module Foundation
     , Handler
     , Widget
     , Form
+    , DB
     , maybeAuth
     , requireAuth
     , module Settings
@@ -80,6 +81,8 @@ mkMessage "DevSite" "messages" "en"
 mkYesodData "DevSite" $(parseRoutesFile "config/routes")
 
 type Form x = Html -> MForm DevSite DevSite (FormResult x, Widget)
+
+type DB x = YesodDB DevSite DevSite x
 
 -- Please see the documentation for the Yesod typeclass. There are a number
 -- of settings which can be configured by overriding methods here.

@@ -132,7 +132,7 @@ postMarkdown post = do
         (_   , Just descr) -> return descr
         _                  -> return $ Markdown "nothing?"
 
-getPost404 :: Text -> YesodDB DevSite DevSite (Post,[Tag])
+getPost404 :: Text -> DB (Post,[Tag])
 getPost404 slug = do
     results <- rawSql [st| SELECT ??, ?? FROM "Post"
                            JOIN "Tag" ON "Tag".post = "Post".id
@@ -144,20 +144,20 @@ getPost404 slug = do
            , map (entityVal . snd) results
            )
 
-getNextPost :: Post -> YesodDB DevSite DevSite (Maybe Post)
+getNextPost :: Post -> DB (Maybe Post)
 getNextPost post = getPostBy [ PostDraft !=. True
                              , PostSlug  !=. postSlug post
                              , PostDate  <.  postDate post
                              ] [Desc PostDate]
 
-getPreviousPost :: Post -> YesodDB DevSite DevSite (Maybe Post)
+getPreviousPost :: Post -> DB (Maybe Post)
 getPreviousPost post = getPostBy [ PostDraft !=. True
                                  , PostSlug  !=. postSlug post
                                  , PostDate  >.  postDate post
                                  ] [Asc PostDate]
 
 getPostBy :: [Filter Post] -> [SelectOpt Post]
-          -> YesodDB DevSite DevSite (Maybe Post)
+          -> DB (Maybe Post)
 getPostBy filters sorts = do
     posts <- selectList filters $ sorts ++ [LimitTo 1]
     return $ case posts of
