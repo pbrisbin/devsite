@@ -227,11 +227,11 @@ instance YesodAuth DevSite where
         where
             -- updates username/email with values returned by openid
             -- unless values exist there already
-            updateFromAx :: PersistQuery SqlPersist m => [(Text, Text)] -> UserId -> SqlPersist m ()
+            updateFromAx :: [(Text, Text)] -> UserId -> YesodDB s DevSite ()
             updateFromAx keys uid = maybe (return ()) go =<< get uid
 
                 where
-                    go :: PersistQuery SqlPersist m => User -> SqlPersist m ()
+                    go :: User -> YesodDB s DevSite ()
                     go u = do
                         case (userName u, lookup "openid.ext1.value.email" keys) of
                             (Nothing, val@(Just _)) -> update uid [UserName =. (parseNick val)]

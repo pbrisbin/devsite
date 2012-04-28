@@ -26,7 +26,7 @@ import Import
 import Prelude (init, head, last)
 import Yesod.Markdown
 import Yesod.Links
-import Control.Monad (forM_, when)
+import Control.Monad (when)
 import Data.Time (UTCTime(..), getCurrentTime)
 import Data.Time.Format.Human
 import Database.Persist.GenericSql (rawSql)
@@ -72,49 +72,39 @@ upsertPost pf = do
                 , postDraft = pfDraft pf
                 }
 
-    msg <- runDB $ do
+    runDB $ do
         result <- insertBy post
 
-        case result of
-            Right k -> do
-                -- post was inserted, add the tags
-                forM_ (parseTags $ pfTags pf) $ \tag -> do
-                    insertBy $ Tag k tag
+        pid <- case result of
+            -- inserted, do nothing for now
+            Right k -> fmap (const k) $
+                lift $ setMessage "post created!"
 
-                return "post created!"
-
-            Left (Entity k _) -> do
-                -- post exists, update it
+            -- exists, update it
+            Left (Entity k _) -> fmap (const k) $ do
                 update k $
                     [ PostSlug  =. pfSlug  pf
                     , PostTitle =. pfTitle pf
                     , PostDescr =. pfDescr pf
                     , PostDraft =. pfDraft pf
-
-                    -- update post date if were changing a post from
-                    -- draft to not draft.
-                    ] ++ dateUpd (pfWasDraft pf) (pfDraft pf) now
+                    ] ++
+                    -- update date if publishing
+                    [ PostDate =. now | pfWasDraft pf, not $ pfDraft pf ]
 
                 -- remove existing tags
-                deleteWhere [TagPost ==. k]
+                deleteWhere [ TagPost ==. k ]
 
-                -- add new ones
-                forM_ (parseTags $ pfTags pf) $ \tag -> do
-                    insertBy $ Tag k tag
+                lift $ setMessage "post updated!"
 
-                return "post updated!"
-
-    setMessage msg
+        -- insert the new tags
+        mapM_ insertBy (parseTags pid $ pfTags pf)
 
     redirect ManagePostsR
 
     where
-        parseTags :: Text -> [Text]
-        parseTags = filter (not . T.null)
-                  . map (T.toLower . T.strip) . T.splitOn ","
-
-        dateUpd True False date = [PostDate =. date]
-        dateUpd _    _     _    = []
+        parseTags :: PostId -> Text -> [Tag]
+        parseTags pid = map (Tag pid) . filter (not . T.null)
+                      . map (T.toLower . T.strip) . T.splitOn ","
 
 -- | Content as Html, use postMarkdown to get at the raw Markdown for
 --   conversion to String or Text
@@ -156,8 +146,7 @@ getPreviousPost post = getPostBy [ PostDraft !=. True
                                  , PostDate  >.  postDate post
                                  ] [Asc PostDate]
 
-getPostBy :: [Filter Post] -> [SelectOpt Post]
-          -> DB (Maybe Post)
+getPostBy :: [Filter Post] -> [SelectOpt Post] -> DB (Maybe Post)
 getPostBy filters sorts = do
     posts <- selectList filters $ sorts ++ [LimitTo 1]
     return $ case posts of
