@@ -23,13 +23,15 @@ module Helpers.Post
     ) where
 
 import Import
-import Prelude (init, last)
+import Prelude (init, head, last)
 import Yesod.Markdown
 import Yesod.Links
+import Control.Monad (forM_, when)
 import Data.Time (UTCTime(..), getCurrentTime)
 import Data.Time.Format.Human
-import Control.Monad (forM_)
+import Database.Persist.GenericSql (rawSql)
 import System.Directory (doesFileExist)
+import Text.Shakespeare.Text (st)
 import qualified Data.Text as T
 
 data PostForm = PostForm
@@ -132,10 +134,15 @@ postMarkdown post = do
 
 getPost404 :: Text -> YesodDB DevSite DevSite (Post,[Tag])
 getPost404 slug = do
-    (Entity key val) <- getBy404 $ UniquePost slug
-    tags' <- selectList [TagPost ==. key] [Asc TagName]
+    results <- rawSql [st| SELECT ??, ?? FROM "Post"
+                           JOIN "Tag" ON "Tag".post = "Post".id
+                           WHERE "Post".slug = ? |] [toPersistValue slug]
 
-    return (val, map entityVal tags')
+    when (null results) $ lift notFound
+
+    return ( entityVal . fst $ head results
+           , map (entityVal . snd) results
+           )
 
 getNextPost :: Post -> YesodDB DevSite DevSite (Maybe Post)
 getNextPost post = getPostBy [ PostDraft !=. True
