@@ -5,6 +5,13 @@ body, p, select, input, textarea {
   text-align:  justify;
   font-family: 'Lucida Sans Unicode', 'Lucida Grande', sans-serif;
 }
+/* stop bs from messing with this */
+blockquote p {
+  text-align:  inherit;
+  font-size:   inherit;
+  line-height: inherit;
+  font-weight: inherit;
+}
 h1, h2, h3,
 h4, h5, h6 { 
   font-family: "Questrial";
@@ -203,33 +210,37 @@ form .help-block {
 
 /* comments  {{{ */
 .yesod_comments {
-  width: 550px;
+  text-align: left;
+  width: 60%;
   margin-left: 20px;
   margin-bottom: 20px;
 }
 .yesod_comments .avatar {
-  float:        left;
-  height:       48px;
-  width:        48px;
-  padding:      5px;
+  float:   left;
+  height:  48px;
+  width:   48px;
+  padding: 5px;
 }
 .yesod_comments .attribution {
-  vertical-align: middle;
+  margin-top: -10px;
+  margin-left: -5px;
 }
 .yesod_comments .attribution .avatar {
   float:   none;
-  margin:  0px;
   padding: 0px;
   height:  20px;
   width:   20px;
+
+  margin-right: 5px;
   vertical-align: middle;
 }
 .yesod_comments .attribution a,
 .yesod_comments .attribution p {
-  font-size: 95%;
+  font-size: 9pt;
+  vertical-align: top;
 }
 .yesod_comments .comment blockquote {
-  margin: 20px 15px;
+  margin: 15px;
 }
 .yesod_comments .comment,
 .yesod_comments > .input {
@@ -241,8 +252,8 @@ form .help-block {
   padding-left: 65px;
 }
 .yesod_comments > .input textarea {
-  height: 100px;
-  width:  400px;
+  height: 80px;
+  width: 85%;
 }
 /* }}} */
 
