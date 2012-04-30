@@ -55,16 +55,5 @@ postToRssEntry post = do
         { feedEntryLink    = PostR $ postSlug post
         , feedEntryUpdated = postDate  post
         , feedEntryTitle   = postTitle post
-        , feedEntryContent = cdata markdown
+        , feedEntryContent = markdownToHtml markdown
         }
-
-        where
-            -- Should appear as formatted HTML in readers that support
-            -- that. Rss validation errors on script tag used by
-            -- markdown conversion to obfuscate an email. Looks pretty
-            -- bad in cli clients (but readable).
-            cdata :: Markdown -> Html
-            cdata mkd = mconcat [ preEscapedText "<![CDATA["
-                                , markdownToHtml mkd
-                                , preEscapedText "]]>"
-                                ]
