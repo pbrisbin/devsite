@@ -7,7 +7,6 @@ import Import
 import Prelude (head)
 import Helpers.Post
 import Yesod.RssFeed
-import Text.Blaze (preEscapedText)
 
 getFeedR :: Handler RepRss
 getFeedR = do
