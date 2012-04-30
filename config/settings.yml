@@ -4,6 +4,7 @@ Default: &defaults
 
 Development:
   <<: *defaults
+  approot: "http://localhost:3000"
 
 Production:
   <<: *defaults
