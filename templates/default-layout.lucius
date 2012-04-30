@@ -255,6 +255,10 @@ form .help-block {
   height: 80px;
   width: 85%;
 }
+/* management */
+.yesod_comments .thread {
+  width: 100%;
+}
 /* }}} */
 
 /* syntax highlighting {{{ */
