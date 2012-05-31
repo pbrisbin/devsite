@@ -1,9 +1,0 @@
-#!/bin/bash -e
-
-deptag # git tag
-
-cabal clean
-cabal configure
-cabal build
-
-sudo /etc/rc.d/devsite restart

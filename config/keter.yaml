@@ -1,0 +1,7 @@
+exec: ../dist/build/devsite/devsite
+args:
+  - production
+host: pbrisbin.com
+
+# note: omit the contained /static
+static_dir: /srv/http

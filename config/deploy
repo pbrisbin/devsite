@@ -1,0 +1,10 @@
+#!/bin/bash -ex
+
+cabal clean
+cabal configure
+cabal build
+
+strip dist/build/devsite/devsite
+
+tar chzfv devsite.keter dist/build/devsite/devsite config
+sudo mv devsite.keter /opt/keter/incoming
