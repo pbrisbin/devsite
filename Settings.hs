@@ -33,7 +33,7 @@ type PersistConfig = PostgresConf
 -- | The location of static files on your system. This is a file system
 -- path. The default value works properly with your scaffolded site.
 staticDir :: FilePath
-staticDir = "/srv/http/static"
+staticDir = "static"
 
 -- | The base URL for your static files. As you can see by the default
 -- value, this can simply be "static" appended to your application root.
@@ -74,4 +74,4 @@ addKeywords ws = toWidgetHead [hamlet|<meta name="keywords" content="#{format ws
         format = T.append "patrick brisbin, pbrisbin, brisbin, " . T.intercalate ", "
 
 pandocFile :: Text -> FilePath
-pandocFile x = "/srv/http/pandoc/" ++ T.unpack x ++ ".pdc"
+pandocFile x = "/home/patrick/Site/pandoc/" ++ T.unpack x ++ ".pdc"

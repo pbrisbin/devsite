@@ -60,11 +60,11 @@ $doctype 5
                 \ packages
 
               <li>
-                <a href="/static/docs/haskell">haddocks
+                <a href="http://docs.pbrisbin.com/haskell">haddocks
                 \ for my haskell projects
 
               <li>
-                <a href="/static/docs/ruby">rdocs
+                <a href="http://docs.pbrisbin.com/ruby">rdocs
                 \ for my ruby projects
 
           <div .span4>
