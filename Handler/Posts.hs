@@ -61,7 +61,7 @@ getManagePostsR = do
         -- them for easy creation
         getUnknowns :: [Text] -> IO [Text]
         getUnknowns knowns = do
-            files <- getDirectoryContents "./pandoc"
+            files <- getDirectoryContents "/home/patrick/Site/pandoc"
 
             return . filter (`notElem` knowns)
                    . map (T.pack . takeBaseName)
