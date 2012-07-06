@@ -1,10 +1,12 @@
 #!/bin/bash -ex
 
-cabal clean
-cabal configure
-cabal build
+if [[ "$1" != 'static' ]]; then
+  cabal clean
+  cabal configure
+  cabal build
 
-strip dist/build/devsite/devsite
+  strip dist/build/devsite/devsite
+fi
 
 rm -rf static/tmp/
 
