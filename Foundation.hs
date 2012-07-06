@@ -111,6 +111,16 @@ instance Yesod DevSite where
 
         pc <- widgetToPageContent $ do
             rssLink FeedR "rss feed"
+
+            addStylesheet $ StaticR css_bootstrap_min_css
+            addStylesheet $ StaticR css_bootstrap_responsive_min_css
+
+            addScript $ StaticR js_jquery_min_js
+            addScript $ StaticR js_bootstrap_js
+            addScript $ StaticR js_bootstrap_alert_js
+            addScript $ StaticR js_bootstrap_dropdown_js
+            addScript $ StaticR js_search_js
+
             $(widgetFile "default-layout")
         hamletToRepHtml $(hamletFile "templates/default-layout-wrapper.hamlet")
 
