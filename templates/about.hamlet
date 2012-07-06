@@ -6,40 +6,40 @@
   keep crap, link people to my crap, and practice making more better 
   crap.
 
-<h3>About the Tech
+<h3>Behind the Scenes
 
 <p>
-  On the front-end side, I'm using twitter's awesome 
-  <a href="http://twitter.github.com/bootstrap/">boostrap
-  \ css and javascript framework to provide damn-near all the styling 
-  without a line of it written or maintained by me.
+  The minimalist styling is provided by 
+  <a href="http://twitter.github.com/bootstrap/">Bootstrap
+  \ from Twitter.
 
 <p>
-  At the front-edge of the back-end side, I have a single nginx worker 
-  serving static files and forwarding non-static requests to 
-  localhost:3001-3003. Those requests are then handled by 3 instances of 
-  my compiled 
-  <a href="http://docs.yesodweb.com/">yesod
-  \ application.
+  I prefer 
+  <a href="http://nginx.org/">nginx 
+  \ as a proxy server, handling the docs and files subdomains as well as 
+  providing on-the-fly gzip compression for my backend 
+  <a href="http://docs.yesodweb.com/">Yesod
+  \ application with deployments managed by 
+  <a href="https://github.com/snoyberg/keter">Keter
+  \.
 
 <p>
-  Yesod is a rapidly growing web framework written from the ground up in 
-  haskell. I've been using it since converting this site at version 0.1 
-  and am proud to be both an early adopter and official contributer.
+  Metadata for the posts is stored in a 
+  <a href="http://www.postgresql.org/">postgresql
+  \ database with the content itself converted from extended markdown 
+  via 
+  <a href="http://johnmacfarlane.net/pandoc/">pandoc
+  \ through my 
+  <a href="https://github.com/pbrisbin/yesod-markdown">yesod-markdown
+  \ package.
 
 <p>
-  We're currently at version 0.10 gearing up for the 1.0 launch and 
-  there's even a real-life O'Reilly 
-  <a href="http://shop.oreilly.com/product/0636920023142.do">book
-  \ coming out in March!
+  I also wrote 
+  <a href="https://github.com/pbrisbin/yesod-comments">yesod-comments
+  \ which is in use on the site.
 
 <p>
-  Meta-data for the site is stored in a postgresql database and the post 
-  content itself is kept in markdown files and converted on-the-fly by 
-  pandoc via my yesod-markdown package.
-
-<p>
-  The source for it is, of course, on my 
+  The source for the site itself is, of course, on my 
   <a href="https://github.com/pbrisbin/devsite">github
   \ and it all runs forever smoothly on my personal desktop thanks to 
   <a href="https://www.archlinux.org">Arch linux
@@ -48,8 +48,8 @@
 <h3>About Me
 
 <p>
-  I hold a degree in Aerospace Engineering from BU (that means I could 
-  totally be a "rocket scientist"). I spent some time as an 
+  I hold a degree in Aerospace Engineering from BU and spent some time 
+  post-college as an 
   <a href="http://en.wikipedia.org/wiki/Enterprise_resource_planning">
     ERP
   \ Consultant writing 
@@ -57,8 +57,10 @@
   \ code for 
   <a href="http://en.wikipedia.org/wiki/Microsoft_Dynamics_AX"> 
     Microsoft Dynamics AX
-  \. Thankfully, I've since taken a job as a Rails developer for 
+  \ while learning linux, bash, then haskell (and other languages) in my 
+  spare time.
+
+<p>
+  Thankfully, I've since taken a job as a Rails developer for 
   <a href="http://ideeli.com">ideeli.com
-  \. I pride myself on elegant code and try every day to merge haskell's 
-  functional approach with well-established Object-oriented Design 
-  Patterns.
+  \ happily working in a more open-source ecosystem.
