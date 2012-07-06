@@ -6,16 +6,20 @@ $doctype 5
     <meta name="description" content="pbrisbin dot com">
     <meta name="author" content="Patrick Brisbin">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- stylesheets -->
     <link rel="stylesheet" href="@{StaticR css_bootstrap_min_css}">
     <link rel="stylesheet" href="@{StaticR css_bootstrap_responsive_min_css}">
+
+    <!-- per page stylesheets / js -->
+    ^{pageHead pc}
+
+    <!-- js -->
     <script src="@{StaticR js_jquery_min_js}">
     <script src="@{StaticR js_bootstrap_js}">
     <script src="@{StaticR js_bootstrap_alert_js}">
     <script src="@{StaticR js_bootstrap_dropdown_js}">
     <script src="@{StaticR js_search_js}">
-
-    <!-- page-specific head -->
-    ^{pageHead pc}
 
     <!-- ga integration -->
     <script>
