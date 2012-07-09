@@ -24,7 +24,7 @@ pre {
   background-color: #303030;
 }
 code, kbd, samp {
-  padding:          0px;
+  padding:          0;
   border:           none;
   color:            inherit;
   background-color: inherit;
@@ -32,7 +32,7 @@ code, kbd, samp {
 footer {
   clear:       both;
   height:      250px;
-  margin-top:  10;
+  margin-top:  10px;
   padding-top: 5px;
   border-top:  1px solid #e5e5e5;
 }
@@ -48,7 +48,7 @@ footer p {
 footer ul {
   list-style:  none;
   text-align:  left;
-  margin-left: 0px;
+  margin-left: 0;
 }
 .hover {
   cursor: pointer;
@@ -75,11 +75,16 @@ h4 > a:hover, h5 > a:hover, h6 > a:hover {
 }
 
 .page-header {
-  margin-top:     0px;
-  margin-bottom:  7px;
-  padding-top:    0px;
-  padding-bottom: 7px;
- }
+  padding-top:    25px;
+  padding-bottom: 5px;
+}
+.page-header h1 small {
+  display: block;
+}
+.page-header h1 .label {
+  padding: 2px 3px;
+  vertical-align: middle;
+}
 .page-header .title_one,
 .page-header .title_two,
 .page-header .title_three { font-size: 120%; }
@@ -89,8 +94,8 @@ h4 > a:hover, h5 > a:hover, h6 > a:hover {
 .update {
   background: #f1f1f1;
   border:  1px solid #e5e5e5;
-  margin:  2em 1em;
-  padding: 1ex 2ex;
+  margin:  20px 0;
+  padding: 10px 20px;
 
   -webkit-border-radius: 3px;
      -moz-border-radius: 3px;
@@ -98,7 +103,7 @@ h4 > a:hover, h5 > a:hover, h6 > a:hover {
 }
 
 #search {
-  margin-top:    0px;
+  margin-top:    0;
   margin-bottom: 15px;
 }
 #results {
@@ -114,31 +119,16 @@ h4 > a:hover, h5 > a:hover, h6 > a:hover {
   font-weight: bold;
 }
 
-/* posts */
-.post-header h2 small { font-size: 50%; }
-.page-header h1 small {
-  display: block;
-  margin-top: 2px;
-  font-size: 38%;
-}
-.page-header h1 .label {
-  padding: 2px 3px;
-  vertical-align: middle;
-}
 .post-nav        { font-size: 90%; }
 .post-nav .right { float: right;   }
-.post-new {
-  margin-bottom: 15px;
-}
-.post-listing {
-  clear: both;
-}
-.inline-post { margin-bottom: 25px; }
+.post-new        { margin-bottom: 15px; }
+.post-listing    { clear: both; }
+.inline-post     { margin-bottom: 25px; }
 
 form label {
   font-weight: bold;
-  margin: 0px;
-  padding: 0px;
+  margin:  0;
+  padding: 0;
 }
 form .help-block {
   display: block;
@@ -147,7 +137,6 @@ form .help-block {
   margin-bottom: 15px;
 }
 
-/* login controls */
 .login-controls {
   float: right
 }
@@ -184,7 +173,7 @@ form .help-block {
 .login input[type="image"] {
   border:  none;
   margin:  2px;
-  padding: 0px;
+  padding: 0;
 
   height: 64px;
   width:  64px;
@@ -227,7 +216,7 @@ form .help-block {
 }
 .yesod_comments .attribution .avatar {
   float:   none;
-  padding: 0px;
+  padding: 0;
   height:  20px;
   width:   20px;
 
@@ -245,7 +234,7 @@ form .help-block {
 .yesod_comments .comment,
 .yesod_comments > .input {
   padding: 5px 10px;
-  margin:  10px 0px;
+  margin:  10px 0;
   border:  solid 1px #ccc;
 }
 .yesod_comments > .input {
