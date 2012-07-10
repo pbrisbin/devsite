@@ -1,25 +1,24 @@
 <div .page-header>
   <h1>Users
 
-<div .users-listing>
-  <table .table .table-bordered .table-condensed .table-striped>
-    <thead>
+<table .table .table-bordered .table-condensed .table-striped>
+  <thead>
+    <tr>
+      <th>Id
+      <th>Name
+      <th>Email
+      <th>Identifier
+
+  <tbody>
+    $forall (user,cred) <- records
       <tr>
-        <th>Id
-        <th>Name
-        <th>Email
-        <th>Identifier
+        <td>#{toPathPiece $ entityKey user}
+        <td>
+          #{fromMaybe "none" $ userName $ entityVal user}
 
-    <tbody>
-      $forall (user,cred) <- records
-        <tr>
-          <td>#{toPathPiece $ entityKey user}
-          <td>
-            #{fromMaybe "none" $ userName $ entityVal user}
+          $if userAdmin $ entityVal user
+            \ 
+            <span .label .label-warning>admin
 
-            $if userAdmin $ entityVal user
-              \ 
-              <span .label .label-warning>ADMIN
-
-          <td>#{fromMaybe "none" $ userEmail $ entityVal user}
-          <td>#{identIdent $ entityVal cred}
+        <td>#{fromMaybe "none" $ userEmail $ entityVal user}
+        <td>#{identIdent $ entityVal cred}
