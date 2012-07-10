@@ -1,0 +1,16 @@
+#search {
+  margin-top:    0;
+  margin-bottom: 15px;
+}
+#results {
+  clear: both;
+}
+.result-excerpt {
+  text-align:    left;
+  margin-right:  200px;
+  margin-bottom: 50px;
+}
+.result-excerpt .match {
+  color: blue;
+  font-weight: bold;
+}

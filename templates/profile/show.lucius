@@ -1,0 +1,9 @@
+.profile {
+  height: 150px;
+}
+.profile-gravatar {
+  float: left;
+  padding-right: 20px;
+  height: 128px;
+  width:  128px;
+}

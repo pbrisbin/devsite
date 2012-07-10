@@ -1,20 +1,12 @@
-@import url(http://fonts.googleapis.com/css?family=Questrial);
-
-body, p, select, input, textarea {
-  margin-top:  10px;
-  text-align:  justify;
-  font-family: 'Lucida Sans Unicode', 'Lucida Grande', sans-serif;
+body {
+  text-align: justify;
+  margin-top: 10px;
 }
-/* stop bs from messing with this */
-blockquote p {
-  text-align:  inherit;
+blockquote p { /* bootstrap makes this look bad */
+  text-align: inherit;
   font-size:   inherit;
   line-height: inherit;
   font-weight: inherit;
-}
-h1, h2, h3,
-h4, h5, h6 { 
-  font-family: "Questrial";
 }
 pre, code, kbd, samp { 
   font-family: 'Droid Sans Mono', 'Lucida Console', Monaco, monospace, sans-serif;
@@ -50,81 +42,10 @@ footer ul {
   text-align:  left;
   margin-left: 0;
 }
-.hover {
-  cursor: pointer;
-}
 h1 > a, h2 > a, h3 > a,
 h4 > a, h5 > a, h6 > a {
   color: inherit
 }
-h1 > a:hover, h2 > a:hover, h3 > a:hover,
-h4 > a:hover, h5 > a:hover, h6 > a:hover {
-  text-decoration: none;
-}
-
-/* it's easier to wrap images in divs in markdown */
-.image img {
-  margin: 5px;
-  margin-bottom: 25px;
-
-  max-width: 800px;
-
-  -webkit-box-shadow: 2px 12px 20px #888;
-     -moz-box-shadow: 2px 12px 20px #888;
-          box-shadow: 2px 12px 20px #888;
-}
-
-.page-header {
-  padding-top:    25px;
-  padding-bottom: 5px;
-}
-.page-header h1 small {
-  display: block;
-}
-.page-header h1 .label {
-  padding: 2px 3px;
-  vertical-align: middle;
-}
-.page-header .title_one,
-.page-header .title_two,
-.page-header .title_three { font-size: 120%; }
-.page-header .title_two   { color:     #999; }
-
-.note,
-.update {
-  background: #f1f1f1;
-  border:  1px solid #e5e5e5;
-  margin:  20px 0;
-  padding: 10px 20px;
-
-  -webkit-border-radius: 3px;
-     -moz-border-radius: 3px;
-          border-radius: 3px;
-}
-
-#search {
-  margin-top:    0;
-  margin-bottom: 15px;
-}
-#results {
-  clear: both;
-}
-.result-excerpt {
-  text-align:    left;
-  margin-right:  200px;
-  margin-bottom: 50px;
-}
-.result-excerpt .match {
-  color: blue;
-  font-weight: bold;
-}
-
-.post-nav        { font-size: 90%; }
-.post-nav .right { float: right;   }
-.post-new        { margin-bottom: 15px; }
-.post-listing    { clear: both; }
-.inline-post     { margin-bottom: 25px; }
-
 form label {
   font-weight: bold;
   margin:  0;
@@ -136,7 +57,6 @@ form .help-block {
   margin-top: -5px;
   margin-bottom: 15px;
 }
-
 .login-controls {
   float: right
 }
@@ -150,69 +70,42 @@ form .help-block {
   text-align: center;
   vertical-align: middle;
 }
+.note,
+.update {
+  background: #f1f1f1;
+  border:  1px solid #e5e5e5;
+  margin:  20px 0;
+  padding: 20px;
+  padding-bottom: 11px;
 
-/* login page */
-.open-id-help p,
-.open-id-help a {
-  font-style: italic;
+  -webkit-border-radius: 3px;
+     -moz-border-radius: 3px;
+          border-radius: 3px;
 }
-.open-id-help > p {
-  text-align: center;
-}
-.login ul {
-  margin: 50px;
-  text-align: center;
-  list-style: none;
-}
-.login ul li { 
-  display: inline;
-}
-.login form {
-  display: inline;
-}
-.login input[type="image"] {
-  border:  none;
-  margin:  2px;
-  padding: 0;
+.image img {
+  margin: 5px;
+  margin-bottom: 25px;
 
-  height: 64px;
-  width:  64px;
+  max-width: 800px;
 
-  -webkit-box-shadow: none;
-     -moz-box-shadow: none;
-          box-shadow: none;
+  -webkit-box-shadow: 2px 12px 20px #888;
+     -moz-box-shadow: 2px 12px 20px #888;
+          box-shadow: 2px 12px 20px #888;
 }
-.login li#openid {
-  padding-left: 25px;
-}
-
-/* profile page */
-.profile {
-  height: 150px;
-}
-.profile-gravatar {
-  float: left;
-  padding-right: 20px;
-  height: 128px;
-  width:  128px;
-}
+.hover { cursor: pointer; }
+.right { float: right;   }
 
 /* comments  {{{ */
 .yesod_comments {
-  text-align: left;
   width: 60%;
-  margin-left: 20px;
-  margin-bottom: 20px;
+  margin: 20px;
+  margin-top: 10px;
 }
 .yesod_comments .avatar {
   float:   left;
   height:  48px;
   width:   48px;
   padding: 5px;
-}
-.yesod_comments .attribution {
-  margin-top: -10px;
-  margin-left: -5px;
 }
 .yesod_comments .attribution .avatar {
   float:   none;
@@ -223,19 +116,11 @@ form .help-block {
   margin-right: 5px;
   vertical-align: middle;
 }
-.yesod_comments .attribution a,
-.yesod_comments .attribution p {
-  font-size: 9pt;
-  vertical-align: top;
-}
-.yesod_comments .comment blockquote {
-  margin: 15px;
-}
 .yesod_comments .comment,
 .yesod_comments > .input {
   padding: 5px 10px;
   margin:  10px 0;
-  border:  solid 1px #ccc;
+  border: solid 1px #ccc;
 }
 .yesod_comments > .input {
   padding-left: 65px;
@@ -244,14 +129,14 @@ form .help-block {
   height: 80px;
   width: 85%;
 }
-/* management */
 .yesod_comments .thread {
+  margin: 0;
   width: 100%;
+  margin-bottom: 20px;
 }
 /* }}} */
 
 /* syntax highlighting {{{ */
-/* inspired by zenburn vim colorscheme */
 pre.sourceCode span.kw { color: #f0dfaf; }
 pre.sourceCode span.dt { color: #dfdfbf; }
 pre.sourceCode span.dv { color: #dcdccc; }
@@ -265,5 +150,4 @@ pre.sourceCode span.al { color: #ffcfaf; }
 pre.sourceCode span.fu { color: #efef8f; }
 pre.sourceCode span.re { color: #ffd7a7; }
 pre.sourceCode span.er { color: #c3bf9f; }
-
 /* }}} */
