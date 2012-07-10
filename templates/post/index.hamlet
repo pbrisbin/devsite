@@ -1,34 +1,24 @@
 <div .page-header>
   <h1>Manage posts
 
-<div .post-new>
-  <a .btn href="@{NewPostR}">New post
-
-$if not (null unknowns)
-  <div .post-listing .files>
+<div .row>
+  <div .span8>
     <table .table .table-bordered .table-condensed .table-striped>
       <thead>
         <tr>
-          <th>Filename
-          <th>&nbsp;
-
+          <th>Title
+          <th>Posted
+          <th>Actions
       <tbody>
+
+      $if not (null unknowns)
         $forall slug <- unknowns
           <tr>
             <td>#{slug}
+            <td>n/a
             <td>
               <a href="@{NewPostR}?slug=#{slug}">Create
 
-<div .post-listing>
-  <table .table .table-bordered .table-condensed .table-striped>
-    <thead>
-      <tr>
-        <th>Title
-        <th>Posted
-        <th>&nbsp;
-        <th>&nbsp;
-
-    <tbody .link>
       $forall Entity _ post <- posts
         <tr>
           <td>
@@ -43,5 +33,8 @@ $if not (null unknowns)
 
           <td>
             <a href="@{EditPostR $ postSlug post}">Edit
-          <td>
+            \ | 
             <a href="@{DelPostR $ postSlug post}">Delete
+
+  <div .span4>
+    <a .btn href="@{NewPostR}">New post
