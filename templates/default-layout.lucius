@@ -3,7 +3,7 @@ body {
   margin-top: 10px;
 }
 blockquote p { /* bootstrap makes this look bad */
-  text-align: inherit;
+  text-align:  inherit;
   font-size:   inherit;
   line-height: inherit;
   font-weight: inherit;
