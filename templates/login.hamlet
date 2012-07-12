@@ -1,23 +1,37 @@
 <div .page-header>
   <h1>Log in
 
-<div .login>
-  <ul>
-    <li #google>
-      <form method="get" action="@{AuthR forwardUrl}">
-        <input type="hidden" name="openid_identifier" value="https://www.google.com/accounts/o8/id">
-        <input type="image" src=@{StaticR img_google_login_png}" title="Login via Google">
-    <li #yahoo>
-      <form method="get" action="@{AuthR forwardUrl}">
-        <input type="hidden" name="openid_identifier" value="http://me.yahoo.com">
-        <input type="image" src=@{StaticR img_yahoo_login_png}" title="Login via Yahoo!">
-    <li#openid>
-      <form method="get" action="@{AuthR forwardUrl}">
-        <input type="image" src=@{StaticR img_openid_login_png}" title="Login via OpenID">
-        <input id="openid_identifier" type="text" name="openid_identifier" placeholder="http://">
+<div .row>
+  <div .span6>
+    <div .panel>
+      <blockquote>
+        OpenID is an open standard that describes how users can be 
+        authenticated in a decentralized manner, eliminating the need 
+        for services to provide their own ad hoc systems and allowing 
+        users to consolidate their digital identities. Users may create 
+        accounts with their preferred OpenID identity providers, and 
+        then use those accounts as the basis for signing on to any 
+        website which accepts OpenID authentication
 
-  <div .open-id-help>
-    <p>
-      Learn more about using 
-      <a href="http://openid.net">Open Id
-      \ authentication.
+        <small>
+          wikipedia
+
+      <p>
+        Learn more about using 
+        <a href="http://openid.net">Open Id
+        \ authentication.
+
+  <div .span6>
+    <ul>
+      <li>
+        <form method="get" action="@{AuthR forwardUrl}">
+          <input type="hidden" name="openid_identifier" value="https://www.google.com/accounts/o8/id">
+          <input type="image" src=@{StaticR img_google_login_png}" title="Login via Google">
+      <li>
+        <form method="get" action="@{AuthR forwardUrl}">
+          <input type="hidden" name="openid_identifier" value="http://me.yahoo.com">
+          <input type="image" src=@{StaticR img_yahoo_login_png}" title="Login via Yahoo!">
+      <li>
+        <form method="get" action="@{AuthR forwardUrl}">
+          <input type="image" src=@{StaticR img_openid_login_png}" title="Login via OpenID">
+          <input id="openid_identifier" type="text" name="openid_identifier" placeholder="http://">

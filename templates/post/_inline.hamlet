@@ -1,14 +1,13 @@
-<div .inline-post>
-  <div .post-header>
-    <h2>
-      ^{link post} 
-      <small>
-        published #{published}, tagged with 
+<section>
+  <h1>#{postTitle post}
 
-        $forall tag <- init tags
-          ^{link tag}, 
+  #{content}
 
-        ^{link $ last tags}
+  <small>
+    <a href="@{PostR $ postSlug post}">published
+    \ #{published}, tagged with 
 
-  <div .post-content>
-    #{content}
+    $forall tag <- init tags
+      ^{link tag}, 
+
+    ^{link $ last tags}

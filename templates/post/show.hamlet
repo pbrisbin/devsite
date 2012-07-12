@@ -1,28 +1,29 @@
 <div .page-header>
   <h1>
-    #{postTitle post} 
-    <small>
-      published #{published}, tagged with 
+    #{postTitle post}
 
-      $forall tag <- init tags
-        ^{link tag}, 
-
-      ^{link $ last tags}
-
-      $if postDraft post
-        \ 
-        <span .label .label-warning>draft
-
-<div .post-content>
+<section .content>
   #{content}
 
-  <h3>
-    <a href="#Comments" id="Comments">Comments
+  <small>
+    published #{published}, tagged with 
 
-  <div .post-comments>
-    ^{addCommentsAuth slug}
+    $forall tag <- init tags
+      ^{link tag}, 
 
-  <p .post-nav>
+    ^{link $ last tags}
+
+    $if postDraft post
+      \ 
+      <span .label .label-warning>draft
+
+<section>
+  <h2>Comments
+
+  ^{addCommentsAuth slug}
+
+<section>
+  <p>
     <span .left>
       &larr; 
       $maybe prev <- mprev

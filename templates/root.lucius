@@ -1,4 +1,3 @@
-.page-header .title_one,
-.page-header .title_two,
-.page-header .title_three { font-size: 120%; }
-.page-header .title_two   { color:     #999; }
+.page-header .dot {
+  color: #999;
+}

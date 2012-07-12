@@ -13,31 +13,31 @@ $maybe msg <- mmsg
     <a .close data-dismiss="alert" href="#">&times;
     #{msg}
 
-<div .login-controls>
+<div .btn-group .login-controls>
   $maybe u <-muid
-    <div .dropdown>
-      <a href="#" .btn .dropdown-toggle data-toggle="dropdown">
-        $maybe grav <- mgrav
-          <img src="#{grav}" .icon alt="gravatar">
+    <a href="#" .btn .dropdown-toggle data-toggle="dropdown">
+      $maybe grav <- mgrav
+        <img src="#{grav}" .icon alt="gravatar">
 
-        #{fromMaybe "anonymous" $ userName $ entityVal u}
+      #{fromMaybe "anonymous" $ userName $ entityVal u} 
+      <span .caret>
 
-      <ul .dropdown-menu>
-        <li>
-          ^{link ProfileR}
-        <li>
-          ^{link $ CommentsAdminR OverviewR}
+    <ul .dropdown-menu>
+      <li>
+        ^{link ProfileR}
+      <li>
+        ^{link $ CommentsAdminR OverviewR}
 
-        $if userAdmin $ entityVal u
-          <li .divider>
-          <li>
-            ^{link ManagePostsR}
-          <li>
-            ^{link UsersR}
-
+      $if userAdmin $ entityVal u
         <li .divider>
         <li>
-          ^{link $ AuthR LogoutR}
+          ^{link ManagePostsR}
+        <li>
+          ^{link UsersR}
+
+      <li .divider>
+      <li>
+        ^{link $ AuthR LogoutR}
 
   $nothing
     <a href="@{AuthR LoginR}" .btn>login

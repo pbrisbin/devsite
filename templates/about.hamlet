@@ -6,61 +6,6 @@
   keep crap, link people to my crap, and practice making more better 
   crap.
 
-<h3>Behind the Scenes
-
 <p>
-  The minimalist styling is provided by 
-  <a href="http://twitter.github.com/bootstrap/">Bootstrap
-  \ from Twitter.
-
-<p>
-  I prefer 
-  <a href="http://nginx.org/">nginx 
-  \ as a proxy server, handling the docs and files subdomains as well as 
-  providing on-the-fly gzip compression for my backend 
-  <a href="http://docs.yesodweb.com/">Yesod
-  \ application with deployments managed by 
-  <a href="https://github.com/snoyberg/keter">Keter
-  \.
-
-<p>
-  Metadata for the posts is stored in a 
-  <a href="http://www.postgresql.org/">postgresql
-  \ database with the content itself converted from extended markdown 
-  via 
-  <a href="http://johnmacfarlane.net/pandoc/">pandoc
-  \ through my 
-  <a href="https://github.com/pbrisbin/yesod-markdown">yesod-markdown
-  \ package.
-
-<p>
-  I also wrote 
-  <a href="https://github.com/pbrisbin/yesod-comments">yesod-comments
-  \ which is in use on the site.
-
-<p>
-  The source for the site itself is, of course, on my 
-  <a href="https://github.com/pbrisbin/devsite">github
-  \ and it all runs forever smoothly on my personal desktop thanks to 
-  <a href="https://www.archlinux.org">Arch linux
-  \.
-
-<h3>About Me
-
-<p>
-  I hold a degree in Aerospace Engineering from BU and spent some time 
-  post-college as an 
-  <a href="http://en.wikipedia.org/wiki/Enterprise_resource_planning">
-    ERP
-  \ Consultant writing 
-  <a href="http://en.wikipedia.org/wiki/X++">X++ 
-  \ code for 
-  <a href="http://en.wikipedia.org/wiki/Microsoft_Dynamics_AX"> 
-    Microsoft Dynamics AX
-  \ while learning linux, bash, then haskell (and other languages) in my 
-  spare time.
-
-<p>
-  Thankfully, I've since taken a job as a Rails developer for 
-  <a href="http://ideeli.com">ideeli.com
-  \ happily working in a more open-source ecosystem.
+  <strong>TODO:
+  \ add some useful content here...

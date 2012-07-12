@@ -1,33 +1,8 @@
-.open-id-help p,
-.open-id-help a {
-  font-style: italic;
-}
-.open-id-help > p {
-  text-align: center;
-}
-.login ul {
-  margin: 50px;
-  text-align: center;
+ul {
+  margin: 20px 0;
   list-style: none;
 }
-.login ul li { 
-  display: inline;
-}
-.login form {
-  display: inline;
-}
-.login input[type="image"] {
-  border:  none;
-  margin:  2px;
-  padding: 0;
-
+input[type="image"] {
   height: 64px;
   width:  64px;
-
-  -webkit-box-shadow: none;
-     -moz-box-shadow: none;
-          box-shadow: none;
-}
-.login li#openid {
-  padding-left: 25px;
 }

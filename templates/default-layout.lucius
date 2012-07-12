@@ -1,14 +1,21 @@
+@font-face {
+  font-family: ProximaNova-Light;
+  src: url("/static/fonts/ProximaNova-Light.otf") format("opentype");
+}
 body {
-  text-align: justify;
-  margin-top: 10px;
+  text-align:  justify;
+  margin-top:  10px;
+  font-size:   15px;
+  font-family: ProximaNova-Light, "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 blockquote p { /* bootstrap makes this look bad */
-  text-align:  inherit;
   font-size:   inherit;
+  text-align:  inherit;
   line-height: inherit;
   font-weight: inherit;
 }
 pre, code, kbd, samp { 
+  font-size:   inherit;
   font-family: 'Droid Sans Mono', 'Lucida Console', Monaco, monospace, sans-serif;
 }
 pre {
@@ -21,41 +28,35 @@ code, kbd, samp {
   color:            inherit;
   background-color: inherit;
 }
+small {
+  color: #999;
+}
+form label {
+  font-weight: bold;
+}
+form .help-block {
+  color: #999;
+}
 footer {
   clear:       both;
+  color:       #999;
+  font-size:   90%;
+  text-align: center;
   height:      250px;
   margin-top:  10px;
-  padding-top: 5px;
   border-top:  1px solid #e5e5e5;
-}
-footer p,
-footer ul {
-  color:     #aaa;
-  font-size: 80%;
-}
-footer p {
-  margin-top: 10px;
-  text-align: center;
+  padding-top: 5px;
 }
 footer ul {
   list-style:  none;
   text-align:  left;
   margin-left: 0;
 }
-h1 > a, h2 > a, h3 > a,
-h4 > a, h5 > a, h6 > a {
-  color: inherit
+section > h1 {
+  margin: 20px 0;
 }
-form label {
-  font-weight: bold;
-  margin:  0;
-  padding: 0;
-}
-form .help-block {
-  display: block;
-  clear: both;
-  margin-top: -5px;
-  margin-bottom: 15px;
+.page-header h1 {
+  font-size: 280%;
 }
 .login-controls {
   float: right
@@ -63,14 +64,10 @@ form .help-block {
 .login-controls img {
   height: 20px;
   width:  20px;
-  padding-right: 3px;
-  vertical-align: middle;
-}
-.login-controls > .dropdown > a {
-  text-align: center;
-  vertical-align: middle;
+  padding-right: 5px;
 }
 .note,
+.panel,
 .update {
   background: #f1f1f1;
   border:  1px solid #e5e5e5;
@@ -127,7 +124,7 @@ form .help-block {
 }
 .yesod_comments > .input textarea {
   height: 80px;
-  width: 85%;
+  width:  85%;
 }
 .yesod_comments .thread {
   margin: 0;
