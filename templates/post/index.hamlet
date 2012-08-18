@@ -9,32 +9,32 @@
           <th>Title
           <th>Posted
           <th>Actions
-      <tbody>
+      <tbody .link>
 
-      $if not (null unknowns)
-        $forall slug <- unknowns
+        $if not (null unknowns)
+          $forall slug <- unknowns
+            <tr>
+              <td>#{slug}
+              <td>n/a
+              <td>
+                <a href="@{NewPostR}?slug=#{slug}">Create
+
+        $forall Entity _ post <- posts
           <tr>
-            <td>#{slug}
-            <td>n/a
             <td>
-              <a href="@{NewPostR}?slug=#{slug}">Create
+              <a href="@{PostR $ postSlug post}">
+              #{postTitle post}
 
-      $forall Entity _ post <- posts
-        <tr>
-          <td>
-            <a href="@{PostR $ postSlug post}">
-            #{postTitle post}
+              $if postDraft post
+                \ 
+                <span .label .label-warning>draft
 
-            $if postDraft post
-              \ 
-              <span .label .label-warning>draft
+            <td>#{humanReadableTime' now $ postDate post}
 
-          <td>#{humanReadableTime' now $ postDate post}
-
-          <td>
-            <a href="@{EditPostR $ postSlug post}">Edit
-            \ | 
-            <a href="@{DelPostR $ postSlug post}">Delete
+            <td>
+              <a href="@{EditPostR $ postSlug post}">Edit
+              \ | 
+              <a href="@{DelPostR $ postSlug post}">Delete
 
   <div .span4>
     <a .btn href="@{NewPostR}">New post
