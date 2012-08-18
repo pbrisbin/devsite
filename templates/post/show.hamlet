@@ -2,6 +2,10 @@
   <h1>
     #{postTitle post}
 
+    $if postDraft post
+      \ 
+      <span .label .label-warning>draft
+
 <section .content>
   #{content}
 
