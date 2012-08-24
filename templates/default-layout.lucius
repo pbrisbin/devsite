@@ -83,7 +83,7 @@ section > h1 {
   margin: 5px;
   margin-bottom: 25px;
 
-  max-width: 100%;
+  max-width: 98%;
 
   -webkit-box-shadow: 2px 12px 20px #888;
      -moz-box-shadow: 2px 12px 20px #888;
