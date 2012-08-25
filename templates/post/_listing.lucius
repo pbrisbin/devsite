@@ -1,0 +1,5 @@
+.inline-posts section {
+  border-bottom:  1px dotted #ccc;
+  padding-bottom: 10px;
+  margin-bottom:  20px;
+}
