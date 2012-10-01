@@ -68,7 +68,9 @@ $doctype 5
                 <a href="http://twitter.github.com/bootstrap/">bootstrap
                 \ by twitter
 
-              <li>search powered by sphinx
+              <li>
+                <a href="http://sphinxsearch.com/">sphinx
+                \-powered search.
 
         <p>
           &copy; 
