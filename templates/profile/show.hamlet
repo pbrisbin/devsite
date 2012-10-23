@@ -15,4 +15,4 @@
 
   <div .profile-links>
     <p>
-      <a href="@{CommentsAdminR OverviewR}">your comments
+      <a href="@{CommentsAdminR CommentsR}">your comments

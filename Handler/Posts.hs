@@ -13,7 +13,7 @@ module Handler.Posts
 import Import
 import Prelude (init, last)
 import Helpers.Post
-import Yesod.Comments (addCommentsAuth)
+import Yesod.Comments (addComments)
 import Yesod.Links
 import System.Directory (getDirectoryContents)
 import System.FilePath.Posix (takeBaseName)

@@ -38,7 +38,7 @@ import Data.Maybe (fromMaybe)
 import Network.Gravatar
 import Yesod.RssFeed
 import Yesod.Links
-import Yesod.Comments hiding (Form, userName, userEmail)
+import Yesod.Comments hiding (userName, userEmail)
 import Yesod.Comments.Storage
 import Yesod.Comments.Management
 import qualified Data.Text as T
@@ -128,7 +128,7 @@ instance Yesod DevSite where
                                        in  gravatar gravatarOpts email
 
             gravatarOpts :: GravatarOptions
-            gravatarOpts = def
+            gravatarOpts = defaultConfig
                 { gSize    = Just $ Size 20
                 , gDefault = Just MM
                 }
@@ -194,9 +194,9 @@ instance YesodBreadcrumbs DevSite where
     breadcrumb UsersR        = return ("users"       , Just RootR       )
     breadcrumb (AuthR _)     = return ("login"       , Just RootR       )
 
-    breadcrumb (CommentsAdminR OverviewR)   = return ("your comments", Just RootR                     )
-    breadcrumb (CommentsAdminR (ViewR _ _)) = return ("view comment" , Just $ CommentsAdminR OverviewR)
-    breadcrumb (CommentsAdminR (EditR _ _)) = return ("edit comment" , Just $ CommentsAdminR OverviewR)
+    breadcrumb (CommentsAdminR CommentsR)            = return ("your comments" , Just RootR                     )
+    breadcrumb (CommentsAdminR (EditCommentR _ _))   = return ("edit comment"  , Just $ CommentsAdminR CommentsR)
+    breadcrumb (CommentsAdminR (DeleteCommentR _ _)) = return ("delete comment", Just $ CommentsAdminR CommentsR)
 
     -- be sure to fail noticably so i fix it when it happens
     breadcrumb _ = return ("404", Just RootR)
@@ -277,13 +277,25 @@ instance RenderMessage DevSite FormMessage where
     renderMessage _ _ = defaultFormMessage
 
 instance YesodComments DevSite where
-    getComment       = getCommentPersist
-    storeComment     = storeCommentPersist
-    updateComment    = updateCommentPersist
-    deleteComment    = deleteCommentPersist
-    loadComments     = loadCommentsPersist
-    displayUser  uid = maybe' "anonymous" userName  =<< runDB (get uid)
-    displayEmail uid = maybe' ""          userEmail =<< runDB (get uid)
+    commentStorage = persistStorage
+
+    userDetails uid = do
+        mu <- runDB $ get uid
+        return $ case mu of
+            Just u -> do
+                let name = toPathPiece uid
+
+                Just $ case (userName u, userEmail u) of
+                    (Just uname, Just email) -> UserDetails name uname email
+                    (_,          Just email) -> UserDetails name "unknown" email
+                    (Just uname, _         ) -> UserDetails name uname ""
+                    _                        -> UserDetails name "unkown" ""
+
+            _ -> Nothing
+
+    threadRoute = Just $ \thread -> PostR thread
+    editRoute   = Just $ \thread cid -> CommentsAdminR $ EditCommentR thread cid
+    deleteRoute = Just $ \thread cid -> CommentsAdminR $ DeleteCommentR thread cid
 
 maybe' :: Monad m => b -> (a -> Maybe b) -> Maybe a -> m b
 maybe' c f = return . fromMaybe c . maybe Nothing f
@@ -301,7 +313,7 @@ instance IsLink (Route DevSite) where
     toLink r@(AuthR LoginR)             = Link (Internal r) "login"                  "login"
     toLink r@(AuthR LogoutR)            = Link (Internal r) "logout"                 "logout"
     toLink r@ProfileR                   = Link (Internal r) "manage your profile"    "your profile"
-    toLink r@(CommentsAdminR OverviewR) = Link (Internal r) "manage your comments"   "your comments"
+    toLink r@(CommentsAdminR CommentsR) = Link (Internal r) "manage your comments"   "your comments"
 
     -- fail noticably
     toLink r = Link (Internal r) "invalid use of `link'" "FIXME"

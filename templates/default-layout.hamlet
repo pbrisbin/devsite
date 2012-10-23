@@ -26,7 +26,7 @@ $maybe msg <- mmsg
       <li>
         ^{link ProfileR}
       <li>
-        ^{link $ CommentsAdminR OverviewR}
+        ^{link $ CommentsAdminR CommentsR}
 
       $if userAdmin $ entityVal u
         <li .divider>

@@ -24,7 +24,7 @@
 <section>
   <h2>Comments
 
-  ^{addCommentsAuth slug}
+  ^{addComments slug}
 
 <section>
   <p>

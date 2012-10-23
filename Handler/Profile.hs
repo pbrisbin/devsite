@@ -23,7 +23,7 @@ getProfileR = do
 
     where
         gravatarOpts :: GravatarOptions
-        gravatarOpts = def
+        gravatarOpts = defaultConfig
             { gSize    = Just $ Size 128
             , gDefault = Just MM
             }
