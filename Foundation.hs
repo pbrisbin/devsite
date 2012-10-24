@@ -38,7 +38,7 @@ import Data.Maybe (fromMaybe)
 import Network.Gravatar
 import Yesod.RssFeed
 import Yesod.Links
-import Yesod.Comments hiding (userName, userEmail)
+import Yesod.Comments
 import Yesod.Comments.Storage
 import Yesod.Comments.Management
 import qualified Data.Text as T
