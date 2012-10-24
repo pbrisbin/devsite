@@ -293,7 +293,8 @@ instance YesodComments DevSite where
 
             _ -> Nothing
 
-    threadRoute = Just $ \thread -> PostR thread
+    threadRoute = \thread -> PostR thread
+
     editRoute   = Just $ \thread cid -> CommentsAdminR $ EditCommentR thread cid
     deleteRoute = Just $ \thread cid -> CommentsAdminR $ DeleteCommentR thread cid
 
