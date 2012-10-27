@@ -4,6 +4,7 @@ module Handler.Feed
     ) where
 
 import Import
+import Yesod -- TODO
 import Prelude (head)
 import Helpers.Post
 import Yesod.RssFeed
@@ -35,7 +36,8 @@ feedFromPosts posts = do
     entries <- mapM postToRssEntry posts
 
     rssFeed Feed
-        { feedTitle       = "pbrisbin dot com"
+        { feedAuthor      = "Patrick Brisbin"
+        , feedTitle       = "pbrisbin dot com"
         , feedDescription = "New posts on pbrisbin dot com"
         , feedLanguage    = "en-us"
         , feedLinkSelf    = FeedR
@@ -46,7 +48,7 @@ feedFromPosts posts = do
 
 -- | Note: does not gracefully handle a post with no pandoc or in-db
 --   content
-postToRssEntry :: Post -> Handler (FeedEntry (Route DevSite))
+postToRssEntry :: Post -> Handler (FeedEntry (Route App))
 postToRssEntry post = do
     markdown <- liftIO $ postMarkdown post
 

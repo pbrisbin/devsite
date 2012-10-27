@@ -23,6 +23,6 @@ getTagR tag = do
 
     defaultLayout $ do
         rssLink (FeedTagR tag) ("rss feed for tag " `T.append` tag)
-        setTitle $ "Tag: " `T.append` tag
+        setTitle $ toHtml $ "Tag: " `T.append` tag
         addKeywords [tag]
         $(widgetFile "tag")

@@ -1,33 +1,19 @@
-{-# OPTIONS_GHC -fno-warn-orphans #-}
-module Foundation
-    ( DevSite (..)
-    , Route (..)
-    , DevSiteMessage (..)
-    , resourcesDevSite
-    , Handler
-    , Widget
-    , Form
-    , DB
-    , maybeAuth
-    , requireAuth
-    , module Settings
-    , module Model
-    ) where
+module Foundation where
 
 import Prelude
-import Yesod hiding (setTitle)
+import Yesod
 import Yesod.Static
 import Yesod.Auth
 import Yesod.Auth.OpenId
 import Yesod.Default.Config
 import Yesod.Default.Util (addStaticContentExternal)
-import Yesod.Logger (Logger, logMsg, formatLogText)
 import Network.HTTP.Conduit (Manager)
 import qualified Settings
+import Settings.Development (development)
 import qualified Database.Persist.Store
 import Settings.StaticFiles
 import Database.Persist.GenericSql
-import Settings (widgetFile, setTitle, addKeywords, pandocFile)
+import Settings (widgetFile, addKeywords, pandocFile)
 import Model
 import Text.Jasmine (minifym)
 import Web.ClientSession (getKey)
@@ -47,9 +33,8 @@ import qualified Data.Text as T
 -- keep settings and values requiring initialization before your application
 -- starts running, such as database connections. Every handler will have
 -- access to the data present here.
-data DevSite = DevSite
+data App = App
     { settings :: AppConfig DefaultEnv ()
-    , getLogger :: Logger
     , getStatic :: Static -- ^ Settings for static file serving.
     , connPool :: Database.Persist.Store.PersistConfigPool Settings.PersistConfig -- ^ Database connection pool.
     , httpManager :: Manager
@@ -57,7 +42,7 @@ data DevSite = DevSite
     }
 
 -- Set up i18n messages. See the message folder.
-mkMessage "DevSite" "messages" "en"
+mkMessage "App" "messages" "en"
 
 -- This is where we define all of the routes in our application. For a full
 -- explanation of the syntax, please see:
@@ -65,28 +50,28 @@ mkMessage "DevSite" "messages" "en"
 --
 -- This function does three things:
 --
--- * Creates the route datatype DevSiteRoute. Every valid URL in your
+-- * Creates the route datatype AppRoute. Every valid URL in your
 --   application can be represented as a value of this type.
 -- * Creates the associated type:
---       type instance Route DevSite = DevSiteRoute
--- * Creates the value resourcesDevSite which contains information on the
+--       type instance Route App = AppRoute
+-- * Creates the value resourcesApp which contains information on the
 --   resources declared below. This is used in Handler.hs by the call to
 --   mkYesodDispatch
 --
 -- What this function does *not* do is create a YesodSite instance for
--- DevSite. Creating that instance requires all of the handler functions
+-- App. Creating that instance requires all of the handler functions
 -- for our application to be in scope. However, the handler functions
--- usually require access to the DevSiteRoute datatype. Therefore, we
+-- usually require access to the AppRoute datatype. Therefore, we
 -- split these actions into two functions and place them in separate files.
-mkYesodData "DevSite" $(parseRoutesFile "config/routes")
+mkYesodData "App" $(parseRoutesFile "config/routes")
 
-type Form x = Html -> MForm DevSite DevSite (FormResult x, Widget)
+type Form x = Html -> MForm App App (FormResult x, Widget)
 
-type DB x = YesodDB DevSite DevSite x
+type DB x = YesodDB App App x
 
 -- Please see the documentation for the Yesod typeclass. There are a number
 -- of settings which can be configured by overriding methods here.
-instance Yesod DevSite where
+instance Yesod App where
     approot = ApprootMaster $ appRoot . settings
 
     -- Store session data on the client in encrypted cookies,
@@ -142,9 +127,6 @@ instance Yesod DevSite where
     -- The page to be redirected to when authentication is required.
     authRoute _ = Just $ AuthR LoginR
 
-    messageLogger y loc level msg =
-      formatLogText (getLogger y) loc level msg >>= logMsg (getLogger y)
-
     -- This function creates static content files in the static folder
     -- and names them based on a hash of their content. This allows
     -- expiration dates to be set far in the future without worry of
@@ -153,6 +135,11 @@ instance Yesod DevSite where
 
     -- Place Javascript at bottom of the body tag so the rest of the page loads first
     jsLoader _ = BottomOfHeadAsync $ loadJsYepnope $ Right $ StaticR js_modernizr_js
+
+    -- What messages should be logged. The following includes all messages when
+    -- in development, and warnings and errors in production.
+    shouldLog _ _source level =
+        development || level == LevelWarn || level == LevelError
 
     -- Authorization
     isAuthorized ManagePostsR  _ = authorizeAdmin
@@ -163,7 +150,7 @@ instance Yesod DevSite where
 
     isAuthorized _ _ = return Authorized
 
-authorizeAdmin :: GHandler s DevSite AuthResult
+authorizeAdmin :: GHandler s App AuthResult
 authorizeAdmin = do
     mu <- maybeAuth
 
@@ -175,7 +162,7 @@ authorizeAdmin = do
 
         _ -> AuthenticationRequired
 
-instance YesodBreadcrumbs DevSite where
+instance YesodBreadcrumbs App where
     breadcrumb RootR        = return ("home"       , Nothing       )
     breadcrumb AboutR       = return ("about"      , Just RootR    )
     breadcrumb ArchivesR    = return ("archives"   , Just RootR    )
@@ -202,8 +189,8 @@ instance YesodBreadcrumbs DevSite where
     breadcrumb _ = return ("404", Just RootR)
 
 -- How to run database actions.
-instance YesodPersist DevSite where
-    type YesodPersistBackend DevSite = SqlPersist
+instance YesodPersist App where
+    type YesodPersistBackend App = SqlPersist
     runDB f = do
         master <- getYesod
         Database.Persist.Store.runPool
@@ -211,8 +198,8 @@ instance YesodPersist DevSite where
             f
             (connPool master)
 
-instance YesodAuth DevSite where
-    type AuthId DevSite = UserId
+instance YesodAuth App where
+    type AuthId App = UserId
 
     -- Where to send a user after successful login
     loginDest _ = RootR
@@ -235,11 +222,11 @@ instance YesodAuth DevSite where
         where
             -- updates username/email with values returned by openid
             -- unless values exist there already
-            updateFromAx :: [(Text, Text)] -> UserId -> YesodDB s DevSite ()
+            updateFromAx :: [(Text, Text)] -> UserId -> YesodDB s App ()
             updateFromAx keys uid = maybe (return ()) go =<< get uid
 
                 where
-                    go :: User -> YesodDB s DevSite ()
+                    go :: User -> YesodDB s App ()
                     go u = do
                         case (userName u, lookup "openid.ext1.value.email" keys) of
                             (Nothing, val@(Just _)) -> update uid [UserName =. (parseNick val)]
@@ -255,7 +242,7 @@ instance YesodAuth DevSite where
                     parseNick = fmap (T.takeWhile (/= '@'))
 
     -- You can add other plugins like BrowserID, email or OAuth here
-    authPlugins _ = [ authOpenIdExtended
+    authPlugins _ = [ authOpenId Claimed
                         -- tested to work with at least google
                         [ ("openid.ax.mode"       , "fetch_request"                         )
                         , ("openid.ax.required"   , "email"                                 )
@@ -273,10 +260,10 @@ instance YesodAuth DevSite where
 
 -- This instance is required to use forms. You can modify renderMessage to
 -- achieve customized and internationalized form validation messages.
-instance RenderMessage DevSite FormMessage where
+instance RenderMessage App FormMessage where
     renderMessage _ _ = defaultFormMessage
 
-instance YesodComments DevSite where
+instance YesodComments App where
     commentStorage = persistStorage
 
     userDetails uid = do
@@ -301,10 +288,10 @@ instance YesodComments DevSite where
 maybe' :: Monad m => b -> (a -> Maybe b) -> Maybe a -> m b
 maybe' c f = return . fromMaybe c . maybe Nothing f
 
-instance YesodLinked DevSite where
-    type Linked = DevSite
+instance YesodLinked App where
+    type Linked = App
 
-instance IsLink (Route DevSite) where
+instance IsLink (Route App) where
     toLink r@(RootR)                    = Link (Internal r) "go home"                "home"
     toLink r@(AboutR)                   = Link (Internal r) "about pbrisbin dot com" "about"
     toLink r@(ArchivesR)                = Link (Internal r) "archives of all posts"  "archives"

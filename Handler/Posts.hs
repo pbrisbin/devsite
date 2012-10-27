@@ -35,7 +35,7 @@ getPostR slug = do
         return (published',content')
 
     defaultLayout $ do
-        setTitle slug
+        setTitle $ toHtml slug
         addKeywords $ map tagName tags
         $(widgetFile "post/show")
 

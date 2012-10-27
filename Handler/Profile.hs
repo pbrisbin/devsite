@@ -5,6 +5,8 @@ module Handler.Profile
     ) where
 
 import Import
+import Yesod.Auth -- TODO
+import Yesod.Comments.Management -- TODO
 import Data.Maybe (fromMaybe)
 import Helpers.Profile
 import Network.Gravatar

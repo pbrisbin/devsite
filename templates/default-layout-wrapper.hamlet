@@ -2,7 +2,7 @@ $doctype 5
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>#{pageTitle pc}
+    <title>pbrisbin - #{pageTitle pc}
     <meta name="description" content="pbrisbin dot com">
     <meta name="author" content="Patrick Brisbin">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">

@@ -3,23 +3,20 @@
 -- In addition, you can configure a number of different aspects of Yesod
 -- by overriding methods in the Yesod typeclass. That instance is
 -- declared in the Foundation.hs file.
-module Settings
-    ( widgetFile
-    , PersistConfig
-    , staticRoot
-    , staticDir
-    , setTitle
-    , addKeywords
-    , pandocFile
-    ) where
+module Settings where
 
 import Prelude
 import Text.Shakespeare.Text (st)
 import Language.Haskell.TH.Syntax
 import Database.Persist.Postgresql (PostgresConf)
 import Yesod.Default.Config
-import qualified Yesod.Default.Util
+import Yesod.Default.Util
 import Data.Text (Text)
+import Data.Yaml
+import Control.Applicative
+import Settings.Development
+import Data.Default (def)
+import Text.Hamlet
 
 import Yesod hiding (setTitle)
 import qualified Yesod as Y
@@ -51,19 +48,22 @@ staticDir = "static"
 staticRoot :: AppConfig DefaultEnv x -> Text
 staticRoot conf = [st|#{appRoot conf}/static|]
 
+-- | Settings for 'widgetFile', such as which template languages to support and
+-- default Hamlet settings.
+widgetFileSettings :: WidgetFileSettings
+widgetFileSettings = def
+    { wfsHamletSettings = defaultHamletSettings
+        { hamletNewlines = AlwaysNewlines
+        }
+    }
 
 -- The rest of this file contains settings which rarely need changing by a
 -- user.
 
 widgetFile :: String -> Q Exp
-#if DEVELOPMENT
-widgetFile = Yesod.Default.Util.widgetFileReload
-#else
-widgetFile = Yesod.Default.Util.widgetFileNoReload
-#endif
-
-setTitle :: Yesod m => Text -> GWidget s m ()
-setTitle = Y.setTitle . toHtml . T.append "pbrisbin - "
+widgetFile = (if development then widgetFileReload
+                             else widgetFileNoReload)
+              widgetFileSettings
 
 addKeywords :: [Text] -> GWidget s m ()
 addKeywords ws = toWidgetHead [hamlet|<meta name="keywords" content="#{format ws}">|]
