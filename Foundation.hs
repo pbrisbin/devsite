@@ -276,7 +276,7 @@ instance YesodComments App where
                     (Just uname, Just email) -> UserDetails name uname email
                     (_,          Just email) -> UserDetails name "unknown" email
                     (Just uname, _         ) -> UserDetails name uname ""
-                    _                        -> UserDetails name "unkown" ""
+                    _                        -> UserDetails name "unknown" ""
 
             _ -> Nothing
 
