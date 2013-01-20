@@ -229,7 +229,7 @@ instance YesodAuth App where
                     go :: User -> YesodDB s App ()
                     go u = do
                         case (userName u, lookup "openid.ext1.value.email" keys) of
-                            (Nothing, val@(Just _)) -> update uid [UserName =. (parseNick val)]
+                            (Nothing, val@(Just _)) -> update uid [UserName =. parseNick val]
                             _                       -> return ()
 
                         case (userEmail u, lookup "openid.ext1.value.email" keys) of
