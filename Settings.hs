@@ -75,3 +75,6 @@ addKeywords ws = toWidgetHead [hamlet|<meta name="keywords" content="#{format ws
 
 pandocFile :: Text -> FilePath
 pandocFile x = "/home/patrick/Site/pandoc/" ++ T.unpack x ++ ".pdc"
+
+parseNothing :: Monad m => a -> b -> m ()
+parseNothing _ _ = return ()
