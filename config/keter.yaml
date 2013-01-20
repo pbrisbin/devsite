@@ -1,6 +1,6 @@
 exec: ../dist/build/devsite/devsite
 args:
   - production
-host: pbrisbin.com
+host: "pbrisbin.com"
 extra-hosts:
-  - www.pbrisbin.com
+  - "127.0.0.1:8000"
