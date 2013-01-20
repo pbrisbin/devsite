@@ -13,7 +13,7 @@ import Settings.Development (development)
 import qualified Database.Persist.Store
 import Settings.StaticFiles
 import Database.Persist.GenericSql
-import Settings (widgetFile, addKeywords, pandocFile)
+import Settings (widgetFile)
 import Model
 import Text.Jasmine (minifym)
 import Web.ClientSession (getKey)

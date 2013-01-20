@@ -12,14 +12,11 @@ import Database.Persist.Postgresql (PostgresConf)
 import Yesod.Default.Config
 import Yesod.Default.Util
 import Data.Text (Text)
-import Data.Yaml
-import Control.Applicative
 import Settings.Development
 import Data.Default (def)
 import Text.Hamlet
 
 import Yesod hiding (setTitle)
-import qualified Yesod as Y
 import qualified Data.Text as T
 
 -- | Which Persistent backend this site is using.
