@@ -3,4 +3,4 @@ args:
   - production
 host: "pbrisbin.com"
 extra-hosts:
-  - "127.0.0.1:8000"
+  - "www.pbrisbin.com"
