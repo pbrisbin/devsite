@@ -21,6 +21,11 @@ pre, code, kbd, samp {
 pre {
   color:            #ccc;
   background-color: #303030;
+
+  /* override some bootstrap stuff */
+  white-space: pre;
+  word-wrap:   normal;
+  overflow:    auto;
 }
 code, kbd, samp {
   padding:          0;
