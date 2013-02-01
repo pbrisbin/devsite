@@ -78,7 +78,7 @@ instance Yesod App where
     -- default session idle timeout is 120 minutes
     makeSessionBackend _ = do
         key <- getKey "config/client_session_key.aes"
-        return . Just $ clientSessionBackend key 120
+        return . Just $ clientSessionBackend key (60 * 24 * 10) -- 10 days
 
     defaultLayout widget = do
         master <- getYesod
