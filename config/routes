@@ -21,3 +21,5 @@
 /auth     AuthR          Auth          getAuth
 /comments CommentsAdminR CommentsAdmin getCommentsAdmin
 /static   StaticR        Static        getStatic
+
+/googled672395359cbd0e8.html GoogleVerifyR GET

@@ -37,6 +37,7 @@ library
                      Handler.Search
                      Handler.Tags
                      Handler.Users
+                     Handler.GoogleVerify
                      Helpers.Post
                      Helpers.Profile
                      Helpers.Search
