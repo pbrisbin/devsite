@@ -7,10 +7,7 @@ import Import
 import Helpers.Post
 import Control.Monad          (forM)
 import Database.Persist.Store (PersistValue(PersistInt64))
-
-import qualified Data.ByteString.Lazy       as L
-import qualified Data.ByteString.Lazy.Char8 as C8
-import qualified Data.Text                  as T
+import qualified Data.Text as T
 
 import Text.Search.Sphinx
 import Text.Search.Sphinx.Types
@@ -19,7 +16,7 @@ import qualified Text.Search.Sphinx.ExcerptConfiguration as E
 sport :: Int
 sport = 9312
 
-index :: String
+index :: Text
 index = "pbrisbin-idx"
 
 data SearchResult = SearchResult
@@ -30,7 +27,7 @@ data SearchResult = SearchResult
 
 executeSearch :: Text -> Handler [SearchResult]
 executeSearch text = do
-    res <- liftIO $ query config index (T.unpack text)
+    res <- liftIO $ query config index text
 
     case res of
         Ok sres -> do
@@ -42,9 +39,9 @@ executeSearch text = do
                 excerpt <- liftIO $ do
                     context <- do
                         markdown <- postMarkdown post
-                        return $ markdownToString markdown
+                        return $ markdownToText markdown
 
-                    buildExcerpt context (T.unpack text)
+                    buildExcerpt context text
 
                 return $ SearchResult
                             { resultSlug    = postSlug post
@@ -61,21 +58,21 @@ executeSearch text = do
             , mode   = Any
             }
 
-buildExcerpt :: String -- ^ context
-             -> String -- ^ search string
+buildExcerpt :: Text -- ^ context
+             -> Text -- ^ search string
              -> IO Text
 buildExcerpt context qstring = do
-    excerpt <- buildExcerpts config [concatMap escapeChar context] index qstring
+    excerpt <- buildExcerpts config [escape context] index qstring
     return $ case excerpt of
-        Ok bss -> T.pack $ C8.unpack $ L.concat bss
+        Ok tss -> T.concat tss
         _      -> ""
 
     where
         config :: E.ExcerptConfiguration
         config = E.altConfig { E.port = sport }
 
-        escapeChar :: Char -> String
-        escapeChar '<' = "&lt;"
-        escapeChar '>' = "&gt;"
-        escapeChar '&' = "&amp;"
-        escapeChar c   = [c]
+        -- TODO: this may be wildly innefficient
+        escape :: Text -> Text
+        escape = T.replace "<" "&lt;"
+               . T.replace ">" "&gt;"
+               . T.replace "&" "&amp"
