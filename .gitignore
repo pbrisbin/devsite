@@ -1,5 +1,10 @@
-dist
-tmp
-.static-cache
+dist*
+static/tmp/
+config/client_session_key.aes
+*.hi
+*.o
+*.sqlite3
+.hsenv*
+yesod-devel/
 .virthualenv
-*.aes
+.static-cache
