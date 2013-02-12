@@ -18,8 +18,6 @@ module Helpers.Post
     -- * Markdown helpers
     , Markdown(..)
     , markdownToHtml
-    , markdownToString
-    , markdownToText
     ) where
 
 import Import
@@ -152,12 +150,6 @@ getPostBy filters sorts = do
     return $ case posts of
         ((Entity _ p):_) -> Just p
         _                -> Nothing
-
-markdownToString :: Markdown -> String
-markdownToString (Markdown s) = s
-
-markdownToText :: Markdown -> Text
-markdownToText = T.pack . markdownToString
 
 postListing :: [(Post,[Tag])] -> Widget
 postListing records = $(widgetFile "post/_listing")

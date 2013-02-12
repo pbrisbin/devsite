@@ -39,7 +39,7 @@ executeSearch text = do
                 excerpt <- liftIO $ do
                     context <- do
                         markdown <- postMarkdown post
-                        return $ markdownToText markdown
+                        return $ unMarkdown markdown
 
                     buildExcerpt context text
 

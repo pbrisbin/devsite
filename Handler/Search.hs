@@ -49,5 +49,5 @@ docBlock pid post = do
             <document>
                 <id>#{toPathPiece pid}
                 <title>#{postTitle post}
-                <body>#{markdownToText markdown}
+                <body>#{unMarkdown markdown}
             |]
