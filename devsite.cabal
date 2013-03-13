@@ -34,13 +34,11 @@ library
                      Handler.Posts
                      Handler.Profile
                      Handler.Root
-                     Handler.Search
                      Handler.Tags
                      Handler.Users
                      Handler.GoogleVerify
                      Helpers.Post
                      Helpers.Profile
-                     Helpers.Search
 
     if flag(dev) || flag(library-only)
         cpp-options:   -DDEVELOPMENT
@@ -96,7 +94,6 @@ library
                  , filepath
                  , friendly-time
                  , gravatar
-                 , sphinx
                  , time
                  , yesod-comments
                  , yesod-links

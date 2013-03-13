@@ -26,7 +26,6 @@ import Handler.Feed
 import Handler.Posts
 import Handler.Profile
 import Handler.Root
-import Handler.Search
 import Handler.Tags
 import Handler.Users
 import Handler.GoogleVerify

@@ -1,22 +1,18 @@
 <div .page-header>
   <h1>Archives
 
-<div .pull-right>
-  <input .span4 #search type="search" placeholder="search content">
+<div .post-listing>
+  <table .table .table-bordered .table-condensed .table-striped>
+    <thead>
+      <tr>
+        <th>Title
+        <th>Posted
 
-<div #results>
-  <div .post-listing>
-    <table .table .table-bordered .table-condensed .table-striped>
-      <thead>
+    <tbody .link>
+      $forall Entity _ post <- posts
         <tr>
-          <th>Title
-          <th>Posted
+          <td>
+            <a href="@{PostR $ postSlug post}">
+            #{postTitle post}
 
-      <tbody .link>
-        $forall Entity _ post <- posts
-          <tr>
-            <td>
-              <a href="@{PostR $ postSlug post}">
-              #{postTitle post}
-
-            <td>#{humanReadableTime' now $ postDate post}
+          <td>#{humanReadableTime' now $ postDate post}

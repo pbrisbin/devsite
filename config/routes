@@ -15,9 +15,6 @@
 /favicon.ico           FaviconR     GET
 /robots.txt            RobotsR      GET
 
-/search/xmlpipe        SearchXmlR   GET
-/search/j/#Text        SearchR      GET
-
 /auth     AuthR          Auth          getAuth
 /comments CommentsAdminR CommentsAdmin getCommentsAdmin
 /static   StaticR        Static        getStatic

@@ -9,7 +9,4 @@ $(function() {
   }).hover( function() {
     $(this).toggleClass('hover')
   });
-  
-  // https://gist.github.com/1696180
-  Search.attach();
 });
