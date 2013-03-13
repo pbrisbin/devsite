@@ -49,10 +49,14 @@ staticRoot conf = [st|#{appRoot conf}/static|]
 -- default Hamlet settings.
 widgetFileSettings :: WidgetFileSettings
 widgetFileSettings = def
-    { wfsHamletSettings = defaultHamletSettings
-        { hamletNewlines = NoNewlines
-        }
-    }
+    { wfsHamletSettings = hamletSettings }
+
+hamletSettings :: HamletSettings
+hamletSettings = defaultHamletSettings
+    { hamletNewlines = NoNewlines }
+
+hamletFile :: FilePath -> Q Exp
+hamletFile = hamletFileWithSettings hamletRules hamletSettings
 
 -- The rest of this file contains settings which rarely need changing by a
 -- user.

@@ -13,11 +13,10 @@ import Settings.Development (development)
 import qualified Database.Persist.Store
 import Settings.StaticFiles
 import Database.Persist.GenericSql
-import Settings (widgetFile)
+import Settings (widgetFile, hamletFile)
 import Model
 import Text.Jasmine (minifym)
 import Web.ClientSession (getKey)
-import Text.Hamlet (hamletFile)
 
 import Data.Text (Text)
 import Data.Maybe (fromMaybe)
