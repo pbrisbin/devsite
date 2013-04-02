@@ -17,6 +17,7 @@ import Settings (widgetFile, hamletFile)
 import Model
 import Text.Jasmine (minifym)
 import Web.ClientSession (getKey)
+import System.Log.FastLogger (Logger)
 
 import Data.Text (Text)
 import Data.Maybe (fromMaybe)
@@ -38,6 +39,7 @@ data App = App
     , connPool :: Database.Persist.Store.PersistConfigPool Settings.PersistConfig -- ^ Database connection pool.
     , httpManager :: Manager
     , persistConfig :: Settings.PersistConfig
+    , appLogger :: Logger
     }
 
 -- Set up i18n messages. See the message folder.
@@ -77,7 +79,9 @@ instance Yesod App where
     -- default session idle timeout is 120 minutes
     makeSessionBackend _ = do
         key <- getKey "config/client_session_key.aes"
-        return . Just $ clientSessionBackend key (60 * 24 * 10) -- 10 days
+        let timeout = 60 * 24 * 10 -- 10 days
+        (getCachedDate, _closeDateCache) <- clientSessionDateCacher timeout
+        return . Just $ clientSessionBackend2 key getCachedDate
 
     defaultLayout widget = do
         master <- getYesod
@@ -129,7 +133,13 @@ instance Yesod App where
     -- and names them based on a hash of their content. This allows
     -- expiration dates to be set far in the future without worry of
     -- users receiving stale content.
-    addStaticContent = addStaticContentExternal minifym base64md5 Settings.staticDir (StaticR . flip StaticRoute [])
+    addStaticContent =
+        addStaticContentExternal minifym genFileName Settings.staticDir (StaticR . flip StaticRoute [])
+      where
+        -- Generate a unique filename based on the content itself
+        genFileName lbs
+            | development = "autogen-" ++ base64md5 lbs
+            | otherwise   = base64md5 lbs
 
     -- Place Javascript at bottom of the body tag so the rest of the page loads first
     jsLoader _ = BottomOfHeadAsync $ loadJsYepnope $ Right $ StaticR js_modernizr_js
@@ -138,6 +148,8 @@ instance Yesod App where
     -- in development, and warnings and errors in production.
     shouldLog _ _source level =
         development || level == LevelWarn || level == LevelError
+
+    getLogger = return . appLogger
 
     -- Authorization
     isAuthorized ManagePostsR  _ = authorizeAdmin
@@ -260,6 +272,10 @@ instance YesodAuth App where
 -- achieve customized and internationalized form validation messages.
 instance RenderMessage App FormMessage where
     renderMessage _ _ = defaultFormMessage
+
+-- | Get the 'Extra' value, used to hold data from the settings.yml file.
+getExtra :: Handler ()
+getExtra = fmap (appExtra . settings) getYesod
 
 instance YesodComments App where
     commentStorage = persistStorage
