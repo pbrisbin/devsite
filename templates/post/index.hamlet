@@ -2,11 +2,12 @@
   <h1>Manage posts
 
 <div .row>
-  <div .span8>
+  <div .span10>
     <table .table .table-bordered .table-condensed .table-striped>
       <thead>
         <tr>
           <th>Title
+          <th>Tags
           <th>Posted
           <th>Actions
       <tbody .link>
@@ -16,10 +17,11 @@
             <tr>
               <td>#{slug}
               <td>n/a
+              <td>n/a
               <td>
                 <a href="@{NewPostR}?slug=#{slug}">Create
 
-        $forall Entity _ post <- posts
+        $forall Entity postId post <- posts
           <tr>
             <td>
               <a href="@{PostR $ postSlug post}">
@@ -29,6 +31,7 @@
                 \ 
                 <span .label .label-warning>draft
 
+            <td>#{formattedTags postId tags}
             <td>#{humanReadableTime' now $ postDate post}
 
             <td>
@@ -36,5 +39,5 @@
               \ | 
               <a href="@{DelPostR $ postSlug post}">Delete
 
-  <div .span4>
+  <div .span2>
     <a .btn href="@{NewPostR}">New post

@@ -8,6 +8,7 @@ module Helpers.Post
     , getNextPost
     , postListing
     , inlinePost
+    , formattedTags
 
     -- * Time helpers
     , UTCTime(..)
@@ -163,3 +164,8 @@ inlinePost post tags = do
         return (published',content')
 
     $(widgetFile "post/_inline")
+
+formattedTags :: PostId -> [Tag] -> Text
+formattedTags postId = T.intercalate ", "
+                     . map tagName
+                     . filter ((== postId) . tagPost)

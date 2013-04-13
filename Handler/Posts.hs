@@ -45,6 +45,7 @@ postPostR = getPostR
 getManagePostsR :: Handler RepHtml
 getManagePostsR = do
     posts <- runDB $ selectList [] [Desc PostDate]
+    tags  <- fmap (map entityVal) $ runDB $ selectList [] [Asc TagName]
 
     (now,unknowns) <- liftIO $ do
         now'      <- getCurrentTime
