@@ -24,7 +24,6 @@ import Yesod.Comments.Storage (migrateComments)
 
 -- Import all relevant handler modules here.
 -- Don't forget to add new modules to your cabal file!
-import Handler.About
 import Handler.Archives
 import Handler.Feed
 import Handler.Posts

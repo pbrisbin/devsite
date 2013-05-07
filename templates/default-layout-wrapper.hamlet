@@ -29,22 +29,22 @@ $doctype 5
           <div .span4>
             <ul>
               <li>
-                <a href="@{AboutR}">about
-                \ the site
+                follow me on 
+                <a href="https://github.com/pbrisbin">github
+                \ and 
+                <a href="http://twitter.com/patbrisbin">twitter
 
               <li>
+                subscribe to the 
+                <a href="@{FeedR}">feed
+
+              <li>
+                see 
                 <a href="@{ArchivesR}">archives
                 \ of all posts
 
-              <li>
-                <a href="@{FeedR}">subscribe
-                \ to the feed
-
           <div .span4>
             <ul>
-              <li>
-                <a href="https://github.com/pbrisbin">github
-                \ projects
 
               <li>
                 <a href="https://aur.archlinux.org/packages.php?K=brisbin33&SeB=m">aur

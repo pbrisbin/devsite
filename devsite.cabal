@@ -19,7 +19,6 @@ library
                      Settings
                      Settings.StaticFiles
                      Settings.Development
-                     Handler.About
                      Handler.Archives
                      Handler.Feed
                      Handler.Posts

@@ -174,7 +174,6 @@ authorizeAdmin = do
 
 instance YesodBreadcrumbs App where
     breadcrumb RootR        = return ("home"       , Nothing       )
-    breadcrumb AboutR       = return ("about"      , Just RootR    )
     breadcrumb ArchivesR    = return ("archives"   , Just RootR    )
     breadcrumb (PostR slug) = return (T.map go slug, Just ArchivesR)
         -- switch underscores with spaces
@@ -307,7 +306,6 @@ instance YesodLinked App where
 
 instance IsLink (Route App) where
     toLink r@(RootR)                    = Link (Internal r) "go home"                "home"
-    toLink r@(AboutR)                   = Link (Internal r) "about pbrisbin dot com" "about"
     toLink r@(ArchivesR)                = Link (Internal r) "archives of all posts"  "archives"
     toLink r@(FeedR)                    = Link (Internal r) "subscribe via rss"      "subscribe"
     toLink r@(ManagePostsR)             = Link (Internal r) "manage posts"           "manage posts"

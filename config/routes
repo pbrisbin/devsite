@@ -1,5 +1,4 @@
 /                      RootR        GET
-/about                 AboutR       GET
 /archives              ArchivesR    GET
 /posts/#Text           PostR        GET POST
 /tags/#Text            TagR         GET
