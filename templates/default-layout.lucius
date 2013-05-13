@@ -13,6 +13,7 @@ blockquote p { /* bootstrap makes this look bad */
   text-align:  inherit;
   line-height: inherit;
   font-weight: inherit;
+  margin-bottom: inherit;
 }
 pre, code, kbd, samp { 
   font-size:   inherit;
