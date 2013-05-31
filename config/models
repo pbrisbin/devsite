@@ -15,6 +15,7 @@ User
     name  Text Maybe
     email Text Maybe
     admin Bool default=false
+    deriving Typeable
 
 Ident
     ident Text

@@ -1,5 +1,6 @@
 dist*
 static/tmp/
+static/combined/
 config/client_session_key.aes
 *.hi
 *.o

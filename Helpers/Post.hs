@@ -28,7 +28,7 @@ import Yesod.Links
 import Control.Monad (when)
 import Data.Time (UTCTime(..), getCurrentTime)
 import Data.Time.Format.Human
-import Database.Persist.GenericSql (rawSql)
+import Database.Persist.Sql (rawSql)
 import System.Directory (doesFileExist)
 import Text.Shakespeare.Text (st)
 import qualified Data.Text as T

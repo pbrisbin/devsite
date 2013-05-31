@@ -20,7 +20,7 @@ import Yesod hiding (setTitle)
 import qualified Data.Text as T
 
 -- | Which Persistent backend this site is using.
-type PersistConfig = PostgresConf
+type PersistConf = PostgresConf
 
 -- Static setting below. Changing these requires a recompile
 
@@ -70,7 +70,7 @@ widgetFile = (if development then widgetFileReload
                              else widgetFileNoReload)
               widgetFileSettings
 
-addKeywords :: [Text] -> GWidget s m ()
+addKeywords :: [Text] -> WidgetT m IO ()
 addKeywords ws = toWidgetHead [hamlet|<meta name="keywords" content="#{format ws}">|]
 
     where 

@@ -27,5 +27,4 @@ saveProfile uid pf = do
         , UserEmail =. pfEmail    pf
         ]
 
-    tm <- getRouteToMaster
-    redirect $ tm ProfileR
+    redirect ProfileR

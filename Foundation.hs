@@ -10,13 +10,12 @@ import Yesod.Default.Util (addStaticContentExternal)
 import Network.HTTP.Conduit (Manager)
 import qualified Settings
 import Settings.Development (development)
-import qualified Database.Persist.Store
+import qualified Database.Persist
+import Database.Persist.Sql (SqlPersistT)
 import Settings.StaticFiles
-import Database.Persist.GenericSql
 import Settings (widgetFile, hamletFile)
 import Model
 import Text.Jasmine (minifym)
-import Web.ClientSession (getKey)
 import System.Log.FastLogger (Logger)
 
 import Data.Text (Text)
@@ -36,9 +35,9 @@ import qualified Data.Text as T
 data App = App
     { settings :: AppConfig DefaultEnv ()
     , getStatic :: Static -- ^ Settings for static file serving.
-    , connPool :: Database.Persist.Store.PersistConfigPool Settings.PersistConfig -- ^ Database connection pool.
+    , connPool :: Database.Persist.PersistConfigPool Settings.PersistConf -- ^ Database connection pool.
     , httpManager :: Manager
-    , persistConfig :: Settings.PersistConfig
+    , persistConfig :: Settings.PersistConf
     , appLogger :: Logger
     }
 
@@ -66,9 +65,9 @@ mkMessage "App" "messages" "en"
 -- split these actions into two functions and place them in separate files.
 mkYesodData "App" $(parseRoutesFile "config/routes")
 
-type Form x = Html -> MForm App App (FormResult x, Widget)
+type Form x = Html -> MForm (HandlerT App IO) (FormResult x, Widget)
 
-type DB x = YesodDB App App x
+type DB x = YesodDB App x
 
 -- Please see the documentation for the Yesod typeclass. There are a number
 -- of settings which can be configured by overriding methods here.
@@ -77,11 +76,9 @@ instance Yesod App where
 
     -- Store session data on the client in encrypted cookies,
     -- default session idle timeout is 120 minutes
-    makeSessionBackend _ = do
-        key <- getKey "config/client_session_key.aes"
-        let timeout = 60 * 60 * 24 * 10 -- 10 days
-        (getCachedDate, _closeDateCache) <- clientSessionDateCacher timeout
-        return . Just $ clientSessionBackend2 key getCachedDate
+    makeSessionBackend _ = fmap Just $ defaultClientSessionBackend
+        (60 * 60 * 24 * 10) -- 10 days
+        "config/client_session_key.aes"
 
     defaultLayout widget = do
         master <- getYesod
@@ -100,11 +97,15 @@ instance Yesod App where
         pc <- widgetToPageContent $ do
             rssLink FeedR "rss feed"
 
-            addStylesheet $ StaticR css_bootstrap_min_css
-            addStylesheet $ StaticR css_bootstrap_responsive_min_css
+            $(combineStylesheets 'StaticR
+                [ css_bootstrap_min_css
+                , css_bootstrap_responsive_min_css
+                ])
 
-            addScript $ StaticR js_jquery_min_js
-            addScript $ StaticR js_bootstrap_min_js
+            $(combineScripts 'StaticR
+                [ js_jquery_min_js
+                , js_bootstrap_min_js
+                ])
 
             $(widgetFile "default-layout")
         hamletToRepHtml $(hamletFile "templates/default-layout-wrapper.hamlet")
@@ -142,14 +143,16 @@ instance Yesod App where
             | otherwise   = base64md5 lbs
 
     -- Place Javascript at bottom of the body tag so the rest of the page loads first
-    jsLoader _ = BottomOfHeadAsync $ loadJsYepnope $ Right $ StaticR js_modernizr_js
+    jsLoader _ = BottomOfBody
+    -- FIXME
+    --jsLoader _ = BottomOfHeadAsync $ loadJsYepnope $ Right $ StaticR js_modernizr_js
 
     -- What messages should be logged. The following includes all messages when
     -- in development, and warnings and errors in production.
     shouldLog _ _source level =
         development || level == LevelWarn || level == LevelError
 
-    getLogger = return . appLogger
+    makeLogger = return . appLogger
 
     -- Authorization
     isAuthorized ManagePostsR  _ = authorizeAdmin
@@ -160,7 +163,7 @@ instance Yesod App where
 
     isAuthorized _ _ = return Authorized
 
-authorizeAdmin :: GHandler s App AuthResult
+authorizeAdmin :: HandlerT App IO AuthResult
 authorizeAdmin = do
     mu <- maybeAuth
 
@@ -199,13 +202,10 @@ instance YesodBreadcrumbs App where
 
 -- How to run database actions.
 instance YesodPersist App where
-    type YesodPersistBackend App = SqlPersist
-    runDB f = do
-        master <- getYesod
-        Database.Persist.Store.runPool
-            (persistConfig master)
-            f
-            (connPool master)
+    type YesodPersistBackend App = SqlPersistT
+    runDB = defaultRunDB persistConfig connPool
+instance YesodPersistRunner App where
+    getDBRunner = defaultGetDBRunner connPool
 
 instance YesodAuth App where
     type AuthId App = UserId
@@ -231,11 +231,11 @@ instance YesodAuth App where
         where
             -- updates username/email with values returned by openid
             -- unless values exist there already
-            updateFromAx :: [(Text, Text)] -> UserId -> YesodDB s App ()
+            updateFromAx :: [(Text, Text)] -> UserId -> DB ()
             updateFromAx keys uid = maybe (return ()) go =<< get uid
 
                 where
-                    go :: User -> YesodDB s App ()
+                    go :: User -> DB ()
                     go u = do
                         case (userName u, lookup "openid.ext1.value.email" keys) of
                             (Nothing, val@(Just _)) -> update uid [UserName =. parseNick val]
@@ -263,7 +263,7 @@ instance YesodAuth App where
 
     authHttpManager = httpManager
 
-    loginHandler = defaultLayout $ do
+    loginHandler = lift $ defaultLayout $ do
         setTitle "Login"
         $(widgetFile "login")
 
