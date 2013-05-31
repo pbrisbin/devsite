@@ -97,15 +97,23 @@ instance Yesod App where
         pc <- widgetToPageContent $ do
             rssLink FeedR "rss feed"
 
-            $(combineStylesheets 'StaticR
-                [ css_bootstrap_min_css
-                , css_bootstrap_responsive_min_css
-                ])
+            -- FIXME combined stuff goes weird in production deploy
+            --
+            -- $(combineStylesheets 'StaticR
+            --     [ css_bootstrap_min_css
+            --     , css_bootstrap_responsive_min_css
+            --     ])
+            -- 
+            -- $(combineScripts 'StaticR
+            --     [ js_jquery_min_js
+            --     , js_bootstrap_min_js
+            --     ])
 
-            $(combineScripts 'StaticR
-                [ js_jquery_min_js
-                , js_bootstrap_min_js
-                ])
+            addStylesheet $ StaticR css_bootstrap_min_css
+            addStylesheet $ StaticR css_bootstrap_responsive_min_css
+
+            addScript $ StaticR js_jquery_min_js
+            addScript $ StaticR js_bootstrap_min_js
 
             $(widgetFile "default-layout")
         hamletToRepHtml $(hamletFile "templates/default-layout-wrapper.hamlet")
@@ -144,7 +152,8 @@ instance Yesod App where
 
     -- Place Javascript at bottom of the body tag so the rest of the page loads first
     jsLoader _ = BottomOfBody
-    -- FIXME
+
+    -- FIXME where did loadJsYepnope go?
     --jsLoader _ = BottomOfHeadAsync $ loadJsYepnope $ Right $ StaticR js_modernizr_js
 
     -- What messages should be logged. The following includes all messages when

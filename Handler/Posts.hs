@@ -96,7 +96,7 @@ getNewPostR = do
         mkStub :: Text -> (Post,[Tag])
         mkStub slug = (Post
             { postSlug  = slug
-            , postDate  = undefined -- won't be called
+            , postDate  = undefined -- FIXME called now, since fields are strict
             , postTitle = titleize slug
             , postDescr = Nothing
             , postDraft = True
