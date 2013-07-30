@@ -78,11 +78,13 @@ postManagePostsR = getManagePostsR
 
 getNewPostR :: Handler RepHtml
 getNewPostR = do
+    now <- liftIO $ getCurrentTime
+
     -- we can pass a slug via GET param to prepopulate the form when
     -- we've got something on the filesystem to start from
     mslug <- runInputGet $ iopt textField "slug"
 
-    ((res,form), enctype) <- runFormPost $ postForm (fmap mkStub mslug)
+    ((res,form), enctype) <- runFormPost $ postForm (fmap (mkStub now) mslug)
 
     case res of
         FormSuccess pf -> upsertPost pf
@@ -93,10 +95,10 @@ getNewPostR = do
         $(widgetFile "post/new")
 
     where
-        mkStub :: Text -> (Post,[Tag])
-        mkStub slug = (Post
+        mkStub :: UTCTime -> Text -> (Post,[Tag])
+        mkStub now slug = (Post
             { postSlug  = slug
-            , postDate  = undefined -- FIXME called now, since fields are strict
+            , postDate  = now
             , postTitle = titleize slug
             , postDescr = Nothing
             , postDraft = True
