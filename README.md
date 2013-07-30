@@ -3,12 +3,13 @@
 The source code for my [site][] which is powered by the [Yesod][] web 
 framework, written in haskell.
 
-Simple blog site. Markdown-driven, comments, post administration, 
-sphynx-based search.
+Simple blog site. Markdown-driven, comments, post administration.
 
 ### Try it
 
 I don't claim this will work, but anyway...
+
+First, create the database specified in `config/postgresql.yml`.
 
 ~~~ { .bash }
 $ git clone https://github.com/pbrisbin/devsite && cd ./devsite
