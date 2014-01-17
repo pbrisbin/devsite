@@ -1,3 +1,10 @@
+Note: I don't use this anymore. I've transitioned my blog to a 
+statically generated site, the source of which can be found [here][].
+
+---
+
+[here]: https://github.com/pbrisbin/pbrisbin.com
+
 # pbrisbin dot com
 
 The source code for my [site][] which is powered by the [Yesod][] web 
